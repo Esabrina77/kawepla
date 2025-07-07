@@ -1,0 +1,37 @@
+.legalContainer {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: var(--spacing-xl);
+}
+
+.legalContainer h1 {
+  font-size: var(--font-size-3xl);
+  margin-bottom: var(--spacing-xl);
+  color: var(--color-primary);
+}
+
+.legalSection {
+  margin-bottom: var(--spacing-xl);
+}
+
+.legalSection h2 {
+  font-size: var(--font-size-xl);
+  margin-bottom: var(--spacing-md);
+  color: var(--color-secondary);
+}
+
+.legalSection p {
+  margin-bottom: var(--spacing-md);
+  line-height: 1.6;
+}
+
+.legalSection ul {
+  list-style-type: disc;
+  margin-left: var(--spacing-xl);
+  margin-bottom: var(--spacing-md);
+}
+
+.legalSection li {
+  margin-bottom: var(--spacing-sm);
+  line-height: 1.4;
+} 

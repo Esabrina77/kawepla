@@ -1,0 +1,130 @@
+.settingsContainer {
+  padding: var(--spacing-lg);
+}
+
+.header {
+  margin-bottom: var(--spacing-xl);
+}
+
+.header h1 {
+  font-family: var(--font-featherscript);
+  font-size: 32px;
+  color: #4A4A4A;
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+}
+
+.settingsGrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--spacing-xl);
+  margin-bottom: var(--spacing-xl);
+}
+
+.settingsSection h2 {
+  font-size: 20px;
+  color: #4A4A4A;
+  margin-bottom: var(--spacing-md);
+  font-weight: 600;
+}
+
+.settingsCard {
+  background-color: white;
+  border-radius: 12px;
+  padding: var(--spacing-lg);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  border: 1px solid #E8E2D9;
+}
+
+.settingItem {
+  margin-bottom: var(--spacing-lg);
+}
+
+.settingItem:last-child {
+  margin-bottom: 0;
+}
+
+.settingItem label {
+  display: block;
+  font-size: 14px;
+  font-weight: 500;
+  color: #4A4A4A;
+  margin-bottom: var(--spacing-sm);
+}
+
+.toggle {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+}
+
+.toggle input[type="checkbox"] {
+  appearance: none;
+  width: 44px;
+  height: 24px;
+  background-color: #E8E2D9;
+  border-radius: 12px;
+  position: relative;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.toggle input[type="checkbox"]::before {
+  content: "";
+  position: absolute;
+  width: 20px;
+  height: 20px;
+  background-color: white;
+  border-radius: 50%;
+  top: 2px;
+  left: 2px;
+  transition: all 0.2s ease;
+}
+
+.toggle input[type="checkbox"]:checked {
+  background-color: #DEB887;
+}
+
+.toggle input[type="checkbox"]:checked::before {
+  left: 22px;
+}
+
+.toggle label {
+  margin-bottom: 0;
+  cursor: pointer;
+}
+
+.actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--spacing-md);
+}
+
+@media (max-width: 1200px) {
+  .settingsGrid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 768px) {
+  .header {
+    margin-bottom: var(--spacing-lg);
+  }
+
+  .header h1 {
+    font-size: 28px;
+  }
+
+  .settingsCard {
+    padding: var(--spacing-md);
+  }
+
+  .actions {
+    flex-direction: column;
+  }
+
+  .actions button {
+    width: 100%;
+  }
+} 

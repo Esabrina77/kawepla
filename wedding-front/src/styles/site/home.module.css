@@ -1,0 +1,347 @@
+.homePage {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  margin-top: -80px; /* Hauteur de la navbar */
+  position: relative;
+  overflow: hidden;
+  background: linear-gradient(to bottom, rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.2));
+}
+
+.container {
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 2rem;
+}
+
+/* Hero Section */
+.hero {
+  position: relative;
+  height: 100vh;
+  min-height: 600px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  color: white;
+  background: linear-gradient(rgba(4, 4, 4, 0.5), rgba(56, 42, 27, 0.5)),
+              url('/images/hero-bg.jpg') center/cover no-repeat;
+}
+
+.heroContent {
+  max-width: 800px;
+  z-index: 1;
+}
+
+.hero h1 {
+  font-size: 4rem;
+  margin-bottom: 1.5rem;
+  line-height: 1.2;
+}
+
+.hero p {
+  font-size: 1.5rem;
+  margin-bottom: 2rem;
+  line-height: 1.6;
+}
+
+.heroButtons {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+}
+
+/* About Section */
+.about {
+  padding: 6rem 0;
+  background-color: white;
+}
+
+.aboutGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 2rem;
+  margin-top: 3rem;
+}
+
+.aboutItem {
+  text-align: center;
+  padding: 2rem;
+  border: 1px solid var(--color-border);
+  border-radius: 12px;
+  transition: transform 0.3s ease;
+}
+
+.aboutItem:hover {
+  transform: translateY(-4px);
+}
+
+/* Features Section */
+.features {
+  padding: 6rem 0;
+  background-color: var(--color-white-cream);
+}
+
+.featuresGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 2rem;
+}
+
+.featureCard {
+  padding: 2rem;
+  background-color: white;
+  border-radius: 12px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s ease;
+}
+
+.featureCard:hover {
+  transform: translateY(-4px);
+}
+
+/* How It Works Section */
+.howItWorks {
+  padding: 6rem 0;
+  background-color: white;
+}
+
+.stepsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 2rem;
+  margin-top: 3rem;
+}
+
+.step {
+  text-align: center;
+  padding: 2rem;
+}
+
+.stepNumber {
+  width: 40px;
+  height: 40px;
+  background-color: var(--color-primary);
+  color: white;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 1rem;
+  font-weight: bold;
+}
+
+/* Testimonials Section */
+.testimonials {
+  padding: 6rem 0;
+  background-color: var(--color-white-cream);
+}
+
+.testimonialsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 2rem;
+}
+
+.testimonialCard {
+  padding: 2rem;
+  background-color: white;
+  border-radius: 12px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.testimonialContent {
+  font-style: italic;
+  font-size: 1.125rem;
+  margin-bottom: 1.5rem;
+  line-height: 1.6;
+}
+
+.testimonialInfo {
+  text-align: right;
+}
+
+/* Guest Info Section */
+.guestInfo {
+  padding: 6rem 0;
+  background-color: white;
+}
+
+.guestInfoGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 2rem;
+}
+
+.guestInfoCard {
+  text-align: center;
+  padding: 2rem;
+  border: 1px solid var(--color-border);
+  border-radius: 12px;
+  transition: transform 0.3s ease;
+}
+
+.guestInfoCard:hover {
+  transform: translateY(-4px);
+}
+
+/* Section Headers */
+.sectionHeader {
+  text-align: center;
+  margin-bottom: 3rem;
+}
+
+.sectionHeader h2 {
+  font-size: 2.5rem;
+  margin-bottom: 1rem;
+}
+
+.sectionHeader p {
+  font-size: 1.25rem;
+  color: var(--color-text-light);
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+/* CTA Section */
+.cta {
+  padding: 6rem 0;
+  text-align: center;
+  background: linear-gradient(rgba(7, 6, 6, 0.5), rgba(224, 224, 224, 0.5)),
+              url('/images/cta-bg.jpg') center/cover no-repeat fixed;
+  color: white;
+}
+
+.cta h2 {
+  font-size: 2.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.cta p {
+  font-size: 1.25rem;
+  margin-bottom: 2rem;
+  max-width: 600px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* Animation des lianes */
+.vineContainer {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100vh;
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0.6;
+  mix-blend-mode: overlay;
+  overflow: hidden;
+}
+
+.vine {
+  position: absolute;
+  stroke-dasharray: 2000;
+  stroke-dashoffset: 2000;
+  animation: drawVine 20s ease-in-out infinite;
+  opacity: 0;
+  filter: blur(0.5px);
+}
+
+.vine1 {
+  top: 0;
+  left: 0;
+  /* animation-delay: 0s; */
+  transform: rotate(-35deg) scale(1.1);
+}
+
+.vine2 {
+  top: 0;
+  right: 0;
+  animation-delay: 4s;
+  transform: rotate(20deg) scale(1.1);
+}
+
+.vine3 {
+  bottom: 0;
+  animation-delay: 7s;
+  transform: rotate(-45deg) scale(1.1);
+  right: 30% !important;
+  display: none;
+}
+
+.vine4 {
+  bottom: 0;
+  right: 0;
+  animation-delay: 10s;
+  transform: rotate(15deg) scale(1.1);
+  
+}
+
+@keyframes drawVine {
+  0% {
+    stroke-dashoffset: 2000;
+    opacity: 0;
+  }
+  15% {
+    stroke-dashoffset: 0;
+    opacity: 0.8;
+  }
+  85% {
+    stroke-dashoffset: 2000;
+    opacity: 0.8;
+  }
+  100% {
+    stroke-dashoffset: 2000;
+    opacity: 0;
+  }
+}
+
+.floatingVine {
+  opacity: 0.8;
+}
+
+/* Ajustement des sections pour la superposition */
+.hero,
+.about,
+.features,
+.howItWorks,
+.testimonials,
+.guestInfo,
+.cta {
+  position: relative;
+  z-index: 1;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .hero h1 {
+    font-size: 2.5rem;
+  }
+
+  .hero p {
+    font-size: 1.125rem;
+  }
+
+  .heroButtons {
+    flex-direction: column;
+  }
+
+  .sectionHeader h2 {
+    font-size: 2rem;
+  }
+
+  .container {
+    padding: 0 1rem;
+  }
+
+  .about,
+  .features,
+  .howItWorks,
+  .testimonials,
+  .guestInfo,
+  .cta {
+    padding: 4rem 0;
+  }
+}

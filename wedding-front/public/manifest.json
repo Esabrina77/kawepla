@@ -1,0 +1,31 @@
+{
+  "name": "KaWePla",
+  "short_name": "KaWePla",
+  "description": "Créez et gérez vos invitations de mariage en toute simplicité",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#D4B895",
+  "icons": [
+    {
+      "src": "/icons/logo-16.png",
+      "sizes": "16x16",
+      "type": "image/png"
+    },
+    {
+      "src": "/icons/logo-32.png",
+      "sizes": "32x32",
+      "type": "image/png"
+    },
+    {
+      "src": "/icons/logo-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/icons/logo-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+} 

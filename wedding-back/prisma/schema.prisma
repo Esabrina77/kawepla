@@ -1,0 +1,191 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = "postgresql://weduser:wed_password200@localhost:5432/wedding_invitations"
+}
+
+enum UserRole {
+  ADMIN
+  COUPLE
+  GUEST
+}
+
+enum SubscriptionTier {
+  BASIC
+  STANDARD
+  PREMIUM
+}
+
+enum RSVPStatus {
+  PENDING
+  CONFIRMED
+  DECLINED
+}
+
+enum InvitationStatus {
+  DRAFT
+  PUBLISHED
+  ARCHIVED
+}
+
+model User {
+  id                String            @id @default(cuid())
+  email             String            @unique
+  password          String
+  firstName         String
+  lastName          String
+  role              UserRole          @default(COUPLE)
+  subscriptionTier  SubscriptionTier  @default(BASIC)
+  subscriptionEndDate DateTime?
+  isActive          Boolean           @default(true)
+  emailVerified     Boolean           @default(false)
+  createdAt         DateTime          @default(now())
+  updatedAt         DateTime          @updatedAt
+
+  // Relations
+  invitations       Invitation[]
+  guests            Guest[]
+  refreshTokens     RefreshToken[]
+  adminDesigns      Design[]          @relation("AdminDesigns")
+
+  @@map("users")
+}
+
+model RefreshToken {
+  id        String   @id @default(cuid())
+  token     String   @unique
+  userId    String
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("refresh_tokens")
+}
+
+model Design {
+  id          String   @id @default(cuid())
+  name        String
+  description String?
+  category    String?  // Catégorie du design (boho, moderne, traditionnel, etc.)
+  tags        String[] // Tags pour filtrer les designs
+  isActive    Boolean  @default(true)
+  isPremium   Boolean  @default(false)
+  price       Float?
+  createdBy   String?  // Admin ID
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Template Structure
+  template    Json     // Stockage du HTML de base
+  styles      Json     // Stockage des styles en JSON
+  components  Json?    // Composants réutilisables
+  variables   Json?    // Variables personnalisables (couleurs, fonts, etc.)
+  version     String   @default("1.0.0") // Pour la gestion des versions
+
+  // Nouvelles fonctionnalités
+  customFonts Json?    // Polices personnalisées { "name": "font-url", ... }
+  backgroundImage String? // URL de l'image de fond par défaut
+  backgroundImageRequired Boolean @default(false) // Si le design nécessite une image de fond
+  previewImages Json?   // Images de prévisualisation du design
+
+  // Relations
+  admin       User?    @relation("AdminDesigns", fields: [createdBy], references: [id])
+  invitations Invitation[]
+
+  @@map("designs")
+}
+
+model Invitation {
+  id              String            @id @default(cuid())
+  title           String
+  description     String?
+  weddingDate     DateTime
+  ceremonyTime    String?
+  receptionTime   String?
+  venueName       String
+  venueAddress    String
+  venueCoordinates String? // "lat,lng" format
+  customDomain    String?  @unique
+  status          InvitationStatus  @default(DRAFT)
+  theme           Json              // Theme configuration
+  photos          Json[]            // Array of photo URLs
+  program         Json?             // Program details
+  restrictions    String?           // Dietary restrictions
+  languages       String[]          @default(["fr"])
+  maxGuests       Int?
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @updatedAt
+
+  // Relations
+  userId          String
+  user            User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  designId        String
+  design          Design            @relation(fields: [designId], references: [id])
+  guests          Guest[]
+  rsvps           RSVP[]
+
+  @@map("invitations")
+}
+
+model Guest {
+  id            String   @id @default(cuid())
+  firstName     String
+  lastName      String
+  email         String?
+  phone         String?
+  isVIP         Boolean  @default(false)
+  dietaryRestrictions String?
+  plusOne       Boolean  @default(false)
+  plusOneName   String?
+  inviteToken   String   @unique
+  usedAt        DateTime?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  // Relations
+  userId        String
+  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  invitationId  String
+  invitation    Invitation @relation(fields: [invitationId], references: [id], onDelete: Cascade)
+  rsvp          RSVP?
+
+  @@map("guests")
+}
+
+model RSVP {
+  id            String      @id @default(cuid())
+  status        RSVPStatus  @default(PENDING)
+  message       String?
+  attendingCeremony Boolean  @default(true)
+  attendingReception Boolean @default(true)
+  numberOfGuests Int        @default(1)
+  respondedAt   DateTime?
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+
+  // Relations
+  invitationId  String
+  invitation    Invitation  @relation(fields: [invitationId], references: [id], onDelete: Cascade)
+  guestId       String      @unique
+  guest         Guest       @relation(fields: [guestId], references: [id], onDelete: Cascade)
+
+  @@map("rsvps")
+}
+
+model Analytics {
+  id            String   @id @default(cuid())
+  invitationId  String
+  pageViews     Int      @default(0)
+  uniqueVisitors Int     @default(0)
+  rsvpResponses Int      @default(0)
+  date          DateTime @default(now())
+
+  @@map("analytics")
+} 

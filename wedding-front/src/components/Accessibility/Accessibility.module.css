@@ -1,0 +1,158 @@
+/* Container principal */
+.accessibilityContainer {
+  position: relative;
+  width: 100%;
+}
+
+/* Bouton d'accessibilité */
+.accessibilityButton {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  padding: var(--spacing-sm);
+  background: none;
+  border: none;
+  color: var(--color-text);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  gap: var(--spacing-sm);
+}
+
+.accessibilityButton:hover {
+  background-color: var(--color-hover);
+}
+
+.accessibilityIcon {
+  flex-shrink: 0;
+}
+
+.accessibilityButtonText {
+  flex-grow: 1;
+  text-align: left;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Overlay pour le popup */
+.overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 1000;
+}
+
+/* S'assurer que l'overlay reste sombre même en contraste élevé */
+:root[data-contrast="high"] .overlay {
+  background-color: rgba(0, 0, 0, 0.75);
+  backdrop-filter: brightness(25%);
+}
+
+/* Popup */
+.accessibilityPopup {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background-color: white;
+  border-radius: var(--border-radius-lg);
+  box-shadow: var(--shadow-lg);
+  padding: var(--spacing-lg);
+  min-width: 300px;
+  max-width: 90vw;
+  z-index: 1001;
+}
+
+/* Assurer la lisibilité du popup en contraste élevé */
+:root[data-contrast="high"] .accessibilityPopup {
+  background-color: #FFFFFF;
+  border: 2px solid #000000;
+  box-shadow: 0 0 0 2px #FFFFFF;
+}
+
+/* En-tête du popup */
+.popupHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--spacing-md);
+}
+
+.popupHeader h2 {
+  margin: 0;
+  font-size: var(--font-size-lg);
+}
+
+.closeButton {
+  background: none;
+  border: none;
+  font-size: var(--font-size-xl);
+  cursor: pointer;
+  padding: 0;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  transition: background-color var(--transition-fast);
+}
+
+.closeButton:hover {
+  background-color: var(--color-hover);
+}
+
+/* Sections du popup */
+.accessibilitySection {
+  margin-bottom: var(--spacing-md);
+}
+
+.accessibilitySection:last-child {
+  margin-bottom: 0;
+}
+
+.accessibilitySection h3 {
+  font-size: var(--font-size-base);
+  margin-bottom: var(--spacing-xs);
+}
+
+.accessibilitySection select {
+  width: 100%;
+  padding: var(--spacing-sm);
+  border: 1px solid var(--color-border);
+  border-radius: var(--border-radius-sm);
+  background-color: white;
+  font-size: var(--font-size-base);
+}
+
+/* Styles pour les différents modes d'accessibilité */
+:root[data-font="dyslexic"] {
+  --font-body: var(--font-opendyslexic);
+  --font-heading: var(--font-opendyslexic);
+}
+
+:root[data-contrast="high"] {
+  --color-text: #000000;
+  --color-background: #FFFFFF;
+  --color-primary: #000000;
+  --color-secondary: #FFFFFF;
+  --color-border: #000000;
+  --color-hover: rgba(0, 0, 0, 0.1);
+}
+
+/* Ajustements spécifiques pour OpenDyslexic */
+:root[data-font="dyslexic"] .navContainer {
+  padding: 0 var(--spacing-sm);
+}
+
+:root[data-font="dyslexic"] .logo {
+  font-size: var(--font-size-3xl);
+}
+
+:root[data-font="dyslexic"] .navLink {
+  padding: var(--spacing-xs) var(--spacing-xs);
+  font-size: var(--font-size-lg);
+} 

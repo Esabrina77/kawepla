@@ -1,0 +1,30 @@
+.layout {
+  display: flex;
+  min-height: 100vh;
+}
+
+.main {
+  flex: 1;
+  margin-left: 250px;
+  padding: var(--spacing-xl);
+  background-color: var(--color-background);
+  min-height: 100vh;
+  transition: margin-left var(--transition-normal);
+}
+
+/* Quand la sidebar est réduite */
+.layout.collapsed .main {
+  margin-left: 80px;
+}
+
+@media (max-width: 768px) {
+  .main {
+    margin-left: 0;
+    padding: var(--spacing-md);
+    padding-bottom: 80px; /* Espace pour la navigation mobile */
+  }
+
+  .layout.collapsed .main {
+    margin-left: 0;
+  }
+} 

@@ -1,0 +1,332 @@
+import { prisma } from '../lib/prisma';
+import { hashPassword, comparePassword } from '../utils/password';
+import { JWTService } from '../utils/jwt';
+import { 
+  CreateUserDto, 
+  LoginDto, 
+  UserResponse, 
+  TokenResponse
+} from '../types';
+import { UpdateUserInput } from '@/utils/validation';
+import { SUBSCRIPTION_FEATURES } from '@/types';
+import { UserRole, User } from '@prisma/client';
+
+export class UserService {
+  static async createUser(data: CreateUserDto): Promise<TokenResponse> {
+    const existingUser = await prisma.user.findUnique({
+      where: { email: data.email }
+    });
+
+    if (existingUser) {
+      throw new Error('Un utilisateur avec cet email existe déjà');
+    }
+
+    const hashedPassword = await hashPassword(data.password);
+
+    const user = await prisma.user.create({
+      data: {
+        email: data.email,
+        password: hashedPassword,
+        firstName: data.firstName,
+        lastName: data.lastName,
+        role: data.role || UserRole.COUPLE,
+        subscriptionTier: 'BASIC',
+        isActive: true,
+        emailVerified: false
+      }
+    });
+
+    const userResponse: UserResponse = {
+      id: user.id,
+      email: user.email,
+      firstName: user.firstName,
+      lastName: user.lastName,
+      role: user.role,
+      subscriptionTier: user.subscriptionTier,
+      subscriptionEndDate: user.subscriptionEndDate ?? undefined,
+      isActive: user.isActive,
+      emailVerified: user.emailVerified,
+      createdAt: user.createdAt
+    };
+
+    const tokenResponse = JWTService.generateTokenResponse({
+      id: user.id,
+      email: user.email,
+      role: user.role
+    });
+
+    return {
+      ...tokenResponse,
+      user: userResponse
+    };
+  }
+
+  static async login(data: LoginDto): Promise<TokenResponse> {
+    const user = await prisma.user.findUnique({
+      where: { email: data.email }
+    });
+
+    if (!user) {
+      throw new Error('Email ou mot de passe incorrect');
+    }
+
+    const isPasswordValid = await comparePassword(data.password, user.password);
+    if (!isPasswordValid) {
+      throw new Error('Email ou mot de passe incorrect');
+    }
+
+    if (!user.isActive) {
+      throw new Error('Ce compte a été désactivé');
+    }
+
+    const userResponse: UserResponse = {
+      id: user.id,
+      email: user.email,
+      firstName: user.firstName,
+      lastName: user.lastName,
+      role: user.role,
+      subscriptionTier: user.subscriptionTier,
+      subscriptionEndDate: user.subscriptionEndDate ?? undefined,
+      isActive: user.isActive,
+      emailVerified: user.emailVerified,
+      createdAt: user.createdAt
+    };
+
+    const tokenResponse = JWTService.generateTokenResponse({
+      id: user.id,
+      email: user.email,
+      role: user.role
+    });
+
+    return {
+      ...tokenResponse,
+      user: userResponse
+    };
+  }
+
+  static async refreshToken(refreshToken: string): Promise<TokenResponse> {
+    const payload = JWTService.verifyRefreshToken(refreshToken);
+    if (!payload) {
+      throw new Error('Token de rafraîchissement invalide');
+    }
+
+    const user = await prisma.user.findUnique({
+      where: { id: payload.id }
+    });
+
+    if (!user || !user.isActive) {
+      throw new Error('Utilisateur non trouvé ou compte désactivé');
+    }
+
+    const userResponse: UserResponse = {
+      id: user.id,
+      email: user.email,
+      firstName: user.firstName,
+      lastName: user.lastName,
+      role: user.role,
+      subscriptionTier: user.subscriptionTier,
+      subscriptionEndDate: user.subscriptionEndDate ?? undefined,
+      isActive: user.isActive,
+      emailVerified: user.emailVerified,
+      createdAt: user.createdAt
+    };
+
+    const tokenResponse = JWTService.generateTokenResponse({
+      id: user.id,
+      email: user.email,
+      role: user.role
+    });
+
+    return {
+      ...tokenResponse,
+      user: userResponse
+    };
+  }
+
+  static async logout(refreshToken: string): Promise<void> {
+    await prisma.refreshToken.delete({
+      where: { token: refreshToken }
+    });
+  }
+
+  static async getUserById(userId: string): Promise<UserResponse | null> {
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+      select: {
+        id: true,
+        email: true,
+        firstName: true,
+        lastName: true,
+        role: true,
+        subscriptionTier: true,
+        subscriptionEndDate: true,
+        isActive: true,
+        emailVerified: true,
+        createdAt: true,
+      }
+    });
+
+    if (!user) return null;
+
+    return {
+      ...user,
+      subscriptionEndDate: user.subscriptionEndDate || undefined
+    };
+  }
+
+  static async updateUser(userId: string, updateData: UpdateUserInput): Promise<UserResponse> {
+    const user = await prisma.user.update({
+      where: { id: userId },
+      data: updateData,
+      select: {
+        id: true,
+        email: true,
+        firstName: true,
+        lastName: true,
+        role: true,
+        subscriptionTier: true,
+        subscriptionEndDate: true,
+        isActive: true,
+        emailVerified: true,
+        createdAt: true,
+      }
+    });
+
+    return {
+      ...user,
+      subscriptionEndDate: user.subscriptionEndDate || undefined
+    };
+  }
+
+  static async deleteUser(userId: string): Promise<void> {
+    await prisma.user.update({
+      where: { id: userId },
+      data: { isActive: false }
+    });
+  }
+
+  static async getSubscriptionFeatures(subscriptionTier: string): Promise<string[]> {
+    return SUBSCRIPTION_FEATURES[subscriptionTier as keyof typeof SUBSCRIPTION_FEATURES] || [];
+  }
+
+  static async checkSubscriptionAccess(userId: string, requiredFeature: string): Promise<boolean> {
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+      select: { subscriptionTier: true, subscriptionEndDate: true }
+    });
+
+    if (!user) return false;
+
+    // Vérifier si l'abonnement n'est pas expiré
+    if (user.subscriptionEndDate && user.subscriptionEndDate < new Date()) {
+      return false;
+    }
+
+    const features = await this.getSubscriptionFeatures(user.subscriptionTier);
+    return features.includes(requiredFeature);
+  }
+
+  static async getAllUsers(page: number = 1, limit: number = 10) {
+    const skip = (page - 1) * limit;
+    const [users, total] = await Promise.all([
+      prisma.user.findMany({
+        skip,
+        take: limit,
+        select: {
+          id: true,
+          email: true,
+          firstName: true,
+          lastName: true,
+          role: true,
+          subscriptionTier: true,
+          subscriptionEndDate: true,
+          isActive: true,
+          emailVerified: true,
+          createdAt: true,
+        },
+        orderBy: {
+          createdAt: 'desc'
+        }
+      }),
+      prisma.user.count()
+    ]);
+
+    return {
+      users: users.map(user => ({
+        ...user,
+        subscriptionEndDate: user.subscriptionEndDate || undefined
+      })),
+      total,
+      page,
+      totalPages: Math.ceil(total / limit)
+    };
+  }
+
+  static async create(data: {
+    email: string;
+    password: string;
+    firstName: string;
+    lastName: string;
+    role?: UserRole;
+  }): Promise<User> {
+    const existingUser = await prisma.user.findUnique({
+      where: { email: data.email }
+    });
+
+    if (existingUser) {
+      throw new Error('Un utilisateur avec cet email existe déjà');
+    }
+
+    const hashedPassword = await hashPassword(data.password);
+
+    return prisma.user.create({
+      data: {
+        ...data,
+        password: hashedPassword
+      }
+    });
+  }
+
+  static async findById(id: string): Promise<User | null> {
+    return prisma.user.findUnique({
+      where: { id }
+    });
+  }
+
+  static async findByEmail(email: string): Promise<User | null> {
+    return prisma.user.findUnique({
+      where: { email }
+    });
+  }
+
+  static async update(id: string, data: Partial<User>): Promise<User> {
+    if (data.password) {
+      data.password = await hashPassword(data.password);
+    }
+
+    return prisma.user.update({
+      where: { id },
+      data
+    });
+  }
+
+  static async delete(id: string): Promise<void> {
+    await prisma.user.delete({
+      where: { id }
+    });
+  }
+
+  static async validateCredentials(data: { email: string; password: string }): Promise<User> {
+    const user = await this.findByEmail(data.email);
+    if (!user) {
+      throw new Error('Identifiants invalides');
+    }
+
+    const isPasswordValid = await comparePassword(data.password, user.password);
+    if (!isPasswordValid) {
+      throw new Error('Identifiants invalides');
+    }
+
+    return user;
+  }
+} 

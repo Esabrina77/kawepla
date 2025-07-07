@@ -1,0 +1,3223 @@
+{
+"classic": {
+        "name": "Classique Royal",
+        "description": "Design royal avec ornements dorés, typographie luxueuse et effets premium",
+        "category": "classique",
+        "tags": ["royal", "luxe", "doré", "premium", "ornements"],
+        "template": {
+          "layout": "<div class='wedding-invitation elegant-classic'>{header}{main}{footer}</div>",
+          "sections": {
+            "header": {
+              "html": "<header class='invitation-header'><div class='royal-crown'>♔</div><div class='ornament-line top'></div><h1 class='couple-names'>{coupleName}</h1><div class='elegant-divider'><span class='diamond'>◆</span><span class='flourish'>❦</span><span class='diamond'>◆</span></div><p class='wedding-date'>{date}</p><div class='ornament-line bottom'></div></header>",
+              "position": "header"
+            },
+            "main": {
+              "html": "<main class='invitation-body'><div class='luxury-frame'><div class='corner-ornament top-left'></div><div class='corner-ornament top-right'></div><p class='invitation-message'>{message}</p><div class='details-wrapper'><div class='wedding-details'>{details}</div></div><div class='corner-ornament bottom-left'></div><div class='corner-ornament bottom-right'></div></div></main>",
+              "position": "main"
+            },
+            "footer": {
+              "html": "<footer class='invitation-footer'><div class='royal-seal'></div><div class='rsvp-section'><span class='rsvp-ornament'>✦</span>{rsvpForm}<span class='rsvp-ornament'>✦</span></div><div class='signature-line'></div></footer>",
+              "position": "footer"
+            }
+          }
+        },
+        "styles": {
+          "base": {
+            ".wedding-invitation": {
+              "max-width": "650px",
+              "margin": "0 auto",
+              "padding": "4rem 3.5rem",
+              "background": "linear-gradient(135deg, #fdfcf8 0%, #f8f5f0 25%, #f5f1ea 50%, #f0ebe3 75%, #ede6d9 100%)",
+              "border": "4px solid transparent",
+              "border-image": "linear-gradient(45deg, #d4af37, #f4d03f, #d4af37, #b8860b) 1",
+              "border-radius": "20px",
+              "box-shadow": "0 20px 60px rgba(0,0,0,0.15), 0 8px 25px rgba(212, 175, 55, 0.2), inset 0 1px 0 rgba(255,255,255,0.8)",
+              "position": "relative",
+              "animation": "royalPresence 8s ease-in-out infinite",
+              "backdrop-filter": "blur(10px)"
+            },
+            ".wedding-invitation::before": {
+              "content": "''",
+              "position": "absolute",
+              "top": "20px",
+              "left": "20px",
+              "right": "20px",
+              "bottom": "20px",
+              "border": "2px solid rgba(212, 175, 55, 0.4)",
+              "border-radius": "15px",
+              "pointer-events": "none",
+              "animation": "goldenAura 6s ease-in-out infinite",
+              "background": "linear-gradient(45deg, transparent 30%, rgba(212, 175, 55, 0.05) 50%, transparent 70%)"
+            },
+            ".wedding-invitation::after": {
+              "content": "''",
+              "position": "absolute",
+              "top": "0",
+              "left": "0",
+              "right": "0",
+              "bottom": "0",
+              "background": "url('data:image/svg+xml,<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 100 100\"><defs><pattern id=\"luxury\" x=\"0\" y=\"0\" width=\"20\" height=\"20\" patternUnits=\"userSpaceOnUse\"><circle cx=\"10\" cy=\"10\" r=\"1\" fill=\"%23d4af37\" opacity=\"0.1\"/><path d=\"M5,5 L15,15 M15,5 L5,15\" stroke=\"%23d4af37\" stroke-width=\"0.2\" opacity=\"0.05\"/></pattern></defs><rect width=\"100\" height=\"100\" fill=\"url(%23luxury)\"/></svg>')",
+              "opacity": "0.3",
+              "pointer-events": "none",
+              "border-radius": "20px"
+            }
+          },
+          "components": {
+            "header": {
+              ".invitation-header": {
+                "text-align": "center",
+                "margin-bottom": "3rem",
+                "position": "relative",
+                "z-index": "3"
+              },
+              ".royal-crown": {
+                "font-size": "3rem",
+                "color": "#d4af37",
+                "margin-bottom": "1rem",
+                "text-shadow": "0 0 20px rgba(212, 175, 55, 0.6), 0 0 40px rgba(212, 175, 55, 0.3)",
+                "animation": "crownGlow 4s ease-in-out infinite",
+                "display": "inline-block"
+              },
+              ".ornament-line": {
+                "width": "200px",
+                "height": "3px",
+                "margin": "1rem auto",
+                "background": "linear-gradient(90deg, transparent, #d4af37, #f4d03f, #d4af37, transparent)",
+                "position": "relative",
+                "animation": "lineShimmer 5s ease-in-out infinite"
+              },
+              ".ornament-line::before": {
+                "content": "''",
+                "position": "absolute",
+                "left": "50%",
+                "top": "-8px",
+                "transform": "translateX(-50%)",
+                "width": "16px",
+                "height": "16px",
+                "background": "radial-gradient(circle, #f4d03f, #d4af37)",
+                "border-radius": "50%",
+                "border": "2px solid #fff",
+                "box-shadow": "0 0 10px rgba(212, 175, 55, 0.5)"
+              },
+              ".couple-names": {
+                "font-size": "3.2rem",
+                "color": "#2c2c2c",
+                "margin": "1.5rem 0",
+                "font-weight": "400",
+                "letter-spacing": "3px",
+                "text-shadow": "0 2px 4px rgba(0,0,0,0.1), 0 0 20px rgba(212, 175, 55, 0.2)",
+                "animation": "namesMajestic 6s ease-in-out infinite",
+                "font-family": "Playfair Display, serif",
+                "position": "relative"
+              },
+              ".couple-names::before": {
+                "content": "''",
+                "position": "absolute",
+                "top": "-10px",
+                "left": "-20px",
+                "right": "-20px",
+                "bottom": "-10px",
+                "background": "linear-gradient(45deg, transparent, rgba(212, 175, 55, 0.1), transparent)",
+                "z-index": "-1",
+                "border-radius": "10px",
+                "animation": "nameHalo 8s ease-in-out infinite"
+              },
+              ".elegant-divider": {
+                "margin": "2rem 0",
+                "display": "flex",
+                "align-items": "center",
+                "justify-content": "center",
+                "gap": "1rem"
+              },
+              ".diamond": {
+                "font-size": "1.5rem",
+                "color": "#d4af37",
+                "animation": "diamondSparkle 3s ease-in-out infinite"
+              },
+              ".flourish": {
+                "font-size": "2rem",
+                "color": "#b8860b",
+                "animation": "flourishDance 4s ease-in-out infinite"
+              },
+              ".wedding-date": {
+                "font-size": "1.4rem",
+                "color": "#8b7355",
+                "font-style": "italic",
+                "margin-top": "1rem",
+                "text-transform": "uppercase",
+                "letter-spacing": "2px",
+                "font-weight": "300",
+                "animation": "dateElegance 5s ease-in-out infinite"
+              }
+            },
+            "main": {
+              ".invitation-body": {
+                "margin": "3rem 0",
+                "position": "relative",
+                "z-index": "2"
+              },
+              ".luxury-frame": {
+                "background": "linear-gradient(135deg, rgba(255,255,255,0.9) 0%, rgba(248,245,240,0.8) 100%)",
+                "border": "3px solid rgba(212, 175, 55, 0.3)",
+                "border-radius": "15px",
+                "padding": "3rem 2.5rem",
+                "position": "relative",
+                "backdrop-filter": "blur(15px)",
+                "animation": "frameElegance 7s ease-in-out infinite",
+                "box-shadow": "inset 0 0 30px rgba(212, 175, 55, 0.1), 0 10px 30px rgba(0,0,0,0.1)"
+              },
+              ".corner-ornament": {
+                "position": "absolute",
+                "width": "30px",
+                "height": "30px",
+                "background": "radial-gradient(circle, #f4d03f, #d4af37)",
+                "border": "2px solid #fff",
+                "border-radius": "50%",
+                "box-shadow": "0 0 15px rgba(212, 175, 55, 0.4)"
+              },
+              ".corner-ornament.top-left": {
+                "top": "-15px",
+                "left": "-15px",
+                "animation": "ornamentPulse 4s ease-in-out infinite"
+              },
+              ".corner-ornament.top-right": {
+                "top": "-15px",
+                "right": "-15px",
+                "animation": "ornamentPulse 4s ease-in-out infinite 1s"
+              },
+              ".corner-ornament.bottom-left": {
+                "bottom": "-15px",
+                "left": "-15px",
+                "animation": "ornamentPulse 4s ease-in-out infinite 2s"
+              },
+              ".corner-ornament.bottom-right": {
+                "bottom": "-15px",
+                "right": "-15px",
+                "animation": "ornamentPulse 4s ease-in-out infinite 3s"
+              },
+              ".invitation-message": {
+                "font-size": "1.3rem",
+                "color": "#2c2c2c",
+                "line-height": "1.8",
+                "text-align": "center",
+                "margin-bottom": "2rem",
+                "font-style": "italic",
+                "font-weight": "300",
+                "animation": "messageGlow 6s ease-in-out infinite",
+                "position": "relative"
+              },
+              ".invitation-message::before": {
+                "content": "'\"'",
+                "position": "absolute",
+                "left": "-2rem",
+                "top": "-1rem",
+                "font-size": "4rem",
+                "color": "rgba(212, 175, 55, 0.3)",
+                "font-family": "serif"
+              },
+              ".invitation-message::after": {
+                "content": "'\"'",
+                "position": "absolute",
+                "right": "-2rem",
+                "bottom": "-2rem",
+                "font-size": "4rem",
+                "color": "rgba(212, 175, 55, 0.3)",
+                "font-family": "serif"
+              },
+              ".details-wrapper": {
+                "background": "linear-gradient(135deg, rgba(212, 175, 55, 0.1) 0%, rgba(244, 208, 63, 0.05) 100%)",
+                "padding": "2rem",
+                "border-radius": "10px",
+                "border": "1px solid rgba(212, 175, 55, 0.2)",
+                "position": "relative",
+                "overflow": "hidden"
+              },
+              ".details-wrapper::before": {
+                "content": "''",
+                "position": "absolute",
+                "top": "0",
+                "left": "-100%",
+                "width": "100%",
+                "height": "100%",
+                "background": "linear-gradient(90deg, transparent, rgba(212, 175, 55, 0.1), transparent)",
+                "animation": "detailsShimmer 6s ease-in-out infinite"
+              },
+              ".wedding-details": {
+                "font-size": "1.1rem",
+                "color": "#5a5a5a",
+                "line-height": "1.8",
+                "text-align": "center",
+                "font-weight": "400",
+                "position": "relative",
+                "z-index": "2"
+              }
+            },
+            "footer": {
+              ".invitation-footer": {
+                "text-align": "center",
+                "margin-top": "3rem",
+                "position": "relative",
+                "z-index": "2"
+              },
+              ".royal-seal": {
+                "width": "60px",
+                "height": "60px",
+                "margin": "0 auto 2rem auto",
+                "background": "radial-gradient(circle, #f4d03f, #d4af37, #b8860b)",
+                "border-radius": "50%",
+                "border": "3px solid #fff",
+                "box-shadow": "0 0 20px rgba(212, 175, 55, 0.5), inset 0 0 20px rgba(255,255,255,0.3)",
+                "animation": "sealRotate 10s linear infinite",
+                "position": "relative"
+              },
+              ".royal-seal::before": {
+                "content": "♔",
+                "position": "absolute",
+                "top": "50%",
+                "left": "50%",
+                "transform": "translate(-50%, -50%)",
+                "font-size": "1.5rem",
+                "color": "#fff",
+                "text-shadow": "0 0 10px rgba(0,0,0,0.3)"
+              },
+              ".rsvp-section": {
+                "font-size": "1rem",
+                "color": "#8b7355",
+                "text-transform": "uppercase",
+                "letter-spacing": "2px",
+                "font-weight": "500",
+                "display": "flex",
+                "align-items": "center",
+                "justify-content": "center",
+                "gap": "1rem",
+                "margin-bottom": "2rem"
+              },
+              ".rsvp-ornament": {
+                "font-size": "1.2rem",
+                "color": "#d4af37",
+                "animation": "ornamentTwinkle 3s ease-in-out infinite"
+              },
+              ".signature-line": {
+                "width": "150px",
+                "height": "2px",
+                "background": "linear-gradient(90deg, transparent, #d4af37, transparent)",
+                "margin": "0 auto",
+                "position": "relative",
+                "animation": "signatureGlow 4s ease-in-out infinite"
+              },
+              ".signature-line::before": {
+                "content": "''",
+                "position": "absolute",
+                "left": "50%",
+                "top": "-6px",
+                "transform": "translateX(-50%)",
+                "width": "12px",
+                "height": "12px",
+                "background": "radial-gradient(circle, #f4d03f, #d4af37)",
+                "border-radius": "50%",
+                "border": "1px solid #fff"
+              }
+            }
+          },
+          "animations": {
+            "royalPresence": {
+              "keyframes": {
+                "0%, 100%": { "transform": "translateY(0px) scale(1)", "box-shadow": "0 20px 60px rgba(0,0,0,0.15), 0 8px 25px rgba(212, 175, 55, 0.2)" },
+                "50%": { "transform": "translateY(-8px) scale(1.01)", "box-shadow": "0 30px 80px rgba(0,0,0,0.2), 0 15px 40px rgba(212, 175, 55, 0.3)" }
+              }
+            },
+            "goldenAura": {
+              "keyframes": {
+                "0%, 100%": { "border-color": "rgba(212, 175, 55, 0.4)", "opacity": "0.8" },
+                "50%": { "border-color": "rgba(244, 208, 63, 0.8)", "opacity": "1" }
+              }
+            },
+            "crownGlow": {
+              "keyframes": {
+                "0%, 100%": { "transform": "scale(1) rotate(0deg)", "text-shadow": "0 0 20px rgba(212, 175, 55, 0.6)" },
+                "50%": { "transform": "scale(1.1) rotate(2deg)", "text-shadow": "0 0 30px rgba(212, 175, 55, 0.8), 0 0 50px rgba(244, 208, 63, 0.4)" }
+              }
+            },
+            "lineShimmer": {
+              "keyframes": {
+                "0%": { "background": "linear-gradient(90deg, transparent, #d4af37, #f4d03f, #d4af37, transparent)" },
+                "50%": { "background": "linear-gradient(90deg, transparent, #f4d03f, #fff, #f4d03f, transparent)" },
+                "100%": { "background": "linear-gradient(90deg, transparent, #d4af37, #f4d03f, #d4af37, transparent)" }
+              }
+            },
+            "namesMajestic": {
+              "keyframes": {
+                "0%, 100%": { "transform": "scale(1)", "text-shadow": "0 2px 4px rgba(0,0,0,0.1), 0 0 20px rgba(212, 175, 55, 0.2)" },
+                "50%": { "transform": "scale(1.02)", "text-shadow": "0 4px 8px rgba(0,0,0,0.15), 0 0 30px rgba(212, 175, 55, 0.4)" }
+              }
+            },
+            "nameHalo": {
+              "keyframes": {
+                "0%, 100%": { "opacity": "0.3", "transform": "scale(1)" },
+                "50%": { "opacity": "0.6", "transform": "scale(1.05)" }
+              }
+            },
+            "diamondSparkle": {
+              "keyframes": {
+                "0%, 100%": { "transform": "scale(1) rotate(0deg)", "opacity": "0.8" },
+                "25%": { "transform": "scale(1.2) rotate(90deg)", "opacity": "1" },
+                "50%": { "transform": "scale(1) rotate(180deg)", "opacity": "0.9" },
+                "75%": { "transform": "scale(1.1) rotate(270deg)", "opacity": "1" }
+              }
+            },
+            "flourishDance": {
+              "keyframes": {
+                "0%, 100%": { "transform": "rotate(0deg) scale(1)" },
+                "25%": { "transform": "rotate(5deg) scale(1.1)" },
+                "75%": { "transform": "rotate(-5deg) scale(1.1)" }
+              }
+            },
+            "dateElegance": {
+              "keyframes": {
+                "0%, 100%": { "opacity": "0.9", "transform": "translateY(0px)" },
+                "50%": { "opacity": "1", "transform": "translateY(-2px)" }
+              }
+            },
+            "frameElegance": {
+              "keyframes": {
+                "0%, 100%": { "background": "linear-gradient(135deg, rgba(255,255,255,0.9) 0%, rgba(248,245,240,0.8) 100%)" },
+                "50%": { "background": "linear-gradient(135deg, rgba(255,255,255,0.95) 0%, rgba(248,245,240,0.9) 100%)" }
+              }
+            },
+            "ornamentPulse": {
+              "keyframes": {
+                "0%, 100%": { "transform": "scale(1)", "box-shadow": "0 0 15px rgba(212, 175, 55, 0.4)" },
+                "50%": { "transform": "scale(1.2)", "box-shadow": "0 0 25px rgba(212, 175, 55, 0.6)" }
+              }
+            },
+            "messageGlow": {
+              "keyframes": {
+                "0%, 100%": { "color": "#2c2c2c" },
+                "50%": { "color": "#5a5a5a" }
+              }
+            },
+            "detailsShimmer": {
+              "keyframes": {
+                "0%": { "left": "-100%" },
+                "50%": { "left": "0%" },
+                "100%": { "left": "100%" }
+              }
+            },
+            "sealRotate": {
+              "keyframes": {
+                "0%": { "transform": "rotate(0deg)" },
+                "100%": { "transform": "rotate(360deg)" }
+              }
+            },
+            "ornamentTwinkle": {
+              "keyframes": {
+                "0%, 100%": { "opacity": "0.7", "transform": "scale(1)" },
+                "50%": { "opacity": "1", "transform": "scale(1.2)" }
+              }
+            },
+            "signatureGlow": {
+              "keyframes": {
+                "0%, 100%": { "opacity": "0.8" },
+                "50%": { "opacity": "1", "transform": "scaleX(1.1)" }
+              }
+            }
+          }
+        },
+        "variables": {
+          "colors": {
+            "primary": "#2c2c2c",
+            "secondary": "#d4af37",
+            "accent": "#8b7355",
+            "background": "#fdfcf8",
+            "luxury": "#f4d03f"
+          },
+          "typography": {
+            "bodyFont": "Crimson Text, serif",
+            "headingFont": "Playfair Display, serif",
+            "fontSize": {
+              "base": "16px",
+              "heading": {
+                "h1": "3.2rem",
+                "h2": "2.5rem",
+                "h3": "1.8rem"
+              }
+            }
+          },
+          "spacing": {
+            "base": "1rem",
+            "sections": "3rem",
+            "components": "2rem"
+          }
+        }
+      },
+"modern": {
+    "name": "Ultra Modern",
+    "description": "Design futuriste avec glassmorphism, géométrie dynamique et effets premium",
+    "category": "moderne",
+    "tags": ["futuriste", "glassmorphism", "géométrique", "premium", "minimaliste"],
+    "template": {
+      "layout": "<div class='wedding-invitation modern-minimal'>{header}{main}{footer}</div>",
+      "sections": {
+        "header": {
+          "html": "<header class='invitation-header'><div class='geometric-pattern'></div><div class='names-container'><div class='name-backdrop'></div><h1 class='couple-names'>{coupleName}</h1><div class='name-underline'></div></div><div class='date-capsule'><p class='wedding-date'>{date}</p></div><div class='header-glow'></div></header>",
+          "position": "header"
+        },
+        "main": {
+          "html": "<main class='invitation-body'><div class='glass-container'><div class='floating-elements'><div class='element-1'></div><div class='element-2'></div><div class='element-3'></div></div><div class='message-container'><div class='message-frame'></div><p class='invitation-message'>{message}</p></div><div class='details-container'><div class='details-grid'></div><div class='wedding-details'>{details}</div><div class='details-accent'></div></div></div></main>",
+          "position": "main"
+        },
+        "footer": {
+          "html": "<footer class='invitation-footer'><div class='footer-pattern'></div><div class='rsvp-section'><div class='rsvp-frame'></div><div class='rsvp-content'>{rsvpForm}</div><div class='rsvp-glow'></div></div><div class='signature-wave'></div></footer>",
+          "position": "footer"
+        }
+      }
+    },
+    "styles": {
+      "base": {
+        ".wedding-invitation": {
+          "max-width": "580px",
+          "margin": "0 auto",
+          "padding": "4rem 3rem",
+          "background": "linear-gradient(135deg, rgba(255,255,255,0.9) 0%, rgba(248,250,252,0.8) 25%, rgba(241,245,249,0.7) 50%, rgba(226,232,240,0.6) 75%, rgba(203,213,225,0.5) 100%)",
+          "border": "1px solid rgba(255,255,255,0.3)",
+          "border-radius": "24px",
+          "box-shadow": "0 25px 80px rgba(0,0,0,0.1), 0 10px 40px rgba(0,0,0,0.05), inset 0 1px 0 rgba(255,255,255,0.9)",
+          "position": "relative",
+          "animation": "modernLevitation 10s ease-in-out infinite",
+          "backdrop-filter": "blur(20px)",
+          "overflow": "hidden"
+        },
+        ".wedding-invitation::before": {
+          "content": "''",
+          "position": "absolute",
+          "top": "0",
+          "left": "0",
+          "right": "0",
+          "bottom": "0",
+          "background": "linear-gradient(45deg, transparent 30%, rgba(99, 102, 241, 0.03) 50%, transparent 70%)",
+          "animation": "modernShimmer 8s ease-in-out infinite",
+          "pointer-events": "none",
+          "border-radius": "24px"
+        },
+        ".wedding-invitation::after": {
+          "content": "''",
+          "position": "absolute",
+          "top": "-2px",
+          "left": "-2px",
+          "right": "-2px",
+          "bottom": "-2px",
+          "background": "linear-gradient(45deg, rgba(99, 102, 241, 0.1), rgba(139, 92, 246, 0.1), rgba(236, 72, 153, 0.1), rgba(99, 102, 241, 0.1))",
+          "border-radius": "26px",
+          "z-index": "-1",
+          "animation": "borderFlow 6s linear infinite",
+          "filter": "blur(2px)"
+        }
+      },
+      "components": {
+        "header": {
+          ".invitation-header": {
+            "text-align": "center",
+            "margin-bottom": "4rem",
+            "position": "relative",
+            "z-index": "3"
+          },
+          ".geometric-pattern": {
+            "position": "absolute",
+            "top": "-20px",
+            "left": "50%",
+            "transform": "translateX(-50%)",
+            "width": "120px",
+            "height": "120px",
+            "background": "conic-gradient(from 0deg, rgba(99, 102, 241, 0.1), rgba(139, 92, 246, 0.1), rgba(236, 72, 153, 0.1), rgba(99, 102, 241, 0.1))",
+            "border-radius": "50%",
+            "animation": "patternRotate 15s linear infinite",
+            "filter": "blur(1px)"
+          },
+          ".geometric-pattern::before": {
+            "content": "''",
+            "position": "absolute",
+            "top": "50%",
+            "left": "50%",
+            "transform": "translate(-50%, -50%)",
+            "width": "80px",
+            "height": "80px",
+            "background": "rgba(255,255,255,0.8)",
+            "border-radius": "50%",
+            "backdrop-filter": "blur(10px)"
+          },
+          ".names-container": {
+            "position": "relative",
+            "margin": "3rem 0 2rem 0",
+            "z-index": "4"
+          },
+          ".name-backdrop": {
+            "position": "absolute",
+            "top": "-20px",
+            "left": "-40px",
+            "right": "-40px",
+            "bottom": "-20px",
+            "background": "linear-gradient(135deg, rgba(255,255,255,0.4) 0%, rgba(248,250,252,0.3) 100%)",
+            "border-radius": "20px",
+            "backdrop-filter": "blur(15px)",
+            "border": "1px solid rgba(255,255,255,0.2)",
+            "animation": "backdropFloat 8s ease-in-out infinite"
+          },
+          ".couple-names": {
+            "font-size": "2.8rem",
+            "color": "#1e293b",
+            "margin": "0",
+            "font-weight": "200",
+            "letter-spacing": "6px",
+            "text-transform": "uppercase",
+            "position": "relative",
+            "z-index": "5",
+            "animation": "nameReveal 6s ease-in-out infinite",
+            "text-shadow": "0 4px 20px rgba(0,0,0,0.1)"
+          },
+          ".name-underline": {
+            "width": "0",
+            "height": "2px",
+            "background": "linear-gradient(90deg, rgba(99, 102, 241, 0.8), rgba(139, 92, 246, 0.8), rgba(236, 72, 153, 0.8))",
+            "margin": "1rem auto",
+            "animation": "underlineGrow 4s ease-in-out infinite",
+            "border-radius": "1px"
+          },
+          ".date-capsule": {
+            "display": "inline-block",
+            "background": "rgba(255,255,255,0.6)",
+            "backdrop-filter": "blur(20px)",
+            "border": "1px solid rgba(255,255,255,0.3)",
+            "border-radius": "50px",
+            "padding": "0.8rem 2rem",
+            "margin-top": "2rem",
+            "animation": "capsuleFloat 7s ease-in-out infinite"
+          },
+          ".wedding-date": {
+            "font-size": "1rem",
+            "color": "#475569",
+            "font-weight": "300",
+            "letter-spacing": "3px",
+            "text-transform": "uppercase",
+            "margin": "0",
+            "animation": "dateGlow 5s ease-in-out infinite"
+          },
+          ".header-glow": {
+            "position": "absolute",
+            "bottom": "-30px",
+            "left": "50%",
+            "transform": "translateX(-50%)",
+            "width": "200px",
+            "height": "60px",
+            "background": "radial-gradient(ellipse, rgba(99, 102, 241, 0.2) 0%, transparent 70%)",
+            "animation": "headerGlow 6s ease-in-out infinite",
+            "filter": "blur(20px)"
+          }
+        },
+        "main": {
+          ".invitation-body": {
+            "margin": "4rem 0",
+            "position": "relative",
+            "z-index": "2"
+          },
+          ".glass-container": {
+            "background": "rgba(255,255,255,0.4)",
+            "backdrop-filter": "blur(25px)",
+            "border": "1px solid rgba(255,255,255,0.3)",
+            "border-radius": "20px",
+            "padding": "3rem 2.5rem",
+            "position": "relative",
+            "overflow": "hidden",
+            "animation": "glassBreath 8s ease-in-out infinite"
+          },
+          ".floating-elements": {
+            "position": "absolute",
+            "top": "0",
+            "left": "0",
+            "right": "0",
+            "bottom": "0",
+            "pointer-events": "none"
+          },
+          ".element-1": {
+            "position": "absolute",
+            "top": "20px",
+            "right": "30px",
+            "width": "40px",
+            "height": "40px",
+            "background": "linear-gradient(45deg, rgba(99, 102, 241, 0.3), rgba(139, 92, 246, 0.3))",
+            "border-radius": "50%",
+            "animation": "elementFloat1 12s ease-in-out infinite",
+            "filter": "blur(1px)"
+          },
+          ".element-2": {
+            "position": "absolute",
+            "bottom": "40px",
+            "left": "40px",
+            "width": "20px",
+            "height": "20px",
+            "background": "linear-gradient(45deg, rgba(236, 72, 153, 0.4), rgba(139, 92, 246, 0.4))",
+            "border-radius": "30%",
+            "animation": "elementFloat2 10s ease-in-out infinite",
+            "transform": "rotate(45deg)"
+          },
+          ".element-3": {
+            "position": "absolute",
+            "top": "50%",
+            "left": "20px",
+            "width": "30px",
+            "height": "30px",
+            "background": "linear-gradient(45deg, rgba(139, 92, 246, 0.2), rgba(99, 102, 241, 0.2))",
+            "border-radius": "20%",
+            "animation": "elementFloat3 14s ease-in-out infinite"
+          },
+          ".message-container": {
+            "position": "relative",
+            "margin-bottom": "3rem",
+            "z-index": "3"
+          },
+          ".message-frame": {
+            "position": "absolute",
+            "top": "-15px",
+            "left": "-15px",
+            "right": "-15px",
+            "bottom": "-15px",
+            "border": "1px solid rgba(99, 102, 241, 0.2)",
+            "border-radius": "15px",
+            "animation": "frameShift 8s ease-in-out infinite"
+          },
+          ".invitation-message": {
+            "font-size": "1.2rem",
+            "color": "#334155",
+            "line-height": "1.8",
+            "font-weight": "300",
+            "text-align": "center",
+            "margin": "0",
+            "position": "relative",
+            "z-index": "4",
+            "animation": "messageAppear 5s ease-in-out infinite"
+          },
+          ".details-container": {
+            "text-align": "center",
+            "position": "relative",
+            "z-index": "3"
+          },
+          ".details-grid": {
+            "position": "absolute",
+            "top": "-10px",
+            "left": "-10px",
+            "right": "-10px",
+            "bottom": "-10px",
+            "background": "linear-gradient(45deg, transparent 40%, rgba(99, 102, 241, 0.05) 50%, transparent 60%)",
+            "animation": "gridShift 6s ease-in-out infinite",
+            "border-radius": "10px"
+          },
+          ".wedding-details": {
+            "font-size": "1rem",
+            "color": "#475569",
+            "line-height": "2",
+            "font-weight": "300",
+            "background": "rgba(255,255,255,0.3)",
+            "backdrop-filter": "blur(10px)",
+            "padding": "2rem",
+            "border-radius": "15px",
+            "border": "1px solid rgba(255,255,255,0.2)",
+            "position": "relative",
+            "z-index": "4"
+          },
+          ".details-accent": {
+            "position": "absolute",
+            "bottom": "-20px",
+            "left": "50%",
+            "transform": "translateX(-50%)",
+            "width": "100px",
+            "height": "4px",
+            "background": "linear-gradient(90deg, transparent, rgba(99, 102, 241, 0.6), transparent)",
+            "border-radius": "2px",
+            "animation": "accentPulse 4s ease-in-out infinite"
+          }
+        },
+        "footer": {
+          ".invitation-footer": {
+            "text-align": "center",
+            "margin-top": "4rem",
+            "position": "relative",
+            "z-index": "2"
+          },
+          ".footer-pattern": {
+            "position": "absolute",
+            "top": "-40px",
+            "left": "0",
+            "right": "0",
+            "height": "80px",
+            "background": "linear-gradient(90deg, transparent, rgba(99, 102, 241, 0.1), transparent)",
+            "animation": "patternWave 8s ease-in-out infinite",
+            "filter": "blur(2px)"
+          },
+          ".rsvp-section": {
+            "position": "relative",
+            "display": "inline-block"
+          },
+          ".rsvp-frame": {
+            "position": "absolute",
+            "top": "-10px",
+            "left": "-20px",
+            "right": "-20px",
+            "bottom": "-10px",
+            "background": "rgba(255,255,255,0.4)",
+            "backdrop-filter": "blur(15px)",
+            "border": "1px solid rgba(255,255,255,0.3)",
+            "border-radius": "25px",
+            "animation": "rsvpFrameFloat 6s ease-in-out infinite"
+          },
+          ".rsvp-content": {
+            "font-size": "0.9rem",
+            "color": "#64748b",
+            "text-transform": "uppercase",
+            "letter-spacing": "3px",
+            "font-weight": "300",
+            "padding": "1rem 2rem",
+            "position": "relative",
+            "z-index": "3",
+            "animation": "contentFade 5s ease-in-out infinite"
+          },
+          ".rsvp-glow": {
+            "position": "absolute",
+            "top": "50%",
+            "left": "50%",
+            "transform": "translate(-50%, -50%)",
+            "width": "150px",
+            "height": "50px",
+            "background": "radial-gradient(ellipse, rgba(139, 92, 246, 0.2) 0%, transparent 70%)",
+            "animation": "rsvpGlow 7s ease-in-out infinite",
+            "filter": "blur(15px)"
+          },
+          ".signature-wave": {
+            "width": "200px",
+            "height": "2px",
+            "background": "linear-gradient(90deg, transparent, rgba(99, 102, 241, 0.6), rgba(139, 92, 246, 0.6), rgba(236, 72, 153, 0.6), transparent)",
+            "margin": "2rem auto 0 auto",
+            "border-radius": "1px",
+            "animation": "waveFlow 6s ease-in-out infinite"
+          }
+        }
+      },
+      "animations": {
+        "modernLevitation": {
+          "keyframes": {
+            "0%, 100%": { "transform": "translateY(0px) rotateX(0deg)", "box-shadow": "0 25px 80px rgba(0,0,0,0.1), 0 10px 40px rgba(0,0,0,0.05)" },
+            "50%": { "transform": "translateY(-12px) rotateX(1deg)", "box-shadow": "0 35px 100px rgba(0,0,0,0.15), 0 15px 60px rgba(0,0,0,0.08)" }
+          }
+        },
+        "modernShimmer": {
+          "keyframes": {
+            "0%": { "background": "linear-gradient(45deg, transparent 30%, rgba(99, 102, 241, 0.03) 50%, transparent 70%)" },
+            "50%": { "background": "linear-gradient(45deg, transparent 30%, rgba(139, 92, 246, 0.05) 50%, transparent 70%)" },
+            "100%": { "background": "linear-gradient(45deg, transparent 30%, rgba(236, 72, 153, 0.03) 50%, transparent 70%)" }
+          }
+        },
+        "borderFlow": {
+          "keyframes": {
+            "0%": { "background": "linear-gradient(45deg, rgba(99, 102, 241, 0.1), rgba(139, 92, 246, 0.1), rgba(236, 72, 153, 0.1), rgba(99, 102, 241, 0.1))" },
+            "25%": { "background": "linear-gradient(45deg, rgba(139, 92, 246, 0.1), rgba(236, 72, 153, 0.1), rgba(99, 102, 241, 0.1), rgba(139, 92, 246, 0.1))" },
+            "50%": { "background": "linear-gradient(45deg, rgba(236, 72, 153, 0.1), rgba(99, 102, 241, 0.1), rgba(139, 92, 246, 0.1), rgba(236, 72, 153, 0.1))" },
+            "75%": { "background": "linear-gradient(45deg, rgba(99, 102, 241, 0.1), rgba(139, 92, 246, 0.1), rgba(236, 72, 153, 0.1), rgba(99, 102, 241, 0.1))" },
+            "100%": { "background": "linear-gradient(45deg, rgba(139, 92, 246, 0.1), rgba(236, 72, 153, 0.1), rgba(99, 102, 241, 0.1), rgba(139, 92, 246, 0.1))" }
+          }
+        },
+        "patternRotate": {
+          "keyframes": {
+            "0%": { "transform": "translateX(-50%) rotate(0deg)" },
+            "100%": { "transform": "translateX(-50%) rotate(360deg)" }
+          }
+        },
+        "backdropFloat": {
+          "keyframes": {
+            "0%, 100%": { "transform": "translateY(0px)", "opacity": "0.8" },
+            "50%": { "transform": "translateY(-5px)", "opacity": "1" }
+          }
+        },
+        "nameReveal": {
+          "keyframes": {
+            "0%, 100%": { "transform": "scale(1)", "text-shadow": "0 4px 20px rgba(0,0,0,0.1)" },
+            "50%": { "transform": "scale(1.02)", "text-shadow": "0 8px 30px rgba(99, 102, 241, 0.2)" }
+          }
+        },
+        "underlineGrow": {
+          "keyframes": {
+            "0%, 100%": { "width": "0" },
+            "50%": { "width": "120px" }
+          }
+        },
+        "capsuleFloat": {
+          "keyframes": {
+            "0%, 100%": { "transform": "translateY(0px)", "box-shadow": "0 8px 25px rgba(0,0,0,0.1)" },
+            "50%": { "transform": "translateY(-8px)", "box-shadow": "0 15px 40px rgba(99, 102, 241, 0.2)" }
+          }
+        },
+        "dateGlow": {
+          "keyframes": {
+            "0%, 100%": { "color": "#475569" },
+            "50%": { "color": "#6366f1" }
+          }
+        },
+        "headerGlow": {
+          "keyframes": {
+            "0%, 100%": { "opacity": "0.3" },
+            "50%": { "opacity": "0.6" }
+          }
+        },
+        "glassBreath": {
+          "keyframes": {
+            "0%, 100%": { "transform": "scale(1)", "background": "rgba(255,255,255,0.4)" },
+            "50%": { "transform": "scale(1.01)", "background": "rgba(255,255,255,0.5)" }
+          }
+        },
+        "elementFloat1": {
+          "keyframes": {
+            "0%, 100%": { "transform": "translateY(0px) rotate(0deg)" },
+            "33%": { "transform": "translateY(-20px) rotate(120deg)" },
+            "66%": { "transform": "translateY(10px) rotate(240deg)" }
+          }
+        },
+        "elementFloat2": {
+          "keyframes": {
+            "0%, 100%": { "transform": "rotate(45deg) translateY(0px)" },
+            "50%": { "transform": "rotate(45deg) translateY(-15px)" }
+          }
+        },
+        "elementFloat3": {
+          "keyframes": {
+            "0%, 100%": { "transform": "translateX(0px) rotate(0deg)" },
+            "50%": { "transform": "translateX(20px) rotate(180deg)" }
+          }
+        },
+        "frameShift": {
+          "keyframes": {
+            "0%, 100%": { "transform": "translateX(0px)", "border-color": "rgba(99, 102, 241, 0.2)" },
+            "50%": { "transform": "translateX(5px)", "border-color": "rgba(139, 92, 246, 0.3)" }
+          }
+        },
+        "messageAppear": {
+          "keyframes": {
+            "0%, 100%": { "opacity": "0.9" },
+            "50%": { "opacity": "1", "transform": "translateY(-2px)" }
+          }
+        },
+        "gridShift": {
+          "keyframes": {
+            "0%": { "background": "linear-gradient(45deg, transparent 40%, rgba(99, 102, 241, 0.05) 50%, transparent 60%)" },
+            "50%": { "background": "linear-gradient(45deg, transparent 40%, rgba(139, 92, 246, 0.05) 50%, transparent 60%)" },
+            "100%": { "background": "linear-gradient(45deg, transparent 40%, rgba(236, 72, 153, 0.05) 50%, transparent 60%)" }
+          }
+        },
+        "accentPulse": {
+          "keyframes": {
+            "0%, 100%": { "width": "100px", "opacity": "0.6" },
+            "50%": { "width": "140px", "opacity": "1" }
+          }
+        },
+        "patternWave": {
+          "keyframes": {
+            "0%, 100%": { "transform": "scaleX(1)", "opacity": "0.3" },
+            "50%": { "transform": "scaleX(1.2)", "opacity": "0.6" }
+          }
+        },
+        "rsvpFrameFloat": {
+          "keyframes": {
+            "0%, 100%": { "transform": "translateY(0px)", "background": "rgba(255,255,255,0.4)" },
+            "50%": { "transform": "translateY(-3px)", "background": "rgba(255,255,255,0.6)" }
+          }
+        },
+        "contentFade": {
+          "keyframes": {
+            "0%, 100%": { "opacity": "0.8" },
+            "50%": { "opacity": "1" }
+          }
+        },
+        "rsvpGlow": {
+          "keyframes": {
+            "0%, 100%": { "opacity": "0.2" },
+            "50%": { "opacity": "0.4" }
+          }
+        },
+        "waveFlow": {
+          "keyframes": {
+            "0%": { "background": "linear-gradient(90deg, transparent, rgba(99, 102, 241, 0.6), rgba(139, 92, 246, 0.6), rgba(236, 72, 153, 0.6), transparent)" },
+            "50%": { "background": "linear-gradient(90deg, transparent, rgba(139, 92, 246, 0.8), rgba(236, 72, 153, 0.8), rgba(99, 102, 241, 0.8), transparent)" },
+            "100%": { "background": "linear-gradient(90deg, transparent, rgba(236, 72, 153, 0.6), rgba(99, 102, 241, 0.6), rgba(139, 92, 246, 0.6), transparent)" }
+          }
+        }
+      }
+    },
+    "variables": {
+      "colors": {
+        "primary": "#1e293b",
+        "secondary": "#6366f1",
+        "accent": "#8b5cf6",
+        "background": "#ffffff",
+        "glass": "rgba(255,255,255,0.4)"
+      },
+      "typography": {
+        "bodyFont": "Inter, sans-serif",
+        "headingFont": "Inter, sans-serif",
+        "fontSize": {
+          "base": "16px",
+          "heading": {
+            "h1": "2.8rem",
+            "h2": "2rem",
+            "h3": "1.4rem"
+          }
+        }
+      },
+      "spacing": {
+        "base": "1rem",
+        "sections": "4rem",
+        "components": "3rem"
+      }
+    }
+  },
+"romantic": {
+    "name": "Romantique Éthéré",
+    "description": "Design romantique luxueux avec pétales flottants, lumière douce et ornements floraux premium",
+    "category": "romantique",
+    "tags": ["éthéré", "pétales", "lumière", "floral", "premium", "romantique"],
+    "template": {
+      "layout": "<div class='wedding-invitation romantic-floral'>{header}{main}{footer}</div>",
+      "sections": {
+        "header": {
+          "html": "<header class='invitation-header'><div class='celestial-border'></div><div class='floating-petals'><div class='petal petal-1'></div><div class='petal petal-2'></div><div class='petal petal-3'></div><div class='petal petal-4'></div><div class='petal petal-5'></div></div><div class='rose-ornament top'></div><h1 class='couple-names'>{coupleName}</h1><div class='heart-constellation'><span class='heart main-heart'>♥</span><span class='heart side-heart left'>♡</span><span class='heart side-heart right'>♡</span></div><div class='date-wreath'><p class='wedding-date'>{date}</p></div><div class='rose-ornament bottom'></div></header>",
+          "position": "header"
+        },
+        "main": {
+          "html": "<main class='invitation-body'><div class='enchanted-frame'><div class='frame-roses'><div class='rose rose-tl'></div><div class='rose rose-tr'></div><div class='rose rose-bl'></div><div class='rose rose-br'></div></div><div class='message-garden'><div class='garden-backdrop'></div><p class='invitation-message'>{message}</p><div class='message-flourish'></div></div><div class='details-pavilion'><div class='pavilion-canopy'></div><div class='wedding-details'>{details}</div><div class='pavilion-base'></div></div></div></main>",
+          "position": "main"
+        },
+        "footer": {
+          "html": "<footer class='invitation-footer'><div class='fairy-lights'><div class='light light-1'></div><div class='light light-2'></div><div class='light light-3'></div><div class='light light-4'></div><div class='light light-5'></div></div><div class='rsvp-section'><div class='rsvp-bouquet'></div><div class='rsvp-content'><span class='floral-accent'>❀</span>{rsvpForm}<span class='floral-accent'>❀</span></div><div class='rsvp-ribbon'></div></div><div class='signature-vine'></div></footer>",
+          "position": "footer"
+        }
+      }
+    },
+    "styles": {
+      "base": {
+        ".wedding-invitation": {
+          "max-width": "620px",
+          "margin": "0 auto",
+          "padding": "4rem 3.5rem",
+          "background": "radial-gradient(ellipse at center, #fdf8f5 0%, #f9f1f0 30%, #f5e6e8 60%, #f0d9e0 100%)",
+          "border": "3px solid transparent",
+          "border-image": "linear-gradient(45deg, #e8b4b8, #f4d1d3, #e8b4b8, #d4a5a9) 1",
+          "border-radius": "25px",
+          "box-shadow": "0 30px 80px rgba(232, 180, 184, 0.3), 0 15px 40px rgba(232, 180, 184, 0.2), inset 0 2px 0 rgba(255,255,255,0.9)",
+          "position": "relative",
+          "animation": "etherealFloat 12s ease-in-out infinite",
+          "backdrop-filter": "blur(15px)",
+          "overflow": "hidden"
+        },
+        ".wedding-invitation::before": {
+          "content": "''",
+          "position": "absolute",
+          "top": "0",
+          "left": "0",
+          "right": "0",
+          "bottom": "0",
+          "background": "url('data:image/svg+xml,<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 100 100\"><defs><pattern id=\"petals\" x=\"0\" y=\"0\" width=\"40\" height=\"40\" patternUnits=\"userSpaceOnUse\"><ellipse cx=\"20\" cy=\"15\" rx=\"3\" ry=\"8\" fill=\"%23e8b4b8\" opacity=\"0.1\" transform=\"rotate(45 20 15)\"/><ellipse cx=\"10\" cy=\"30\" rx=\"2\" ry=\"6\" fill=\"%23f4d1d3\" opacity=\"0.08\" transform=\"rotate(-30 10 30)\"/></pattern></defs><rect width=\"100\" height=\"100\" fill=\"url(%23petals)\"/></svg>')",
+          "animation": "petalsDrift 20s linear infinite",
+          "pointer-events": "none",
+          "border-radius": "25px"
+        },
+        ".wedding-invitation::after": {
+          "content": "''",
+          "position": "absolute",
+          "top": "-5px",
+          "left": "-5px",
+          "right": "-5px",
+          "bottom": "-5px",
+          "background": "linear-gradient(45deg, rgba(232, 180, 184, 0.2), rgba(244, 209, 211, 0.2), rgba(232, 180, 184, 0.2))",
+          "border-radius": "30px",
+          "z-index": "-1",
+          "animation": "romanticAura 8s ease-in-out infinite",
+          "filter": "blur(3px)"
+        }
+      },
+      "components": {
+        "header": {
+          ".invitation-header": {
+            "text-align": "center",
+            "margin-bottom": "4rem",
+            "position": "relative",
+            "z-index": "3"
+          },
+          ".celestial-border": {
+            "position": "absolute",
+            "top": "-30px",
+            "left": "50%",
+            "transform": "translateX(-50%)",
+            "width": "300px",
+            "height": "60px",
+            "background": "radial-gradient(ellipse, rgba(232, 180, 184, 0.3) 0%, transparent 70%)",
+            "border-radius": "50%",
+            "animation": "celestialGlow 10s ease-in-out infinite",
+            "filter": "blur(8px)"
+          },
+          ".floating-petals": {
+            "position": "absolute",
+            "top": "0",
+            "left": "0",
+            "right": "0",
+            "bottom": "0",
+            "pointer-events": "none",
+            "z-index": "1"
+          },
+          ".petal": {
+            "position": "absolute",
+            "width": "8px",
+            "height": "16px",
+            "background": "linear-gradient(45deg, #e8b4b8, #f4d1d3)",
+            "border-radius": "50% 50% 50% 0",
+            "opacity": "0.6"
+          },
+          ".petal-1": {
+            "top": "20px",
+            "left": "10%",
+            "animation": "petalFloat1 15s ease-in-out infinite"
+          },
+          ".petal-2": {
+            "top": "40px",
+            "right": "15%",
+            "animation": "petalFloat2 18s ease-in-out infinite"
+          },
+          ".petal-3": {
+            "bottom": "60px",
+            "left": "20%",
+            "animation": "petalFloat3 12s ease-in-out infinite"
+          },
+          ".petal-4": {
+            "top": "60px",
+            "right": "25%",
+            "animation": "petalFloat4 16s ease-in-out infinite"
+          },
+          ".petal-5": {
+            "bottom": "40px",
+            "right": "10%",
+            "animation": "petalFloat5 14s ease-in-out infinite"
+          },
+          ".rose-ornament": {
+            "width": "120px",
+            "height": "40px",
+            "margin": "1rem auto",
+            "position": "relative",
+            "animation": "roseBloom 8s ease-in-out infinite"
+          },
+          ".rose-ornament::before": {
+            "content": "''",
+            "position": "absolute",
+            "left": "50%",
+            "top": "50%",
+            "transform": "translate(-50%, -50%)",
+            "width": "20px",
+            "height": "20px",
+            "background": "radial-gradient(circle, #f4d1d3, #e8b4b8)",
+            "border-radius": "50%",
+            "box-shadow": "0 0 15px rgba(232, 180, 184, 0.5)"
+          },
+          ".rose-ornament::after": {
+            "content": "''",
+            "position": "absolute",
+            "left": "50%",
+            "top": "50%",
+            "transform": "translate(-50%, -50%)",
+            "width": "100px",
+            "height": "2px",
+            "background": "linear-gradient(90deg, transparent, #e8b4b8, transparent)",
+            "border-radius": "1px"
+          },
+          ".couple-names": {
+            "font-size": "3rem",
+            "color": "#5d4e4f",
+            "margin": "2rem 0",
+            "font-weight": "300",
+            "letter-spacing": "2px",
+            "text-shadow": "0 4px 15px rgba(232, 180, 184, 0.4)",
+            "animation": "namesSerenade 10s ease-in-out infinite",
+            "font-family": "Dancing Script, cursive",
+            "position": "relative"
+          },
+          ".couple-names::before": {
+            "content": "''",
+            "position": "absolute",
+            "top": "-15px",
+            "left": "-30px",
+            "right": "-30px",
+            "bottom": "-15px",
+            "background": "radial-gradient(ellipse, rgba(232, 180, 184, 0.1) 0%, transparent 70%)",
+            "border-radius": "20px",
+            "animation": "nameHalo 12s ease-in-out infinite",
+            "z-index": "-1"
+          },
+          ".heart-constellation": {
+            "margin": "2rem 0",
+            "position": "relative",
+            "height": "60px",
+            "display": "flex",
+            "align-items": "center",
+            "justify-content": "center"
+          },
+          ".heart": {
+            "position": "absolute",
+            "color": "#e8b4b8",
+            "text-shadow": "0 0 10px rgba(232, 180, 184, 0.6)"
+          },
+          ".main-heart": {
+            "font-size": "2.5rem",
+            "animation": "heartbeatMain 3s ease-in-out infinite",
+            "z-index": "2"
+          },
+          ".side-heart": {
+            "font-size": "1.5rem",
+            "opacity": "0.7",
+            "animation": "heartbeatSide 4s ease-in-out infinite"
+          },
+          ".side-heart.left": {
+            "left": "-40px",
+            "animation-delay": "0.5s"
+          },
+          ".side-heart.right": {
+            "right": "-40px",
+            "animation-delay": "1s"
+          },
+          ".date-wreath": {
+            "display": "inline-block",
+            "background": "linear-gradient(135deg, rgba(255,255,255,0.7) 0%, rgba(248,240,240,0.6) 100%)",
+            "backdrop-filter": "blur(20px)",
+            "border": "2px solid rgba(232, 180, 184, 0.3)",
+            "border-radius": "50px",
+            "padding": "1rem 2.5rem",
+            "margin-top": "2rem",
+            "position": "relative",
+            "animation": "wreathFloat 8s ease-in-out infinite"
+          },
+          ".date-wreath::before": {
+            "content": "''",
+            "position": "absolute",
+            "top": "-8px",
+            "left": "20px",
+            "width": "12px",
+            "height": "12px",
+            "background": "radial-gradient(circle, #f4d1d3, #e8b4b8)",
+            "border-radius": "50%",
+            "animation": "wreathJewel 5s ease-in-out infinite"
+          },
+          ".date-wreath::after": {
+            "content": "''",
+            "position": "absolute",
+            "bottom": "-8px",
+            "right": "20px",
+            "width": "12px",
+            "height": "12px",
+            "background": "radial-gradient(circle, #f4d1d3, #e8b4b8)",
+            "border-radius": "50%",
+            "animation": "wreathJewel 5s ease-in-out infinite 2.5s"
+          },
+          ".wedding-date": {
+            "font-size": "1.2rem",
+            "color": "#8b6f70",
+            "font-style": "italic",
+            "margin": "0",
+            "text-transform": "uppercase",
+            "letter-spacing": "2px",
+            "animation": "dateShimmer 6s ease-in-out infinite"
+          }
+        },
+        "main": {
+          ".invitation-body": {
+            "margin": "4rem 0",
+            "position": "relative",
+            "z-index": "2"
+          },
+          ".enchanted-frame": {
+            "background": "linear-gradient(135deg, rgba(255,255,255,0.8) 0%, rgba(248,240,240,0.7) 100%)",
+            "backdrop-filter": "blur(25px)",
+            "border": "2px solid rgba(232, 180, 184, 0.3)",
+            "border-radius": "20px",
+            "padding": "3.5rem 3rem",
+            "position": "relative",
+            "overflow": "hidden",
+            "animation": "frameEnchantment 10s ease-in-out infinite"
+          },
+          ".frame-roses": {
+            "position": "absolute",
+            "top": "0",
+            "left": "0",
+            "right": "0",
+            "bottom": "0",
+            "pointer-events": "none"
+          },
+          ".rose": {
+            "position": "absolute",
+            "width": "25px",
+            "height": "25px",
+            "background": "radial-gradient(circle, #f4d1d3, #e8b4b8, #d4a5a9)",
+            "border-radius": "50%",
+            "box-shadow": "0 0 15px rgba(232, 180, 184, 0.4)",
+            "animation": "roseGlow 6s ease-in-out infinite"
+          },
+          ".rose-tl": {
+            "top": "-12px",
+            "left": "-12px",
+            "animation-delay": "0s"
+          },
+          ".rose-tr": {
+            "top": "-12px",
+            "right": "-12px",
+            "animation-delay": "1.5s"
+          },
+          ".rose-bl": {
+            "bottom": "-12px",
+            "left": "-12px",
+            "animation-delay": "3s"
+          },
+          ".rose-br": {
+            "bottom": "-12px",
+            "right": "-12px",
+            "animation-delay": "4.5s"
+          },
+          ".message-garden": {
+            "position": "relative",
+            "margin-bottom": "3rem",
+            "z-index": "3"
+          },
+          ".garden-backdrop": {
+            "position": "absolute",
+            "top": "-20px",
+            "left": "-20px",
+            "right": "-20px",
+            "bottom": "-20px",
+            "background": "radial-gradient(ellipse, rgba(232, 180, 184, 0.1) 0%, transparent 70%)",
+            "border-radius": "15px",
+            "animation": "gardenBreeze 12s ease-in-out infinite"
+          },
+          ".invitation-message": {
+            "font-size": "1.3rem",
+            "color": "#5d4e4f",
+            "line-height": "1.9",
+            "text-align": "center",
+            "margin": "0 0 2rem 0",
+            "font-style": "italic",
+            "font-weight": "300",
+            "position": "relative",
+            "z-index": "4",
+            "animation": "messageWhisper 8s ease-in-out infinite"
+          },
+          ".invitation-message::before": {
+            "content": "\"",
+            "position": "absolute",
+            "left": "-3rem",
+            "top": "-1.5rem",
+            "font-size": "5rem",
+            "color": "rgba(232, 180, 184, 0.3)",
+            "font-family": "serif",
+            "animation": "quoteFloat 10s ease-in-out infinite"
+          },
+          ".invitation-message::after": {
+            "content": "\"",
+            "position": "absolute",
+            "right": "-3rem",
+            "bottom": "-2.5rem",
+            "font-size": "5rem",
+            "color": "rgba(232, 180, 184, 0.3)",
+            "font-family": "serif",
+            "animation": "quoteFloat 10s ease-in-out infinite 5s"
+          },
+          ".message-flourish": {
+            "width": "150px",
+            "height": "20px",
+            "margin": "0 auto",
+            "background": "url('data:image/svg+xml,<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 150 20\"><path d=\"M10,10 Q40,5 75,10 Q110,15 140,10\" stroke=\"%23e8b4b8\" stroke-width=\"2\" fill=\"none\" opacity=\"0.6\"/><circle cx=\"75\" cy=\"10\" r=\"3\" fill=\"%23f4d1d3\"/></svg>')",
+            "background-size": "contain",
+            "background-repeat": "no-repeat",
+            "background-position": "center",
+            "animation": "flourishGrow 8s ease-in-out infinite"
+          },
+          ".details-pavilion": {
+            "text-align": "center",
+            "position": "relative",
+            "z-index": "3"
+          },
+          ".pavilion-canopy": {
+            "position": "absolute",
+            "top": "-15px",
+            "left": "-15px",
+            "right": "-15px",
+            "height": "30px",
+            "background": "linear-gradient(135deg, rgba(244, 209, 211, 0.4) 0%, rgba(232, 180, 184, 0.3) 100%)",
+            "border-radius": "15px 15px 0 0",
+            "animation": "canopyWave 6s ease-in-out infinite"
+          },
+          ".wedding-details": {
+            "font-size": "1.1rem",
+            "color": "#6b5b5c",
+            "line-height": "1.8",
+            "background": "rgba(255,255,255,0.6)",
+            "backdrop-filter": "blur(15px)",
+            "padding": "2.5rem 2rem",
+            "border-radius": "15px",
+            "border": "1px solid rgba(232, 180, 184, 0.2)",
+            "position": "relative",
+            "z-index": "4"
+          },
+          ".pavilion-base": {
+            "position": "absolute",
+            "bottom": "-15px",
+            "left": "-15px",
+            "right": "-15px",
+            "height": "30px",
+            "background": "linear-gradient(135deg, rgba(232, 180, 184, 0.3) 0%, rgba(244, 209, 211, 0.4) 100%)",
+            "border-radius": "0 0 15px 15px",
+            "animation": "baseShimmer 8s ease-in-out infinite"
+          }
+        },
+        "footer": {
+          ".invitation-footer": {
+            "text-align": "center",
+            "margin-top": "4rem",
+            "position": "relative",
+            "z-index": "2"
+          },
+          ".fairy-lights": {
+            "position": "absolute",
+            "top": "-40px",
+            "left": "0",
+            "right": "0",
+            "height": "80px",
+            "pointer-events": "none"
+          },
+          ".light": {
+            "position": "absolute",
+            "width": "8px",
+            "height": "8px",
+            "background": "radial-gradient(circle, #f4d1d3, #e8b4b8)",
+            "border-radius": "50%",
+            "animation": "fairyTwinkle 4s ease-in-out infinite"
+          },
+          ".light-1": {
+            "left": "10%",
+            "top": "20px",
+            "animation-delay": "0s"
+          },
+          ".light-2": {
+            "left": "30%",
+            "top": "10px",
+            "animation-delay": "0.8s"
+          },
+          ".light-3": {
+            "left": "50%",
+            "top": "15px",
+            "animation-delay": "1.6s"
+          },
+          ".light-4": {
+            "left": "70%",
+            "top": "8px",
+            "animation-delay": "2.4s"
+          },
+          ".light-5": {
+            "left": "90%",
+            "top": "18px",
+            "animation-delay": "3.2s"
+          },
+          ".rsvp-section": {
+            "position": "relative",
+            "display": "inline-block",
+            "margin-bottom": "2rem"
+          },
+          ".rsvp-bouquet": {
+            "position": "absolute",
+            "top": "-20px",
+            "left": "50%",
+            "transform": "translateX(-50%)",
+            "width": "40px",
+            "height": "40px",
+            "background": "radial-gradient(circle, #f4d1d3, #e8b4b8)",
+            "border-radius": "50%",
+            "box-shadow": "0 0 20px rgba(232, 180, 184, 0.5)",
+            "animation": "bouquetFloat 6s ease-in-out infinite"
+          },
+          ".rsvp-bouquet::before": {
+            "content": "''",
+            "position": "absolute",
+            "top": "50%",
+            "left": "50%",
+            "transform": "translate(-50%, -50%)",
+            "width": "20px",
+            "height": "20px",
+            "background": "rgba(255,255,255,0.6)",
+            "border-radius": "50%",
+            "backdrop-filter": "blur(5px)"
+          },
+          ".rsvp-content": {
+            "font-size": "1rem",
+            "color": "#8b6f70",
+            "text-transform": "uppercase",
+            "letter-spacing": "2px",
+            "font-weight": "500",
+            "display": "flex",
+            "align-items": "center",
+            "justify-content": "center",
+            "gap": "1.5rem",
+            "background": "rgba(255,255,255,0.5)",
+            "backdrop-filter": "blur(15px)",
+            "padding": "1.5rem 3rem",
+            "border-radius": "30px",
+            "border": "1px solid rgba(232, 180, 184, 0.3)",
+            "animation": "contentGlow 8s ease-in-out infinite"
+          },
+          ".floral-accent": {
+            "font-size": "1.5rem",
+            "color": "#e8b4b8",
+            "animation": "accentSpin 6s ease-in-out infinite"
+          },
+          ".rsvp-ribbon": {
+            "position": "absolute",
+            "bottom": "-10px",
+            "left": "50%",
+            "transform": "translateX(-50%)",
+            "width": "80px",
+            "height": "20px",
+            "background": "linear-gradient(135deg, #e8b4b8, #f4d1d3)",
+            "border-radius": "0 0 10px 10px",
+            "animation": "ribbonWave 5s ease-in-out infinite"
+          },
+          ".rsvp-ribbon::before": {
+            "content": "''",
+            "position": "absolute",
+            "bottom": "0",
+            "left": "-10px",
+            "width": "0",
+            "height": "0",
+            "border-left": "10px solid transparent",
+            "border-right": "10px solid #d4a5a9",
+            "border-bottom": "10px solid transparent"
+          },
+          ".rsvp-ribbon::after": {
+            "content": "''",
+            "position": "absolute",
+            "bottom": "0",
+            "right": "-10px",
+            "width": "0",
+            "height": "0",
+            "border-left": "10px solid #d4a5a9",
+            "border-right": "10px solid transparent",
+            "border-bottom": "10px solid transparent"
+          },
+          ".signature-vine": {
+            "width": "250px",
+            "height": "30px",
+            "margin": "0 auto",
+            "background": "url('data:image/svg+xml,<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 250 30\"><path d=\"M20,15 Q80,8 125,15 Q170,22 230,15\" stroke=\"%23e8b4b8\" stroke-width=\"2\" fill=\"none\" opacity=\"0.6\"/><circle cx=\"50\" cy=\"12\" r=\"2\" fill=\"%23f4d1d3\" opacity=\"0.8\"/><circle cx=\"125\" cy=\"15\" r=\"3\" fill=\"%23e8b4b8\" opacity=\"0.9\"/><circle cx=\"200\" cy=\"18\" r=\"2\" fill=\"%23f4d1d3\" opacity=\"0.8\"/></svg>')",
+            "background-size": "contain",
+            "background-repeat": "no-repeat",
+            "background-position": "center",
+            "animation": "vineGrow 10s ease-in-out infinite"
+          }
+        }
+      },
+      "animations": {
+        "etherealFloat": {
+          "keyframes": {
+            "0%, 100%": { "transform": "translateY(0px) rotate(0deg)", "box-shadow": "0 30px 80px rgba(232, 180, 184, 0.3), 0 15px 40px rgba(232, 180, 184, 0.2)" },
+            "33%": { "transform": "translateY(-8px) rotate(0.5deg)", "box-shadow": "0 40px 100px rgba(232, 180, 184, 0.4), 0 20px 60px rgba(232, 180, 184, 0.3)" },
+            "66%": { "transform": "translateY(4px) rotate(-0.3deg)", "box-shadow": "0 35px 90px rgba(232, 180, 184, 0.35), 0 18px 50px rgba(232, 180, 184, 0.25)" }
+          }
+        },
+        "petalsDrift": {
+          "keyframes": {
+            "0%": { "transform": "translateX(0px) translateY(0px)" },
+            "100%": { "transform": "translateX(-20px) translateY(-10px)" }
+          }
+        },
+        "romanticAura": {
+          "keyframes": {
+            "0%, 100%": { "opacity": "0.6", "transform": "scale(1)" },
+            "50%": { "opacity": "0.8", "transform": "scale(1.02)" }
+          }
+        },
+        "celestialGlow": {
+          "keyframes": {
+            "0%, 100%": { "opacity": "0.3", "transform": "translateX(-50%) scaleX(1)" },
+            "50%": { "opacity": "0.6", "transform": "translateX(-50%) scaleX(1.2)" }
+          }
+        },
+        "petalFloat1": {
+          "keyframes": {
+            "0%, 100%": { "transform": "translateY(0px) rotate(0deg)" },
+            "33%": { "transform": "translateY(-20px) rotate(120deg)" },
+            "66%": { "transform": "translateY(10px) rotate(240deg)" }
+          }
+        },
+        "petalFloat2": {
+          "keyframes": {
+            "0%, 100%": { "transform": "translateY(0px) rotate(0deg)" },
+            "50%": { "transform": "translateY(-25px) rotate(180deg)" }
+          }
+        },
+        "petalFloat3": {
+          "keyframes": {
+            "0%, 100%": { "transform": "translateY(0px) rotate(0deg)" },
+            "25%": { "transform": "translateY(-15px) rotate(90deg)" },
+            "75%": { "transform": "translateY(8px) rotate(270deg)" }
+          }
+        },
+        "petalFloat4": {
+          "keyframes": {
+            "0%, 100%": { "transform": "translateY(0px) rotate(0deg)" },
+            "40%": { "transform": "translateY(-18px) rotate(144deg)" },
+            "80%": { "transform": "translateY(5px) rotate(288deg)" }
+          }
+        },
+        "petalFloat5": {
+          "keyframes": {
+            "0%, 100%": { "transform": "translateY(0px) rotate(0deg)" },
+            "30%": { "transform": "translateY(-22px) rotate(108deg)" },
+            "70%": { "transform": "translateY(12px) rotate(252deg)" }
+          }
+        },
+        "roseBloom": {
+          "keyframes": {
+            "0%, 100%": { "transform": "scale(1)" },
+            "50%": { "transform": "scale(1.1)" }
+          }
+        },
+        "namesSerenade": {
+          "keyframes": {
+            "0%, 100%": { "transform": "scale(1)", "text-shadow": "0 4px 15px rgba(232, 180, 184, 0.4)" },
+            "50%": { "transform": "scale(1.03)", "text-shadow": "0 8px 25px rgba(232, 180, 184, 0.6)" }
+          }
+        },
+        "nameHalo": {
+          "keyframes": {
+            "0%, 100%": { "opacity": "0.3", "transform": "scale(1)" },
+            "50%": { "opacity": "0.6", "transform": "scale(1.1)" }
+          }
+        },
+        "heartbeatMain": {
+          "keyframes": {
+            "0%, 100%": { "transform": "scale(1)" },
+            "25%": { "transform": "scale(1.2)" },
+            "50%": { "transform": "scale(1)" },
+            "75%": { "transform": "scale(1.1)" }
+          }
+        },
+        "heartbeatSide": {
+          "keyframes": {
+            "0%, 100%": { "transform": "scale(1)", "opacity": "0.7" },
+            "50%": { "transform": "scale(1.3)", "opacity": "1" }
+          }
+        },
+        "wreathFloat": {
+          "keyframes": {
+            "0%, 100%": { "transform": "translateY(0px)", "box-shadow": "0 8px 25px rgba(232, 180, 184, 0.2)" },
+            "50%": { "transform": "translateY(-10px)", "box-shadow": "0 15px 40px rgba(232, 180, 184, 0.3)" }
+          }
+        },
+        "wreathJewel": {
+          "keyframes": {
+            "0%, 100%": { "transform": "scale(1)", "box-shadow": "0 0 10px rgba(232, 180, 184, 0.5)" },
+            "50%": { "transform": "scale(1.3)", "box-shadow": "0 0 20px rgba(232, 180, 184, 0.8)" }
+          }
+        },
+        "dateShimmer": {
+          "keyframes": {
+            "0%, 100%": { "opacity": "0.9" },
+            "50%": { "opacity": "1", "transform": "scale(1.02)" }
+          }
+        },
+        "frameEnchantment": {
+          "keyframes": {
+            "0%, 100%": { "background": "linear-gradient(135deg, rgba(255,255,255,0.8) 0%, rgba(248,240,240,0.7) 100%)" },
+            "50%": { "background": "linear-gradient(135deg, rgba(255,255,255,0.9) 0%, rgba(248,240,240,0.8) 100%)" }
+          }
+        },
+        "roseGlow": {
+          "keyframes": {
+            "0%, 100%": { "transform": "scale(1)", "box-shadow": "0 0 15px rgba(232, 180, 184, 0.4)" },
+            "50%": { "transform": "scale(1.2)", "box-shadow": "0 0 25px rgba(232, 180, 184, 0.6)" }
+          }
+        },
+        "gardenBreeze": {
+          "keyframes": {
+            "0%, 100%": { "transform": "scale(1)", "opacity": "0.3" },
+            "50%": { "transform": "scale(1.05)", "opacity": "0.5" }
+          }
+        },
+        "messageWhisper": {
+          "keyframes": {
+            "0%, 100%": { "opacity": "0.9" },
+            "50%": { "opacity": "1", "transform": "translateY(-2px)" }
+          }
+        },
+        "quoteFloat": {
+          "keyframes": {
+            "0%, 100%": { "transform": "translateY(0px)", "opacity": "0.3" },
+            "50%": { "transform": "translateY(-10px)", "opacity": "0.5" }
+          }
+        },
+        "flourishGrow": {
+          "keyframes": {
+            "0%, 100%": { "transform": "scaleX(1)", "opacity": "0.6" },
+            "50%": { "transform": "scaleX(1.2)", "opacity": "1" }
+          }
+        },
+        "canopyWave": {
+          "keyframes": {
+            "0%, 100%": { "transform": "scaleY(1)" },
+            "50%": { "transform": "scaleY(1.1)" }
+          }
+        },
+        "baseShimmer": {
+          "keyframes": {
+            "0%, 100%": { "opacity": "0.6" },
+            "50%": { "opacity": "0.9" }
+          }
+        },
+        "fairyTwinkle": {
+          "keyframes": {
+            "0%, 100%": { "opacity": "0.4", "transform": "scale(1)" },
+            "50%": { "opacity": "1", "transform": "scale(1.5)" }
+          }
+        },
+        "bouquetFloat": {
+          "keyframes": {
+            "0%, 100%": { "transform": "translateX(-50%) translateY(0px)" },
+            "50%": { "transform": "translateX(-50%) translateY(-8px)" }
+          }
+        },
+        "contentGlow": {
+          "keyframes": {
+            "0%, 100%": { "background": "rgba(255,255,255,0.5)" },
+            "50%": { "background": "rgba(255,255,255,0.7)" }
+          }
+        },
+        "accentSpin": {
+          "keyframes": {
+            "0%, 100%": { "transform": "rotate(0deg)" },
+            "50%": { "transform": "rotate(180deg)" }
+          }
+        },
+        "ribbonWave": {
+          "keyframes": {
+            "0%, 100%": { "transform": "translateX(-50%) scaleX(1)" },
+            "50%": { "transform": "translateX(-50%) scaleX(1.1)" }
+          }
+        },
+        "vineGrow": {
+          "keyframes": {
+            "0%, 100%": { "transform": "scaleX(1)", "opacity": "0.6" },
+            "50%": { "transform": "scaleX(1.1)", "opacity": "1" }
+          }
+        }
+      }
+    },
+    "variables": {
+      "colors": {
+        "primary": "#5d4e4f",
+        "secondary": "#e8b4b8",
+        "accent": "#8b6f70",
+        "background": "#fdf8f5",
+        "romantic": "#f4d1d3"
+      },
+      "typography": {
+        "bodyFont": "Crimson Text, serif",
+        "headingFont": "Dancing Script, cursive",
+        "fontSize": {
+          "base": "16px",
+          "heading": {
+            "h1": "3rem",
+            "h2": "2.2rem",
+            "h3": "1.6rem"
+          }
+        }
+      },
+      "spacing": {
+        "base": "1rem",
+        "sections": "4rem",
+        "components": "3rem"
+      }
+    }
+  },
+  "vintage": {
+    "name": "Vintage Aristocratique",
+    "description": "Style vintage premium avec ornements dorés, effets sépia luxueux et typographie aristocratique",
+    "category": "vintage",
+    "tags": ["aristocratique", "premium", "ornements", "sépia", "luxe"],
+    "template": {
+      "layout": "<div class='wedding-invitation vintage-retro'>{header}{main}{footer}</div>",
+      "sections": {
+        "header": {
+          "html": "<header class='invitation-header'><div class='aristocratic-crest'></div><div class='vintage-flourish top'></div><div class='ornamental-frame'><h1 class='couple-names'>{coupleName}</h1><div class='noble-divider'><span class='ornament left'>❦</span><span class='center-jewel'>◊</span><span class='ornament right'>❦</span></div><div class='date-medallion'><p class='wedding-date'>{date}</p></div></div><div class='vintage-flourish bottom'></div><div class='heritage-seal'></div></header>",
+          "position": "header"
+        },
+        "main": {
+          "html": "<main class='invitation-body'><div class='aristocratic-chamber'><div class='chamber-pillars'><div class='pillar left'></div><div class='pillar right'></div></div><div class='manuscript-scroll'><div class='scroll-ornament top'></div><div class='parchment-content'><p class='invitation-message'>{message}</p></div><div class='scroll-ornament bottom'></div></div><div class='details-pavilion'><div class='pavilion-crown'></div><div class='wedding-details'>{details}</div><div class='pavilion-base'></div></div></div></main>",
+          "position": "main"
+        },
+        "footer": {
+          "html": "<footer class='invitation-footer'><div class='golden-filigree'></div><div class='rsvp-section'><div class='royal-frame'></div><div class='rsvp-content'>{rsvpForm}</div><div class='wax-seal'></div></div><div class='signature-flourish'></div></footer>",
+          "position": "footer"
+        }
+      }
+    },
+    "styles": {
+      "base": {
+        ".wedding-invitation": {
+          "max-width": "680px",
+          "margin": "0 auto",
+          "padding": "4.5rem 4rem",
+          "background": "linear-gradient(135deg, #f7f3e9 0%, #f2ead6 25%, #ede1c3 50%, #e8d8b0 75%, #e3cf9d 100%)",
+          "border": "6px solid transparent",
+          "border-image": "linear-gradient(45deg, #8b6914, #d4af37, #b8860b, #8b6914) 1",
+          "border-radius": "15px",
+          "box-shadow": "0 40px 100px rgba(139, 105, 20, 0.3), 0 20px 60px rgba(139, 105, 20, 0.2), inset 0 2px 0 rgba(255,255,255,0.6)",
+          "position": "relative",
+          "animation": "aristocraticPresence 15s ease-in-out infinite",
+          "backdrop-filter": "blur(8px)",
+          "overflow": "hidden"
+        },
+        ".wedding-invitation::before": {
+          "content": "''",
+          "position": "absolute",
+          "top": "0",
+          "left": "0",
+          "right": "0",
+          "bottom": "0",
+          "background": "url('data:image/svg+xml,<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 100 100\"><defs><pattern id=\"vintage\" x=\"0\" y=\"0\" width=\"30\" height=\"30\" patternUnits=\"userSpaceOnUse\"><circle cx=\"15\" cy=\"15\" r=\"2\" fill=\"%23d4af37\" opacity=\"0.1\"/><path d=\"M5,5 L25,25 M25,5 L5,25\" stroke=\"%238b6914\" stroke-width=\"0.3\" opacity=\"0.08\"/><rect x=\"10\" y=\"10\" width=\"10\" height=\"10\" fill=\"none\" stroke=\"%23b8860b\" stroke-width=\"0.2\" opacity=\"0.06\"/></pattern></defs><rect width=\"100\" height=\"100\" fill=\"url(%23vintage)\"/></svg>')",
+          "animation": "vintageTexture 25s linear infinite",
+          "pointer-events": "none",
+          "border-radius": "15px"
+        },
+        ".wedding-invitation::after": {
+          "content": "''",
+          "position": "absolute",
+          "top": "-8px",
+          "left": "-8px",
+          "right": "-8px",
+          "bottom": "-8px",
+          "background": "conic-gradient(from 0deg, rgba(139, 105, 20, 0.2), rgba(212, 175, 55, 0.2), rgba(184, 134, 11, 0.2), rgba(139, 105, 20, 0.2))",
+          "border-radius": "23px",
+          "z-index": "-1",
+          "animation": "heritageAura 12s linear infinite",
+          "filter": "blur(4px)"
+        }
+      },
+      "components": {
+        "header": {
+          ".invitation-header": {
+            "text-align": "center",
+            "margin-bottom": "4.5rem",
+            "position": "relative",
+            "z-index": "3"
+          },
+          ".aristocratic-crest": {
+            "position": "absolute",
+            "top": "-40px",
+            "left": "50%",
+            "transform": "translateX(-50%)",
+            "width": "80px",
+            "height": "80px",
+            "background": "radial-gradient(circle, #d4af37, #b8860b, #8b6914)",
+            "border-radius": "50%",
+            "border": "4px solid #fff",
+            "box-shadow": "0 0 30px rgba(212, 175, 55, 0.6), inset 0 0 20px rgba(255,255,255,0.3)",
+            "animation": "crestRotate 20s linear infinite"
+          },
+          ".aristocratic-crest::before": {
+            "content": "♔",
+            "position": "absolute",
+            "top": "50%",
+            "left": "50%",
+            "transform": "translate(-50%, -50%)",
+            "font-size": "2rem",
+            "color": "#fff",
+            "text-shadow": "0 0 15px rgba(0,0,0,0.5)"
+          },
+          ".vintage-flourish": {
+            "width": "250px",
+            "height": "40px",
+            "margin": "1.5rem auto",
+            "position": "relative",
+            "animation": "flourishGlow 10s ease-in-out infinite"
+          },
+          ".vintage-flourish::before": {
+            "content": "''",
+            "position": "absolute",
+            "left": "0",
+            "top": "50%",
+            "transform": "translateY(-50%)",
+            "width": "100px",
+            "height": "3px",
+            "background": "linear-gradient(90deg, transparent, #d4af37, #b8860b)",
+            "border-radius": "2px"
+          },
+          ".vintage-flourish::after": {
+            "content": "''",
+            "position": "absolute",
+            "right": "0",
+            "top": "50%",
+            "transform": "translateY(-50%)",
+            "width": "100px",
+            "height": "3px",
+            "background": "linear-gradient(90deg, #b8860b, #d4af37, transparent)",
+            "border-radius": "2px"
+          },
+          ".ornamental-frame": {
+            "background": "linear-gradient(135deg, rgba(255,255,255,0.6) 0%, rgba(247,243,233,0.5) 100%)",
+            "backdrop-filter": "blur(20px)",
+            "border": "3px solid rgba(212, 175, 55, 0.4)",
+            "border-radius": "20px",
+            "padding": "3rem 2.5rem",
+            "margin": "2rem 0",
+            "position": "relative",
+            "animation": "frameElegance 12s ease-in-out infinite"
+          },
+          ".ornamental-frame::before": {
+            "content": "''",
+            "position": "absolute",
+            "top": "15px",
+            "left": "15px",
+            "right": "15px",
+            "bottom": "15px",
+            "border": "2px solid rgba(184, 134, 11, 0.3)",
+            "border-radius": "15px",
+            "pointer-events": "none",
+            "animation": "innerFrameShimmer 8s ease-in-out infinite"
+          },
+          ".couple-names": {
+            "font-size": "3.5rem",
+            "color": "#4a3c1d",
+            "margin": "1.5rem 0",
+            "font-weight": "400",
+            "letter-spacing": "3px",
+            "text-shadow": "2px 2px 4px rgba(139, 105, 20, 0.4), 0 0 30px rgba(212, 175, 55, 0.3)",
+            "animation": "namesMajestic 10s ease-in-out infinite",
+            "font-family": "Cinzel, serif",
+            "position": "relative"
+          },
+          ".couple-names::before": {
+            "content": "''",
+            "position": "absolute",
+            "top": "-20px",
+            "left": "-40px",
+            "right": "-40px",
+            "bottom": "-20px",
+            "background": "radial-gradient(ellipse, rgba(212, 175, 55, 0.1) 0%, transparent 70%)",
+            "border-radius": "25px",
+            "animation": "nameAura 15s ease-in-out infinite",
+            "z-index": "-1"
+          },
+          ".noble-divider": {
+            "margin": "2.5rem 0",
+            "display": "flex",
+            "align-items": "center",
+            "justify-content": "center",
+            "gap": "2rem"
+          },
+          ".ornament": {
+            "font-size": "2rem",
+            "color": "#d4af37",
+            "text-shadow": "0 0 15px rgba(212, 175, 55, 0.6)",
+            "animation": "ornamentGlow 6s ease-in-out infinite"
+          },
+          ".center-jewel": {
+            "font-size": "2.5rem",
+            "color": "#b8860b",
+            "text-shadow": "0 0 20px rgba(184, 134, 11, 0.8)",
+            "animation": "jewelSparkle 4s ease-in-out infinite"
+          },
+          ".date-medallion": {
+            "display": "inline-block",
+            "background": "radial-gradient(circle, #d4af37, #b8860b)",
+            "border": "4px solid #fff",
+            "border-radius": "50%",
+            "padding": "2rem",
+            "margin-top": "2rem",
+            "box-shadow": "0 0 25px rgba(212, 175, 55, 0.5), inset 0 0 20px rgba(255,255,255,0.3)",
+            "animation": "medallionFloat 8s ease-in-out infinite"
+          },
+          ".wedding-date": {
+            "font-size": "1.3rem",
+            "color": "#fff",
+            "font-weight": "600",
+            "text-transform": "uppercase",
+            "letter-spacing": "2px",
+            "margin": "0",
+            "text-shadow": "0 0 10px rgba(0,0,0,0.5)",
+            "animation": "dateGlow 6s ease-in-out infinite"
+          },
+          ".heritage-seal": {
+            "position": "absolute",
+            "bottom": "-20px",
+            "right": "30px",
+            "width": "50px",
+            "height": "50px",
+            "background": "radial-gradient(circle, #8b6914, #d4af37)",
+            "border-radius": "50%",
+            "border": "3px solid #fff",
+            "box-shadow": "0 0 20px rgba(139, 105, 20, 0.6)",
+            "animation": "sealFloat 10s ease-in-out infinite"
+          },
+          ".heritage-seal::before": {
+            "content": "⚜",
+            "position": "absolute",
+            "top": "50%",
+            "left": "50%",
+            "transform": "translate(-50%, -50%)",
+            "font-size": "1.5rem",
+            "color": "#fff",
+            "text-shadow": "0 0 10px rgba(0,0,0,0.5)"
+          }
+        },
+        "main": {
+          ".invitation-body": {
+            "margin": "4.5rem 0",
+            "position": "relative",
+            "z-index": "2"
+          },
+          ".aristocratic-chamber": {
+            "background": "linear-gradient(135deg, rgba(255,255,255,0.7) 0%, rgba(247,243,233,0.6) 100%)",
+            "backdrop-filter": "blur(25px)",
+            "border": "3px solid rgba(212, 175, 55, 0.3)",
+            "border-radius": "25px",
+            "padding": "4rem 3.5rem",
+            "position": "relative",
+            "overflow": "hidden",
+            "animation": "chamberGrandeur 12s ease-in-out infinite"
+          },
+          ".chamber-pillars": {
+            "position": "absolute",
+            "top": "0",
+            "left": "0",
+            "right": "0",
+            "bottom": "0",
+            "pointer-events": "none"
+          },
+          ".pillar": {
+            "position": "absolute",
+            "top": "20px",
+            "bottom": "20px",
+            "width": "20px",
+            "background": "linear-gradient(180deg, #d4af37, #b8860b, #8b6914)",
+            "border-radius": "10px",
+            "box-shadow": "0 0 15px rgba(212, 175, 55, 0.4)",
+            "animation": "pillarShine 8s ease-in-out infinite"
+          },
+          ".pillar.left": {
+            "left": "20px",
+            "animation-delay": "0s"
+          },
+          ".pillar.right": {
+            "right": "20px",
+            "animation-delay": "4s"
+          },
+          ".manuscript-scroll": {
+            "position": "relative",
+            "margin-bottom": "3.5rem",
+            "z-index": "3"
+          },
+          ".scroll-ornament": {
+            "width": "200px",
+            "height": "30px",
+            "margin": "0 auto 2rem auto",
+            "background": "url('data:image/svg+xml,<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 200 30\"><path d=\"M20,15 Q60,8 100,15 Q140,22 180,15\" stroke=\"%23d4af37\" stroke-width=\"3\" fill=\"none\" opacity=\"0.8\"/><circle cx=\"50\" cy=\"12\" r=\"3\" fill=\"%23b8860b\" opacity=\"0.9\"/><circle cx=\"100\" cy=\"15\" r=\"4\" fill=\"%23d4af37\" opacity=\"1\"/><circle cx=\"150\" cy=\"18\" r=\"3\" fill=\"%23b8860b\" opacity=\"0.9\"/></svg>')",
+            "background-size": "contain",
+            "background-repeat": "no-repeat",
+            "background-position": "center",
+            "animation": "scrollOrnamentGlow 10s ease-in-out infinite"
+          },
+          ".parchment-content": {
+            "background": "rgba(255,255,255,0.8)",
+            "backdrop-filter": "blur(15px)",
+            "border": "2px solid rgba(184, 134, 11, 0.3)",
+            "border-radius": "15px",
+            "padding": "3rem 2.5rem",
+            "position": "relative"
+          },
+          ".parchment-content::before": {
+            "content": "''",
+            "position": "absolute",
+            "top": "10px",
+            "left": "10px",
+            "right": "10px",
+            "bottom": "10px",
+            "border": "1px dashed rgba(212, 175, 55, 0.4)",
+            "border-radius": "10px",
+            "pointer-events": "none",
+            "animation": "parchmentAge 15s ease-in-out infinite"
+          },
+          ".invitation-message": {
+            "font-size": "1.4rem",
+            "color": "#4a3c1d",
+            "line-height": "1.9",
+            "text-align": "center",
+            "margin": "0",
+            "font-style": "italic",
+            "font-weight": "400",
+            "position": "relative",
+            "z-index": "4",
+            "animation": "messageElegance 8s ease-in-out infinite"
+          },
+          ".invitation-message::before": {
+            "content": "\"",
+            "position": "absolute",
+            "left": "-3.5rem",
+            "top": "-2rem",
+            "font-size": "6rem",
+            "color": "rgba(212, 175, 55, 0.3)",
+            "font-family": "serif",
+            "animation": "quoteGold 12s ease-in-out infinite"
+          },
+          ".invitation-message::after": {
+            "content": "\"",
+            "position": "absolute",
+            "right": "-3.5rem",
+            "bottom": "-3rem",
+            "font-size": "6rem",
+            "color": "rgba(212, 175, 55, 0.3)",
+            "font-family": "serif",
+            "animation": "quoteGold 12s ease-in-out infinite 6s"
+          },
+          ".details-pavilion": {
+            "text-align": "center",
+            "position": "relative",
+            "z-index": "3"
+          },
+          ".pavilion-crown": {
+            "position": "absolute",
+            "top": "-25px",
+            "left": "50%",
+            "transform": "translateX(-50%)",
+            "width": "150px",
+            "height": "50px",
+            "background": "linear-gradient(135deg, #d4af37, #b8860b)",
+            "border-radius": "75px 75px 0 0",
+            "border": "3px solid #fff",
+            "box-shadow": "0 0 20px rgba(212, 175, 55, 0.5)",
+            "animation": "crownMajestic 10s ease-in-out infinite"
+          },
+          ".pavilion-crown::before": {
+            "content": "♔",
+            "position": "absolute",
+            "top": "50%",
+            "left": "50%",
+            "transform": "translate(-50%, -50%)",
+            "font-size": "1.5rem",
+            "color": "#fff",
+            "text-shadow": "0 0 10px rgba(0,0,0,0.5)"
+          },
+          ".wedding-details": {
+            "font-size": "1.2rem",
+            "color": "#5d4a1f",
+            "line-height": "1.9",
+            "font-weight": "500",
+            "background": "rgba(255,255,255,0.8)",
+            "backdrop-filter": "blur(20px)",
+            "padding": "3rem 2.5rem",
+            "border-radius": "20px",
+            "border": "2px solid rgba(212, 175, 55, 0.3)",
+            "position": "relative",
+            "z-index": "4",
+            "margin-top": "25px"
+          },
+          ".pavilion-base": {
+            "position": "absolute",
+            "bottom": "-25px",
+            "left": "50%",
+            "transform": "translateX(-50%)",
+            "width": "200px",
+            "height": "50px",
+            "background": "linear-gradient(135deg, #8b6914, #d4af37)",
+            "border-radius": "0 0 100px 100px",
+            "border": "3px solid #fff",
+            "box-shadow": "0 0 20px rgba(139, 105, 20, 0.5)",
+            "animation": "baseStability 8s ease-in-out infinite"
+          }
+        },
+        "footer": {
+          ".invitation-footer": {
+            "text-align": "center",
+            "margin-top": "4.5rem",
+            "position": "relative",
+            "z-index": "2"
+          },
+          ".golden-filigree": {
+            "position": "absolute",
+            "top": "-50px",
+            "left": "0",
+            "right": "0",
+            "height": "100px",
+            "background": "url('data:image/svg+xml,<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 400 100\"><path d=\"M50,50 Q100,20 150,50 Q200,80 250,50 Q300,20 350,50\" stroke=\"%23d4af37\" stroke-width=\"2\" fill=\"none\" opacity=\"0.6\"/><circle cx=\"100\" cy=\"35\" r=\"4\" fill=\"%23b8860b\" opacity=\"0.8\"/><circle cx=\"200\" cy=\"65\" r=\"5\" fill=\"%23d4af37\" opacity=\"1\"/><circle cx=\"300\" cy=\"35\" r=\"4\" fill=\"%23b8860b\" opacity=\"0.8\"/></svg>')",
+            "background-size": "contain",
+            "background-repeat": "no-repeat",
+            "background-position": "center",
+            "animation": "filigreeFlow 15s ease-in-out infinite",
+            "filter": "blur(1px)"
+          },
+          ".rsvp-section": {
+            "position": "relative",
+            "display": "inline-block",
+            "margin-bottom": "3rem"
+          },
+          ".royal-frame": {
+            "position": "absolute",
+            "top": "-20px",
+            "left": "-30px",
+            "right": "-30px",
+            "bottom": "-20px",
+            "background": "linear-gradient(135deg, rgba(212, 175, 55, 0.3) 0%, rgba(184, 134, 11, 0.2) 100%)",
+            "backdrop-filter": "blur(20px)",
+            "border": "3px solid rgba(212, 175, 55, 0.4)",
+            "border-radius": "30px",
+            "animation": "royalFrameGlow 8s ease-in-out infinite"
+          },
+          ".rsvp-content": {
+            "font-size": "1.1rem",
+            "color": "#6b5016",
+            "text-transform": "uppercase",
+            "letter-spacing": "3px",
+            "font-weight": "600",
+            "padding": "2rem 3rem",
+            "position": "relative",
+            "z-index": "3",
+            "animation": "contentNoble 6s ease-in-out infinite"
+          },
+          ".wax-seal": {
+            "position": "absolute",
+            "bottom": "-25px",
+            "right": "-25px",
+            "width": "50px",
+            "height": "50px",
+            "background": "radial-gradient(circle, #8b6914, #d4af37)",
+            "border-radius": "50%",
+            "border": "4px solid #fff",
+            "box-shadow": "0 0 25px rgba(139, 105, 20, 0.6)",
+            "animation": "waxSealRotate 15s linear infinite"
+          },
+          ".wax-seal::before": {
+            "content": "⚜",
+            "position": "absolute",
+            "top": "50%",
+            "left": "50%",
+            "transform": "translate(-50%, -50%)",
+            "font-size": "1.5rem",
+            "color": "#fff",
+            "text-shadow": "0 0 10px rgba(0,0,0,0.5)"
+          },
+          ".signature-flourish": {
+            "width": "300px",
+            "height": "40px",
+            "margin": "0 auto",
+            "background": "url('data:image/svg+xml,<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 300 40\"><path d=\"M30,20 Q90,10 150,20 Q210,30 270,20\" stroke=\"%23d4af37\" stroke-width=\"3\" fill=\"none\" opacity=\"0.8\"/><circle cx=\"75\" cy=\"15\" r=\"3\" fill=\"%23b8860b\" opacity=\"0.9\"/><circle cx=\"150\" cy=\"20\" r=\"4\" fill=\"%23d4af37\" opacity=\"1\"/><circle cx=\"225\" cy=\"25\" r=\"3\" fill=\"%23b8860b\" opacity=\"0.9\"/><path d=\"M140,15 L160,15 M140,25 L160,25\" stroke=\"%238b6914\" stroke-width=\"2\" opacity=\"0.6\"/></svg>')",
+            "background-size": "contain",
+            "background-repeat": "no-repeat",
+            "background-position": "center",
+            "animation": "flourishSignature 12s ease-in-out infinite"
+          }
+        }
+      },
+      "animations": {
+        "aristocraticPresence": {
+          "keyframes": {
+            "0%, 100%": { "transform": "translateY(0px) scale(1)", "box-shadow": "0 40px 100px rgba(139, 105, 20, 0.3), 0 20px 60px rgba(139, 105, 20, 0.2)" },
+            "50%": { "transform": "translateY(-10px) scale(1.005)", "box-shadow": "0 50px 120px rgba(139, 105, 20, 0.4), 0 25px 80px rgba(139, 105, 20, 0.3)" }
+          }
+        },
+        "vintageTexture": {
+          "keyframes": {
+            "0%": { "transform": "translateX(0px) translateY(0px)" },
+            "100%": { "transform": "translateX(-30px) translateY(-30px)" }
+          }
+        },
+        "heritageAura": {
+          "keyframes": {
+            "0%": { "transform": "rotate(0deg)" },
+            "100%": { "transform": "rotate(360deg)" }
+          }
+        },
+        "crestRotate": {
+          "keyframes": {
+            "0%": { "transform": "translateX(-50%) rotate(0deg)" },
+            "100%": { "transform": "translateX(-50%) rotate(360deg)" }
+          }
+        },
+        "flourishGlow": {
+          "keyframes": {
+            "0%, 100%": { "opacity": "0.8", "transform": "scaleX(1)" },
+            "50%": { "opacity": "1", "transform": "scaleX(1.1)" }
+          }
+        },
+        "frameElegance": {
+          "keyframes": {
+            "0%, 100%": { "background": "linear-gradient(135deg, rgba(255,255,255,0.6) 0%, rgba(247,243,233,0.5) 100%)" },
+            "50%": { "background": "linear-gradient(135deg, rgba(255,255,255,0.8) 0%, rgba(247,243,233,0.7) 100%)" }
+          }
+        },
+        "innerFrameShimmer": {
+          "keyframes": {
+            "0%, 100%": { "border-color": "rgba(184, 134, 11, 0.3)", "opacity": "0.8" },
+            "50%": { "border-color": "rgba(212, 175, 55, 0.6)", "opacity": "1" }
+          }
+        },
+        "namesMajestic": {
+          "keyframes": {
+            "0%, 100%": { "transform": "scale(1)", "text-shadow": "2px 2px 4px rgba(139, 105, 20, 0.4), 0 0 30px rgba(212, 175, 55, 0.3)" },
+            "50%": { "transform": "scale(1.03)", "text-shadow": "3px 3px 6px rgba(139, 105, 20, 0.6), 0 0 40px rgba(212, 175, 55, 0.5)" }
+          }
+        },
+        "nameAura": {
+          "keyframes": {
+            "0%, 100%": { "opacity": "0.3", "transform": "scale(1)" },
+            "50%": { "opacity": "0.6", "transform": "scale(1.1)" }
+          }
+        },
+        "ornamentGlow": {
+          "keyframes": {
+            "0%, 100%": { "transform": "scale(1)", "text-shadow": "0 0 15px rgba(212, 175, 55, 0.6)" },
+            "50%": { "transform": "scale(1.2)", "text-shadow": "0 0 25px rgba(212, 175, 55, 0.9)" }
+          }
+        },
+        "jewelSparkle": {
+          "keyframes": {
+            "0%, 100%": { "transform": "scale(1) rotate(0deg)", "text-shadow": "0 0 20px rgba(184, 134, 11, 0.8)" },
+            "25%": { "transform": "scale(1.3) rotate(90deg)", "text-shadow": "0 0 30px rgba(184, 134, 11, 1)" },
+            "50%": { "transform": "scale(1) rotate(180deg)", "text-shadow": "0 0 25px rgba(212, 175, 55, 0.9)" },
+            "75%": { "transform": "scale(1.2) rotate(270deg)", "text-shadow": "0 0 35px rgba(184, 134, 11, 1)" }
+          }
+        },
+        "medallionFloat": {
+          "keyframes": {
+            "0%, 100%": { "transform": "translateY(0px)", "box-shadow": "0 0 25px rgba(212, 175, 55, 0.5), inset 0 0 20px rgba(255,255,255,0.3)" },
+            "50%": { "transform": "translateY(-10px)", "box-shadow": "0 0 35px rgba(212, 175, 55, 0.7), inset 0 0 30px rgba(255,255,255,0.4)" }
+          }
+        },
+        "dateGlow": {
+          "keyframes": {
+            "0%, 100%": { "opacity": "0.9" },
+            "50%": { "opacity": "1", "transform": "scale(1.05)" }
+          }
+        },
+        "sealFloat": {
+          "keyframes": {
+            "0%, 100%": { "transform": "translateY(0px) rotate(0deg)" },
+            "50%": { "transform": "translateY(-8px) rotate(180deg)" }
+          }
+        },
+        "chamberGrandeur": {
+          "keyframes": {
+            "0%, 100%": { "background": "linear-gradient(135deg, rgba(255,255,255,0.7) 0%, rgba(247,243,233,0.6) 100%)" },
+            "50%": { "background": "linear-gradient(135deg, rgba(255,255,255,0.9) 0%, rgba(247,243,233,0.8) 100%)" }
+          }
+        },
+        "pillarShine": {
+          "keyframes": {
+            "0%, 100%": { "box-shadow": "0 0 15px rgba(212, 175, 55, 0.4)" },
+            "50%": { "box-shadow": "0 0 25px rgba(212, 175, 55, 0.7)" }
+          }
+        },
+        "scrollOrnamentGlow": {
+          "keyframes": {
+            "0%, 100%": { "opacity": "0.8", "transform": "scaleX(1)" },
+            "50%": { "opacity": "1", "transform": "scaleX(1.1)" }
+          }
+        },
+        "parchmentAge": {
+          "keyframes": {
+            "0%, 100%": { "border-color": "rgba(212, 175, 55, 0.4)", "opacity": "0.8" },
+            "50%": { "border-color": "rgba(184, 134, 11, 0.6)", "opacity": "1" }
+          }
+        },
+        "messageElegance": {
+          "keyframes": {
+            "0%, 100%": { "opacity": "0.9" },
+            "50%": { "opacity": "1", "transform": "translateY(-3px)" }
+          }
+        },
+        "quoteGold": {
+          "keyframes": {
+            "0%, 100%": { "transform": "translateY(0px)", "opacity": "0.3" },
+            "50%": { "transform": "translateY(-15px)", "opacity": "0.5" }
+          }
+        },
+        "crownMajestic": {
+          "keyframes": {
+            "0%, 100%": { "transform": "translateX(-50%) scale(1)", "box-shadow": "0 0 20px rgba(212, 175, 55, 0.5)" },
+            "50%": { "transform": "translateX(-50%) scale(1.1)", "box-shadow": "0 0 30px rgba(212, 175, 55, 0.7)" }
+          }
+        },
+        "baseStability": {
+          "keyframes": {
+            "0%, 100%": { "transform": "translateX(-50%) scaleY(1)" },
+            "50%": { "transform": "translateX(-50%) scaleY(1.05)" }
+          }
+        },
+        "filigreeFlow": {
+          "keyframes": {
+            "0%, 100%": { "opacity": "0.6", "transform": "scaleX(1)" },
+            "50%": { "opacity": "0.9", "transform": "scaleX(1.2)" }
+          }
+        },
+        "royalFrameGlow": {
+          "keyframes": {
+            "0%, 100%": { "background": "linear-gradient(135deg, rgba(212, 175, 55, 0.3) 0%, rgba(184, 134, 11, 0.2) 100%)" },
+            "50%": { "background": "linear-gradient(135deg, rgba(212, 175, 55, 0.5) 0%, rgba(184, 134, 11, 0.4) 100%)" }
+          }
+        },
+        "contentNoble": {
+          "keyframes": {
+            "0%, 100%": { "opacity": "0.9" },
+            "50%": { "opacity": "1", "letter-spacing": "4px" }
+          }
+        },
+        "waxSealRotate": {
+          "keyframes": {
+            "0%": { "transform": "rotate(0deg)" },
+            "100%": { "transform": "rotate(360deg)" }
+          }
+        },
+        "flourishSignature": {
+          "keyframes": {
+            "0%, 100%": { "opacity": "0.8", "transform": "scaleX(1)" },
+            "50%": { "opacity": "1", "transform": "scaleX(1.15)" }
+          }
+        }
+      }
+    },
+    "variables": {
+      "colors": {
+        "primary": "#4a3c1d",
+        "secondary": "#8b6914",
+        "accent": "#d4af37",
+        "background": "#f7f3e9",
+        "luxury": "#b8860b"
+      },
+      "typography": {
+        "bodyFont": "Libre Baskerville, serif",
+        "headingFont": "Cinzel, serif",
+        "fontSize": {
+          "base": "16px",
+          "heading": {
+            "h1": "3.5rem",
+            "h2": "2.8rem",
+            "h3": "2rem"
+          }
+        }
+      },
+      "spacing": {
+        "base": "1rem",
+        "sections": "4.5rem",
+        "components": "3.5rem"
+      }
+    }
+  },
+"boho": {
+    "name": "Boho Floral",
+    "description": "Style bohème avec des fleurs sauvages et des tons terreux",
+    "category": "boho",
+    "tags": ["bohème", "fleurs", "nature", "terreux"],
+    "template": {
+      "layout": "<div class='wedding-invitation boho-floral'>{header}{main}{footer}</div>",
+      "sections": {
+        "header": {
+          "html": "<header class='invitation-header'><div class='boho-flowers top'></div><h1 class='couple-names'>{coupleName}</h1><div class='nature-divider'>🌿 ❀ 🌿</div><p class='wedding-date'>{date}</p><div class='boho-flowers bottom'></div></header>",
+          "position": "header"
+        },
+        "main": {
+          "html": "<main class='invitation-body'><div class='boho-frame'><p class='invitation-message'>{message}</p><div class='details-section'><div class='wedding-details'>{details}</div></div></div></main>",
+          "position": "main"
+        },
+        "footer": {
+          "html": "<footer class='invitation-footer'><div class='nature-border'></div><div class='rsvp-section'><span class='leaf-accent'>🍃</span>{rsvpForm}<span class='leaf-accent'>🍃</span></div><div class='nature-border'></div></footer>",
+          "position": "footer"
+        }
+      }
+    },
+    "styles": {
+      "base": {
+        ".wedding-invitation": {
+          "max-width": "580px",
+          "margin": "0 auto",
+          "padding": "3rem 2.5rem",
+          "background": "linear-gradient(135deg, #f9f7f4 0%, #f0ede8 100%)",
+          "border": "3px solid #8b7355",
+          "border-radius": "20px",
+          "box-shadow": "0 15px 40px rgba(139, 115, 85, 0.2)",
+          "position": "relative",
+          "animation": "bohoSway 8s ease-in-out infinite"
+        },
+        ".wedding-invitation::before": {
+          "content": "''",
+          "position": "absolute",
+          "top": "0",
+          "left": "0",
+          "right": "0",
+          "bottom": "0",
+          "background": "url('data:image/svg+xml,<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 100 100\"><defs><pattern id=\"leaves\" x=\"0\" y=\"0\" width=\"30\" height=\"30\" patternUnits=\"userSpaceOnUse\"><path d=\"M15,5 Q20,10 15,15 Q10,10 15,5\" fill=\"%23a0956b\" opacity=\"0.1\"/></pattern></defs><rect width=\"100\" height=\"100\" fill=\"url(%23leaves)\"/></svg>')",
+          "opacity": "0.3",
+          "pointer-events": "none",
+          "border-radius": "20px"
+        }
+      },
+      "components": {
+        "header": {
+          ".invitation-header": {
+            "text-align": "center",
+            "margin-bottom": "2.5rem",
+            "position": "relative",
+            "z-index": "2"
+          },
+          ".boho-flowers": {
+            "width": "120px",
+            "height": "15px",
+            "margin": "0 auto",
+            "background": "linear-gradient(90deg, transparent, #a0956b, transparent)",
+            "border-radius": "50px",
+            "position": "relative",
+            "animation": "flowersGrow 4s ease-in-out infinite"
+          },
+          ".boho-flowers::before": {
+            "content": "''",
+            "position": "absolute",
+            "left": "20%",
+            "top": "-5px",
+            "width": "8px",
+            "height": "8px",
+            "background": "#d4af37",
+            "border-radius": "50%",
+            "animation": "petalFloat 3s ease-in-out infinite"
+          },
+          ".boho-flowers::after": {
+            "content": "''",
+            "position": "absolute",
+            "right": "20%",
+            "top": "-5px",
+            "width": "8px",
+            "height": "8px",
+            "background": "#d4af37",
+            "border-radius": "50%",
+            "animation": "petalFloat 3s ease-in-out infinite 1.5s"
+          },
+          ".couple-names": {
+            "font-size": "2.5rem",
+            "color": "#5d4e3a",
+            "margin": "1rem 0",
+            "font-weight": "400",
+            "letter-spacing": "2px",
+            "text-shadow": "1px 1px 3px rgba(139, 115, 85, 0.2)",
+            "animation": "nameGlow 5s ease-in-out infinite"
+          },
+          ".nature-divider": {
+            "font-size": "1.2rem",
+            "color": "#8b7355",
+            "margin": "1rem 0",
+            "animation": "natureSway 4s ease-in-out infinite"
+          },
+          ".wedding-date": {
+            "font-size": "1.2rem",
+            "color": "#6b5d4a",
+            "font-style": "italic",
+            "text-transform": "uppercase",
+            "letter-spacing": "1px"
+          }
+        },
+        "main": {
+          ".invitation-body": {
+            "margin": "2.5rem 0",
+            "position": "relative",
+            "z-index": "2"
+          },
+          ".boho-frame": {
+            "background": "rgba(255, 255, 255, 0.7)",
+            "border": "2px solid #a0956b",
+            "border-radius": "15px",
+            "padding": "2.5rem 2rem",
+            "position": "relative",
+            "backdrop-filter": "blur(10px)",
+            "animation": "frameBreath 6s ease-in-out infinite"
+          },
+          ".boho-frame::before": {
+            "content": "''",
+            "position": "absolute",
+            "top": "10px",
+            "left": "10px",
+            "right": "10px",
+            "bottom": "10px",
+            "border": "1px dashed #c4b896",
+            "border-radius": "10px",
+            "pointer-events": "none"
+          },
+          ".invitation-message": {
+            "font-size": "1.2rem",
+            "color": "#5d4e3a",
+            "line-height": "1.8",
+            "text-align": "center",
+            "margin-bottom": "2rem",
+            "font-style": "italic"
+          },
+          ".details-section": {
+            "text-align": "center"
+          },
+          ".wedding-details": {
+            "font-size": "1.1rem",
+            "color": "#6b5d4a",
+            "line-height": "1.7",
+            "font-weight": "500"
+          }
+        },
+        "footer": {
+          ".invitation-footer": {
+            "text-align": "center",
+            "margin-top": "2.5rem",
+            "position": "relative",
+            "z-index": "2"
+          },
+          ".nature-border": {
+            "width": "150px",
+            "height": "2px",
+            "background": "linear-gradient(90deg, transparent, #8b7355, transparent)",
+            "margin": "1rem auto",
+            "animation": "borderGrow 4s ease-in-out infinite"
+          },
+          ".rsvp-section": {
+            "font-size": "1rem",
+            "color": "#6b5d4a",
+            "text-transform": "uppercase",
+            "letter-spacing": "2px",
+            "font-weight": "500",
+            "display": "flex",
+            "align-items": "center",
+            "justify-content": "center",
+            "gap": "1rem"
+          },
+          ".leaf-accent": {
+            "animation": "leafDance 3s ease-in-out infinite"
+          }
+        }
+      },
+      "animations": {
+        "bohoSway": {
+          "keyframes": {
+            "0%, 100%": { "transform": "rotate(0deg)" },
+            "25%": { "transform": "rotate(0.5deg)" },
+            "75%": { "transform": "rotate(-0.5deg)" }
+          }
+        },
+        "flowersGrow": {
+          "keyframes": {
+            "0%, 100%": { "width": "120px" },
+            "50%": { "width": "140px" }
+          }
+        },
+        "petalFloat": {
+          "keyframes": {
+            "0%, 100%": { "transform": "translateY(0px)" },
+            "50%": { "transform": "translateY(-8px)" }
+          }
+        },
+        "nameGlow": {
+          "keyframes": {
+            "0%, 100%": { "text-shadow": "1px 1px 3px rgba(139, 115, 85, 0.2)" },
+            "50%": { "text-shadow": "2px 2px 8px rgba(139, 115, 85, 0.4)" }
+          }
+        },
+        "natureSway": {
+          "keyframes": {
+            "0%, 100%": { "transform": "rotate(0deg)" },
+            "33%": { "transform": "rotate(2deg)" },
+            "66%": { "transform": "rotate(-2deg)" }
+          }
+        },
+        "frameBreath": {
+          "keyframes": {
+            "0%, 100%": { "transform": "scale(1)" },
+            "50%": { "transform": "scale(1.02)" }
+          }
+        },
+        "borderGrow": {
+          "keyframes": {
+            "0%, 100%": { "width": "150px", "opacity": "0.7" },
+            "50%": { "width": "170px", "opacity": "1" }
+          }
+        },
+        "leafDance": {
+          "keyframes": {
+            "0%, 100%": { "transform": "rotate(0deg)" },
+            "25%": { "transform": "rotate(5deg)" },
+            "75%": { "transform": "rotate(-5deg)" }
+          }
+        }
+      }
+    },
+    "variables": {
+      "colors": {
+        "primary": "#5d4e3a",
+        "secondary": "#8b7355",
+        "accent": "#a0956b",
+        "background": "#f9f7f4"
+      },
+      "typography": {
+        "bodyFont": "Lora, serif",
+        "headingFont": "Amatic SC, cursive",
+        "fontSize": {
+          "base": "16px",
+          "heading": {
+            "h1": "2.5rem",
+            "h2": "2rem",
+            "h3": "1.5rem"
+          }
+        }
+      },
+      "spacing": {
+        "base": "1rem",
+        "sections": "2.5rem",
+        "components": "2rem"
+      }
+    }
+  },
+
+"goldenRoses": {
+    "name": "Roses Dorées",
+    "description": "Cadre géométrique doré avec roses rouges et fond crème élégant",
+    "category": "luxe",
+    "tags": ["doré", "roses", "géométrique", "luxe", "élégant"],
+    "template": {
+      "layout": "<div class='wedding-invitation golden-roses'>{header}{main}{footer}</div>",
+      "sections": {
+        "header": {
+          "html": "<header class='invitation-header'><div class='family-text'>TOGETHER WITH THEIR FAMILIES</div></header>",
+          "position": "header"
+        },
+        "main": {
+          "html": "<main class='invitation-body'><div class='geometric-frame'><h1 class='couple-names'>{coupleName}</h1><div class='date-display'><div class='month'>OCTOBER</div><div class='day'>21</div><div class='time'>08:00 AM</div><div class='year'>2026</div></div><div class='location-info'>{details}</div></div></main>",
+          "position": "main"
+        },
+        "footer": {
+          "html": "<footer class='invitation-footer'><div class='rsvp-info'>{rsvpForm}</div></footer>",
+          "position": "footer"
+        }
+      }
+    },
+    "styles": {
+      "base": {
+        ".wedding-invitation": {
+          "max-width": "550px",
+          "margin": "0 auto",
+          "padding": "3rem 2.5rem",
+          "background": "linear-gradient(135deg, #faf7f2 0%, #f5f0e8 100%)",
+          "position": "relative",
+          "border-radius": "8px",
+          "box-shadow": "0 20px 50px rgba(0,0,0,0.1)",
+          "animation": "luxuryFloat 7s ease-in-out infinite"
+        },
+        ".wedding-invitation::before": {
+          "content": "''",
+          "position": "absolute",
+          "top": "20px",
+          "left": "20px",
+          "width": "80px",
+          "height": "80px",
+          "background": "url('data:image/svg+xml,<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 100 100\"><path d=\"M50,20 Q70,30 80,50 Q70,70 50,80 Q30,70 20,50 Q30,30 50,20\" fill=\"%23dc3545\" opacity=\"0.8\"/><path d=\"M45,25 Q60,30 70,45 Q60,60 45,65 Q35,55 30,45 Q35,35 45,25\" fill=\"%23ffffff\" opacity=\"0.3\"/></svg>') center/contain no-repeat",
+          "z-index": "1",
+          "animation": "roseBloom 4s ease-in-out infinite"
+        },
+        ".wedding-invitation::after": {
+          "content": "''",
+          "position": "absolute",
+          "bottom": "20px",
+          "right": "20px",
+          "width": "100px",
+          "height": "100px",
+          "background": "url('data:image/svg+xml,<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 100 100\"><path d=\"M50,15 Q75,25 85,50 Q75,75 50,85 Q25,75 15,50 Q25,25 50,15\" fill=\"%23dc3545\" opacity=\"0.7\"/><path d=\"M50,25 Q65,30 70,50 Q65,70 50,75 Q35,70 30,50 Q35,30 50,25\" fill=\"%23ffffff\" opacity=\"0.4\"/></svg>') center/contain no-repeat",
+          "z-index": "1",
+          "animation": "roseBloom 4s ease-in-out infinite 2s"
+        }
+      },
+      "components": {
+        "header": {
+          ".invitation-header": {
+            "text-align": "center",
+            "margin-bottom": "2rem",
+            "position": "relative",
+            "z-index": "2"
+          },
+          ".family-text": {
+            "font-size": "0.9rem",
+            "color": "#8b6914",
+            "text-transform": "uppercase",
+            "letter-spacing": "3px",
+            "font-weight": "400",
+            "animation": "goldShimmer 5s ease-in-out infinite"
+          }
+        },
+        "main": {
+          ".invitation-body": {
+            "text-align": "center",
+            "position": "relative",
+            "z-index": "2"
+          },
+          ".geometric-frame": {
+            "border": "3px solid #d4af37",
+            "border-radius": "0",
+            "padding": "3rem 2rem",
+            "background": "rgba(255,255,255,0.8)",
+            "position": "relative",
+            "transform": "rotate(0deg)",
+            "animation": "frameShimmer 6s ease-in-out infinite",
+            "backdrop-filter": "blur(5px)"
+          },
+          ".geometric-frame::before": {
+            "content": "''",
+            "position": "absolute",
+            "top": "15px",
+            "left": "15px",
+            "right": "15px",
+            "bottom": "15px",
+            "border": "1px solid #e6c547",
+            "pointer-events": "none",
+            "animation": "innerFrameGlow 4s ease-in-out infinite"
+          },
+          ".couple-names": {
+            "font-size": "2.8rem",
+            "color": "#4a3c1d",
+            "margin": "1rem 0 2rem 0",
+            "font-weight": "400",
+            "letter-spacing": "2px",
+            "text-shadow": "1px 1px 2px rgba(0,0,0,0.1)",
+            "animation": "luxuryGlow 4s ease-in-out infinite"
+          },
+          ".date-display": {
+            "margin": "2rem 0",
+            "padding": "1.5rem",
+            "background": "linear-gradient(135deg, #d4af37 0%, #e6c547 100%)",
+            "color": "white",
+            "border-radius": "8px",
+            "animation": "dateShine 5s ease-in-out infinite"
+          },
+          ".month": {
+            "font-size": "1rem",
+            "text-transform": "uppercase",
+            "letter-spacing": "2px",
+            "margin-bottom": "0.5rem"
+          },
+          ".day": {
+            "font-size": "3.5rem",
+            "font-weight": "700",
+            "margin": "0.5rem 0",
+            "text-shadow": "2px 2px 4px rgba(0,0,0,0.3)",
+            "animation": "dayGlow 3s ease-in-out infinite"
+          },
+          ".time": {
+            "font-size": "1.1rem",
+            "text-transform": "uppercase",
+            "letter-spacing": "2px",
+            "margin": "0.5rem 0"
+          },
+          ".year": {
+            "font-size": "1.3rem",
+            "font-weight": "600",
+            "margin-top": "0.5rem"
+          },
+          ".location-info": {
+            "font-size": "1.1rem",
+            "color": "#5a5a5a",
+            "line-height": "1.6",
+            "margin-top": "2rem",
+            "text-transform": "uppercase",
+            "letter-spacing": "1px"
+          }
+        },
+        "footer": {
+          ".invitation-footer": {
+            "text-align": "center",
+            "margin-top": "2rem",
+            "position": "relative",
+            "z-index": "2"
+          },
+          ".rsvp-info": {
+            "font-size": "0.9rem",
+            "color": "#8b6914",
+            "text-transform": "uppercase",
+            "letter-spacing": "2px",
+            "animation": "rsvpShimmer 4s ease-in-out infinite"
+          }
+        }
+      },
+      "animations": {
+        "luxuryFloat": {
+          "keyframes": {
+            "0%, 100%": { "transform": "translateY(0px)" },
+            "50%": { "transform": "translateY(-10px)" }
+          }
+        },
+        "roseBloom": {
+          "keyframes": {
+            "0%, 100%": { "transform": "scale(1) rotate(0deg)", "opacity": "0.8" },
+            "50%": { "transform": "scale(1.1) rotate(5deg)", "opacity": "1" }
+          }
+        },
+        "goldShimmer": {
+          "keyframes": {
+            "0%, 100%": { "color": "#8b6914" },
+            "50%": { "color": "#d4af37" }
+          }
+        },
+        "frameShimmer": {
+          "keyframes": {
+            "0%, 100%": { "border-color": "#d4af37", "box-shadow": "0 0 20px rgba(212, 175, 55, 0.3)" },
+            "50%": { "border-color": "#e6c547", "box-shadow": "0 0 30px rgba(212, 175, 55, 0.5)" }
+          }
+        },
+        "innerFrameGlow": {
+          "keyframes": {
+            "0%, 100%": { "border-color": "#e6c547", "opacity": "0.6" },
+            "50%": { "border-color": "#d4af37", "opacity": "1" }
+          }
+        },
+        "luxuryGlow": {
+          "keyframes": {
+            "0%, 100%": { "text-shadow": "1px 1px 2px rgba(0,0,0,0.1)" },
+            "50%": { "text-shadow": "2px 2px 8px rgba(212, 175, 55, 0.4)" }
+          }
+        },
+        "dateShine": {
+          "keyframes": {
+            "0%, 100%": { "background": "linear-gradient(135deg, #d4af37 0%, #e6c547 100%)" },
+            "50%": { "background": "linear-gradient(135deg, #e6c547 0%, #f0d858 100%)" }
+          }
+        },
+        "dayGlow": {
+          "keyframes": {
+            "0%, 100%": { "transform": "scale(1)" },
+            "50%": { "transform": "scale(1.05)" }
+          }
+        },
+        "rsvpShimmer": {
+          "keyframes": {
+            "0%, 100%": { "opacity": "0.8" },
+            "50%": { "opacity": "1" }
+          }
+        }
+      }
+    },
+    "variables": {
+      "colors": {
+        "primary": "#4a3c1d",
+        "secondary": "#d4af37",
+        "accent": "#dc3545",
+        "background": "#faf7f2",
+        "text": "#5a5a5a"
+      },
+      "typography": {
+        "bodyFont": "Libre Baskerville, serif",
+        "headingFont": "Playfair Display, serif",
+        "fontSize": {
+          "base": "16px",
+          "heading": {
+            "h1": "2.8rem",
+            "h2": "2rem",
+            "h3": "1.5rem"
+          }
+        }
+      },
+      "spacing": {
+        "base": "1rem",
+        "sections": "2rem",
+        "components": "1.5rem"
+      }
+    }
+  },
+
+ "elegantRoseGold": {
+   "name": "Elegant Rose Gold Romance",
+   "description": "Un design sophistiqué combinant l'élégance du rose gold avec des éléments floraux délicats",
+   "category": "moderne",
+   "tags": ["rose-gold", "floral", "elegant", "moderne", "luxe", "romantic"],
+   "template": {
+     "layout": "<div class='wedding-invitation elegant-rose-gold'>{header}{main}{footer}</div>",
+     "sections": {
+       "header": {
+         "html": "<header class='invitation-header'><div class='decorative-roses'><div class='rose rose-left'></div><div class='rose rose-right'></div></div><div class='invitation-tag'>{invitationText}</div></header>",
+         "variables": ["invitationText"]
+       },
+       "main": {
+         "html": "<main class='invitation-body'><div class='rings-container'><div class='ring ring-left'></div><div class='ring ring-right'></div></div><div class='couple-names'><span class='couple-name'>{coupleName}</span></div><div class='event-details'><div class='save-date'>{saveDate}</div><div class='date-display'>{day}.{month}.{year}</div></div><div class='venue-section'><div class='venue-label'>{venue}</div></div></main>",
+         "variables": ["coupleName", "day", "month", "year", "venue", "saveDate"]
+       },
+       "footer": {
+         "html": "<footer class='invitation-footer'><div class='decorative-border'></div><div class='celebration-text'>{celebrationText}</div></footer>",
+         "variables": ["celebrationText"]
+       }
+     }
+   },
+   "styles": {
+     "base": {
+       ".wedding-invitation.elegant-rose-gold": {
+         "width": "400px",
+         "height": "600px",
+         "background": "linear-gradient(135deg, #f8e8e8 0%, #d4a5a5 30%, #8b4a6b 70%, #4a2c4a 100%)",
+         "font-family": "'Playfair Display', serif",
+         "position": "relative",
+         "overflow": "hidden",
+         "border-radius": "15px",
+         "box-shadow": "0 20px 40px rgba(0,0,0,0.3)",
+         "color": "#2c1810"
+       },
+       ".wedding-invitation.elegant-rose-gold::before": {
+         "content": "''",
+         "position": "absolute",
+         "top": "0",
+         "left": "0",
+         "right": "0",
+         "bottom": "0",
+         "background": "url('data:image/svg+xml,<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 100 100\"><defs><pattern id=\"grain\" width=\"100\" height=\"100\" patternUnits=\"userSpaceOnUse\"><circle cx=\"20\" cy=\"20\" r=\"1\" fill=\"%23ffffff\" opacity=\"0.1\"/><circle cx=\"80\" cy=\"40\" r=\"1\" fill=\"%23ffffff\" opacity=\"0.05\"/><circle cx=\"40\" cy=\"70\" r=\"1\" fill=\"%23ffffff\" opacity=\"0.08\"/></pattern></defs><rect width=\"100\" height=\"100\" fill=\"url(%23grain)\"/></svg>')",
+         "opacity": "0.3"
+       }
+     },
+     "components": {
+       "header": {
+         ".invitation-header": {
+           "position": "relative",
+           "height": "180px",
+           "display": "flex",
+           "flex-direction": "column",
+           "align-items": "center",
+           "justify-content": "center",
+           "padding": "20px"
+         },
+         ".decorative-roses": {
+           "position": "absolute",
+           "top": "20px",
+           "width": "100%",
+           "height": "80px"
+         },
+         ".rose": {
+           "position": "absolute",
+           "width": "60px",
+           "height": "60px",
+           "border-radius": "50%",
+           "background": "linear-gradient(45deg, #f4c2c2 0%, #e8a5a5 50%, #d4a5a5 100%)",
+           "box-shadow": "inset 0 0 20px rgba(255,255,255,0.3), 0 5px 15px rgba(0,0,0,0.2)",
+           "animation": "roseFloat 3s ease-in-out infinite"
+         },
+         ".rose-left": {
+           "left": "30px",
+           "top": "10px",
+           "transform": "rotate(-15deg)"
+         },
+         ".rose-right": {
+           "right": "30px",
+           "top": "10px",
+           "transform": "rotate(15deg)"
+         },
+         ".rose::before": {
+           "content": "''",
+           "position": "absolute",
+           "top": "15px",
+           "left": "15px",
+           "width": "30px",
+           "height": "30px",
+           "border-radius": "50%",
+           "background": "linear-gradient(45deg, #f8e8e8 0%, #f4c2c2 100%)",
+           "box-shadow": "inset 0 0 10px rgba(255,255,255,0.5)"
+         },
+         ".invitation-tag": {
+           "text-align": "center",
+           "margin-top": "60px",
+           "font-size": "12px",
+           "font-weight": "400",
+           "letter-spacing": "2px",
+           "color": "#2c1810",
+           "text-shadow": "0 2px 4px rgba(255,255,255,0.3)",
+           "line-height": "1.4"
+         }
+       },
+       "main": {
+         ".invitation-body": {
+           "position": "relative",
+           "padding": "20px",
+           "text-align": "center",
+           "flex": "1"
+         },
+         ".rings-container": {
+           "position": "relative",
+           "height": "60px",
+           "margin-bottom": "20px"
+         },
+         ".ring": {
+           "position": "absolute",
+           "width": "40px",
+           "height": "40px",
+           "border": "4px solid #d4af37",
+           "border-radius": "50%",
+           "box-shadow": "0 0 15px rgba(212,175,55,0.5), inset 0 0 10px rgba(255,255,255,0.3)",
+           "animation": "ringShine 2s ease-in-out infinite alternate"
+         },
+         ".ring-left": {
+           "left": "50%",
+           "transform": "translateX(-60px)",
+           "top": "10px"
+         },
+         ".ring-right": {
+           "right": "50%",
+           "transform": "translateX(60px)",
+           "top": "10px"
+         },
+         ".couple-names": {
+           "margin": "30px 0",
+           "animation": "fadeInUp 1s ease-out"
+         },
+         ".couple-name": {
+           "font-family": "'Dancing Script', cursive",
+           "font-size": "48px",
+           "font-weight": "700",
+           "color": "#ffffff",
+           "text-shadow": "2px 2px 4px rgba(0,0,0,0.5), 0 0 20px rgba(255,255,255,0.3)",
+           "display": "block",
+           "margin-bottom": "5px"
+         },
+         ".event-details": {
+           "margin": "30px 0",
+           "animation": "fadeInUp 1s ease-out 0.3s both"
+         },
+         ".save-date": {
+           "font-size": "16px",
+           "font-weight": "600",
+           "letter-spacing": "3px",
+           "color": "#ff6b9d",
+           "margin-bottom": "15px",
+           "text-shadow": "0 2px 4px rgba(0,0,0,0.3)"
+         },
+         ".date-display": {
+           "font-size": "28px",
+           "font-weight": "700",
+           "color": "#ffffff",
+           "text-shadow": "2px 2px 4px rgba(0,0,0,0.5)",
+           "margin-bottom": "20px"
+         },
+         ".venue-section": {
+           "margin": "20px 0",
+           "animation": "fadeInUp 1s ease-out 0.6s both"
+         },
+         ".venue-label": {
+           "font-size": "14px",
+           "font-weight": "400",
+           "letter-spacing": "1px",
+           "color": "#ffffff",
+           "text-shadow": "1px 1px 2px rgba(0,0,0,0.5)",
+           "line-height": "1.4"
+         }
+       },
+       "footer": {
+         ".invitation-footer": {
+           "position": "relative",
+           "padding": "20px",
+           "text-align": "center"
+         },
+         ".decorative-border": {
+           "height": "2px",
+           "background": "linear-gradient(90deg, transparent 0%, #d4af37 20%, #d4af37 80%, transparent 100%)",
+           "margin-bottom": "15px",
+           "position": "relative"
+         },
+         ".decorative-border::before": {
+           "content": "''",
+           "position": "absolute",
+           "left": "20px",
+           "top": "-8px",
+           "width": "0",
+           "height": "0",
+           "border-left": "8px solid transparent",
+           "border-right": "8px solid transparent",
+           "border-bottom": "8px solid #d4af37"
+         },
+         ".decorative-border::after": {
+           "content": "''",
+           "position": "absolute",
+           "right": "20px",
+           "top": "-8px",
+           "width": "0",
+           "height": "0",
+           "border-left": "8px solid transparent",
+           "border-right": "8px solid transparent",
+           "border-bottom": "8px solid #d4af37"
+         },
+         ".celebration-text": {
+           "font-family": "'Dancing Script', cursive",
+           "font-size": "20px",
+           "font-weight": "400",
+           "color": "#ff6b9d",
+           "text-shadow": "1px 1px 2px rgba(0,0,0,0.3)",
+           "animation": "fadeInUp 1s ease-out 0.9s both"
+         }
+       }
+     },
+     "animations": {
+       "roseFloat": {
+         "0%": {
+           "transform": "translateY(0) rotate(-15deg)"
+         },
+         "50%": {
+           "transform": "translateY(-10px) rotate(-12deg)"
+         },
+         "100%": {
+           "transform": "translateY(0) rotate(-15deg)"
+         }
+       },
+       "ringShine": {
+         "0%": {
+           "box-shadow": "0 0 15px rgba(212,175,55,0.5), inset 0 0 10px rgba(255,255,255,0.3)"
+         },
+         "100%": {
+           "box-shadow": "0 0 25px rgba(212,175,55,0.8), inset 0 0 15px rgba(255,255,255,0.5)"
+         }
+       },
+       "fadeInUp": {
+         "0%": {
+           "opacity": "0",
+           "transform": "translateY(30px)"
+         },
+         "100%": {
+           "opacity": "1",
+           "transform": "translateY(0)"
+         }
+       },
+       "textGlow": {
+         "0%": {
+           "text-shadow": "2px 2px 4px rgba(0,0,0,0.5), 0 0 20px rgba(255,255,255,0.3)"
+         },
+         "50%": {
+           "text-shadow": "2px 2px 4px rgba(0,0,0,0.5), 0 0 30px rgba(255,255,255,0.5)"
+         },
+         "100%": {
+           "text-shadow": "2px 2px 4px rgba(0,0,0,0.5), 0 0 20px rgba(255,255,255,0.3)"
+         }
+       }
+     }
+   },
+   "variables": {
+     "colors": {
+       "primary": "#d4af37",
+       "secondary": "#ff6b9d",
+       "accent": "#f4c2c2",
+       "background": "#4a2c4a",
+       "text": "#ffffff",
+       "border": "#d4af37",
+       "shadow": "rgba(0,0,0,0.3)"
+     },
+     "fonts": {
+       "primary": "'Dancing Script', cursive",
+       "secondary": "'Playfair Display', serif"
+     },
+     "spacing": {
+       "small": "1rem",
+       "medium": "2rem",
+       "large": "3rem"
+     }
+   }
+ }
+}

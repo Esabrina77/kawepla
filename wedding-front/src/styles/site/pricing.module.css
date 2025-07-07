@@ -1,0 +1,168 @@
+.pricing {
+  min-height: 100vh;
+  background-color: var(--color-white-cream);
+}
+
+/* Header Section */
+.header {
+  text-align: center;
+  padding: var(--spacing-xxl) 0;
+  background: linear-gradient(rgba(7, 6, 6, 0.5), rgba(224, 224, 224, 0.5)),
+              url('/images/pricing-bg.jpg') center/cover no-repeat;
+  color: white;
+  position: relative;
+  z-index: 1;
+}
+
+.header h1 {
+  font-size: 3rem;
+  margin-bottom: var(--spacing-md);
+}
+
+.header p {
+  font-size: 1.25rem;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+/* Plans Section */
+.plans {
+  position: relative;
+  z-index: 2;
+  padding: 0 var(--spacing-md);
+  padding-bottom: var(--spacing-xxl);
+}
+
+.planGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: var(--spacing-xl);
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.planCard {
+  position: relative;
+  transition: transform var(--transition-normal);
+  background-color: white;
+  border-radius: var(--border-radius-lg);
+  overflow: visible;
+  padding-top: var(--spacing-lg);
+}
+
+.planCard:hover {
+  transform: translateY(-8px);
+}
+
+/* Popular Plan */
+.popular {
+  border: 2px solid var(--color-primary);
+}
+
+.popularBadge {
+  position: absolute;
+  top: -12px;
+  right: 50%;
+  transform: translateX(50%);
+  background-color: var(--color-primary);
+  color: white;
+  padding: var(--spacing-xs) var(--spacing-md);
+  border-radius: var(--border-radius-sm);
+  font-size: 0.875rem;
+  font-weight: 500;
+  white-space: nowrap;
+  z-index: 3;
+}
+
+/* Price */
+.price {
+  margin: var(--spacing-md) 0;
+}
+
+.amount {
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: var(--color-primary);
+}
+
+.period {
+  font-size: 1rem;
+  color: var(--color-text-light);
+  margin-left: var(--spacing-xs);
+}
+
+.description {
+  color: var(--color-text-light);
+  margin-bottom: var(--spacing-lg);
+}
+
+/* Features List */
+.features {
+  list-style: none;
+  margin: var(--spacing-lg) 0;
+  padding: 0;
+}
+
+.features li {
+  display: flex;
+  align-items: center;
+  margin-bottom: var(--spacing-md);
+  color: var(--color-text);
+}
+
+.checkIcon {
+  color: var(--color-primary);
+  margin-right: var(--spacing-sm);
+  flex-shrink: 0;
+}
+
+/* Guarantee Section */
+.guarantee {
+  text-align: center;
+  padding: var(--spacing-xxl) 0;
+  background-color: white;
+}
+
+.guarantee h2 {
+  font-size: 2rem;
+  margin-bottom: var(--spacing-md);
+  color: var(--color-text);
+}
+
+.guarantee p {
+  font-size: 1.125rem;
+  color: var(--color-text-light);
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .header {
+    padding-bottom: calc(var(--spacing-xxl) + 50px);
+  }
+
+  .header h1 {
+    font-size: 2rem;
+  }
+
+  .header p {
+    font-size: 1rem;
+  }
+
+  .plans {
+    margin-top: -50px;
+  }
+
+  .planGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .amount {
+    font-size: 2rem;
+  }
+
+  .guarantee h2 {
+    font-size: 1.5rem;
+  }
+} 

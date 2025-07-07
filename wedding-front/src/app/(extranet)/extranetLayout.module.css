@@ -1,0 +1,28 @@
+.layout {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background-color: var(--color-background);
+  font-family: var(--font-body);
+}
+
+.layout h1,
+.layout h2,
+.layout h3,
+.layout h4,
+.layout h5,
+.layout h6 {
+  font-family: var(--font-heading);
+}
+
+/* Styles pour les différents modes d'accessibilité */
+:global(html[data-font="dyslexic"]) .layout,
+:global(html[data-font="dyslexic"]) .layout * {
+  font-family: var(--font-opendyslexic) !important;
+}
+
+@media (max-width: 768px) {
+  .layout {
+    flex-direction: column;
+  }
+} 

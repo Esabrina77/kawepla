@@ -1,0 +1,254 @@
+.messagesContainer {
+  display: flex;
+  height: calc(100vh - 80px);
+  background-color: white;
+}
+
+/* Liste des conversations */
+.conversationsList {
+  width: 350px;
+  border-right: 1px solid var(--color-border);
+  display: flex;
+  flex-direction: column;
+  background-color: white;
+}
+
+.searchBar {
+  padding: var(--spacing-md);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.searchBar input {
+  width: 100%;
+  border: 1px solid var(--color-border);
+  border-radius: 20px;
+  padding: 8px 16px;
+}
+
+.conversations {
+  flex: 1;
+  overflow-y: auto;
+}
+
+.conversationItem {
+  display: flex;
+  padding: var(--spacing-md);
+  gap: var(--spacing-md);
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.conversationItem:hover {
+  background-color: var(--color-background-light);
+}
+
+.conversationItem.active {
+  background-color: var(--color-background-light);
+}
+
+.userAvatar {
+  position: relative;
+}
+
+.userAvatar img {
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.status {
+  position: absolute;
+  bottom: 2px;
+  right: 2px;
+  width: 12px;
+  height: 12px;
+  background-color: #4CAF50;
+  border-radius: 50%;
+  border: 2px solid white;
+}
+
+.conversationInfo {
+  flex: 1;
+  min-width: 0;
+}
+
+.conversationHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 4px;
+}
+
+.conversationHeader h3 {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--color-text);
+}
+
+.time {
+  font-size: 12px;
+  color: var(--color-text-light);
+}
+
+.lastMessage {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.lastMessage p {
+  font-size: 14px;
+  color: var(--color-text-light);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin-right: var(--spacing-sm);
+}
+
+.unreadBadge {
+  background-color: var(--color-primary);
+  color: white;
+  font-size: 12px;
+  font-weight: 600;
+  min-width: 20px;
+  height: 20px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 6px;
+}
+
+/* Zone de chat */
+.chatArea {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  background-color: #F8F9FA;
+}
+
+.chatHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: var(--spacing-md);
+  background-color: white;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.chatUser {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+}
+
+.chatUser img {
+  border-radius: 50%;
+}
+
+.chatUser h2 {
+  font-size: 16px;
+  font-weight: 600;
+  margin-bottom: 2px;
+}
+
+.chatUser span {
+  font-size: 12px;
+  color: var(--color-text-light);
+}
+
+.chatActions {
+  display: flex;
+  gap: var(--spacing-sm);
+}
+
+.messagesList {
+  flex: 1;
+  padding: var(--spacing-md);
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+}
+
+.messageDate {
+  text-align: center;
+  margin: var(--spacing-md) 0;
+}
+
+.messageDate span {
+  background-color: rgba(0, 0, 0, 0.1);
+  padding: 4px 12px;
+  border-radius: 12px;
+  font-size: 12px;
+  color: var(--color-text);
+}
+
+.message {
+  max-width: 70%;
+  padding: var(--spacing-md);
+  border-radius: 12px;
+  position: relative;
+}
+
+.message p {
+  font-size: 14px;
+  line-height: 1.4;
+  margin-right: 48px;
+}
+
+.messageTime {
+  position: absolute;
+  bottom: 8px;
+  right: 12px;
+  font-size: 11px;
+  color: var(--color-text-light);
+}
+
+.received {
+  background-color: white;
+  border: 1px solid var(--color-border);
+  align-self: flex-start;
+  border-top-left-radius: 4px;
+}
+
+.sent {
+  background-color: #E3F2FD;
+  align-self: flex-end;
+  border-top-right-radius: 4px;
+}
+
+.messageInput {
+  padding: var(--spacing-md);
+  background-color: white;
+  border-top: 1px solid var(--color-border);
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+}
+
+.messageInput input {
+  flex: 1;
+  border: 1px solid var(--color-border);
+  border-radius: 20px;
+  padding: 8px 16px;
+}
+
+@media (max-width: 768px) {
+  .conversationsList {
+    width: 100%;
+    display: none;
+  }
+
+  .conversationsList.active {
+    display: flex;
+  }
+
+  .chatArea {
+    width: 100%;
+  }
+
+  .chatArea:not(.active) {
+    display: none;
+  }
+} 

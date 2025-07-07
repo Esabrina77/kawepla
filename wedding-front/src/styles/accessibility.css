@@ -1,0 +1,67 @@
+/* Styles spécifiques pour OpenDyslexic */
+:root[data-font="dyslexic"] {
+  /* Variables des tailles de police ajustées pour OpenDyslexic (-4px) */
+  --dyslexic-font-size-xs: 8px;
+  --dyslexic-font-size-sm: 10px;
+  --dyslexic-font-size-base: 12px;
+  --dyslexic-font-size-lg: 14px;
+  --dyslexic-font-size-xl: 16px;
+  --dyslexic-font-size-2xl: 20px;
+  --dyslexic-font-size-3xl: 26px;
+  --dyslexic-font-size-4xl: 32px;
+  --dyslexic-font-size-5xl: 44px;
+  --dyslexic-font-size-6xl: 56px;
+
+  /* Application des polices */
+  --font-body: var(--font-opendyslexic);
+  --font-heading: var(--font-opendyslexic);
+
+  /* Ajustements typographiques pour la lisibilité */
+  letter-spacing: 0.05em;
+  word-spacing: 0.1em;
+  line-height: 1.5;
+}
+
+/* Application des tailles spécifiques pour OpenDyslexic */
+:root[data-font="dyslexic"] {
+  & h1 {
+    font-size: var(--dyslexic-font-size-5xl);
+  }
+
+  & h2 {
+    font-size: var(--dyslexic-font-size-4xl);
+  }
+
+  & h3 {
+    font-size: var(--dyslexic-font-size-3xl);
+  }
+
+  & h4 {
+    font-size: var(--dyslexic-font-size-2xl);
+  }
+
+  & h5 {
+    font-size: var(--dyslexic-font-size-xl);
+  }
+
+  & h6 {
+    font-size: var(--dyslexic-font-size-lg);
+  }
+
+  & p {
+    font-size: var(--dyslexic-font-size-base);
+  }
+
+  & small {
+    font-size: var(--dyslexic-font-size-sm);
+  }
+}
+
+/* Styles pour le contraste élevé */
+:root[data-contrast="high"] {
+  --color-text: #000000;
+  --color-background: #FFFFFF;
+  --color-primary: #000000;
+  --color-secondary: #FFFFFF;
+  --color-border: #000000;
+} 
