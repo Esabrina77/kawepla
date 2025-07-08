@@ -6,7 +6,7 @@ export type CreateGuestData = {
   lastName: string;
   email: string;
   phone?: string;
-  isVip?: boolean;
+  isVIP?: boolean;
   invitationId: string;
 };
 
@@ -55,4 +55,16 @@ export const guestsApi = {
       pending: number;
       responseRate: number;
     }>(`/invitations/${invitationId}/guests/statistics`),
+
+  // Envoyer une invitation par email à un invité
+  sendInvitation: (guestId: string) => 
+    apiClient.post(`/guests/${guestId}/send-invitation`),
+
+  // Envoyer un rappel à un invité
+  sendReminder: (guestId: string) => 
+    apiClient.post(`/guests/${guestId}/send-reminder`),
+
+  // Envoyer toutes les invitations d'une invitation
+  sendAllInvitations: (invitationId: string) => 
+    apiClient.post(`/invitations/${invitationId}/guests/send-all`),
 }; 

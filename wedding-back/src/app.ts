@@ -1,3 +1,5 @@
+// app.ts
+
 import express, { Application, Router, RequestHandler } from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
@@ -13,6 +15,7 @@ import invitationRoutes from './routes/invitations';
 import guestRoutes from './routes/guests';
 import rsvpRoutes from './routes/rsvp';
 import { RSVPController } from './controllers/rsvpController';
+import { UserController } from './controllers/userController';
 
 // Import des middlewares
 import { errorHandler } from './middleware/errorHandler';
@@ -84,19 +87,30 @@ coupleRouter.use(authMiddleware as RequestHandler, requireCouple as RequestHandl
 const adminRouter: Router = express.Router();
 adminRouter.use(authMiddleware as RequestHandler, requireAdmin as RequestHandler);
 
+// Routes admin designs - AVANT /api/admin pour éviter les conflits
+app.use('/api/admin/designs', adminRouter, designRoutes);
+
+// Routes admin users - utilise le système de routes modulaire
+app.use('/api/admin', adminRouter, userRoutes);
+
 // Routes utilisateur standard (authentifié)
 app.use('/api/users/me', protectedRouter, userRoutes);
 
 // Routes publiques protégées (nécessite authentification)
 app.use('/api/designs', protectedRouter, designRoutes);
 
-// Routes admin
+// Routes admin users - APRÈS /api/users/me pour éviter les conflits
 app.use('/api/users', adminRouter, userRoutes);
-app.use('/api/admin/designs', adminRouter, designRoutes);
 
 // Routes couple
 app.use('/api/invitations', coupleRouter, invitationRoutes);
 app.use('/api/guests', coupleRouter, guestRoutes);
+
+// Routes pour les messages RSVP des couples - routes spécifiques
+const rsvpMessagesRouter = express.Router();
+rsvpMessagesRouter.get('/rsvp-messages', UserController.getRSVPMessages as any);
+rsvpMessagesRouter.put('/rsvp-messages/:rsvpId/read', UserController.markRSVPMessageAsRead as any);
+app.use('/api/rsvp-messages', coupleRouter, rsvpMessagesRouter);
 
 // Route RSVP protégée pour la liste des réponses
 app.use('/api/invitations/:id/rsvps', coupleRouter, (req, res, next) => {
@@ -109,4 +123,4 @@ app.use('/api/invitations/:id/rsvps', coupleRouter, (req, res, next) => {
  */
 app.use(errorHandler);
 
-export default app; 
+export default app;

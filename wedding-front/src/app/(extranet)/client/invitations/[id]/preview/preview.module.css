@@ -1,0 +1,167 @@
+.previewPage {
+  min-height: 100vh;
+  background-color: #f5f5f5;
+}
+
+.toolbar {
+  background: white;
+  border-bottom: 1px solid #e0e0e0;
+  padding: 1rem 2rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.backButton {
+  background: none;
+  border: 1px solid #ddd;
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  cursor: pointer;
+  color: #666;
+  transition: all 0.3s ease;
+}
+
+.backButton:hover {
+  background-color: #f5f5f5;
+  border-color: #ccc;
+}
+
+.previewTitle {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex: 1;
+  justify-content: center;
+}
+
+.previewTitle h1 {
+  margin: 0;
+  font-size: 1.5rem;
+  color: #333;
+}
+
+.status {
+  padding: 0.25rem 0.75rem;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: 500;
+  text-transform: uppercase;
+}
+
+.status.draft {
+  background-color: #fff3cd;
+  color: #856404;
+}
+
+.status.published {
+  background-color: #d4edda;
+  color: #155724;
+}
+
+.status.archived {
+  background-color: #f8d7da;
+  color: #721c24;
+}
+
+.previewContainer {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 2rem;
+  min-height: calc(100vh - 80px);
+}
+
+.invitationPreview {
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+  max-width: 800px;
+  width: 100%;
+  overflow: hidden;
+}
+
+.loading {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  font-size: 1.2rem;
+  color: #666;
+}
+
+.error {
+  text-align: center;
+  padding: 2rem;
+  color: #dc3545;
+}
+
+.error h2 {
+  margin-bottom: 1rem;
+}
+
+.error button {
+  background-color: #007bff;
+  color: white;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.error button:hover {
+  background-color: #0056b3;
+}
+
+/* Styles d'impression */
+@media print {
+  .toolbar {
+    display: none;
+  }
+  
+  .previewContainer {
+    padding: 0;
+    min-height: auto;
+  }
+  
+  .invitationPreview {
+    box-shadow: none;
+    border-radius: 0;
+    max-width: none;
+    width: 100%;
+  }
+  
+  .previewPage {
+    background: white;
+  }
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .toolbar {
+    padding: 1rem;
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .previewTitle {
+    order: 1;
+  }
+
+  .previewTitle h1 {
+    font-size: 1.2rem;
+  }
+
+  .previewContainer {
+    padding: 1rem;
+  }
+
+  .invitationPreview {
+    max-width: 100%;
+  }
+} 

@@ -24,11 +24,18 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
+  /*flex-direction: column;*/
   height: 80px;
 }
 
+.sidebarHeaderButtons {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
 .sidebarHeader img {
-  width: 100px;
+  width: 70px;
   height: auto;
   transition: all 0.3s ease;
 }
@@ -48,6 +55,7 @@
   align-items: center;
   justify-content: center;
   font-size: 18px;
+  font-weight: 800;
   transition: transform 0.2s ease;
 }
 

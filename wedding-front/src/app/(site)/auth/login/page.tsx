@@ -1,18 +1,21 @@
 'use client';
 
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useAuth } from '@/hooks/useAuth';
 import styles from '@/styles/site/auth.module.css';
-import Image from 'next/image';
 
 export default function LoginPage() {
   const { login, error: authError, loading: authLoading } = useAuth();
+  const router = useRouter();
   const [formError, setFormError] = useState<string>('');
+  const [emailNotVerified, setEmailNotVerified] = useState<string>('');
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setFormError('');
+    setEmailNotVerified('');
 
     const formData = new FormData(e.currentTarget);
     const email = formData.get('email') as string;
@@ -25,9 +28,19 @@ export default function LoginPage() {
 
     try {
       await login(email, password);
-    } catch (err) {
-      // L'erreur sera gérée par le hook useAuth
-      console.error('Erreur de connexion:', err);
+    } catch (err: any) {
+      // Vérifier si l'erreur est liée à la vérification d'email
+      if (err.message && err.message.includes('vérifier votre email')) {
+        setEmailNotVerified(email);
+      } else {
+        console.error('Erreur de connexion:', err);
+      }
+    }
+  };
+
+  const handleResendVerification = () => {
+    if (emailNotVerified) {
+      router.push(`/auth/verify-email?email=${encodeURIComponent(emailNotVerified)}`);
     }
   };
 
@@ -46,6 +59,20 @@ export default function LoginPage() {
             {displayError && (
               <div className={styles.error}>
                 <p>{displayError}</p>
+              </div>
+            )}
+
+            {emailNotVerified && (
+              <div className={styles.error}>
+                <p>Votre email n'est pas encore vérifié.</p>
+                <button
+                  type="button"
+                  onClick={handleResendVerification}
+                  className={styles.resendButton}
+                  style={{ marginTop: '10px' }}
+                >
+                  Vérifier mon email
+                </button>
               </div>
             )}
 
@@ -88,30 +115,16 @@ export default function LoginPage() {
             </div>
 
             <button
-              type="submit" 
+              type="submit"
               disabled={authLoading}
               className={`${styles.submitButton} ${authLoading ? styles.loading : ''}`}
             >
-              {authLoading ? 'Connexion en cours...' : 'Se connecter'}
-            </button>
-
-            <div className={styles.divider}>
-              <span>ou</span>
-            </div>
-
-            <button 
-              type="button" 
-              className={styles.googleButton}
-              disabled={authLoading}
-            >  
-              <Image src="/icons/google.svg" alt="Google" width={20} height={20} />
-              Continuer avec Google
+              {authLoading ? 'Connexion...' : 'Se connecter'}
             </button>
 
             <div className={styles.footer}>
               <p>
-                Pas encore de compte ?{' '}
-                <Link href="/auth/register">Créer un compte</Link>
+                Pas encore de compte ? <Link href="/auth/register">S'inscrire</Link>
               </p>
             </div>
           </form>

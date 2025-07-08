@@ -33,7 +33,7 @@ export interface DesignTemplate {
   version?: string;
 }
 
-interface TemplateData {
+export interface TemplateData {
   // Informations du couple
   coupleName: string;
   
@@ -46,8 +46,6 @@ interface TemplateData {
   
   // Textes d'invitation
   invitationText: string;
-  saveDate: string;
-  celebrationText: string;
   
   // Lieu et détails
   venue: string;
@@ -90,8 +88,6 @@ export function getDefaultTemplateData(): TemplateData {
     
     // Textes d'invitation
     invitationText: "Vous êtes cordialement invités",
-    saveDate: "Réservez la date",
-    celebrationText: "Venez célébrer avec nous",
     
     // Lieu et détails
     venue: "Château de Versailles",
@@ -121,9 +117,21 @@ export function getDefaultTemplateData(): TemplateData {
 export function invitationToTemplateData(invitation: any): Partial<TemplateData> {
   if (!invitation) return {};
 
+  // Assembler les détails complets à partir de moreInfo et des autres informations
+  const venueInfo = invitation.venueName ? `Lieu : ${invitation.venueName}` : '';
+  const addressInfo = invitation.venueAddress ? `Adresse : ${invitation.venueAddress}` : '';
+  const ceremonyInfo = invitation.ceremonyTime ? `Cérémonie : ${invitation.ceremonyTime}` : '';
+  const receptionInfo = invitation.receptionTime ? `Réception : ${invitation.receptionTime}` : '';
+  const moreInfoText = invitation.moreInfo || '';
+  
+  // Assembler tous les détails - moreInfo contient maintenant tous les détails
+  const allDetails = [venueInfo, addressInfo, ceremonyInfo, receptionInfo, moreInfoText]
+    .filter(Boolean)
+    .join('\n');
+
   return {
     // Informations du couple
-    coupleName: invitation.title || "Marie & Pierre",
+    coupleName: invitation.coupleName || invitation.title || "Marie & Pierre",
     
     // Date et heure
     day: invitation.weddingDate ? new Date(invitation.weddingDate).getDate().toString() : "23",
@@ -137,35 +145,33 @@ export function invitationToTemplateData(invitation: any): Partial<TemplateData>
     time: invitation.ceremonyTime || "15h00",
     
     // Textes d'invitation
-    invitationText: "Vous êtes cordialement invités",
-    saveDate: "Réservez la date",
-    celebrationText: "Venez célébrer avec nous",
+    invitationText: invitation.invitationText || "Vous êtes cordialement invités",
     
     // Lieu et détails
     venue: invitation.venueName || "Château de Versailles",
     address: invitation.venueAddress || "Place d'Armes, 78000 Versailles",
-    moreInfo: invitation.description || "Cérémonie suivie d'un cocktail et dîner",
-    details: invitation.program ? 
-      `Cérémonie: ${invitation.program.ceremony || '15h00'}, Cocktail: ${invitation.program.cocktail || '18h00'}, Dîner: ${invitation.program.dinner || '20h00'}` :
-      "Nous avons hâte de partager ce moment magique avec vous",
+    details: allDetails || invitation.moreInfo || "Détails de la cérémonie",
+    moreInfo: invitation.moreInfo || "Cérémonie suivie d'un cocktail et dîner",
     
     // RSVP
-    rsvpDetails: "Merci de confirmer votre présence",
-    rsvpForm: "RSVP requis",
-    rsvpDate: invitation.weddingDate ? 
-      new Date(new Date(invitation.weddingDate).getTime() - 30 * 24 * 60 * 60 * 1000).toLocaleDateString('fr-FR') :
-      "1er Novembre 2024",
+    rsvpDetails: invitation.rsvpDetails || "Merci de confirmer votre présence",
+    rsvpForm: invitation.rsvpForm || "RSVP requis",
+    rsvpDate: invitation.rsvpDate ? 
+      new Date(invitation.rsvpDate).toLocaleDateString('fr-FR') :
+      invitation.weddingDate ? 
+        new Date(new Date(invitation.weddingDate).getTime() - 30 * 24 * 60 * 60 * 1000).toLocaleDateString('fr-FR') :
+        "1er Novembre 2024",
     
     // Messages personnalisés
-    message: "Votre présence sera notre plus beau cadeau",
-    blessingText: "Avec leurs familles",
-    welcomeMessage: "Bienvenue à notre mariage",
+    message: invitation.message || "Votre présence sera notre plus beau cadeau",
+    blessingText: invitation.blessingText || "Avec leurs familles",
+    welcomeMessage: invitation.welcomeMessage || "Bienvenue à notre mariage",
     
     // Informations supplémentaires
-    dressCode: "Tenue de soirée souhaitée",
+    dressCode: invitation.dressCode || "Tenue de soirée souhaitée",
     reception: invitation.receptionTime ? `Réception à partir de ${invitation.receptionTime}` : "Réception à partir de 18h00",
     ceremony: invitation.ceremonyTime ? `Cérémonie à ${invitation.ceremonyTime}` : "Cérémonie à 15h00",
-    contact: "Pour toute question, contactez-nous"
+    contact: invitation.contact || "Pour toute question, contactez-nous"
   };
 }
 

@@ -1,13 +1,14 @@
 'use client';
 
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { useAuth } from '@/hooks/useAuth';
 import styles from '@/styles/site/auth.module.css';
-import Image from 'next/image';
+
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api';
 
 export default function RegisterPage() {
-  const { register } = useAuth();
+  const router = useRouter();
   const [error, setError] = useState<string>('');
   const [loading, setLoading] = useState(false);
 
@@ -32,7 +33,28 @@ export default function RegisterPage() {
     }
 
     try {
-      await register(data);
+      const response = await fetch(`${API_URL}/auth/register`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          email: data.email,
+          password: data.password,
+          firstName: data.firstName,
+          lastName: data.lastName,
+        }),
+      });
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(result.message || 'Erreur lors de l\'inscription');
+      }
+
+      // Rediriger vers la page de vérification d'email
+      router.push(`/auth/verify-email?email=${encodeURIComponent(data.email)}`);
+
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Une erreur est survenue');
     } finally {
@@ -66,6 +88,7 @@ export default function RegisterPage() {
                   required
                   className="fullWidth"
                   placeholder="Votre prénom"
+                  disabled={loading}
                 />
               </div>
               <div className={styles.formGroup}>
@@ -77,6 +100,7 @@ export default function RegisterPage() {
                   required
                   className="fullWidth"
                   placeholder="Votre nom"
+                  disabled={loading}
                 />
               </div>
             </div>
@@ -91,6 +115,7 @@ export default function RegisterPage() {
                 required
                 className="fullWidth"
                 placeholder="votre@email.com"
+                disabled={loading}
               />
             </div>
 
@@ -104,6 +129,7 @@ export default function RegisterPage() {
                 required
                 className="fullWidth"
                 placeholder="••••••••"
+                disabled={loading}
               />
               <p className={styles.passwordHint}>
                 Le mot de passe doit contenir au moins 8 caractères
@@ -120,12 +146,13 @@ export default function RegisterPage() {
                 required
                 className="fullWidth"
                 placeholder="••••••••"
+                disabled={loading}
               />
             </div>
 
             <div className={styles.terms}>
               <label>
-                <input type="checkbox" name="terms" required />
+                <input type="checkbox" name="terms" required disabled={loading} />
                 <span>
                   J'accepte les{' '}
                   <Link href="/legal/terms">conditions d'utilisation</Link> et la{' '}
@@ -140,15 +167,6 @@ export default function RegisterPage() {
               className={`${styles.submitButton} ${loading ? styles.loading : ''}`}
             >
               {loading ? 'Inscription en cours...' : 'Créer mon compte'}
-            </button>
-
-            <div className={styles.divider}>
-              <span>ou</span>
-            </div>
-
-            <button type="button" className={styles.googleButton}>
-             <Image src="/icons/google.svg" alt="Google" width={20} height={20} />
-                Continuer avec Google
             </button>
 
             <div className={styles.footer}>

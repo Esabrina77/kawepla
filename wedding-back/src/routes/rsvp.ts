@@ -24,6 +24,13 @@ const rsvpUpdateSchema = z.object({
 });
 
 /**
+ * @route   GET /api/rsvp/:token/invitation
+ * @desc    Récupérer les détails de l'invitation avec le token
+ * @access  Public
+ */
+router.get('/:token/invitation', RSVPController.getInvitation);
+
+/**
  * @route   POST /api/rsvp/:token/respond
  * @desc    Répondre à une invitation
  * @access  Public

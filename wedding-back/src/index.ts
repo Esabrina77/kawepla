@@ -1,8 +1,9 @@
-import app from './app';
 import dotenv from 'dotenv';
 
-// Chargement des variables d'environnement (.env)
+// Chargement des variables d'environnement (.env) EN PREMIER
 dotenv.config();
+
+import app from './app';
 
 // Définition du port d'écoute (par défaut 3001)
 const PORT = process.env['PORT'] ? Number(process.env['PORT']) : 3001;

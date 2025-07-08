@@ -1,0 +1,658 @@
+.invitationsPage {
+  padding: 2rem;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+  padding-bottom: 1rem;
+  border-bottom: 2px solid #f0f0f0;
+}
+
+.header h1 {
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: #2c3e50;
+  margin: 0;
+}
+
+.createButton {
+  background: linear-gradient(135deg, #d4a574 0%, #b8935a 100%);
+  color: white;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.createButton:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(212, 165, 116, 0.3);
+}
+
+.loading, .error {
+  text-align: center;
+  padding: 3rem;
+  font-size: 1.1rem;
+}
+
+.error {
+  color: #e74c3c;
+  background: #fdf2f2;
+  border: 1px solid #f5c6cb;
+  border-radius: 8px;
+}
+
+.emptyState {
+  text-align: center;
+  padding: 4rem 2rem;
+  background: #f8f9fa;
+  border-radius: 12px;
+  margin-top: 2rem;
+}
+
+.emptyIcon {
+  font-size: 4rem;
+  margin-bottom: 1rem;
+}
+
+.emptyState h2 {
+  font-size: 1.8rem;
+  color: #2c3e50;
+  margin-bottom: 0.5rem;
+}
+
+.emptyState p {
+  color: #6c757d;
+  font-size: 1.1rem;
+  margin-bottom: 2rem;
+}
+
+.createButtonLarge {
+  background: linear-gradient(135deg, #d4a574 0%, #b8935a 100%);
+  color: white;
+  border: none;
+  padding: 1rem 2rem;
+  border-radius: 8px;
+  font-size: 1.1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 12px rgba(212, 165, 116, 0.2);
+}
+
+.createButtonLarge:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(212, 165, 116, 0.3);
+}
+
+.invitationsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+  gap: 2rem;
+  margin-top: 2rem;
+}
+
+.invitationCard {
+  background: white;
+  border-radius: 12px;
+  padding: 1.5rem;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.07);
+  border: 1px solid #e9ecef;
+  transition: all 0.3s ease;
+}
+
+.invitationCard:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+}
+
+.cardHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.cardHeader h3 {
+  font-size: 1.4rem;
+  font-weight: 600;
+  color: #2c3e50;
+  margin: 0;
+}
+
+.status {
+  padding: 0.25rem 0.75rem;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.status.draft {
+  background: #fff3cd;
+  color: #856404;
+  border: 1px solid #ffeaa7;
+}
+
+.status.published {
+  background: #d4edda;
+  color: #155724;
+  border: 1px solid #c3e6cb;
+}
+
+.status.archived {
+  background: #f8d7da;
+  color: #721c24;
+  border: 1px solid #f5c6cb;
+}
+
+.cardContent {
+  margin-bottom: 1.5rem;
+}
+
+.detail {
+  margin-bottom: 0.5rem;
+  color: #495057;
+  font-size: 0.95rem;
+}
+
+.detail strong {
+  color: #2c3e50;
+  font-weight: 600;
+}
+
+.cardActions {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.editButton, .viewButton, .publishButton {
+  flex: 1;
+  min-width: 80px;
+  padding: 0.5rem 1rem;
+  border: none;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.editButton {
+  background: #007bff;
+  color: white;
+}
+
+.editButton:hover {
+  background: #0056b3;
+}
+
+.viewButton {
+  background: #6c757d;
+  color: white;
+}
+
+.viewButton:hover {
+  background: #545b62;
+}
+
+.publishButton {
+  background: #28a745;
+  color: white;
+}
+
+.publishButton:hover {
+  background: #1e7e34;
+}
+
+/* Modal et structure générale */
+.modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  backdrop-filter: blur(4px);
+}
+
+.modalContent {
+  background: white;
+  border-radius: 16px;
+  width: 95%;
+  max-width: 1400px;
+  height: 90vh;
+  max-height: 900px;
+  overflow: hidden;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+  display: flex;
+  flex-direction: column;
+}
+
+.modalHeader {
+  padding: 1.5rem 2rem;
+  border-bottom: 1px solid #e9ecef;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+}
+
+.modalHeader h2 {
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: #2c3e50;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.modalHeader h2::before {
+  content: "✨";
+  font-size: 1.5rem;
+}
+
+.closeButton {
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  color: #6c757d;
+  cursor: pointer;
+  padding: 0.5rem;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+}
+
+.closeButton:hover {
+  background: #f8f9fa;
+  color: #495057;
+  transform: scale(1.1);
+}
+
+/* Layout principal du formulaire */
+.formWithPreview {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2rem;
+  padding: 2rem;
+  height: calc(100% - 80px);
+  overflow: hidden;
+}
+
+.formSection {
+  overflow-y: auto;
+  padding-right: 1rem;
+}
+
+.previewSection {
+  background: #f8f9fa;
+  border-radius: 12px;
+  padding: 1.5rem;
+  border: 1px solid #e9ecef;
+  position: sticky;
+  top: 0;
+  height: fit-content;
+  max-height: 100%;
+  overflow-y: auto;
+}
+
+.previewSection h3 {
+  font-size: 1.3rem;
+  font-weight: 600;
+  color: #2c3e50;
+  margin: 0 0 1rem 0;
+  padding-bottom: 0.75rem;
+  border-bottom: 2px solid #d4a574;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.previewSection h3::before {
+  content: "👀";
+  font-size: 1.2rem;
+}
+
+.previewContainer {
+  background: white;
+  border-radius: 8px;
+  padding: 1rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.preview {
+  min-height: 400px;
+  border: 1px solid #e9ecef;
+  border-radius: 8px;
+  padding: 1rem;
+  background: white;
+  overflow-y: auto;
+  font-family: 'Georgia', serif;
+}
+
+.previewPlaceholder {
+  color: #6c757d;
+  font-style: italic;
+  text-align: center;
+  padding: 2rem;
+  background: #f8f9fa;
+  border-radius: 8px;
+}
+
+/* Styles du formulaire */
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.formGroup {
+  background: white;
+  border: 1px solid #e9ecef;
+  border-radius: 12px;
+  padding: 1.5rem;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  transition: all 0.3s ease;
+}
+
+.formGroup:hover {
+  border-color: #d4a574;
+  box-shadow: 0 4px 12px rgba(212, 165, 116, 0.1);
+}
+
+.formGroup h3 {
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: #2c3e50;
+  margin: 0 0 1.25rem 0;
+  padding-bottom: 0.75rem;
+  border-bottom: 2px solid #f0f0f0;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+/* Icônes pour les sections */
+.formGroup:nth-child(1) h3::before { content: "💑"; }
+.formGroup:nth-child(2) h3::before { content: "📅"; }
+.formGroup:nth-child(3) h3::before { content: "📍"; }
+.formGroup:nth-child(4) h3::before { content: "✍️"; }
+.formGroup:nth-child(5) h3::before { content: "💌"; }
+.formGroup:nth-child(6) h3::before { content: "📞"; }
+.formGroup:nth-child(7) h3::before { content: "ℹ️"; }
+.formGroup:nth-child(8) h3::before { content: "🎨"; }
+
+.formRow {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.formField {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.formField label {
+  font-weight: 600;
+  color: #495057;
+  font-size: 0.95rem;
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.formField label.required::after {
+  content: "*";
+  color: #e74c3c;
+  font-weight: bold;
+}
+
+.formField input,
+.formField textarea,
+.formField select {
+  padding: 0.75rem 1rem;
+  border: 2px solid #e9ecef;
+  border-radius: 8px;
+  font-size: 1rem;
+  transition: all 0.3s ease;
+  background: white;
+}
+
+.formField input:focus,
+.formField textarea:focus,
+.formField select:focus {
+  outline: none;
+  border-color: #d4a574;
+  box-shadow: 0 0 0 3px rgba(212, 165, 116, 0.1);
+  transform: translateY(-1px);
+}
+
+.formField input::placeholder,
+.formField textarea::placeholder {
+  color: #adb5bd;
+  font-style: italic;
+}
+
+.formGroup textarea {
+  resize: vertical;
+  min-height: 100px;
+  font-family: inherit;
+}
+
+/* Champs spéciaux */
+.form input[type="date"],
+.form input[type="time"] {
+  position: relative;
+  cursor: pointer;
+}
+
+.form input[type="date"]::-webkit-calendar-picker-indicator,
+.form input[type="time"]::-webkit-calendar-picker-indicator {
+  cursor: pointer;
+  filter: invert(0.5);
+}
+
+.form input[type="date"]:hover::-webkit-calendar-picker-indicator,
+.form input[type="time"]:hover::-webkit-calendar-picker-indicator {
+  filter: invert(0.3);
+}
+
+/* Actions du formulaire */
+.formActions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+  padding: 1.5rem 2rem;
+  border-top: 1px solid #e9ecef;
+  background: #f8f9fa;
+  margin-top: auto;
+}
+
+.formActions button {
+  padding: 0.75rem 1.5rem;
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  min-width: 120px;
+  font-size: 1rem;
+}
+
+.formActions button[type="button"] {
+  background: #6c757d;
+  color: white;
+}
+
+.formActions button[type="button"]:hover {
+  background: #5a6268;
+  transform: translateY(-1px);
+}
+
+.submitButton {
+  background: linear-gradient(135deg, #d4a574 0%, #b8935a 100%);
+  color: white;
+  box-shadow: 0 4px 12px rgba(212, 165, 116, 0.3);
+}
+
+.submitButton:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(212, 165, 116, 0.4);
+}
+
+.submitButton:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* Sélecteur de design */
+.designSelector {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 1rem;
+  margin-top: 0.5rem;
+}
+
+.designOption {
+  border: 2px solid #e9ecef;
+  border-radius: 8px;
+  padding: 1rem;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  background: white;
+}
+
+.designOption:hover {
+  border-color: #d4a574;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(212, 165, 116, 0.2);
+}
+
+.designOption.selected {
+  border-color: #d4a574;
+  background: linear-gradient(135deg, #faf8f5 0%, #f5f2ed 100%);
+  box-shadow: 0 4px 12px rgba(212, 165, 116, 0.3);
+}
+
+.designOption h4 {
+  margin: 0.5rem 0 0.25rem 0;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #2c3e50;
+}
+
+.designOption p {
+  margin: 0;
+  font-size: 0.8rem;
+  color: #6c757d;
+}
+
+/* Responsive */
+@media (max-width: 1200px) {
+  .formWithPreview {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+  
+  .previewSection {
+    order: -1;
+    max-height: 300px;
+  }
+  
+  .previewContainer {
+    max-height: 250px;
+  }
+  
+  .preview {
+    min-height: 200px;
+  }
+}
+
+@media (max-width: 768px) {
+  .modalContent {
+    width: 98%;
+    height: 95vh;
+    margin: 2.5vh 1%;
+  }
+  
+  .formWithPreview {
+    padding: 1rem;
+    gap: 1rem;
+  }
+  
+  .formRow {
+    grid-template-columns: 1fr;
+    gap: 0.75rem;
+  }
+  
+  .formGroup {
+    padding: 1rem;
+  }
+  
+  .modalHeader {
+    padding: 1rem 1.5rem;
+  }
+  
+  .modalHeader h2 {
+    font-size: 1.5rem;
+  }
+  
+  .formActions {
+    padding: 1rem 1.5rem;
+    flex-direction: column;
+  }
+  
+  .designSelector {
+    grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+    gap: 0.75rem;
+  }
+  
+  .preview {
+    min-height: 150px;
+    font-size: 0.9rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .modalContent {
+    width: 100%;
+    height: 100vh;
+    border-radius: 0;
+  }
+  
+  .formActions button {
+    min-width: 100px;
+    font-size: 0.9rem;
+  }
+  
+  .designSelector {
+    grid-template-columns: 1fr 1fr;
+  }
+} 

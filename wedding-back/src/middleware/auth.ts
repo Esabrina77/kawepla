@@ -35,6 +35,12 @@ export const authMiddleware = asyncMiddleware(async (req, res, next) => {
       return res.status(401).json({ message: 'Token invalide' });
     }
 
+    console.log('🔍 Debug auth - Token payload:', {
+      id: payload.id,
+      email: payload.email,
+      role: payload.role
+    });
+
     // En mode test, on simule l'utilisateur avec les droits appropriés
     if (process.env.NODE_ENV === 'test') {
       const user: AuthUser = {
@@ -49,6 +55,8 @@ export const authMiddleware = asyncMiddleware(async (req, res, next) => {
     }
 
     // Vérifier que l'utilisateur existe toujours en base
+    console.log('🔍 Debug auth - Recherche utilisateur avec ID:', payload.id);
+    
     const user = await prisma.user.findUnique({
       where: {
         id: payload.id
@@ -61,18 +69,25 @@ export const authMiddleware = asyncMiddleware(async (req, res, next) => {
       }
     });
 
+    console.log('🔍 Debug auth - Utilisateur trouvé:', user);
+
     if (!user) {
+      console.log('❌ Debug auth - Utilisateur non trouvé en base');
       return res.status(401).json({ message: 'Utilisateur non trouvé' });
     }
 
     if (!user.isActive) {
+      console.log('❌ Debug auth - Utilisateur désactivé');
       return res.status(401).json({ message: 'Compte désactivé' });
     }
 
+    console.log('✅ Debug auth - Authentification réussie');
+    
     // Ajouter l'utilisateur à la requête
     req.user = user;
     next();
   } catch (error) {
+    console.error('❌ Debug auth - Erreur:', error);
     if (error instanceof Error && (error.name === 'JsonWebTokenError' || error.name === 'TokenExpiredError')) {
       return res.status(401).json({ message: 'Token invalide ou expiré' });
     }

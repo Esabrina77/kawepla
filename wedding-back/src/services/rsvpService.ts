@@ -18,6 +18,35 @@ type RSVPUpdateInput = Partial<RSVPCreateInput>;
 
 export class RSVPService {
   /**
+   * Récupérer les détails de l'invitation avec le token
+   */
+  static async getInvitationByToken(inviteToken: string) {
+    const guest = await prisma.guest.findUnique({
+      where: {
+        inviteToken: inviteToken
+      },
+      include: {
+        invitation: {
+          include: {
+            design: true // Inclure toutes les données du design
+          }
+        }
+      }
+    });
+
+    if (!guest) {
+      throw new Error('Invité non trouvé');
+    }
+
+    // Vérifier si l'invitation est publiée
+    if (guest.invitation.status !== 'PUBLISHED') {
+      throw new Error('Cette invitation n\'est pas encore publiée');
+    }
+
+    return guest.invitation;
+  }
+
+  /**
    * Créer une nouvelle réponse RSVP
    */
   static async createRSVP(inviteToken: string, data: RSVPCreateInput) {

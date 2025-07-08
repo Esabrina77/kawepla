@@ -11,20 +11,48 @@ type InvitationStatus = PrismaInvitationStatus;
 
 // Types pour la création et mise à jour d'invitations
 type InvitationCreateInput = {
-  title: string;
-  description?: string;
+  // Informations du couple
+  coupleName: string;
+  
+  // Date et heure
   weddingDate: Date;
   ceremonyTime?: string;
   receptionTime?: string;
+  
+  // Textes d'invitation
+  invitationText?: string;
+  saveDate?: string;
+  celebrationText?: string;
+  
+  // Lieu et détails
   venueName: string;
   venueAddress: string;
   venueCoordinates?: string;
+  moreInfo?: string;
+  details?: string;
+  
+  // RSVP
+  rsvpDetails?: string;
+  rsvpForm?: string;
+  rsvpDate?: Date;
+  
+  // Messages personnalisés
+  message?: string;
+  blessingText?: string;
+  welcomeMessage?: string;
+  
+  // Informations supplémentaires
+  dressCode?: string;
+  contact?: string;
+  
+  // Champs existants (optionnels maintenant)
+  title?: string;
+  description?: string;
   customDomain?: string;
-  theme: Prisma.InputJsonValue;
-  photos: Prisma.InputJsonValue[];
+  photos?: Prisma.InputJsonValue[];
   program?: Prisma.InputJsonValue;
   restrictions?: string;
-  languages: string[];
+  languages?: string[];
   maxGuests?: number;
   designId: string;
 };
@@ -64,28 +92,49 @@ export class InvitationService {
       throw new Error('Design non trouvé');
     }
 
-    return prisma.invitation.create({
+    const invitation = await prisma.invitation.create({
       data: {
-        userId,
-        status: PrismaInvitationStatus.DRAFT,
-        title: data.title,
-        description: data.description,
-        weddingDate: data.weddingDate,
-        ceremonyTime: data.ceremonyTime,
-        receptionTime: data.receptionTime,
+        coupleName: data.coupleName,
+        weddingDate: new Date(data.weddingDate),
         venueName: data.venueName,
         venueAddress: data.venueAddress,
-        venueCoordinates: data.venueCoordinates,
+        designId: data.designId,
+        userId: userId,
+        ceremonyTime: data.ceremonyTime,
+        receptionTime: data.receptionTime,
+        invitationText: data.invitationText,
+        moreInfo: data.moreInfo,
+        rsvpDetails: data.rsvpDetails,
+        rsvpForm: data.rsvpForm,
+        rsvpDate: data.rsvpDate ? new Date(data.rsvpDate) : null,
+        message: data.message,
+        blessingText: data.blessingText,
+        welcomeMessage: data.welcomeMessage,
+        dressCode: data.dressCode,
+        contact: data.contact,
+        title: data.title,
+        description: data.description,
         customDomain: data.customDomain,
-        theme: data.theme,
-        photos: data.photos,
-        program: data.program,
+        photos: data.photos || [],
+        program: data.program || {},
         restrictions: data.restrictions,
-        languages: data.languages,
-        maxGuests: data.maxGuests,
-        designId: data.designId
+        languages: data.languages || ['fr'],
+        maxGuests: data.maxGuests
+      },
+      include: {
+        design: true,
+        user: {
+          select: {
+            id: true,
+            email: true,
+            firstName: true,
+            lastName: true
+          }
+        }
       }
     });
+
+    return invitation;
   }
 
   /**
@@ -141,23 +190,33 @@ export class InvitationService {
       throw new Error('Impossible de modifier une invitation publiée');
     }
 
-    const updateData: Prisma.InvitationUpdateInput = {};
-
-    if (data.title !== undefined) updateData.title = data.title;
-    if (data.description !== undefined) updateData.description = data.description;
-    if (data.weddingDate !== undefined) updateData.weddingDate = data.weddingDate;
-    if (data.ceremonyTime !== undefined) updateData.ceremonyTime = data.ceremonyTime;
-    if (data.receptionTime !== undefined) updateData.receptionTime = data.receptionTime;
+    const updateData: any = {};
+    
+    if (data.coupleName !== undefined) updateData.coupleName = data.coupleName;
+    if (data.weddingDate !== undefined) updateData.weddingDate = new Date(data.weddingDate);
     if (data.venueName !== undefined) updateData.venueName = data.venueName;
     if (data.venueAddress !== undefined) updateData.venueAddress = data.venueAddress;
-    if (data.venueCoordinates !== undefined) updateData.venueCoordinates = data.venueCoordinates;
+    if (data.ceremonyTime !== undefined) updateData.ceremonyTime = data.ceremonyTime;
+    if (data.receptionTime !== undefined) updateData.receptionTime = data.receptionTime;
+    if (data.invitationText !== undefined) updateData.invitationText = data.invitationText;
+    if (data.moreInfo !== undefined) updateData.moreInfo = data.moreInfo;
+    if (data.rsvpDetails !== undefined) updateData.rsvpDetails = data.rsvpDetails;
+    if (data.rsvpForm !== undefined) updateData.rsvpForm = data.rsvpForm;
+    if (data.rsvpDate !== undefined) updateData.rsvpDate = data.rsvpDate ? new Date(data.rsvpDate) : null;
+    if (data.message !== undefined) updateData.message = data.message;
+    if (data.blessingText !== undefined) updateData.blessingText = data.blessingText;
+    if (data.welcomeMessage !== undefined) updateData.welcomeMessage = data.welcomeMessage;
+    if (data.dressCode !== undefined) updateData.dressCode = data.dressCode;
+    if (data.contact !== undefined) updateData.contact = data.contact;
+    if (data.title !== undefined) updateData.title = data.title;
+    if (data.description !== undefined) updateData.description = data.description;
     if (data.customDomain !== undefined) updateData.customDomain = data.customDomain;
-    if (data.theme !== undefined) updateData.theme = data.theme;
     if (data.photos !== undefined) updateData.photos = data.photos;
     if (data.program !== undefined) updateData.program = data.program;
     if (data.restrictions !== undefined) updateData.restrictions = data.restrictions;
     if (data.languages !== undefined) updateData.languages = data.languages;
     if (data.maxGuests !== undefined) updateData.maxGuests = data.maxGuests;
+    
     if (data.designId !== undefined) {
       // Vérifier si le design existe
       const design = await prisma.design.findUnique({
@@ -287,7 +346,7 @@ export class InvitationService {
 
     return {
       data: csvHeader + csvRows,
-      filename: `invites-${invitation.title.toLowerCase().replace(/\s+/g, '-')}.csv`
+      filename: `invites-${invitation.title?.toLowerCase().replace(/\s+/g, '-') || 'invitation'}.csv`
     };
   }
 

@@ -4,43 +4,81 @@ import { renderTemplate, invitationToTemplateData, mergeTemplateData, DesignTemp
 
 export interface Invitation {
   id: string;
-  title: string;
-  description: string;
+  
+  // Informations du couple
+  coupleName: string;
+  
+  // Date et heure
   weddingDate: string;
-  ceremonyTime: string;
-  receptionTime: string;
+  ceremonyTime?: string;
+  receptionTime?: string;
+  
+  // Textes d'invitation
+  invitationText?: string;
+  
+  // Lieu et détails
   venueName: string;
   venueAddress: string;
-  venueCoordinates: string;
-  customDomain: string | null;
+  venueCoordinates?: string;
+  moreInfo?: string;
+  
+  // RSVP
+  rsvpDetails?: string;
+  rsvpForm?: string;
+  rsvpDate?: string;
+  
+  // Messages personnalisés
+  message?: string;
+  blessingText?: string;
+  welcomeMessage?: string;
+  
+  // Informations supplémentaires
+  dressCode?: string;
+  contact?: string;
+  
+  // Champs existants
+  title?: string;
+  description?: string;
+  customDomain?: string;
   status: string;
-  theme: {
-    fonts: {
-      body: string;
-      heading: string;
-    };
-    colors: {
-      accent: string;
-      primary: string;
-      secondary: string;
-    };
-  };
   photos: Array<{
     url: string;
-    caption: string;
+    caption?: string;
   }>;
-  program: {
-    dinner: string;
-    ceremony: string;
-    cocktail: string;
+  program?: {
+    dinner?: string;
+    ceremony?: string;
+    cocktail?: string;
   };
-  restrictions: string;
+  restrictions?: string;
   languages: string[];
-  maxGuests: number;
+  maxGuests?: number;
   createdAt: string;
   updatedAt: string;
   userId: string;
   designId: string;
+}
+
+export interface CreateInvitationData {
+  coupleName: string;
+  weddingDate: string;
+  venueName: string;
+  venueAddress: string;
+  designId: string;
+  ceremonyTime?: string;
+  receptionTime?: string;
+  invitationText?: string;
+  moreInfo?: string;
+  rsvpDetails?: string;
+  rsvpForm?: string;
+  rsvpDate?: string;
+  message?: string;
+  blessingText?: string;
+  welcomeMessage?: string;
+  dressCode?: string;
+  contact?: string;
+  title?: string;
+  description?: string;
 }
 
 export function useInvitations() {
@@ -53,7 +91,6 @@ export function useInvitations() {
       setLoading(true);
       setError(null);
       
-      // Appel direct à l'API comme dans Postman
       const response = await apiClient.get<Invitation[]>('/invitations');
       setInvitations(response || []);
     } catch (err) {
@@ -69,7 +106,6 @@ export function useInvitations() {
       setLoading(true);
       setError(null);
       
-      // Appel direct à l'API comme dans Postman
       const response = await apiClient.get<Invitation>(`/invitations/${id}`);
       return response;
     } catch (err) {
@@ -78,6 +114,64 @@ export function useInvitations() {
       return null;
     } finally {
       setLoading(false);
+    }
+  };
+
+  const createInvitation = async (data: CreateInvitationData): Promise<Invitation | null> => {
+    try {
+      setLoading(true);
+      setError(null);
+      
+      const response = await apiClient.post<Invitation>('/invitations', data);
+      
+      if (response) {
+        setInvitations(prev => [...prev, response]);
+        return response;
+      }
+      return null;
+    } catch (err) {
+      console.error('Error creating invitation:', err);
+      setError(err instanceof Error ? err.message : 'Erreur lors de la création de l\'invitation');
+      return null;
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const updateInvitation = async (id: string, data: Partial<CreateInvitationData>): Promise<Invitation | null> => {
+    try {
+      setLoading(true);
+      setError(null);
+      
+      const response = await apiClient.put<Invitation>(`/invitations/${id}`, data);
+      
+      if (response) {
+        setInvitations(prev => prev.map(inv => inv.id === id ? response : inv));
+        return response;
+      }
+      return null;
+    } catch (err) {
+      console.error('Error updating invitation:', err);
+      setError(err instanceof Error ? err.message : 'Erreur lors de la mise à jour de l\'invitation');
+      return null;
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const publishInvitation = async (id: string): Promise<any> => {
+    try {
+      const response = await apiClient.post(`/invitations/${id}/publish`);
+      
+      // Mettre à jour la liste des invitations
+      setInvitations(prev => prev.map(inv => 
+        inv.id === id ? { ...inv, status: 'PUBLISHED' } : inv
+      ));
+      
+      return response;
+    } catch (error) {
+      console.error('Erreur lors de la publication de l\'invitation:', error);
+      throw error;
     }
   };
 
@@ -90,11 +184,14 @@ export function useInvitations() {
     loading,
     error,
     fetchInvitations,
-    getInvitationById
+    getInvitationById,
+    createInvitation,
+    updateInvitation,
+    publishInvitation
   };
 }
 
-// Nouvelle fonction pour rendre une invitation avec un template
+// Fonction pour rendre une invitation avec un template
 export function renderInvitationWithTemplate(
   invitation: Invitation,
   template: DesignTemplate,

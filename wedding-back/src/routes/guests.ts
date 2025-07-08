@@ -1,56 +1,34 @@
 import { Router } from 'express';
-import { GuestController } from '../controllers/guestController';
-import { validateBody } from '../middleware/validation';
-import { z } from 'zod';
+import { GuestController, uploadMiddleware } from '../controllers/guestController';
 
 const router = Router();
 
-// Schéma de validation pour un invité
-const guestSchema = z.object({
-  firstName: z.string().min(1, 'Le prénom est requis'),
-  lastName: z.string().min(1, 'Le nom est requis'),
-  email: z.string().email().optional().nullable(),
-  phone: z.string().optional().nullable(),
-  isVIP: z.boolean().default(false),
-  dietaryRestrictions: z.string().optional().nullable(),
-  plusOne: z.boolean().default(false),
-  plusOneName: z.string().optional().nullable(),
-  invitationId: z.string().min(1, 'L\'ID de l\'invitation est requis')
-});
-
 /**
- * @route   POST /api/guests
- * @desc    Créer un nouvel invité
+ * @route   POST /api/guests/:id/send-invitation
+ * @desc    Envoyer une invitation par email à un invité
  * @access  Privé (authentifié)
  */
-router.post('/', validateBody(guestSchema), GuestController.create);
+router.post('/:id/send-invitation', GuestController.sendInvitation);
 
 /**
- * @route   GET /api/guests/:id
- * @desc    Voir un invité
+ * @route   POST /api/guests/:id/send-reminder
+ * @desc    Envoyer un rappel à un invité
  * @access  Privé (authentifié)
  */
-router.get('/:id', GuestController.getById);
+router.post('/:id/send-reminder', GuestController.sendReminder);
 
 /**
- * @route   PATCH /api/guests/:id
- * @desc    Modifier un invité
+ * @route   POST /api/guests/preview-import
+ * @desc    Prévisualisation d'un fichier avant import
  * @access  Privé (authentifié)
  */
-router.patch('/:id', validateBody(guestSchema.partial()), GuestController.update);
+router.post('/preview-import', uploadMiddleware, GuestController.previewImport);
 
 /**
- * @route   DELETE /api/guests/:id
- * @desc    Supprimer un invité
- * @access  Privé (authentifié)
+ * @route   GET /api/guests/template/:format
+ * @desc    Télécharger un template de fichier (csv, json, txt)
+ * @access  Public
  */
-router.delete('/:id', GuestController.delete);
-
-/**
- * @route   GET /api/invitations/:id/guests
- * @desc    Liste des invités d'une invitation
- * @access  Privé (authentifié)
- */
-router.get('/invitations/:id/guests', GuestController.list);
+router.get('/template/:format', GuestController.downloadTemplate);
 
 export default router; 

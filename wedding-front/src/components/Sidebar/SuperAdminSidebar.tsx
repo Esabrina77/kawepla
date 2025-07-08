@@ -30,6 +30,11 @@ const menuItems = [
     icon: '/icons/guests.svg'
   },
   {
+    title: 'Invitations',
+    path: '/super-admin/invitations',
+    icon: '/icons/rsvp.svg'
+  },
+  {
     title: 'Statistiques',
     path: '/super-admin/stats',
     icon: '/icons/stats.svg'
@@ -39,11 +44,18 @@ const menuItems = [
     path: '/super-admin/messages',
     icon: '/icons/rsvp.svg'
   },
+  // TODO: recevoir les suggestions des clients
   {
-    title: 'Paramètres',
-    path: '/super-admin/settings',
-    icon: '/icons/planning.svg'
-  }
+    title: 'Suggestions',
+    path: '/super-admin/suggestions',
+    icon: '/icons/suggestions.svg'
+  },
+  // TODO: Ajouter les paramètres
+  // {
+  //   title: 'Paramètres',
+  //   path: '/super-admin/settings',
+  //   icon: '/icons/planning.svg'
+  // }
 ];
 
 export const SuperAdminSidebar = () => {
@@ -65,12 +77,14 @@ export const SuperAdminSidebar = () => {
           <Image 
             src="/images/logo.png" 
             alt="Logo KaWePla" 
-            width={120} 
-            height={120} 
+            width={100} 
+            height={100} 
             style={{ objectFit: 'contain' }}
             priority
           />
         </Link>
+
+        <div className={styles.sidebarHeaderButtons}>
         {!isCollapsed && (
           <div className={styles.superAdminBadge}>
             SUPER ADMIN
@@ -83,7 +97,8 @@ export const SuperAdminSidebar = () => {
         >
           {isCollapsed ? '→' : '←'}
         </button>
-      </div>
+        </div>
+      </div>  
 
       <nav className={styles.navigation}>
         {menuItems.map((item) => (
@@ -112,7 +127,7 @@ export const SuperAdminSidebar = () => {
 
       <div className={styles.sidebarFooter}>
         <div className={styles.footerContent}>
-          <Link href="/help" className={styles.helpLink}>
+          <Link href="/super-admin/help" className={styles.helpLink}>
             <span className={styles.icon}>
               <Image
                 src="/icons/rsvp.svg"

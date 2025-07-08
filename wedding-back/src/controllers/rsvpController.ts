@@ -8,6 +8,39 @@ import { RSVPStatus } from '@prisma/client';
 
 export class RSVPController {
   /**
+   * Récupérer les détails de l'invitation avec le token
+   */
+  static async getInvitation(req: Request, res: Response, next: NextFunction): Promise<void> {
+    try {
+      const { token } = req.params;
+      
+      if (!token) {
+        res.status(400).json({ message: 'Token d\'invitation requis' });
+        return;
+      }
+
+      try {
+        const invitation = await RSVPService.getInvitationByToken(token);
+        res.status(200).json(invitation);
+      } catch (error) {
+        if (error instanceof Error) {
+          if (error.message === 'Invité non trouvé') {
+            res.status(404).json({ message: error.message });
+          } else if (error.message === 'Cette invitation n\'est pas encore publiée') {
+            res.status(403).json({ message: error.message });
+          } else {
+            res.status(500).json({ message: 'Erreur interne du serveur' });
+          }
+        } else {
+          res.status(500).json({ message: 'Erreur interne du serveur' });
+        }
+      }
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  /**
    * Répondre à une invitation
    */
   static async respond(req: Request, res: Response, next: NextFunction): Promise<void> {

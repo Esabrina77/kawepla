@@ -1,4 +1,5 @@
 import { redirect } from 'next/navigation';
+import { RSVPMessage } from '@/types';
 
 interface ApiResponse<T> {
   data?: T;
@@ -90,10 +91,42 @@ class ApiClient {
     return this.handleResponse<T>(response);
   }
 
+  async postFormData<T>(endpoint: string, formData: FormData): Promise<T> {
+    const apiEndpoint = endpoint.startsWith('/api') ? endpoint : `/api${endpoint}`;
+    const token = this.getAuthToken();
+    
+    const headers: HeadersInit = {};
+    if (token) {
+      headers['Authorization'] = `Bearer ${token}`;
+    }
+    // Ne pas définir Content-Type pour FormData - le navigateur le fait automatiquement
+
+    const response = await fetch(`${this.baseUrl}${apiEndpoint}`, {
+      method: 'POST',
+      headers,
+      credentials: 'include',
+      body: formData,
+    });
+
+    return this.handleResponse<T>(response);
+  }
+
   async put<T>(endpoint: string, data?: any): Promise<T> {
     const apiEndpoint = endpoint.startsWith('/api') ? endpoint : `/api${endpoint}`;
     const response = await fetch(`${this.baseUrl}${apiEndpoint}`, {
       method: 'PUT',
+      headers: this.getHeaders(),
+      credentials: 'include',
+      body: data ? JSON.stringify(data) : undefined,
+    });
+
+    return this.handleResponse<T>(response);
+  }
+
+  async patch<T>(endpoint: string, data?: any): Promise<T> {
+    const apiEndpoint = endpoint.startsWith('/api') ? endpoint : `/api${endpoint}`;
+    const response = await fetch(`${this.baseUrl}${apiEndpoint}`, {
+      method: 'PATCH',
       headers: this.getHeaders(),
       credentials: 'include',
       body: data ? JSON.stringify(data) : undefined,
@@ -115,3 +148,16 @@ class ApiClient {
 }
 
 export const apiClient = new ApiClient(); 
+
+// Messages RSVP
+export const rsvpMessagesApi = {
+  // Récupérer tous les messages RSVP pour un couple
+  getMessages: async (): Promise<RSVPMessage[]> => {
+    return apiClient.get<RSVPMessage[]>('/rsvp-messages/rsvp-messages');
+  },
+
+  // Marquer un message comme lu
+  markAsRead: async (rsvpId: string): Promise<void> => {
+    return apiClient.put(`/rsvp-messages/rsvp-messages/${rsvpId}/read`);
+  }
+}; 

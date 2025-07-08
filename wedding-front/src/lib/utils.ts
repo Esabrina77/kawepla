@@ -1,52 +1,72 @@
 import { type ClassValue, clsx } from "clsx"
 import { twMerge } from "tailwind-merge"
-import { getDefaultTemplateData, mergeTemplateData, invitationToTemplateData } from './templateEngine';
+import { getDefaultTemplateData, mergeTemplateData, invitationToTemplateData, TemplateData } from './templateEngine';
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
 }
 
 // Exemple d'utilisation du système de templates
-export function getExampleTemplateData() {
+export function getExampleTemplateData(): TemplateData {
   return {
-    // Informations du couple
-    coupleName: "Sophie & Alexandre",
-    
-    // Date et heure
+    coupleName: "Marie & Pierre",
     day: "15",
     month: "Juin",
     year: "2024",
     date: "15 Juin 2024",
-    time: "16h00",
-    
-    // Textes d'invitation
-    invitationText: "Vous êtes cordialement invités au mariage de",
-    saveDate: "Réservez la date",
-    celebrationText: "Venez célébrer avec nous ce moment unique",
-    
-    // Lieu et détails
-    venue: "Domaine de la Roseraie",
-    address: "123 Route des Vignes, 33000 Bordeaux",
-    moreInfo: "Cérémonie laïque suivie d'un cocktail et dîner dansant",
-    details: "Une journée magique nous attend, venez partager notre bonheur",
-    
-    // RSVP
-    rsvpDetails: "Merci de confirmer votre présence avant le 15 mai 2024",
-    rsvpForm: "RSVP obligatoire",
-    rsvpDate: "15 Mai 2024",
-    
-    // Messages personnalisés
-    message: "Votre présence illuminera notre plus beau jour",
-    blessingText: "Entourés de leurs familles",
-    welcomeMessage: "Bienvenue à notre union",
-    
-    // Informations supplémentaires
-    dressCode: "Tenue chic de circonstance",
-    reception: "Cocktail à partir de 17h30",
-    ceremony: "Cérémonie à 16h00",
-    contact: "Pour toute question : sophie.alexandre2024@email.com"
+    time: "15h00",
+    invitationText: "Vous êtes cordialement invités à célébrer notre union",
+    venue: "Château de Versailles",
+    address: "Place d'Armes, 78000 Versailles",
+    details: "Cérémonie suivie d'un cocktail et d'un dîner dansant",
+    message: "Votre présence sera notre plus beau cadeau",
+    blessingText: "Avec leurs familles",
+    welcomeMessage: "Bienvenue à notre mariage",
+    rsvpDetails: "Merci de confirmer votre présence avant le 1er mai",
+    rsvpForm: "RSVP requis",
+    rsvpDate: "1er Mai 2024",
+    dressCode: "Tenue de soirée souhaitée",
+    contact: "marie.pierre@email.com",
+    moreInfo: "Hébergement disponible sur demande",
+    ceremony: "Cérémonie à 15h00",
+    reception: "Réception à 18h00"
   };
 }
+
+// Données d'exemple pour différents styles
+export const exampleTemplateDataVariations = {
+  classic: {
+    ...getExampleTemplateData(),
+    invitationText: "Ont l'honneur de vous inviter",
+    message: "Votre présence sera notre plus beau cadeau",
+    blessingText: "Avec leurs familles"
+  },
+  modern: {
+    ...getExampleTemplateData(),
+    invitationText: "Vous invitent à célébrer leur union",
+    message: "Partagez notre bonheur"
+  },
+  english: {
+    ...getExampleTemplateData(),
+    invitationText: "Request the pleasure of your company",
+    message: "Your presence is our greatest gift"
+  },
+  vintage: {
+    ...getExampleTemplateData(),
+    invitationText: "Vous convient à leurs noces",
+    message: "Une soirée d'antan vous attend"
+  },
+  bohemian: {
+    ...getExampleTemplateData(),
+    invitationText: "Joignez-vous à nous pour célébrer l'amour",
+    message: "Célébrons l'amour qui fleurit"
+  },
+  indian: {
+    ...getExampleTemplateData(),
+    invitationText: "आपको हमारे विवाह समारोह में आमंत्रित करते हैं",
+    message: "हमारे साथ खुशियाँ मनाएं"
+  }
+};
 
 // Fonction pour créer des données de test pour différents styles
 export function getTemplateDataByStyle(style: 'elegant' | 'modern' | 'vintage' | 'floral' | 'indian') {

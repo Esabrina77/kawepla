@@ -39,12 +39,21 @@ const menuItems = [
     icon: '/icons/rsvp.svg',
     description: 'Consultez les réponses et messages de vos invités'
   },
+
+  // TODO: Ajouter les suggestions
   {
-    title: 'Paramètres',
-    path: '/client/settings',
-    icon: '/icons/planning.svg',
-    description: 'Gérez vos paramètres'
-  }
+    title: 'Suggestions',
+    path: '/client/suggestions',
+    icon: '/icons/suggestions.svg',
+    description: 'Partagez vos suggestions pour l\'application'
+  },
+  // TODO: Ajouter les paramètres
+  // {
+  //   title: 'Paramètres',
+  //   path: '/client/settings',
+  //   icon: '/icons/planning.svg',
+  //   description: 'Gérez vos paramètres'
+  // }
 ];
 
 export const Sidebar = () => {
@@ -62,12 +71,12 @@ export const Sidebar = () => {
   return (
     <aside className={`${styles.sidebar} ${isCollapsed ? styles.collapsed : ''}`}>
       <div className={styles.sidebarHeader}>
-        <Link href="/client/dashboard">
+        <Link href="/">
           <Image 
             src="/images/logo.png" 
             alt="WeddInvite" 
-            width={120} 
-            height={120} 
+            width={100} 
+            height={100} 
             style={{ objectFit: 'contain' }}
             priority
           />
@@ -116,7 +125,7 @@ export const Sidebar = () => {
 
       <div className={styles.sidebarFooter}>
         <div className={styles.footerContent}>
-          <Link href="https://docs.weddinvite.app" className={styles.helpLink} target="_blank" rel="noopener noreferrer">
+          <Link href="/client/help" className={styles.helpLink} >
             <span className={styles.icon}>
               <Image
                 src="/icons/rsvp.svg"
@@ -125,7 +134,7 @@ export const Sidebar = () => {
                 height={24}
               />
             </span>
-            {!isCollapsed && <span>Documentation</span>}
+            {!isCollapsed && <span>Aide</span>}
           </Link>
           <button 
             onClick={logout}

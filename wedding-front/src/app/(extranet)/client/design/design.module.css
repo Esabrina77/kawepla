@@ -17,7 +17,8 @@
 
 .header p {
   font-size: 1.1rem;
-  color: #666;
+  color: #6c757d;
+  margin-bottom: 0;
 }
 
 /* Filtres */
@@ -201,23 +202,41 @@
 .actions {
   display: flex;
   gap: 0.5rem;
+  margin-top: 1rem;
 }
 
 .previewButton {
-  width: 100%;
-  padding: 0.75rem;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-  font-weight: 500;
-  transition: all 0.3s ease;
-  background: #d4af37;
+  flex: 1;
+  padding: 0.75rem 1rem;
+  background: #6c757d;
   color: white;
+  border: none;
+  border-radius: 6px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
 }
 
 .previewButton:hover {
-  background: #b8941f;
-  transform: translateY(-1px);
+  background: #545b62;
+  transform: translateY(-2px);
+}
+
+.chooseButton {
+  flex: 1;
+  padding: 0.75rem 1rem;
+  background: linear-gradient(135deg, #d4a574 0%, #b8935a 100%);
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.chooseButton:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(212, 165, 116, 0.3);
 }
 
 /* Modal */
@@ -346,6 +365,21 @@
 
 .loading {
   color: #666;
+}
+
+.returnInfo {
+  margin-top: 1rem;
+  padding: 1rem;
+  background: #e7f3ff;
+  border: 1px solid #bee5eb;
+  border-radius: 8px;
+  text-align: center;
+}
+
+.returnInfo p {
+  margin: 0;
+  color: #0c5460;
+  font-weight: 500;
 }
 
 @media (max-width: 768px) {

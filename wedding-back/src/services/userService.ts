@@ -7,12 +7,12 @@ import {
   UserResponse, 
   TokenResponse
 } from '../types';
-import { UpdateUserInput } from '@/utils/validation';
+import { UpdateUserInput } from '@/middleware/validation';
 import { SUBSCRIPTION_FEATURES } from '@/types';
 import { UserRole, User } from '@prisma/client';
 
 export class UserService {
-  static async createUser(data: CreateUserDto): Promise<TokenResponse> {
+  static async createUser(data: CreateUserDto & { emailVerified?: boolean }): Promise<TokenResponse> {
     const existingUser = await prisma.user.findUnique({
       where: { email: data.email }
     });
@@ -32,7 +32,7 @@ export class UserService {
         role: data.role || UserRole.COUPLE,
         subscriptionTier: 'BASIC',
         isActive: true,
-        emailVerified: false
+        emailVerified: data.emailVerified ?? false
       }
     });
 
@@ -317,16 +317,122 @@ export class UserService {
   }
 
   static async validateCredentials(data: { email: string; password: string }): Promise<User> {
-    const user = await this.findByEmail(data.email);
+    const user = await prisma.user.findUnique({
+      where: { email: data.email }
+    });
+
     if (!user) {
-      throw new Error('Identifiants invalides');
+      throw new Error('Email ou mot de passe incorrect');
     }
 
     const isPasswordValid = await comparePassword(data.password, user.password);
     if (!isPasswordValid) {
-      throw new Error('Identifiants invalides');
+      throw new Error('Email ou mot de passe incorrect');
     }
 
     return user;
+  }
+
+  /**
+   * Récupérer les messages RSVP pour un couple
+   */
+  static async getRSVPMessages(userId: string) {
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+      select: { role: true }
+    });
+
+    if (!user) {
+      throw new Error('Utilisateur non trouvé');
+    }
+
+    // Récupérer toutes les invitations du couple avec leurs RSVP contenant des messages
+    const invitations = await prisma.invitation.findMany({
+      where: { 
+        userId: userId,
+        status: 'PUBLISHED'
+      },
+      select: {
+        id: true,
+        title: true,
+        createdAt: true,
+        rsvps: {
+          where: {
+            message: {
+              not: null
+            }
+          },
+          select: {
+            id: true,
+            message: true,
+            status: true,
+            numberOfGuests: true,
+            attendingCeremony: true,
+            attendingReception: true,
+            respondedAt: true,
+            createdAt: true,
+            guest: {
+              select: {
+                id: true,
+                firstName: true,
+                lastName: true,
+                email: true
+              }
+            }
+          },
+          orderBy: {
+            createdAt: 'desc'
+          }
+        }
+      },
+      orderBy: {
+        createdAt: 'desc'
+      }
+    });
+
+    // Transformer les données pour une meilleure structure
+    const messages = invitations.flatMap(invitation => 
+      invitation.rsvps.map(rsvp => ({
+        id: rsvp.id,
+        message: rsvp.message,
+        status: rsvp.status,
+        numberOfGuests: rsvp.numberOfGuests,
+        attendingCeremony: rsvp.attendingCeremony,
+        attendingReception: rsvp.attendingReception,
+        respondedAt: rsvp.respondedAt,
+        createdAt: rsvp.createdAt,
+        guest: rsvp.guest,
+        invitation: {
+          id: invitation.id,
+          title: invitation.title,
+          createdAt: invitation.createdAt
+        }
+      }))
+    );
+
+    return messages;
+  }
+
+  /**
+   * Marquer un message RSVP comme lu (pour usage futur)
+   */
+  static async markRSVPMessageAsRead(userId: string, rsvpId: string) {
+    // Vérifier que l'utilisateur a accès à ce RSVP
+    const rsvp = await prisma.rSVP.findFirst({
+      where: {
+        id: rsvpId,
+        invitation: {
+          userId: userId
+        }
+      }
+    });
+
+    if (!rsvp) {
+      throw new Error('RSVP non trouvé ou accès non autorisé');
+    }
+
+    // Pour l'instant, on ne fait rien car le schéma n'a pas de champ "lu"
+    // Cette méthode est prête pour une future extension
+    return { success: true };
   }
 } 

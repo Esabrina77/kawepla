@@ -49,14 +49,20 @@ export function useAuth() {
       } else {
         throw new Error('Réponse de connexion invalide');
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('Erreur de connexion:', error);
-      if (error instanceof Error) {
+      
+      // Vérifier si c'est une erreur de vérification d'email
+      if (error.message && error.message.includes('vérifier votre email')) {
         setError(error.message);
+        // Relancer l'erreur avec plus d'informations
+        const emailVerificationError = new Error(error.message);
+        (emailVerificationError as any).emailNotVerified = true;
+        throw emailVerificationError;
       } else {
-        setError('Erreur lors de la connexion');
+        setError(error.message || 'Erreur lors de la connexion');
+        throw error;
       }
-      throw error;
     } finally {
       setLoading(false);
     }

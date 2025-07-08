@@ -53,6 +53,9 @@ typings/
 # Yarn Integrity file
 .yarn-integrity
 
+#cursorignore
+.cursorignore
+
 # dotenv environment variables file
 .env
 .env.local

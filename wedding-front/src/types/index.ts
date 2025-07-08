@@ -7,7 +7,20 @@ export type Guest = {
   status: 'pending' | 'confirmed' | 'declined';
   token: string;
   dietaryRestrictions?: string;
-  isVip?: boolean;
+  isVIP?: boolean;
+  plusOne?: boolean;
+  plusOneName?: string;
+  invitationSentAt?: string;
+  usedAt?: string;
+  rsvp?: {
+    id: string;
+    status: 'PENDING' | 'CONFIRMED' | 'DECLINED';
+    attendees: number;
+    dietaryRestrictions?: string;
+    message?: string;
+    createdAt: string;
+    updatedAt: string;
+  };
   createdAt: Date;
   updatedAt: Date;
 };
@@ -160,4 +173,27 @@ export interface Invitation {
   updatedAt: string;
   userId: string;
   designId: string;
+}
+
+// Types pour les messages RSVP
+export interface RSVPMessage {
+  id: string;
+  message: string;
+  status: 'PENDING' | 'CONFIRMED' | 'DECLINED';
+  numberOfGuests: number;
+  attendingCeremony: boolean;
+  attendingReception: boolean;
+  respondedAt: string | null;
+  createdAt: string;
+  guest: {
+    id: string;
+    firstName: string;
+    lastName: string;
+    email: string;
+  };
+  invitation: {
+    id: string;
+    title: string;
+    createdAt: string;
+  };
 } 

@@ -1,9 +1,99 @@
+'use client';
+
+import { useState } from 'react';
 import styles from './users.module.css';
 import Image from 'next/image';
+import { useAdminUsers } from '@/hooks/useAdminUsers';
 
 export default function UsersPage() {
+  const { 
+    users, 
+    loading, 
+    error, 
+    filters, 
+    setFilters, 
+    toggleUserStatus, 
+    changeUserRole, 
+    deleteUser 
+  } = useAdminUsers();
+
+  const [editingUser, setEditingUser] = useState<string | null>(null);
+
+  const handleStatusToggle = async (userId: string) => {
+    try {
+      await toggleUserStatus(userId);
+    } catch (error) {
+      console.error('Erreur lors du changement de statut:', error);
+    }
+  };
+
+  const handleRoleChange = async (userId: string, newRole: 'ADMIN' | 'COUPLE' | 'GUEST') => {
+    try {
+      await changeUserRole(userId, newRole);
+    } catch (error) {
+      console.error('Erreur lors du changement de rôle:', error);
+    }
+  };
+
+  const handleDelete = async (userId: string) => {
+    if (window.confirm('Êtes-vous sûr de vouloir supprimer cet utilisateur ?')) {
+      try {
+        await deleteUser(userId);
+      } catch (error) {
+        console.error('Erreur lors de la suppression:', error);
+      }
+    }
+  };
+
+  const getRoleLabel = (role: string) => {
+    switch (role) {
+      case 'ADMIN': return 'Admin';
+      case 'COUPLE': return 'Couple';
+      case 'GUEST': return 'Invité';
+      default: return role;
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className={styles.container}>
+        <div className={styles.header}>
+          <h1>
+            <Image
+              src="/icons/guests.svg"
+              alt=""
+              width={32}
+              height={32}
+            />
+            Gestion des utilisateurs
+          </h1>
+        </div>
+        <div className={styles.loading}>Chargement des utilisateurs...</div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className={styles.container}>
+        <div className={styles.header}>
+          <h1>
+            <Image
+              src="/icons/guests.svg"
+              alt=""
+              width={32}
+              height={32}
+            />
+            Gestion des utilisateurs
+          </h1>
+        </div>
+        <div className={styles.error}>{error}</div>
+      </div>
+    );
+  }
+
   return (
-    <div className={styles.usersContainer}>
+    <div className={styles.container}>
       <div className={styles.header}>
         <h1>
           <Image
@@ -14,75 +104,108 @@ export default function UsersPage() {
           />
           Gestion des utilisateurs
         </h1>
-        <button className="superAdminButton">
-          + Ajouter un utilisateur
-        </button>
+        <p>{users.length} utilisateur{users.length > 1 ? 's' : ''}</p>
       </div>
 
       <div className={styles.filters}>
         <input
           type="search"
           placeholder="Rechercher un utilisateur..."
-          className="superAdminInput"
+          className={styles.filterInput}
+          value={filters.search || ''}
+          onChange={(e) => setFilters(prev => ({ ...prev, search: e.target.value }))}
         />
-        <select className="superAdminInput">
+        <select 
+          className={styles.filterInput}
+          value={filters.isActive === undefined ? 'all' : filters.isActive ? 'active' : 'inactive'}
+          onChange={(e) => {
+            const value = e.target.value;
+            setFilters(prev => ({ 
+              ...prev, 
+              isActive: value === 'all' ? undefined : value === 'active' 
+            }));
+          }}
+        >
           <option value="all">Tous les statuts</option>
           <option value="active">Actifs</option>
           <option value="inactive">Inactifs</option>
-          <option value="pending">En attente</option>
+        </select>
+        <select 
+          className={styles.filterInput}
+          value={filters.role || 'all'}
+          onChange={(e) => {
+            const value = e.target.value;
+            setFilters(prev => ({ 
+              ...prev, 
+              role: value === 'all' ? undefined : value as 'ADMIN' | 'COUPLE' | 'GUEST'
+            }));
+          }}
+        >
+          <option value="all">Tous les rôles</option>
+          <option value="COUPLE">Couples</option>
+          <option value="ADMIN">Admins</option>
+          <option value="GUEST">Invités</option>
         </select>
       </div>
 
-      <div className={styles.usersList}>
-        <div className={styles.userCard}>
-          <div className={styles.userInfo}>
-            <div className={styles.userAvatar}>
-              <Image
-                src="/images/testimonials/julie-nicolas.jpg"
-                alt=""
-                width={48}
-                height={48}
-              />
+      <div className={styles.userGrid}>
+        {users.map((user) => (
+          <div key={user.id} className={styles.userCard}>
+            <div className={styles.userHeader}>
+              <div className={styles.userAvatar}>
+                <div style={{width: 48, height: 48, background: '#f3f4f6', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700, fontSize: 22, color: '#64748b'}}>
+                  {user.email.charAt(0).toUpperCase()}
+                </div>
+              </div>
+              <div>
+                <div className={styles.userName}>{user.firstName} {user.lastName}</div>
+                <div className={styles.userEmail}>{user.email}</div>
+                <div className={styles.badges}>
+                  <span className={`${styles.roleBadge} ${user.role === 'ADMIN' ? styles.roleAdmin : user.role === 'COUPLE' ? styles.roleCouple : styles.roleGuest}`}>{getRoleLabel(user.role)}</span>
+                  <span className={`${styles.statusBadge} ${user.isActive ? '' : styles.statusInactive}`}>{user.isActive ? 'Actif' : 'Inactif'}</span>
+                  {user.emailVerified && (
+                    <span className={styles.verifiedBadge}>Email vérifié</span>
+                  )}
+                </div>
+              </div>
             </div>
-            <div>
-              <h3>Julie & Nicolas</h3>
-              <p>julie@example.com</p>
+            <div className={styles.userMeta}>
+              <span><strong>Créé le</strong> {new Date(user.createdAt).toLocaleDateString('fr-FR')}</span> &nbsp;|&nbsp; 
+              <span><strong>Modifié le</strong> {new Date(user.updatedAt).toLocaleDateString('fr-FR')}</span>
+            </div>
+            <div className={styles.actions}>
+              {editingUser === user.id ? (
+                <>
+                  <select 
+                    className={styles.filterInput}
+                    value={user.role}
+                    onChange={(e) => handleRoleChange(user.id, e.target.value as 'ADMIN' | 'COUPLE' | 'GUEST')}
+                  >
+                    <option value="COUPLE">Couple</option>
+                    <option value="ADMIN">Admin</option>
+                    <option value="GUEST">Invité</option>
+                  </select>
+                  <button className={`${styles.actionButton} ${styles.secondary}`} onClick={() => setEditingUser(null)}>Fermer</button>
+                </>
+              ) : (
+                <>
+                  <button className={`${styles.actionButton} ${styles.secondary}`} onClick={() => setEditingUser(user.id)}>Éditer</button>
+                  <button className={`${styles.actionButton} ${user.isActive ? styles.secondary : ''}`} onClick={() => handleStatusToggle(user.id)}>
+                    {user.isActive ? 'Désactiver' : 'Activer'}
+                  </button>
+                  <button className={`${styles.actionButton} ${styles.danger}`} onClick={() => handleDelete(user.id)}>Supprimer</button>
+                </>
+              )}
             </div>
           </div>
-          <div className={styles.userMeta}>
-            <span className={styles.userStatus}>Actif</span>
-            <span>Créé le 12/03/2024</span>
-          </div>
-          <div className={styles.userStats}>
-            <div>
-              <strong>150</strong>
-              <span>Invités</span>
-            </div>
-            <div>
-              <strong>85%</strong>
-              <span>RSVP</span>
-            </div>
-          </div>
-          <div className={styles.userActions}>
-            <button className="superAdminButton secondary">Éditer</button>
-            <button className="superAdminButton secondary">Désactiver</button>
-          </div>
-        </div>
-
-        {/* Répéter pour d'autres utilisateurs */}
+        ))}
       </div>
 
-      <div className={styles.pagination}>
-        <button className="superAdminButton secondary">Précédent</button>
-        <div className={styles.pageNumbers}>
-          <button className={styles.activePage}>1</button>
-          <button>2</button>
-          <button>3</button>
-          <span>...</span>
-          <button>10</button>
+      {users.length === 0 && (
+        <div className={styles.error}>
+          <p>Aucun utilisateur trouvé</p>
         </div>
-        <button className="superAdminButton secondary">Suivant</button>
-      </div>
+      )}
     </div>
   );
 } 

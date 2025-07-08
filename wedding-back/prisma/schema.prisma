@@ -53,6 +53,12 @@ model User {
   guests            Guest[]
   refreshTokens     RefreshToken[]
   adminDesigns      Design[]          @relation("AdminDesigns")
+  analytics         Analytics[]
+  
+  // Relations pour la messagerie
+  userConversations Conversation[]    @relation("UserConversations")
+  adminConversations Conversation[]   @relation("AdminConversations")
+  sentMessages      Message[]         @relation("SentMessages")
 
   @@map("users")
 }
@@ -67,6 +73,17 @@ model RefreshToken {
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@map("refresh_tokens")
+}
+
+model EmailVerification {
+  id        String   @id @default(cuid())
+  email     String
+  code      String   // Code de vérification (6 chiffres)
+  expiresAt DateTime
+  verified  Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  @@map("email_verifications")
 }
 
 model Design {
@@ -104,20 +121,46 @@ model Design {
 
 model Invitation {
   id              String            @id @default(cuid())
-  title           String
-  description     String?
+  
+  // Informations du couple
+  coupleName      String
+  
+  // Date et heure
   weddingDate     DateTime
   ceremonyTime    String?
   receptionTime   String?
+  
+  // Textes d'invitation
+  invitationText  String?           @default("Vous êtes cordialement invités")
+  
+  // Lieu et détails
   venueName       String
   venueAddress    String
-  venueCoordinates String? // "lat,lng" format
-  customDomain    String?  @unique
+  venueCoordinates String?          // "lat,lng" format
+  moreInfo        String?           // Description/détails supplémentaires
+  
+  // RSVP
+  rsvpDetails     String?           @default("Merci de confirmer votre présence")
+  rsvpForm        String?           @default("RSVP requis")
+  rsvpDate        DateTime?         // Date limite RSVP
+  
+  // Messages personnalisés
+  message         String?           @default("Votre présence sera notre plus beau cadeau")
+  blessingText    String?           @default("Avec leurs familles")
+  welcomeMessage  String?           @default("Bienvenue à notre mariage")
+  
+  // Informations supplémentaires
+  dressCode       String?           @default("Tenue de soirée souhaitée")
+  contact         String?           // Informations de contact
+  
+  // Champs existants conservés
+  title           String?           // Titre de l'invitation (optionnel maintenant)
+  description     String?
+  customDomain    String?           @unique
   status          InvitationStatus  @default(DRAFT)
-  theme           Json              // Theme configuration
-  photos          Json[]            // Array of photo URLs
-  program         Json?             // Program details
-  restrictions    String?           // Dietary restrictions
+  photos          Json[]            @default([])
+  program         Json?             // Programme détaillé structuré
+  restrictions    String?           // Restrictions alimentaires
   languages       String[]          @default(["fr"])
   maxGuests       Int?
   createdAt       DateTime          @default(now())
@@ -130,6 +173,8 @@ model Invitation {
   design          Design            @relation(fields: [designId], references: [id])
   guests          Guest[]
   rsvps           RSVP[]
+  analytics       Analytics[]
+  conversations   Conversation[]
 
   @@map("invitations")
 }
@@ -146,6 +191,7 @@ model Guest {
   plusOneName   String?
   inviteToken   String   @unique
   usedAt        DateTime?
+  invitationSentAt DateTime? // Date d'envoi de l'invitation par email
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
 
@@ -156,6 +202,8 @@ model Guest {
   invitation    Invitation @relation(fields: [invitationId], references: [id], onDelete: Cascade)
   rsvp          RSVP?
 
+  // Contrainte d'unicité : un email ne peut être utilisé qu'une seule fois par invitation
+  @@unique([invitationId, email], name: "unique_email_per_invitation")
   @@map("guests")
 }
 
@@ -181,11 +229,66 @@ model RSVP {
 
 model Analytics {
   id            String   @id @default(cuid())
+  userId        String
   invitationId  String
-  pageViews     Int      @default(0)
-  uniqueVisitors Int     @default(0)
-  rsvpResponses Int      @default(0)
-  date          DateTime @default(now())
+  action        String   // "view", "rsvp", "email_open", etc.
+  metadata      Json?    // Données supplémentaires
+  ipAddress     String?
+  userAgent     String?
+  createdAt     DateTime @default(now())
+
+  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  invitation    Invitation @relation(fields: [invitationId], references: [id], onDelete: Cascade)
 
   @@map("analytics")
+}
+
+// Modèles pour la messagerie
+model Conversation {
+  id            String   @id @default(cuid())
+  userId        String   // ID du client
+  invitationId  String   // ID de l'invitation
+  adminId       String?  // ID de l'admin assigné (optionnel)
+  status        ConversationStatus @default(ACTIVE)
+  lastMessageAt DateTime @default(now())
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  // Relations
+  user          User     @relation("UserConversations", fields: [userId], references: [id], onDelete: Cascade)
+  invitation    Invitation @relation(fields: [invitationId], references: [id], onDelete: Cascade)
+  admin         User?    @relation("AdminConversations", fields: [adminId], references: [id], onDelete: SetNull)
+  messages      Message[]
+
+  @@map("conversations")
+}
+
+model Message {
+  id             String      @id @default(cuid())
+  conversationId String
+  senderId       String
+  content        String
+  messageType    MessageType @default(TEXT)
+  isRead         Boolean     @default(false)
+  createdAt      DateTime    @default(now())
+  updatedAt      DateTime    @updatedAt
+
+  // Relations
+  conversation   Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  sender         User         @relation("SentMessages", fields: [senderId], references: [id], onDelete: Cascade)
+
+  @@map("messages")
+}
+
+enum ConversationStatus {
+  ACTIVE
+  ARCHIVED
+  CLOSED
+}
+
+enum MessageType {
+  TEXT
+  IMAGE
+  FILE
+  SYSTEM
 } 

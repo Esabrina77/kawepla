@@ -1,90 +1,96 @@
 .button {
-  display: inline-flex;
+  display: inline-flex !important;
   align-items: center;
   justify-content: center;
-  padding: 0.5rem 1rem;
+  padding: 0.5rem 1rem !important;
   border-radius: 0.5rem;
   font-weight: 500;
   cursor: pointer;
   transition: all 0.2s ease-in-out;
-  border: none;
+  border: none !important;
   text-decoration: none;
+  font-family: inherit;
+  font-size: 1rem;
+  line-height: 1.5;
+  box-sizing: border-box;
 }
 
 /* Variants */
 .primary {
-  background-color: var(--primary-color);
-  color: white;
+  background-color: #C5A880 !important;
+  color: white !important;
 }
 
 .primary:hover {
-  background-color: var(--primary-dark);
+  background-color: #B39670 !important;
 }
 
 .secondary {
-  background-color: var(--color-secondary);
-  color: var(--color-text);
+  background-color: #EAD8D4 !important;
+  color: #2C2C2C !important;
 }
 
 .secondary:hover {
-  background-color: var(--color-pink);
-  box-shadow: var(--shadow-md);
+  background-color: #D8C6C2 !important;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
 .outline {
-  background-color: transparent;
-  border: 2px solid var(--primary-color);
-  color: var(--primary-color);
+  background-color: transparent !important;
+  border: 2px solid #C5A880 !important;
+  color: #C5A880 !important;
 }
 
 .outline:hover {
-  background-color: var(--primary-color);
-  color: white;
+  background-color: #C5A880 !important;
+  color: white !important;
 }
 
 .text {
-  background-color: transparent;
-  color: var(--primary-color);
+  background-color: transparent !important;
+  color: #C5A880 !important;
   padding: 0;
 }
 
 .text:hover {
-  color: var(--primary-dark);
+  color: #B39670 !important;
   text-decoration: underline;
 }
 
 .danger {
-  background-color: #dc3545;
-  color: white;
+  background-color: #dc3545 !important;
+  color: white !important;
 }
 
 .danger:hover {
-  background-color: #c82333;
+  background-color: #a71e2a !important;
 }
 
 /* Sizes */
 .small {
-  padding: 0.25rem 0.5rem;
+  padding: 0.25rem 0.5rem !important;
   font-size: 0.875rem;
 }
 
 .medium {
-  padding: 0.5rem 1rem;
+  padding: 0.5rem 1rem !important;
   font-size: 1rem;
 }
 
 .large {
-  padding: 0.75rem 1.5rem;
+  padding: 0.75rem 1.5rem !important;
   font-size: 1.125rem;
 }
 
 /* Width */
 .fullWidth {
-  width: 100%;
+  width: 100% !important;
 }
 
 /* Disabled state */
-.button:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
+.button:disabled,
+.disabled {
+  opacity: 0.5 !important;
+  cursor: not-allowed !important;
+  pointer-events: none;
 } 

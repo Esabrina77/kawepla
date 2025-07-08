@@ -1,7 +1,62 @@
+'use client';
+
 import styles from './dashboard.module.css';
 import Image from 'next/image';
+import { useAdminStats } from '@/hooks/useAdminStats';
+import { useAdminUsers } from '@/hooks/useAdminUsers';
 
 export default function SuperAdminDashboard() {
+  const { stats, loading: statsLoading, error: statsError } = useAdminStats();
+  const { users, loading: usersLoading } = useAdminUsers();
+
+  if (statsLoading || usersLoading) {
+    return (
+      <div className={styles.dashboardContainer}>
+        <h1>
+          <Image
+            src="/icons/stats.svg"
+            alt=""
+            width={32}
+            height={32}
+          />
+          Tableau de bord
+        </h1>
+        <div className="text-center py-8">
+          <p>Chargement du tableau de bord...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (statsError) {
+    return (
+      <div className={styles.dashboardContainer}>
+        <h1>
+          <Image
+            src="/icons/stats.svg"
+            alt=""
+            width={32}
+            height={32}
+          />
+          Tableau de bord
+        </h1>
+        <div className="text-center py-8 text-red-600">
+          <p>{statsError}</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!stats) return null;
+
+  // Calculer les utilisateurs récents (derniers 7 jours)
+  const sevenDaysAgo = new Date();
+  sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+  
+  const recentUsers = users.filter(user => 
+    new Date(user.createdAt) > sevenDaysAgo
+  );
+
   return (
     <div className={styles.dashboardContainer}>
       <h1>
@@ -17,7 +72,7 @@ export default function SuperAdminDashboard() {
       <div className={styles.statsGrid}>
         <div className={styles.statCard}>
           <h3>Utilisateurs</h3>
-          <div className={styles.statValue}>1,234</div>
+          <div className={styles.statValue}>{stats.users.total}</div>
           <div className={styles.statChange}>
             <Image
               src="/icons/stats.svg"
@@ -25,13 +80,13 @@ export default function SuperAdminDashboard() {
               width={16}
               height={16}
             />
-            +12% cette semaine
+            +{recentUsers.length} cette semaine
           </div>
         </div>
 
         <div className={styles.statCard}>
-          <h3>Mariages actifs</h3>
-          <div className={styles.statValue}>567</div>
+          <h3>Invitations publiées</h3>
+          <div className={styles.statValue}>{stats.invitations.published}</div>
           <div className={styles.statChange}>
             <Image
               src="/icons/stats.svg"
@@ -39,13 +94,13 @@ export default function SuperAdminDashboard() {
               width={16}
               height={16}
             />
-            +8% cette semaine
+            {stats.invitations.total} au total
           </div>
         </div>
 
         <div className={styles.statCard}>
-          <h3>Invitations envoyées</h3>
-          <div className={styles.statValue}>12,345</div>
+          <h3>Emails envoyés</h3>
+          <div className={styles.statValue}>{stats.activity.emailsSent}</div>
           <div className={styles.statChange}>
             <Image
               src="/icons/stats.svg"
@@ -53,13 +108,13 @@ export default function SuperAdminDashboard() {
               width={16}
               height={16}
             />
-            +15% cette semaine
+            Invitations distribuées
           </div>
         </div>
 
         <div className={styles.statCard}>
           <h3>Taux de réponse</h3>
-          <div className={styles.statValue}>78%</div>
+          <div className={styles.statValue}>{stats.activity.conversionRate}%</div>
           <div className={styles.statChange}>
             <Image
               src="/icons/stats.svg"
@@ -67,7 +122,7 @@ export default function SuperAdminDashboard() {
               width={16}
               height={16}
             />
-            +2% cette semaine
+            {stats.activity.totalRSVPs} réponses
           </div>
         </div>
       </div>
@@ -85,8 +140,10 @@ export default function SuperAdminDashboard() {
               />
             </div>
             <div className={styles.activityContent}>
-              <div className={styles.activityTitle}>Nouveau mariage créé</div>
-              <div className={styles.activityMeta}>Il y a 2 heures • Julie et Thomas</div>
+              <div className={styles.activityTitle}>Utilisateurs actifs</div>
+              <div className={styles.activityMeta}>
+                {stats.users.active} utilisateurs actifs sur {stats.users.total}
+              </div>
             </div>
           </div>
 
@@ -100,8 +157,10 @@ export default function SuperAdminDashboard() {
               />
             </div>
             <div className={styles.activityContent}>
-              <div className={styles.activityTitle}>Pic d'envoi d'invitations</div>
-              <div className={styles.activityMeta}>Il y a 4 heures • 500 invitations</div>
+              <div className={styles.activityTitle}>Réponses RSVP</div>
+              <div className={styles.activityMeta}>
+                {stats.guests.confirmed} confirmées, {stats.guests.declined} déclinées
+              </div>
             </div>
           </div>
 
@@ -115,8 +174,85 @@ export default function SuperAdminDashboard() {
               />
             </div>
             <div className={styles.activityContent}>
-              <div className={styles.activityTitle}>Nouveau template ajouté</div>
-              <div className={styles.activityMeta}>Il y a 6 heures • Template Romantique</div>
+              <div className={styles.activityTitle}>Invitations ce mois</div>
+              <div className={styles.activityMeta}>
+                {stats.invitations.thisMonth} nouvelles invitations créées
+              </div>
+            </div>
+          </div>
+
+          {recentUsers.length > 0 && (
+            <div className={styles.activityItem}>
+              <div className={styles.activityIcon}>
+                <Image
+                  src="/icons/guests.svg"
+                  alt=""
+                  width={20}
+                  height={20}
+                />
+              </div>
+              <div className={styles.activityContent}>
+                <div className={styles.activityTitle}>Nouveaux utilisateurs</div>
+                <div className={styles.activityMeta}>
+                  {recentUsers.length} inscription{recentUsers.length > 1 ? 's' : ''} cette semaine
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+
+      <div className={styles.detailedStats}>
+        <div className={styles.rolesSection}>
+          <h3>Répartition des rôles</h3>
+          <div className={styles.roleList}>
+            <div className={styles.roleItem}>
+              <span className={styles.roleLabel}>
+                <div className={`${styles.roleIndicator} ${styles.roleCouple}`}></div>
+                Couples
+              </span>
+              <span className={styles.roleCount}>{stats.users.byRole.COUPLE}</span>
+            </div>
+            <div className={styles.roleItem}>
+              <span className={styles.roleLabel}>
+                <div className={`${styles.roleIndicator} ${styles.roleAdmin}`}></div>
+                Admins
+              </span>
+              <span className={styles.roleCount}>{stats.users.byRole.ADMIN}</span>
+            </div>
+            <div className={styles.roleItem}>
+              <span className={styles.roleLabel}>
+                <div className={`${styles.roleIndicator} ${styles.roleGuest}`}></div>
+                Invités
+              </span>
+              <span className={styles.roleCount}>{stats.users.byRole.GUEST}</span>
+            </div>
+          </div>
+        </div>
+
+        <div className={styles.invitationsSection}>
+          <h3>État des invitations</h3>
+          <div className={styles.invitationList}>
+            <div className={styles.invitationItem}>
+              <span className={styles.invitationLabel}>
+                <div className={`${styles.invitationIndicator} ${styles.invitationDraft}`}></div>
+                Brouillons
+              </span>
+              <span className={styles.invitationCount}>{stats.invitations.draft}</span>
+            </div>
+            <div className={styles.invitationItem}>
+              <span className={styles.invitationLabel}>
+                <div className={`${styles.invitationIndicator} ${styles.invitationPublished}`}></div>
+                Publiées
+              </span>
+              <span className={styles.invitationCount}>{stats.invitations.published}</span>
+            </div>
+            <div className={styles.invitationItem}>
+              <span className={styles.invitationLabel}>
+                <div className={`${styles.invitationIndicator} ${styles.invitationArchived}`}></div>
+                Archivées
+              </span>
+              <span className={styles.invitationCount}>{stats.invitations.archived}</span>
             </div>
           </div>
         </div>

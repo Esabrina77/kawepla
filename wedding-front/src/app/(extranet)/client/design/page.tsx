@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useDesigns } from '@/hooks/useDesigns';
 import { Design } from '@/types';
@@ -12,6 +12,16 @@ export default function ClientDesignPage() {
   const { designs, loading, error } = useDesigns();
   const [searchTerm, setSearchTerm] = useState<string>('');
   const [selectedFilter, setSelectedFilter] = useState<string>('all');
+  const [returnTo, setReturnTo] = useState<string | null>(null);
+
+  // Vérifier si on vient de la page invitations
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const returnToParam = urlParams.get('returnTo');
+    if (returnToParam) {
+      setReturnTo(returnToParam);
+    }
+  }, []);
 
   // Données d'exemple pour les prévisualisations
   const miniPreviewData = {
@@ -56,6 +66,16 @@ export default function ClientDesignPage() {
     router.push(`/client/design/${designId}`);
   };
 
+  const handleChooseDesign = (designId: string) => {
+    if (returnTo === 'invitations') {
+      // Rediriger vers la page d'invitations avec l'ID du design
+      router.push(`/client/invitations?designId=${designId}`);
+    } else {
+      // Comportement par défaut - aller à la page de détail
+      router.push(`/client/design/${designId}`);
+    }
+  };
+
   if (loading) return <div className={styles.loading}>Chargement des designs...</div>;
   if (error) return <div className={styles.error}>Erreur: {error}</div>;
 
@@ -63,7 +83,17 @@ export default function ClientDesignPage() {
     <div className={styles.designPage}>
       <div className={styles.header}>
         <h1>Choisir un Design</h1>
-        <p>Sélectionnez le design parfait pour votre invitation de mariage</p>
+        <p>
+          {returnTo === 'invitations' 
+            ? 'Sélectionnez le design pour votre invitation de mariage' 
+            : 'Sélectionnez le design parfait pour votre invitation de mariage'
+          }
+        </p>
+        {returnTo === 'invitations' && (
+          <div className={styles.returnInfo}>
+            <p>👈 Vous serez redirigé vers la création d'invitation après avoir choisi un design</p>
+          </div>
+        )}
       </div>
 
       {/* Filtres */}
@@ -147,6 +177,14 @@ export default function ClientDesignPage() {
                 >
                   Aperçu
                 </button>
+                {returnTo === 'invitations' && (
+                  <button
+                    className={styles.chooseButton}
+                    onClick={() => handleChooseDesign(design.id)}
+                  >
+                    Choisir ce design
+                  </button>
+                )}
               </div>
             </div>
           </div>
