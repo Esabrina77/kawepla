@@ -11,14 +11,24 @@ export default function MessagesPage() {
   const [selectedMessage, setSelectedMessage] = useState<RSVPMessage | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
 
+  // Fonction helper pour vérifier si une chaîne contient le terme de recherche
+  const containsSearchTerm = (value: string | null | undefined, searchTerm: string): boolean => {
+    if (!value || !searchTerm) return false;
+    return value.toLowerCase().includes(searchTerm.toLowerCase());
+  };
+
   // Filtrer les messages par terme de recherche
-  const filteredMessages = messages.filter(message => 
-    message.guest.firstName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    message.guest.lastName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    message.guest.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    message.invitation.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    message.message.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const filteredMessages = messages.filter(message => {
+    if (!searchTerm.trim()) return true;
+    
+    return (
+      containsSearchTerm(message.guest.firstName, searchTerm) ||
+      containsSearchTerm(message.guest.lastName, searchTerm) ||
+      containsSearchTerm(message.guest.email, searchTerm) ||
+      containsSearchTerm(message.invitation.title, searchTerm) ||
+      containsSearchTerm(message.message, searchTerm)
+    );
+  });
 
   const getStatusColor = (status: string) => {
     switch (status) {

@@ -1,0 +1,135 @@
+.limitsContainer {
+  background: #f8f9fa;
+  border: 1px solid #e9ecef;
+  border-radius: 8px;
+  padding: 1rem;
+  margin-bottom: 1rem;
+}
+
+.limitsHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.limitsHeader h3 {
+  margin: 0;
+  font-size: 1.1rem;
+  color: #495057;
+}
+
+.badge {
+  background: #6c757d;
+  color: white;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.limitsContent {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.limitItem {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.limitLabel {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.9rem;
+  color: #6c757d;
+}
+
+.limitCount {
+  font-weight: 600;
+  color: #495057;
+}
+
+.progressBar {
+  width: 100%;
+  height: 8px;
+  background: #e9ecef;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.progressFill {
+  height: 100%;
+  background: #28a745;
+  transition: width 0.3s ease, background-color 0.3s ease;
+}
+
+.progressFill.progressFull {
+  background: #dc3545;
+}
+
+.warningText {
+  margin: 0;
+  font-size: 0.8rem;
+  color: #dc3545;
+  font-weight: 500;
+}
+
+.infoText {
+  margin: 0;
+  font-size: 0.8rem;
+  color: #6c757d;
+}
+
+.upgradeSection {
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid #e9ecef;
+  text-align: center;
+}
+
+.upgradeText {
+  margin: 0 0 0.5rem 0;
+  font-size: 0.9rem;
+  color: #6c757d;
+}
+
+.upgradeButton {
+  background: #007bff;
+  color: white;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.upgradeButton:hover:not(:disabled) {
+  background: #0056b3;
+}
+
+.upgradeButton:disabled {
+  background: #6c757d;
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .limitsContainer {
+    padding: 0.75rem;
+  }
+  
+  .limitsHeader h3 {
+    font-size: 1rem;
+  }
+  
+  .limitLabel {
+    font-size: 0.8rem;
+  }
+} 

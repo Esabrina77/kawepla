@@ -3,8 +3,8 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev --turbopack",
-    "build": "next build",
+    "dev": "next dev --turbopack -p 3012",
+    "build": "next build -p 3012",
     "start": "next start",
     "lint": "next lint"
   },
@@ -12,7 +12,8 @@
     "next": "15.3.4",
     "next-pwa": "^5.6.0",
     "react": "^19.0.0",
-    "react-dom": "^19.0.0"
+    "react-dom": "^19.0.0",
+    "socket.io-client": "^4.8.1"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",

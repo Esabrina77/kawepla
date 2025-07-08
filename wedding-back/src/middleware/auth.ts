@@ -47,6 +47,7 @@ export const authMiddleware = asyncMiddleware(async (req, res, next) => {
         id: payload.id,
         email: payload.email,
         role: payload.role || UserRole.COUPLE, // Par défaut COUPLE pour les tests
+        subscriptionTier: 'BASIC', // Par défaut BASIC pour les tests
         isActive: true
       };
       req.user = user;
@@ -65,6 +66,7 @@ export const authMiddleware = asyncMiddleware(async (req, res, next) => {
         id: true,
         email: true,
         role: true,
+        subscriptionTier: true,
         isActive: true
       }
     });

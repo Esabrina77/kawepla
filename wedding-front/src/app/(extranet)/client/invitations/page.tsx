@@ -6,6 +6,7 @@ import { useInvitations, CreateInvitationData } from '@/hooks/useInvitations';
 import { useDesigns } from '@/hooks/useDesigns';
 import { TemplateEngine } from '@/lib/templateEngine';
 import { mergeTemplateData } from '@/lib/templateEngine';
+import { SubscriptionLimits } from '@/components/SubscriptionLimits/SubscriptionLimits';
 import styles from './invitations.module.css';
 
 export default function InvitationsPage() {
@@ -222,6 +223,9 @@ export default function InvitationsPage() {
           Créer une invitation
         </button>
       </div>
+      
+      {/* Affichage des limites d'abonnement */}
+      <SubscriptionLimits />
       
       {invitations.length === 0 && !showCreateForm ? (
         <div className={styles.emptyState}>

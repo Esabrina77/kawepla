@@ -112,5 +112,6 @@ export function useAuth() {
     isAuthenticated: authApi.isAuthenticated(),
     isAdmin: user?.role === 'ADMIN',
     isCouple: user?.role === 'COUPLE',
+    token: authApi.getToken(),
   };
 } 

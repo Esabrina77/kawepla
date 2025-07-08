@@ -6,6 +6,7 @@ import { useGuests } from '@/hooks/useGuests';
 import { useInvitations } from '@/hooks/useInvitations';
 import { Button } from '@/components/Button/Button';
 import { Card } from '@/components/Card/Card';
+import { SubscriptionLimits } from '@/components/SubscriptionLimits/SubscriptionLimits';
 import { apiClient } from '@/lib/api/apiClient';
 import styles from './guests.module.css';
 
@@ -152,6 +153,9 @@ export default function GuestsPage() {
 
   return (
     <div className={styles.guestsPage}>
+      {/* Affichage des limites d'abonnement */}
+      <SubscriptionLimits invitationId={selectedInvitationId} />
+      
       {/* Sélecteur d'invitation si plusieurs */}
       {invitations.length > 1 && (
         <div className={styles.invitationSelector}>
@@ -198,6 +202,7 @@ function GuestsList({ invitationId, invitation }: { invitationId: string, invita
   const [importPreview, setImportPreview] = useState<any>(null);
   const [importFile, setImportFile] = useState<File | null>(null);
   const [importing, setImporting] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
   
   // États pour les modals
   const [modal, setModal] = useState<{
@@ -817,6 +822,26 @@ function GuestsList({ invitationId, invitation }: { invitationId: string, invita
   const canSendEmails = invitation?.status === 'PUBLISHED';
   const guestsWithEmails = guests.filter(g => g.email);
 
+  // Filtrer les invités selon la recherche
+  const filteredGuests = guests.filter(guest => {
+    if (!searchQuery.trim()) return true;
+    
+    const query = searchQuery.toLowerCase().trim();
+    const fullName = `${guest.firstName} ${guest.lastName}`.toLowerCase();
+    const email = guest.email?.toLowerCase() || '';
+    const phone = guest.phone?.toLowerCase() || '';
+    const restrictions = guest.dietaryRestrictions?.toLowerCase() || '';
+    const plusOneName = guest.plusOneName?.toLowerCase() || '';
+    
+    return (
+      fullName.includes(query) ||
+      email.includes(query) ||
+      phone.includes(query) ||
+      restrictions.includes(query) ||
+      plusOneName.includes(query)
+    );
+  });
+
   return (
     <div className={styles.guestsPage}>
       <div className={styles.header}>
@@ -1058,37 +1083,38 @@ function GuestsList({ invitationId, invitation }: { invitationId: string, invita
           </Card>
         </div>
       )}
-            {/* Bouton d'envoi en masse après import */}
-            {canSendEmails && guests.length > 0 && (
-        <div className={styles.bulkActions}>
-          <Card>
-            <h3>📧 Actions en masse</h3>
-            <div className={styles.bulkActionButtons}>
-              <Button 
-                onClick={() => bulkSendAfterImport()}
-                variant="primary"
-                disabled={sendingEmails}
-              >
-                {sendingEmails ? '📧 Envoi en cours...' : '📧 Envoyer à tous les invités avec email'}
-              </Button>
-              <Button 
-                onClick={() => {
-                  const unsent = guests.filter(g => g.email && !g.invitationSentAt);
-                  if (unsent.length > 0) {
-                    bulkSendAfterImport(unsent.map(g => g.id));
-                  } else {
-                    showModal('Information', 'Aucun invité sans invitation envoyée', 'info');
-                  }
-                }}
-                variant="outline"
-                disabled={sendingEmails}
-              >
-                📧 Envoyer aux non-envoyés uniquement
-              </Button>
+
+      {/* Barre de recherche */}
+      <div className={styles.searchSection}>
+        <Card>
+          <div className={styles.searchContainer}>
+            <div className={styles.searchInputWrapper}>
+              <span className={styles.searchIcon}>🔍</span>
+              <input
+                type="text"
+                placeholder="Rechercher un invité (nom, email, téléphone, restrictions...)"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className={styles.searchInput}
+              />
+              {searchQuery && (
+                <button
+                  onClick={() => setSearchQuery('')}
+                  className={styles.clearSearch}
+                  title="Effacer la recherche"
+                >
+                  ✕
+                </button>
+              )}
             </div>
-          </Card>
-        </div>
-      )}
+            {searchQuery && (
+              <div className={styles.searchResults}>
+                {filteredGuests.length} invité(s) trouvé(s) sur {guests.length}
+              </div>
+            )}
+          </div>
+        </Card>
+      </div>
 
       {showAddForm && (
         <div className={styles.addForm}>
@@ -1181,89 +1207,101 @@ function GuestsList({ invitationId, invitation }: { invitationId: string, invita
       )}
 
       <div className={styles.guestsList}>
-        <h2>👥 Liste des invités ({guests.length})</h2>
-        {guests.map(guest => (
-          <Card key={guest.id} className={styles.guestCard}>
-            <div className={styles.guestInfo}>
-              <div className={styles.guestHeader}>
-                <h3>
-                  {guest.firstName} {guest.lastName}
-                  {guest.isVIP && <span className={styles.vipBadge}>⭐ VIP</span>}
-                  {guest.plusOne && <span className={styles.plusOneBadge}>👥 +1</span>}
-                </h3>
-                <div 
-                  className={styles.statusBadge}
-                  style={{ backgroundColor: getGuestStatusColor(guest) }}
-                >
-                  {getGuestStatus(guest)}
+        <h2>👥 Liste des invités ({searchQuery ? `${filteredGuests.length} sur ${guests.length}` : guests.length})</h2>
+        <div className={styles.guestsGrid}>
+          {filteredGuests.map(guest => (
+            <Card key={guest.id} className={styles.guestCard}>
+              <div className={styles.guestInfo}>
+                <div className={styles.guestHeader}>
+                  <h3>
+                    {guest.firstName} {guest.lastName}
+                    {guest.isVIP && <span className={styles.vipBadge}>⭐ VIP</span>}
+                    {guest.plusOne && <span className={styles.plusOneBadge}>👥 +1</span>}
+                  </h3>
+                  <div 
+                    className={styles.statusBadge}
+                    style={{ backgroundColor: getGuestStatusColor(guest) }}
+                  >
+                    {getGuestStatus(guest)}
+                  </div>
+                </div>
+                
+                <div className={styles.guestDetails}>
+                  <p>📧 {guest.email}</p>
+                  {guest.phone && <p>📞 {guest.phone}</p>}
+                  {guest.dietaryRestrictions && (
+                    <p>🥗 Restrictions : {guest.dietaryRestrictions}</p>
+                  )}
+                  {guest.plusOne && guest.plusOneName && (
+                    <p>👥 Accompagnant : {guest.plusOneName}</p>
+                  )}
+                  {guest.invitationSentAt && (
+                    <p className={styles.sentDate}>
+                      ✅ Invitation envoyée le {new Date(guest.invitationSentAt).toLocaleDateString('fr-FR')}
+                    </p>
+                  )}
+                  {guest.usedAt && (
+                    <p className={styles.usedDate}>
+                      🔗 Lien utilisé le {new Date(guest.usedAt).toLocaleDateString('fr-FR')}
+                    </p>
+                  )}
                 </div>
               </div>
               
-              <div className={styles.guestDetails}>
-                <p>📧 {guest.email}</p>
-                {guest.phone && <p>📞 {guest.phone}</p>}
-              {guest.dietaryRestrictions && (
-                  <p>🥗 Restrictions : {guest.dietaryRestrictions}</p>
+              <div className={styles.guestActions}>
+                {canSendEmails && guest.email && (
+                  <div className={styles.emailActions}>
+                    {!guest.invitationSentAt && (
+                      <Button
+                        onClick={() => sendInvitationToGuest(guest.id)}
+                        variant="primary"
+                        size="small"
+                      >
+                        📧 Envoyer invitation
+                      </Button>
+                    )}
+                    {guest.invitationSentAt && !guest.rsvp && (
+                      <Button
+                        onClick={() => sendReminderToGuest(guest.id)}
+                        variant="outline"
+                        size="small"
+                      >
+                        🔔 Envoyer rappel
+                      </Button>
+                    )}
+                  </div>
                 )}
-                {guest.plusOne && guest.plusOneName && (
-                  <p>👥 Accompagnant : {guest.plusOneName}</p>
-                )}
-                {guest.invitationSentAt && (
-                  <p className={styles.sentDate}>
-                    ✅ Invitation envoyée le {new Date(guest.invitationSentAt).toLocaleDateString('fr-FR')}
-                  </p>
-                )}
-                {guest.usedAt && (
-                  <p className={styles.usedDate}>
-                    🔗 Lien utilisé le {new Date(guest.usedAt).toLocaleDateString('fr-FR')}
-                </p>
-              )}
+                <Button
+                  variant="danger"
+                  onClick={() => handleDeleteGuest(guest.id)}
+                  size="small"
+                >
+                  🗑️ Supprimer
+                </Button>
               </div>
-            </div>
-            
-            <div className={styles.guestActions}>
-              {canSendEmails && guest.email && (
-                <div className={styles.emailActions}>
-                  {!guest.invitationSentAt && (
-                    <Button
-                      onClick={() => sendInvitationToGuest(guest.id)}
-                      variant="primary"
-                      size="small"
-                    >
-                      📧 Envoyer invitation
-                    </Button>
-                  )}
-                  {guest.invitationSentAt && !guest.rsvp && (
-                    <Button
-                      onClick={() => sendReminderToGuest(guest.id)}
-                      variant="outline"
-                      size="small"
-                    >
-                      🔔 Envoyer rappel
-                    </Button>
-                  )}
-                </div>
-              )}
-              <Button
-                variant="danger"
-                onClick={() => handleDeleteGuest(guest.id)}
-                size="small"
-              >
-                🗑️ Supprimer
+            </Card>
+          ))}
+          
+          {filteredGuests.length === 0 && guests.length > 0 && (
+            <Card className={styles.emptyState}>
+              <h3>Aucun invité trouvé</h3>
+              <p>Aucun invité ne correspond à votre recherche "{searchQuery}".</p>
+              <Button onClick={() => setSearchQuery('')} variant="primary">
+                🔄 Effacer la recherche
               </Button>
-            </div>
-          </Card>
-        ))}
-        
-        {guests.length === 0 && (
-          <Card className={styles.emptyState}>
-            <h3>Aucun invité ajouté</h3>
-            <p>Commencez par ajouter vos premiers invités pour pouvoir envoyer les invitations.</p>
-            <Button onClick={() => setShowAddForm(true)} variant="primary">
-              ➕ Ajouter le premier invité
-            </Button>
-          </Card>
-        )}
+            </Card>
+          )}
+          
+          {guests.length === 0 && (
+            <Card className={styles.emptyState}>
+              <h3>Aucun invité ajouté</h3>
+              <p>Commencez par ajouter vos premiers invités pour pouvoir envoyer les invitations.</p>
+              <Button onClick={() => setShowAddForm(true)} variant="primary">
+                ➕ Ajouter le premier invité
+              </Button>
+            </Card>
+          )}
+        </div>
       </div>
       
       {/* Modal personnalisé */}

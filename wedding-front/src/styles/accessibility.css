@@ -22,6 +22,18 @@
   line-height: 1.5;
 }
 
+/* Styles spécifiques pour Verdana */
+:root[data-font="verdana"] {
+  /* Application de la police Verdana */
+  --font-body: Verdana, sans-serif;
+  --font-heading: Verdana, sans-serif;
+
+  /* Ajustements typographiques pour Verdana */
+  letter-spacing: 0.02em;
+  word-spacing: 0.05em;
+  line-height: 1.4;
+}
+
 /* Application des tailles spécifiques pour OpenDyslexic */
 :root[data-font="dyslexic"] {
   & h1 {
@@ -65,3 +77,4 @@
   --color-secondary: #FFFFFF;
   --color-border: #000000;
 } 
+

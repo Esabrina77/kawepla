@@ -1,4 +1,3 @@
-import { redirect } from 'next/navigation';
 import { RSVPMessage } from '@/types';
 
 interface ApiResponse<T> {
@@ -10,7 +9,7 @@ class ApiClient {
   private baseUrl: string;
 
   constructor() {
-    this.baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
+    this.baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3013';
   }
 
   private getAuthToken(): string | null {

@@ -296,20 +296,12 @@ export class InvitationService {
     const declinedGuests = guests.filter(g => g.rsvp?.status === 'DECLINED').length;
     const pendingGuests = guests.filter(g => !g.rsvp || g.rsvp.status === 'PENDING').length;
 
-    const analytics = await prisma.analytics.findFirst({
-      where: { invitationId: id }
-    });
-
     return {
       guests: {
         total: totalGuests,
         confirmed: confirmedGuests,
         declined: declinedGuests,
         pending: pendingGuests
-      },
-      views: {
-        pageViews: analytics?.pageViews || 0,
-        uniqueVisitors: analytics?.uniqueVisitors || 0
       }
     };
   }

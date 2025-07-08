@@ -40,6 +40,7 @@ export interface AuthUser {
   id: string;
   email: string;
   role: UserRole;
+  subscriptionTier: string;
   isActive: boolean;
 }
 
@@ -274,16 +275,6 @@ export interface ProgramEvent {
   title: string;
   description?: string;
   location?: string;
-}
-
-// Analytics Types
-export interface AnalyticsResponse {
-  id: string;
-  invitationId: string;
-  pageViews: number;
-  uniqueVisitors: number;
-  rsvpResponses: number;
-  date: Date;
 }
 
 // File Upload Types

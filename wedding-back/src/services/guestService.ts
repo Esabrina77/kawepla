@@ -784,7 +784,8 @@ export class GuestService {
     invitationId: string, 
     userId: string, 
     fileBuffer: Buffer, 
-    fileName: string
+    fileName: string,
+    subscriptionLimits?: { maxGuests: number; currentGuests: number }
   ): Promise<{
     imported: number;
     failed: number;
@@ -810,16 +811,31 @@ export class GuestService {
       guests: [] as any[]
     };
 
-    // Récupérer les emails existants pour cette invitation
+    // Récupérer les invités existants pour cette invitation
     const existingGuests = await prisma.guest.findMany({
       where: { invitationId },
       select: { email: true }
     });
+    
     const existingEmails = new Set(
       existingGuests
         .filter(g => g.email)
         .map(g => g.email!.toLowerCase())
     );
+
+    // Vérifier les limites d'abonnement si elles sont fournies
+    if (subscriptionLimits) {
+      const { maxGuests, currentGuests } = subscriptionLimits;
+      const availableSlots = maxGuests - currentGuests;
+      
+      if (parsedGuests.length > availableSlots) {
+        throw new Error(
+          `Limite d'abonnement atteinte: vous ne pouvez ajouter que ${availableSlots} invité(s) supplémentaire(s). ` +
+          `Votre fichier contient ${parsedGuests.length} invités. ` +
+          `Passez à un abonnement premium pour inviter plus de personnes.`
+        );
+      }
+    }
 
     // Vérifier les doublons dans le fichier lui-même
     const fileEmails = new Set<string>();

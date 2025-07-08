@@ -1,6 +1,6 @@
 import { LoginCredentials, RegisterData, TokenResponse, User } from '@/types';
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api';
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3013';
 
 const setCookie = (name: string, value: string, days = 7) => {
   const expires = new Date(Date.now() + days * 864e5).toUTCString();
@@ -10,8 +10,8 @@ const setCookie = (name: string, value: string, days = 7) => {
 
 export const authApi = {
   async login(credentials: LoginCredentials): Promise<TokenResponse> {
-    console.log('Sending login request to:', `${API_URL}/auth/login`);
-    const response = await fetch(`${API_URL}/auth/login`, {
+    console.log('Sending login request to:', `${API_URL}/api/auth/login`);
+    const response = await fetch(`${API_URL}/api/auth/login`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -45,7 +45,7 @@ export const authApi = {
   },
 
   async register(data: RegisterData): Promise<TokenResponse> {
-    const response = await fetch(`${API_URL}/auth/register`, {
+    const response = await fetch(`${API_URL}/api/auth/register`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

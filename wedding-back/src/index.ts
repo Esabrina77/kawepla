@@ -1,18 +1,22 @@
 import dotenv from 'dotenv';
+import { createServer } from 'http';
+import app from './app';
+import { initializeSocketService } from './services/socketService';
 
-// Chargement des variables d'environnement (.env) EN PREMIER
+// Charger les variables d'environnement
 dotenv.config();
 
-import app from './app';
+const PORT = process.env.PORT || 3013;
 
-// Définition du port d'écoute (par défaut 3001)
-const PORT = process.env['PORT'] ? Number(process.env['PORT']) : 3001;
+// Créer le serveur HTTP
+const server = createServer(app);
 
-/**
- * Lancement du serveur Express
- * Le serveur écoute sur le port défini et affiche un message de confirmation.
- */
-app.listen(PORT, () => {
-  // Affichage d'un message dans la console au démarrage
-  console.log(`🚀 Serveur API KaWePla lancé sur http://localhost:${PORT}/api`);
+// Initialiser WebSocket
+const socketService = initializeSocketService(server);
+
+// Démarrer le serveur
+server.listen(PORT, () => {
+  console.log(`🚀 Serveur démarré sur le port ${PORT}`);
+  console.log(`📡 WebSocket activé pour la messagerie en temps réel`);
+  console.log(`🌍 Environnement: ${process.env.NODE_ENV || 'development'}`);
 }); 

@@ -173,9 +173,11 @@ export class GuestController {
    */
   static async bulkImport(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
-      const { invitationId } = req.params;
+      // L'invitationId peut venir soit des params (route directe) soit du body (route imbriquée)
+      const invitationId = req.params.invitationId || req.body.invitationId;
       const userId = (req as any).user.id;
       const file = req.file;
+      const subscriptionLimits = (req as any).subscriptionLimits;
 
       if (!file) {
         res.status(400).json({ message: 'Fichier requis' });
@@ -186,7 +188,8 @@ export class GuestController {
         invitationId,
         userId,
         file.buffer,
-        file.originalname
+        file.originalname,
+        subscriptionLimits
       );
 
       res.json({
@@ -203,7 +206,8 @@ export class GuestController {
    */
   static async previewImport(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
-      const { invitationId } = req.params;
+      // L'invitationId peut venir soit des params (route directe) soit du body (route imbriquée)
+      const invitationId = req.params.invitationId || req.body.invitationId;
       const userId = (req as any).user.id;
       const file = req.file;
 

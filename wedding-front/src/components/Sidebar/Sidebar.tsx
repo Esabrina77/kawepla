@@ -42,10 +42,10 @@ const menuItems = [
 
   // TODO: Ajouter les suggestions
   {
-    title: 'Suggestions',
-    path: '/client/suggestions',
-    icon: '/icons/suggestions.svg',
-    description: 'Partagez vos suggestions pour l\'application'
+    title: 'Discussions',
+    path: '/client/discussions',
+    icon: '/icons/discussions.svg',
+    description: 'Contacter l\'équipe de KaWePla'
   },
   // TODO: Ajouter les paramètres
   // {

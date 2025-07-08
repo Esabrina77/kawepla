@@ -44,11 +44,11 @@ const menuItems = [
     path: '/super-admin/messages',
     icon: '/icons/rsvp.svg'
   },
-  // TODO: recevoir les suggestions des clients
+  // TODO: recevoir les discussions des clients
   {
-    title: 'Suggestions',
-    path: '/super-admin/suggestions',
-    icon: '/icons/suggestions.svg'
+    title: 'Discussions',
+    path: '/super-admin/discussions',
+    icon: '/icons/discussions.svg'
   },
   // TODO: Ajouter les paramètres
   // {

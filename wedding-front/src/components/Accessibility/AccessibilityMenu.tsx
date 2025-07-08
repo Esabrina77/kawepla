@@ -1,8 +1,9 @@
 import { useState, useEffect, useRef } from 'react';
+import { createPortal } from 'react-dom';
 import styles from './Accessibility.module.css';
 
 type AccessibilityOptions = {
-  font: 'featherscript' | 'dyslexic';
+  font: 'featherscript' | 'dyslexic' | 'verdana';
   contrast: 'normal' | 'high';
 };
 
@@ -13,6 +14,8 @@ export function AccessibilityMenu() {
     contrast: 'normal',
   });
   const menuRef = useRef<HTMLDivElement>(null);
+  const modalRef = useRef<HTMLDivElement>(null);
+  const [mounted, setMounted] = useState(false);
 
   const toggleMenu = () => setIsOpen(!isOpen);
 
@@ -27,19 +30,78 @@ export function AccessibilityMenu() {
     }
   };
 
+  // S'assurer que le composant est monté côté client
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
   // Fermer le menu si on clique en dehors
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
-      if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
-        setIsOpen(false);
+      const target = event.target as Node;
+      
+      // Vérifier si le clic est à l'intérieur du bouton ou de la modale
+      if (
+        menuRef.current && menuRef.current.contains(target) ||
+        modalRef.current && modalRef.current.contains(target)
+      ) {
+        return;
       }
+      
+      setIsOpen(false);
     }
 
-    document.addEventListener('mousedown', handleClickOutside);
+    if (isOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+    
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
     };
-  }, []);
+  }, [isOpen]);
+
+  // Composant modal à rendre dans un portal
+  const Modal = () => (
+    <>
+      <div className={styles.overlay} onClick={() => setIsOpen(false)} />
+      <div className={styles.accessibilityPopup} ref={modalRef}>
+        <div className={styles.popupHeader}>
+          <h2>Options d'accessibilité</h2>
+          <button 
+            onClick={() => setIsOpen(false)}
+            className={styles.closeButton}
+            aria-label="Fermer"
+          >
+            ×
+          </button>
+        </div>
+        <div className={styles.accessibilitySection}>
+          <h3>Police de caractères</h3>
+          <select 
+            value={options.font}
+            onChange={(e) => updateOption('font', e.target.value)}
+            aria-label="Choisir la police de caractères"
+          >
+            <option value="featherscript">Police standard</option>
+            <option value="dyslexic">OpenDyslexic</option>
+            <option value="verdana">Verdana</option>
+          </select>
+        </div>
+
+        <div className={styles.accessibilitySection}>
+          <h3>Contraste</h3>
+          <select 
+            value={options.contrast}
+            onChange={(e) => updateOption('contrast', e.target.value)}
+            aria-label="Choisir le niveau de contraste"
+          >
+            <option value="normal">Contraste normal</option>
+            <option value="high">Contraste élevé</option>
+          </select>
+        </div>
+      </div>
+    </>
+  );
 
   return (
     <div className={styles.accessibilityContainer} ref={menuRef}>
@@ -64,46 +126,7 @@ export function AccessibilityMenu() {
         <span className={styles.accessibilityButtonText}>Accessibilité</span>
       </button>
 
-      {isOpen && (
-        <>
-          <div className={styles.overlay} onClick={() => setIsOpen(false)} />
-          <div className={styles.accessibilityPopup}>
-            <div className={styles.popupHeader}>
-              <h2>Options d'accessibilité</h2>
-              <button 
-                onClick={() => setIsOpen(false)}
-                className={styles.closeButton}
-                aria-label="Fermer"
-              >
-                ×
-              </button>
-            </div>
-          <div className={styles.accessibilitySection}>
-            <h3>Police de caractères</h3>
-            <select 
-              value={options.font}
-              onChange={(e) => updateOption('font', e.target.value)}
-              aria-label="Choisir la police de caractères"
-            >
-                <option value="featherscript">Police standard</option>
-                <option value="dyslexic">OpenDyslexic</option>
-            </select>
-          </div>
-
-          <div className={styles.accessibilitySection}>
-            <h3>Contraste</h3>
-            <select 
-              value={options.contrast}
-              onChange={(e) => updateOption('contrast', e.target.value)}
-              aria-label="Choisir le niveau de contraste"
-            >
-                <option value="normal">Contraste normal</option>
-                <option value="high">Contraste élevé</option>
-            </select>
-          </div>
-        </div>
-        </>
-      )}
+      {isOpen && mounted && createPortal(<Modal />, document.body)}
     </div>
   );
 } 

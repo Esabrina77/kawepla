@@ -7,7 +7,7 @@
 .header {
   text-align: center;
   padding: var(--spacing-xxl) 0;
-  background: linear-gradient(rgba(7, 6, 6, 0.5), rgba(224, 224, 224, 0.5)),
+  background: linear-gradient(rgba(44, 44, 44, 0.7), rgba(44, 44, 44, 0.5)),
               url('/images/pricing-bg.jpg') center/cover no-repeat;
   color: white;
   position: relative;
@@ -23,6 +23,110 @@
   font-size: 1.25rem;
   max-width: 600px;
   margin: 0 auto;
+}
+
+/* Badge Bêta */
+.betaBadge {
+  margin-top: var(--spacing-lg);
+  display: inline-block;
+}
+
+.betaBadge span {
+  background: linear-gradient(45deg, var(--color-gold), #D4AF37);
+  color: white;
+  padding: var(--spacing-sm) var(--spacing-lg);
+  border-radius: 25px;
+  font-weight: 600;
+  font-size: 1.1rem;
+  box-shadow: 0 4px 15px rgba(197, 168, 128, 0.4);
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+  100% { transform: scale(1); }
+}
+
+/* Plan actuel */
+.currentPlan {
+  padding: var(--spacing-xxl) 0;
+  background: linear-gradient(135deg, var(--color-gold) 0%, var(--color-primary-dark) 100%);
+  color: white;
+}
+
+.currentPlan h2 {
+  text-align: center;
+  font-size: 2.5rem;
+  margin-bottom: var(--spacing-xl);
+  color: white;
+}
+
+.singlePlan {
+  max-width: 500px;
+  margin: 0 auto;
+}
+
+.current {
+  border: 3px solid #228B22;
+  box-shadow: 0 10px 30px rgba(34, 139, 34, 0.3);
+}
+
+.currentBadge {
+  position: absolute;
+  top: -12px;
+  right: 50%;
+  transform: translateX(50%);
+  background: linear-gradient(45deg, #228B22, #32CD32);
+  color: white;
+  padding: var(--spacing-xs) var(--spacing-md);
+  border-radius: var(--border-radius-sm);
+  font-size: 0.875rem;
+  font-weight: 600;
+  white-space: nowrap;
+  z-index: 3;
+  box-shadow: 0 4px 15px rgba(34, 139, 34, 0.4);
+}
+
+/* Plans futurs */
+.futurePlans {
+  padding: var(--spacing-xxl) 0;
+  background: linear-gradient(135deg, var(--color-white-cream) 0%, #F5F5DC 100%);
+}
+
+.futurePlans h2 {
+  text-align: center;
+  font-size: 2.5rem;
+  margin-bottom: var(--spacing-md);
+  color: var(--color-text);
+}
+
+.comingSoonText {
+  text-align: center;
+  font-size: 1.125rem;
+  color: var(--color-text-light);
+  max-width: 600px;
+  margin: 0 auto var(--spacing-xxl);
+}
+
+.comingSoon {
+  opacity: 0.7;
+  position: relative;
+}
+
+.comingSoonBadge {
+  position: absolute;
+  top: -12px;
+  right: 50%;
+  transform: translateX(50%);
+  background: linear-gradient(45deg, #CD853F, #DEB887);
+  color: white;
+  padding: var(--spacing-xs) var(--spacing-md);
+  border-radius: var(--border-radius-sm);
+  font-size: 0.875rem;
+  font-weight: 600;
+  white-space: nowrap;
+  z-index: 3;
 }
 
 /* Plans Section */
@@ -48,10 +152,12 @@
   border-radius: var(--border-radius-lg);
   overflow: visible;
   padding-top: var(--spacing-lg);
+  box-shadow: 0 4px 15px rgba(44, 44, 44, 0.1);
 }
 
-.planCard:hover {
+.planCard:hover:not(.comingSoon) {
   transform: translateY(-8px);
+  box-shadow: 0 8px 25px rgba(44, 44, 44, 0.15);
 }
 
 /* Popular Plan */
@@ -116,6 +222,136 @@
   flex-shrink: 0;
 }
 
+/* Roadmap */
+.roadmap {
+  padding: var(--spacing-xxl) 0;
+  background: linear-gradient(135deg, var(--color-black) 0%, #3C3C3C 100%);
+  color: white;
+}
+
+.roadmap h2 {
+  text-align: center;
+  font-size: 2.5rem;
+  margin-bottom: var(--spacing-xl);
+  color: white;
+}
+
+.roadmapContent {
+  max-width: 1000px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: var(--spacing-xl);
+}
+
+.phase {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: var(--border-radius-lg);
+  padding: var(--spacing-xl);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(197, 168, 128, 0.3);
+}
+
+.phaseHeader {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+  margin-bottom: var(--spacing-lg);
+  flex-wrap: wrap;
+}
+
+.phaseNumber {
+  background: linear-gradient(45deg, var(--color-gold), #D4AF37);
+  color: white;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 1.1rem;
+  flex-shrink: 0;
+}
+
+.phaseHeader h3 {
+  color: white;
+  margin: 0;
+  flex: 1;
+}
+
+.phaseStatus {
+  background: rgba(197, 168, 128, 0.3);
+  padding: var(--spacing-xs) var(--spacing-sm);
+  border-radius: var(--border-radius-sm);
+  font-size: 0.875rem;
+  white-space: nowrap;
+  border: 1px solid rgba(197, 168, 128, 0.5);
+}
+
+.phase ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.phase li {
+  margin-bottom: var(--spacing-sm);
+  padding-left: var(--spacing-md);
+  position: relative;
+}
+
+/* Info bêta */
+.betaInfo {
+  padding: var(--spacing-xxl) 0;
+  background: linear-gradient(135deg, white 0%, var(--color-white-cream) 100%);
+}
+
+.betaInfo h2 {
+  text-align: center;
+  font-size: 2.5rem;
+  margin-bottom: var(--spacing-xl);
+  color: var(--color-text);
+}
+
+.betaAdvantages {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: var(--spacing-xl);
+  max-width: 1000px;
+  margin: 0 auto;
+}
+
+.advantage {
+  text-align: center;
+  padding: var(--spacing-xl);
+  background: linear-gradient(135deg, var(--color-secondary) 0%, #F5F0F0 100%);
+  border-radius: var(--border-radius-lg);
+  border: 2px solid var(--color-secondary-dark);
+  transition: transform var(--transition-normal);
+}
+
+.advantage:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 25px rgba(44, 44, 44, 0.1);
+}
+
+.advantageIcon {
+  font-size: 3rem;
+  display: block;
+  margin-bottom: var(--spacing-md);
+}
+
+.advantage h3 {
+  color: var(--color-text);
+  margin-bottom: var(--spacing-sm);
+}
+
+.advantage p {
+  color: var(--color-text-light);
+  margin: 0;
+}
+
 /* Guarantee Section */
 .guarantee {
   text-align: center;
@@ -164,5 +400,25 @@
 
   .guarantee h2 {
     font-size: 1.5rem;
+  }
+
+  .roadmapContent {
+    grid-template-columns: 1fr;
+  }
+
+  .phaseHeader {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .betaAdvantages {
+    grid-template-columns: 1fr;
+  }
+
+  .currentPlan h2,
+  .futurePlans h2,
+  .roadmap h2,
+  .betaInfo h2 {
+    font-size: 2rem;
   }
 } 

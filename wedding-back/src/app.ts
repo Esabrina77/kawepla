@@ -16,6 +16,7 @@ import guestRoutes from './routes/guests';
 import rsvpRoutes from './routes/rsvp';
 import { RSVPController } from './controllers/rsvpController';
 import { UserController } from './controllers/userController';
+import messageRoutes from './routes/messages';
 
 // Import des middlewares
 import { errorHandler } from './middleware/errorHandler';
@@ -50,7 +51,7 @@ app.use(morgan('dev'));
  * Autorise les requêtes cross-origin depuis le frontend (configurable via .env)
  */
 app.use(cors({
-  origin: process.env['FRONTEND_URL'] || 'http://localhost:3000',
+  origin: process.env['FRONTEND_URL'] || 'http://localhost:3012',
   credentials: true,
 }));
 
@@ -105,6 +106,10 @@ app.use('/api/users', adminRouter, userRoutes);
 // Routes couple
 app.use('/api/invitations', coupleRouter, invitationRoutes);
 app.use('/api/guests', coupleRouter, guestRoutes);
+
+//MESSAGES
+
+app.use('/api/messages',messageRoutes);
 
 // Routes pour les messages RSVP des couples - routes spécifiques
 const rsvpMessagesRouter = express.Router();

@@ -53,7 +53,6 @@ model User {
   guests            Guest[]
   refreshTokens     RefreshToken[]
   adminDesigns      Design[]          @relation("AdminDesigns")
-  analytics         Analytics[]
   
   // Relations pour la messagerie
   userConversations Conversation[]    @relation("UserConversations")
@@ -173,7 +172,6 @@ model Invitation {
   design          Design            @relation(fields: [designId], references: [id])
   guests          Guest[]
   rsvps           RSVP[]
-  analytics       Analytics[]
   conversations   Conversation[]
 
   @@map("invitations")
@@ -225,22 +223,6 @@ model RSVP {
   guest         Guest       @relation(fields: [guestId], references: [id], onDelete: Cascade)
 
   @@map("rsvps")
-}
-
-model Analytics {
-  id            String   @id @default(cuid())
-  userId        String
-  invitationId  String
-  action        String   // "view", "rsvp", "email_open", etc.
-  metadata      Json?    // Données supplémentaires
-  ipAddress     String?
-  userAgent     String?
-  createdAt     DateTime @default(now())
-
-  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  invitation    Invitation @relation(fields: [invitationId], references: [id], onDelete: Cascade)
-
-  @@map("analytics")
 }
 
 // Modèles pour la messagerie

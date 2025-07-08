@@ -343,7 +343,7 @@ export function renderTemplate(
   // Générer le CSS avec vérifications
   const css = generateCSS(template.styles || {}, template.variables || {}, designId);
 
-  console.log('Template rendu:', { designId, html: html.substring(0, 100), css: css.substring(0, 200) });
+  //console.log('Template rendu:', { designId, html: html.substring(0, 100), css: css.substring(0, 200) });
 
   return { html, css };
 }
