@@ -1,11 +1,16 @@
 // app.ts
 
+import dotenv from 'dotenv';
+
+// Chargement des variables d'environnement
+dotenv.config();
+
+
 import express, { Application, Router, RequestHandler } from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
 import morgan from 'morgan';
 import compression from 'compression';
-import dotenv from 'dotenv';
 
 // Import des routes principales
 import authRoutes from './routes/auth';
@@ -21,9 +26,6 @@ import messageRoutes from './routes/messages';
 // Import des middlewares
 import { errorHandler } from './middleware/errorHandler';
 import { authMiddleware, requireAdmin, requireCouple } from './middleware/auth';
-
-// Chargement des variables d'environnement
-dotenv.config();
 
 // Création de l'application Express
 const app: Application = express();
