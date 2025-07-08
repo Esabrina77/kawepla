@@ -67,9 +67,15 @@ class ApiClient {
     return {} as T;
   }
 
+  private buildUrl(endpoint: string): string {
+    const cleanEndpoint = endpoint.startsWith('/') ? endpoint : `/${endpoint}`;
+    const apiEndpoint = cleanEndpoint.startsWith('/api') ? cleanEndpoint : `/api${cleanEndpoint}`;
+    return `${this.baseUrl}${apiEndpoint}`;
+  }
+
   async get<T>(endpoint: string): Promise<T> {
-    const apiEndpoint = endpoint.startsWith('/api') ? endpoint : `/api${endpoint}`;
-    const response = await fetch(`${this.baseUrl}${apiEndpoint}`, {
+    const url = this.buildUrl(endpoint);
+    const response = await fetch(url, {
       method: 'GET',
       headers: this.getHeaders(),
       credentials: 'include',
@@ -79,8 +85,8 @@ class ApiClient {
   }
 
   async post<T>(endpoint: string, data?: any): Promise<T> {
-    const apiEndpoint = endpoint.startsWith('/api') ? endpoint : `/api${endpoint}`;
-    const response = await fetch(`${this.baseUrl}${apiEndpoint}`, {
+    const url = this.buildUrl(endpoint);
+    const response = await fetch(url, {
       method: 'POST',
       headers: this.getHeaders(),
       credentials: 'include',
@@ -91,7 +97,7 @@ class ApiClient {
   }
 
   async postFormData<T>(endpoint: string, formData: FormData): Promise<T> {
-    const apiEndpoint = endpoint.startsWith('/api') ? endpoint : `/api${endpoint}`;
+    const url = this.buildUrl(endpoint);
     const token = this.getAuthToken();
     
     const headers: HeadersInit = {};
@@ -100,7 +106,7 @@ class ApiClient {
     }
     // Ne pas définir Content-Type pour FormData - le navigateur le fait automatiquement
 
-    const response = await fetch(`${this.baseUrl}${apiEndpoint}`, {
+    const response = await fetch(url, {
       method: 'POST',
       headers,
       credentials: 'include',
@@ -111,8 +117,8 @@ class ApiClient {
   }
 
   async put<T>(endpoint: string, data?: any): Promise<T> {
-    const apiEndpoint = endpoint.startsWith('/api') ? endpoint : `/api${endpoint}`;
-    const response = await fetch(`${this.baseUrl}${apiEndpoint}`, {
+    const url = this.buildUrl(endpoint);
+    const response = await fetch(url, {
       method: 'PUT',
       headers: this.getHeaders(),
       credentials: 'include',
@@ -123,8 +129,8 @@ class ApiClient {
   }
 
   async patch<T>(endpoint: string, data?: any): Promise<T> {
-    const apiEndpoint = endpoint.startsWith('/api') ? endpoint : `/api${endpoint}`;
-    const response = await fetch(`${this.baseUrl}${apiEndpoint}`, {
+    const url = this.buildUrl(endpoint);
+    const response = await fetch(url, {
       method: 'PATCH',
       headers: this.getHeaders(),
       credentials: 'include',
@@ -135,8 +141,8 @@ class ApiClient {
   }
 
   async delete<T>(endpoint: string): Promise<T> {
-    const apiEndpoint = endpoint.startsWith('/api') ? endpoint : `/api${endpoint}`;
-    const response = await fetch(`${this.baseUrl}${apiEndpoint}`, {
+    const url = this.buildUrl(endpoint);
+    const response = await fetch(url, {
       method: 'DELETE',
       headers: this.getHeaders(),
       credentials: 'include',

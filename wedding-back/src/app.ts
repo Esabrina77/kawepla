@@ -50,9 +50,28 @@ app.use(morgan('dev'));
  * Middleware CORS
  * Autorise les requêtes cross-origin depuis le frontend (configurable via .env)
  */
+const allowedOrigins = [
+  process.env.FRONTEND_URL || 'http://localhost:3012',
+  'https://kawepla.kaporelo.com',
+  'http://localhost:3012',
+  'http://localhost:3000'
+];
+
 app.use(cors({
-  origin: process.env['FRONTEND_URL'] || 'http://localhost:3012',
+  origin: (origin, callback) => {
+    // Permettre les requêtes sans origin (ex: mobile apps, Postman)
+    if (!origin) return callback(null, true);
+    
+    if (allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      console.log('CORS blocked origin:', origin);
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
   credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
 }));
 
 /**

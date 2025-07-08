@@ -10,8 +10,9 @@ const setCookie = (name: string, value: string, days = 7) => {
 
 export const authApi = {
   async login(credentials: LoginCredentials): Promise<TokenResponse> {
-    console.log('Sending login request to:', `${API_URL}/api/auth/login`);
-    const response = await fetch(`${API_URL}/api/auth/login`, {
+    const apiUrl = `${API_URL}/api/auth/login`;
+    console.log('Sending login request to:', apiUrl);
+    const response = await fetch(apiUrl, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -45,7 +46,8 @@ export const authApi = {
   },
 
   async register(data: RegisterData): Promise<TokenResponse> {
-    const response = await fetch(`${API_URL}/api/auth/register`, {
+    const apiUrl = `${API_URL}/api/auth/register`;
+    const response = await fetch(apiUrl, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
