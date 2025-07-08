@@ -1210,8 +1210,8 @@ function GuestsList({ invitationId, invitation }: { invitationId: string, invita
         <h2>👥 Liste des invités ({searchQuery ? `${filteredGuests.length} sur ${guests.length}` : guests.length})</h2>
         <div className={styles.guestsGrid}>
           {filteredGuests.map(guest => (
-            <Card key={guest.id} className={styles.guestCard}>
-              <div className={styles.guestInfo}>
+          <Card key={guest.id} className={styles.guestCard}>
+            <div className={styles.guestInfo}>
                 <div className={styles.guestHeader}>
                   <h3>
                     {guest.firstName} {guest.lastName}
@@ -1229,7 +1229,7 @@ function GuestsList({ invitationId, invitation }: { invitationId: string, invita
                 <div className={styles.guestDetails}>
                   <p>📧 {guest.email}</p>
                   {guest.phone && <p>📞 {guest.phone}</p>}
-                  {guest.dietaryRestrictions && (
+              {guest.dietaryRestrictions && (
                     <p>🥗 Restrictions : {guest.dietaryRestrictions}</p>
                   )}
                   {guest.plusOne && guest.plusOneName && (
@@ -1243,12 +1243,12 @@ function GuestsList({ invitationId, invitation }: { invitationId: string, invita
                   {guest.usedAt && (
                     <p className={styles.usedDate}>
                       🔗 Lien utilisé le {new Date(guest.usedAt).toLocaleDateString('fr-FR')}
-                    </p>
-                  )}
-                </div>
+                </p>
+              )}
+            </div>
               </div>
               
-              <div className={styles.guestActions}>
+            <div className={styles.guestActions}>
                 {canSendEmails && guest.email && (
                   <div className={styles.emailActions}>
                     {!guest.invitationSentAt && (
@@ -1271,16 +1271,16 @@ function GuestsList({ invitationId, invitation }: { invitationId: string, invita
                     )}
                   </div>
                 )}
-                <Button
-                  variant="danger"
-                  onClick={() => handleDeleteGuest(guest.id)}
-                  size="small"
-                >
+              <Button
+                variant="danger"
+                onClick={() => handleDeleteGuest(guest.id)}
+                size="small"
+              >
                   🗑️ Supprimer
-                </Button>
-              </div>
-            </Card>
-          ))}
+              </Button>
+            </div>
+          </Card>
+        ))}
           
           {filteredGuests.length === 0 && guests.length > 0 && (
             <Card className={styles.emptyState}>

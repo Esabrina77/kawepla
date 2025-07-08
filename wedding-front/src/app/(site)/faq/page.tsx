@@ -6,8 +6,8 @@ const faqs = [
     category: 'Général',
     questions: [
       {
-        question: 'Qu\'est-ce que WeddingPlan ?',
-        answer: 'WeddingPlan est une plateforme en ligne qui permet aux futurs mariés de créer et gérer facilement leurs invitations de mariage numériques. Notre solution comprend la gestion des RSVP, la personnalisation des designs, et bien plus encore.'
+        question: 'Qu\'est-ce que KaWepla ?',
+        answer: 'KaWepla est une plateforme en ligne qui permet aux futurs mariés de créer et gérer facilement leurs invitations de mariage numériques. Notre solution comprend la gestion des RSVP, la personnalisation des designs, et bien plus encore.'
       },
       {
         question: 'Comment fonctionne le système d\'abonnement ?',
@@ -55,7 +55,7 @@ const faqs = [
   },
   {
     category: 'Support & Sécurité',
-    questions: [
+    questions: [   
       {
         question: 'Comment puis-je contacter le support ?',
         answer: 'Notre équipe support est disponible par email 7j/7. Les clients Premium bénéficient également d\'un support téléphonique prioritaire.'

@@ -1,174 +1,296 @@
-/* Container principal */
+/* Conteneur principal */
 .accessibilityContainer {
   position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.mobileContainer {
   width: 100%;
+  justify-content: center;
 }
 
 /* Bouton d'accessibilité */
 .accessibilityButton {
   display: flex;
   align-items: center;
-  width: 100%;
+  justify-content: center;
   padding: var(--spacing-sm);
-  background: none;
-  border: none;
+  background: white;
+  border: 1px solid var(--color-border);
+  border-radius: var(--border-radius-md);
   color: var(--color-text);
   cursor: pointer;
   transition: all var(--transition-fast);
   gap: var(--spacing-sm);
+  font-size: var(--font-size-sm);
 }
 
 .accessibilityButton:hover {
-  background-color: var(--color-hover);
+  background-color: var(--color-secondary);
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+}
+
+.accessibilityButton:focus {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+.mobileButton {
+  padding: var(--spacing-md);
+  font-size: var(--font-size-base);
+  border-radius: var(--border-radius-lg);
+  background-color: var(--color-secondary);
+  border: 2px solid var(--color-primary);
+  width: 100%;
+}
+
+.mobileButton:hover {
+  background-color: var(--color-primary);
+  color: white;
 }
 
 .accessibilityIcon {
+  width: 20px;
+  height: 20px;
   flex-shrink: 0;
 }
 
 .accessibilityButtonText {
-  flex-grow: 1;
-  text-align: left;
+  font-size: var(--font-size-sm);
+  font-weight: 500;
   white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
 }
 
-/* Overlay pour le popup */
-.overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-color: rgba(0, 0, 0, 0.5);
-  z-index: 1100;
-}
-
-/* S'assurer que l'overlay reste sombre même en contraste élevé */
-:root[data-contrast="high"] .overlay {
-  background-color: rgba(0, 0, 0, 0.75);
-  backdrop-filter: brightness(25%);
-}
-
-/* Popup */
+/* Popup d'accessibilité */
 .accessibilityPopup {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  min-width: 280px;
+  background: white;
+  border: 1px solid var(--color-border);
+  border-radius: var(--border-radius-lg);
+  box-shadow: var(--shadow-lg);
+  z-index: 1000;
+  padding: var(--spacing-xl);
+  animation: slideIn 0.2s ease-out;
+}
+
+.mobilePopup {
   position: fixed;
   top: 50%;
   left: 50%;
+  right: auto;
+  bottom: auto;
   transform: translate(-50%, -50%);
-  background-color: white;
-  border-radius: var(--border-radius-lg);
-  box-shadow: var(--shadow-lg);
-  padding: var(--spacing-lg);
-  min-width: 300px;
+  min-width: 320px;
   max-width: 90vw;
-  z-index: 1101;
-  /* S'assurer que le popup reste au-dessus de tous les éléments */
-  isolation: isolate;
+  max-height: 90vh;
+  overflow-y: auto;
+  z-index: 1002;
+  padding: var(--spacing-lg);
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
 }
 
-/* Assurer la lisibilité du popup en contraste élevé */
-:root[data-contrast="high"] .accessibilityPopup {
-  background-color: #FFFFFF;
-  border: 2px solid #000000;
-  box-shadow: 0 0 0 2px #FFFFFF;
-}
-
-/* Styles spécifiques pour éviter les conflits avec la navigation mobile */
-@media (max-width: 768px) {
-  .overlay {
-    z-index: 1200;
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
   }
-  
-  .accessibilityPopup {
-    z-index: 1201;
-    max-width: 95vw;
-    max-height: 90vh;
-    overflow-y: auto;
+  to {
+    opacity: 1;
+    transform: translateY(0);
   }
 }
 
-/* En-tête du popup */
+/* Header du popup */
 .popupHeader {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: var(--spacing-md);
+  margin-bottom: var(--spacing-lg);
+  padding-bottom: var(--spacing-md);
+  border-bottom: 1px solid var(--color-border);
 }
 
-.popupHeader h2 {
+.popupHeader h3 {
   margin: 0;
-  font-size: var(--font-size-lg);
+  font-size: var(--font-size-xl);
+  font-weight: 600;
+  color: var(--color-text);
 }
 
 .closeButton {
   background: none;
   border: none;
-  font-size: var(--font-size-xl);
+  font-size: var(--font-size-2xl);
   cursor: pointer;
-  padding: 0;
+  color: var(--color-text);
+  padding: var(--spacing-xs);
+  border-radius: var(--border-radius-sm);
+  transition: all var(--transition-fast);
+  line-height: 1;
   width: 32px;
   height: 32px;
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: 50%;
-  transition: background-color var(--transition-fast);
 }
 
 .closeButton:hover {
-  background-color: var(--color-hover);
+  background-color: var(--color-secondary);
+  color: var(--color-primary);
 }
 
-/* Sections du popup */
-.accessibilitySection {
-  margin-bottom: var(--spacing-md);
+.closeButton:focus {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
 }
 
-.accessibilitySection:last-child {
-  margin-bottom: 0;
+/* Contenu du popup */
+.popupContent {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-lg);
 }
 
-.accessibilitySection h3 {
-  font-size: var(--font-size-base);
+.settingGroup {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+}
+
+.settingLabel {
+  font-weight: 500;
+  font-size: var(--font-size-lg);
   margin-bottom: var(--spacing-xs);
+  color: var(--color-text);
+  display: block;
 }
 
-.accessibilitySection select {
-  width: 100%;
-  padding: var(--spacing-sm);
-  border: 1px solid var(--color-border);
-  border-radius: var(--border-radius-sm);
-  background-color: white;
+.settingOptions {
+  display: flex;
+  gap: var(--spacing-sm);
+}
+
+.settingOption {
+  flex: 1;
+  padding: var(--spacing-md);
+  border: 2px solid var(--color-border);
+  border-radius: var(--border-radius-md);
+  background: white;
   font-size: var(--font-size-base);
+  color: var(--color-text);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  text-align: center;
+}
+
+.settingOption:hover {
+  border-color: var(--color-primary);
+}
+
+.settingOption:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 2px rgba(197, 168, 128, 0.2);
+}
+
+.settingOption.active {
+  background-color: var(--color-secondary);
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+  font-weight: 500;
+}
+
+.settingInfo {
+  padding: var(--spacing-md);
+  background-color: var(--color-secondary);
+  border-radius: var(--border-radius-md);
+  border-left: 4px solid var(--color-primary);
+  margin-top: var(--spacing-sm);
+}
+
+.settingInfo p {
+  margin: 0;
+  font-size: var(--font-size-sm);
+  color: var(--color-text);
+  line-height: 1.5;
 }
 
 /* Styles pour les différents modes d'accessibilité */
-:root[data-font="dyslexic"] {
+html[data-font="dyslexic"] .accessibilityContainer {
   --font-body: var(--font-opendyslexic);
   --font-heading: var(--font-opendyslexic);
 }
 
-:root[data-contrast="high"] {
+html[data-contrast="high"] .accessibilityContainer {
   --color-text: #000000;
   --color-background: #FFFFFF;
   --color-primary: #000000;
   --color-secondary: #FFFFFF;
   --color-border: #000000;
-  --color-hover: rgba(0, 0, 0, 0.1);
 }
 
-/* Ajustements spécifiques pour OpenDyslexic */
-:root[data-font="dyslexic"] .navContainer {
-  padding: 0 var(--spacing-sm);
+html[data-contrast="high"] .accessibilityButton,
+html[data-contrast="high"] .accessibilityPopup {
+  background-color: white !important;
+  color: black !important;
+  border-color: black !important;
 }
 
-:root[data-font="dyslexic"] .logo {
-  font-size: var(--font-size-3xl);
+html[data-contrast="high"] .settingOption {
+  background-color: white !important;
+  color: black !important;
+  border-color: black !important;
 }
 
-:root[data-font="dyslexic"] .navLink {
-  padding: var(--spacing-xs) var(--spacing-xs);
-  font-size: var(--font-size-lg);
+html[data-contrast="high"] .settingOption.active {
+  background-color: black !important;
+  color: white !important;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .accessibilityPopup {
+    min-width: 300px;
+    right: -20px;
+  }
+  
+  .mobilePopup {
+    min-width: 280px;
+    padding: var(--spacing-lg);
+  }
+  
+  .settingOptions {
+    flex-direction: column;
+  }
+  
+  .settingOption {
+    font-size: var(--font-size-lg);
+  }
+}
+
+@media (max-width: 480px) {
+  .accessibilityPopup {
+    font-size: var(--font-size-base);
+  }
+  
+  .mobilePopup {
+    padding: var(--spacing-md);
+  }
+  
+  .popupHeader h3 {
+    font-size: var(--font-size-lg);
+  }
+  
+  .settingGroup {
+    margin-bottom: var(--spacing-md);
+  }
+  
+  .settingOptions {
+    gap: var(--spacing-md);
+  }
 } 

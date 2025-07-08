@@ -6,8 +6,8 @@ export function Footer() {
     <footer className={styles.footer}>
       <div className={styles.footerContent}>
         <div className={styles.footerSection}>
-          <h3>WeddingPlan</h3>
-          <p>Créez des invitations de mariage uniques et élégantes pour votre jour spécial.</p>
+          <h3>KaWePla</h3>
+          <p>Créez et gérez des invitations de mariage uniques et élégantes pour votre jour spécial.</p>
         </div>
 
         <div className={styles.footerSection}>
@@ -32,7 +32,7 @@ export function Footer() {
         <div className={styles.footerSection}>
           <h4>Contact</h4>
           <ul>
-            <li>Email: contact@weddingplan.fr</li>
+            <li>Email: whethefoot@gmail.com</li>
             <li>Téléphone: +33 1 23 45 67 89</li>
             <li>Du lundi au vendredi</li>
             <li>9h - 18h</li>

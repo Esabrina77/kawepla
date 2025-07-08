@@ -1,4 +1,4 @@
-# 💒 WeddingPlan - Fonctionnalités Complètes
+# 💒 Kawepla - Fonctionnalités Complètes
 
 ## 📱 **PWA (Progressive Web App)**
 - **Installation** : Bouton d'installation sur mobile/desktop

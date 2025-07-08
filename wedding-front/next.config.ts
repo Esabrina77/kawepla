@@ -2,6 +2,9 @@ import { NextConfig } from 'next';
 import withPWA from 'next-pwa';
 
 const config: NextConfig = {
+  env: {
+    NEXT_PUBLIC_API_URL: process.env.NEXT_PUBLIC_API_URL,
+  },
   images: {
     formats: ['image/avif', 'image/webp'],
     deviceSizes: [640, 750, 828, 1080, 1200, 1920, 2048, 3840],
@@ -31,6 +34,8 @@ const config: NextConfig = {
     return config;
   },
 };
+
+console.log('API URL:', process.env.NEXT_PUBLIC_API_URL);
 
 const nextConfig = withPWA({
   dest: 'public',

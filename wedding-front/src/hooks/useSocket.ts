@@ -31,7 +31,7 @@ export const useSocket = ({ token, enabled = true }: UseSocketProps = {}) => {
     const initSocket = () => {
       setConnecting(true);
       
-      const socket = io(process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001', {
+      const socket = io(process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3013', {
         auth: { token },
         transports: ['websocket'],
         forceNew: true

@@ -4,13 +4,15 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useInvitations, CreateInvitationData } from '@/hooks/useInvitations';
 import { useDesigns } from '@/hooks/useDesigns';
+import { useAuth } from '@/hooks/useAuth';
 import { TemplateEngine } from '@/lib/templateEngine';
 import { mergeTemplateData } from '@/lib/templateEngine';
-import { SubscriptionLimits } from '@/components/SubscriptionLimits/SubscriptionLimits';
+import { SubscriptionLimits, canCreateInvitation } from '@/components/SubscriptionLimits/SubscriptionLimits';
 import styles from './invitations.module.css';
 
 export default function InvitationsPage() {
   const router = useRouter();
+  const { user } = useAuth();
   const { invitations, loading, error, createInvitation, updateInvitation, publishInvitation } = useInvitations();
   const { designs } = useDesigns();
   const [showCreateForm, setShowCreateForm] = useState(false);
@@ -34,6 +36,9 @@ export default function InvitationsPage() {
     moreInfo: '',
     contact: ''
   });
+
+  // Vérifier si l'utilisateur peut créer une invitation
+  const canCreate = canCreateInvitation(user, invitations);
 
   // Vérifier si l'utilisateur a sélectionné un design
   useEffect(() => {
@@ -106,6 +111,11 @@ export default function InvitationsPage() {
   };
 
   const handleCreateInvitation = () => {
+    if (!canCreate) {
+      alert('Vous avez atteint la limite d\'invitations pour votre abonnement gratuit.');
+      return;
+    }
+
     if (designs.length === 0) {
       alert('Aucun design disponible. Veuillez d\'abord créer ou importer des designs.');
       return;
@@ -216,12 +226,14 @@ export default function InvitationsPage() {
     <div className={styles.invitationsPage}>
       <div className={styles.header}>
         <h1>Mes Invitations</h1>
-        <button 
-          className={styles.createButton}
-          onClick={handleCreateInvitation}
-        >
-          Créer une invitation
-        </button>
+        {canCreate && (
+          <button 
+            className={styles.createButton}
+            onClick={handleCreateInvitation}
+          >
+            Créer une invitation
+          </button>
+        )}
       </div>
       
       {/* Affichage des limites d'abonnement */}
@@ -232,12 +244,14 @@ export default function InvitationsPage() {
           <div className={styles.emptyIcon}>📝</div>
           <h2>Aucune invitation créée</h2>
           <p>Commencez par créer votre première invitation de mariage</p>
-          <button 
-            className={styles.createButtonLarge}
-            onClick={handleCreateInvitation}
-          >
-            Créer ma première invitation
-          </button>
+          {canCreate && (
+            <button 
+              className={styles.createButtonLarge}
+              onClick={handleCreateInvitation}
+            >
+              Créer ma première invitation
+            </button>
+          )}
         </div>
       ) : (
         <div className={styles.invitationsGrid}>

@@ -6,8 +6,8 @@ import { Footer } from '@/components/Footer/Footer';
 import styles from '@/styles/layout.module.css';
 
 export const metadata: Metadata = {
-  title: "WeddingPlan - Créez votre invitation de mariage unique",
-  description: "Créez des invitations de mariage élégantes et gérez vos invités facilement avec WeddingPlan",
+  title: "KaWepla - Créez votre invitation de mariage unique",
+  description: "Créez des invitations de mariage élégantes et gérez vos invités facilement avec KaWepla  la",
 };
 
 export default function SiteLayout({

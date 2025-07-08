@@ -95,27 +95,6 @@ export function SubscriptionLimits({
             )}
           </div>
         )}
-
-        {/* Limite d'invités générale si pas d'invitation spécifique */}
-        {!invitationId && (
-          <div className={styles.limitItem}>
-            <div className={styles.limitLabel}>
-              <span>Invités par invitation</span>
-              <span className={styles.limitCount}>
-                Max {BASIC_LIMITS.MAX_GUESTS_PER_INVITATION} invités
-              </span>
-            </div>
-            <div className={styles.progressBar}>
-              <div 
-                className={styles.progressFill}
-                style={{ width: '0%' }}
-              />
-            </div>
-            <p className={styles.infoText}>
-              Chaque invitation peut contenir jusqu'à {BASIC_LIMITS.MAX_GUESTS_PER_INVITATION} invités
-            </p>
-          </div>
-        )}
       </div>
 
       {showUpgradeButton && (
@@ -130,4 +109,14 @@ export function SubscriptionLimits({
       )}
     </div>
   );
+}
+
+// Fonction utilitaire pour vérifier si on peut créer des invitations
+export function canCreateInvitation(user: any, invitations: any[]) {
+  if (!user || user.subscriptionTier !== 'BASIC') {
+    return true; // Les utilisateurs premium n'ont pas de limite
+  }
+  
+  const currentInvitations = invitations?.length || 0;
+  return currentInvitations < BASIC_LIMITS.MAX_INVITATIONS;
 } 
