@@ -18,7 +18,7 @@
 }
 
 /* Styles pour les éléments communs du super admin */
-:global(.superAdminPage) {
+.superAdminPage {
   background-color: white;
   border-radius: 20px;
   padding: var(--spacing-xl);
@@ -26,7 +26,7 @@
   border: 1px solid #E8E2D9;
 }
 
-:global(.superAdminTitle) {
+.superAdminTitle {
   font-family: var(--font-featherscript);
   font-size: 32px;
   margin-bottom: var(--spacing-xl);
@@ -36,7 +36,7 @@
   gap: var(--spacing-md);
 }
 
-:global(.superAdminSubtitle) {
+.superAdminSubtitle {
   font-family: var(--font-featherscript);
   font-size: 24px;
   margin-bottom: var(--spacing-lg);
@@ -44,7 +44,7 @@
 }
 
 /* Styles pour les boutons */
-:global(.superAdminButton) {
+.superAdminButton {
   background-color: #DEB887;
   color: white;
   border: none;
@@ -55,23 +55,23 @@
   transition: all 0.2s ease;
 }
 
-:global(.superAdminButton:hover) {
+.superAdminButton:hover {
   background-color: #B8860B;
   transform: translateY(-1px);
 }
 
-:global(.superAdminButton.secondary) {
+.superAdminButton.secondary {
   background-color: #F9F6F2;
   color: #4A4A4A;
   border: 1px solid #E8E2D9;
 }
 
-:global(.superAdminButton.secondary:hover) {
+.superAdminButton.secondary:hover {
   background-color: #E8E2D9;
 }
 
 /* Styles pour les formulaires */
-:global(.superAdminInput) {
+.superAdminInput {
   width: 100%;
   padding: var(--spacing-sm);
   border: 1px solid #E8E2D9;
@@ -80,7 +80,7 @@
   transition: all 0.2s ease;
 }
 
-:global(.superAdminInput:focus) {
+.superAdminInput:focus {
   border-color: #DEB887;
   box-shadow: 0 0 0 2px rgba(222, 184, 135, 0.2);
   outline: none;
@@ -97,7 +97,7 @@
     margin-left: 80px;
   }
 
-  :global(.superAdminPage) {
+  .superAdminPage {
     padding: var(--spacing-lg);
     border-radius: 16px;
   }

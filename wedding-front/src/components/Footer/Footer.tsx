@@ -42,7 +42,7 @@ export function Footer() {
 
       <div className={styles.footerBottom}>
         <div className={styles.container}>
-          <p>&copy; {new Date().getFullYear()} WeddingPlan. Tous droits réservés.</p>
+          <p>&copy; {new Date().getFullYear()} Kawepla. Tous droits réservés.</p>
         </div>
       </div>
     </footer>

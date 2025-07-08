@@ -7,7 +7,7 @@ const testimonials = [
     name: 'Sophie & Thomas',
     date: 'Juin 2023',
     image: '/images/testimonials/sophie-thomas.jpg',
-    content: 'WeddingPlan nous a permis de créer des invitations magnifiques et de gérer facilement nos 150 invités. Le suivi des RSVP en temps réel était particulièrement pratique !',
+    content: 'Kawepla nous a permis de créer des invitations magnifiques et de gérer facilement nos 150 invités. Le suivi des RSVP en temps réel était particulièrement pratique !',
     rating: 5
   },
   {
@@ -35,7 +35,7 @@ const testimonials = [
     name: 'Emma & Lucas',
     date: 'Mai 2023',
     image: '/images/testimonials/emma-lucas.jpg',
-    content: 'Un grand merci à l\'équipe WeddingPlan ! Le site était magnifique et la gestion des invités très simple. Tout était parfait !',
+    content: 'Un grand merci à l\'équipe Kawepla ! Le site était magnifique et la gestion des invités très simple. Tout était parfait !',
     rating: 5
   },
   {

@@ -1,13 +1,13 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import styles from '@/styles/site/auth.module.css';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api';
 
-export default function VerifyEmailPage() {
+function VerifyEmailContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [email, setEmail] = useState('');
@@ -183,7 +183,7 @@ export default function VerifyEmailPage() {
             </div>
 
             <div className={styles.resendSection}>
-              <p>Vous n'avez pas reçu le code ?</p>
+              <p>Vous n&apos;avez pas reçu le code ?</p>
               <button
                 type="button"
                 onClick={handleResendCode}
@@ -203,5 +203,13 @@ export default function VerifyEmailPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function VerifyEmailPage() {
+  return (
+    <Suspense fallback={<div>Chargement...</div>}>
+      <VerifyEmailContent />
+    </Suspense>
   );
 } 

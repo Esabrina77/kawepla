@@ -230,14 +230,4 @@
     align-items: flex-start;
     gap: 0.5rem;
   }
-}
-
-/* Variables CSS personnalisées pour le design */
-:root {
-  --body-font: 'Roboto', sans-serif;
-  --heading-font: 'Playfair Display', serif;
-  --color-primary: #1a1a1a;
-  --color-secondary: #ffffff;
-  --color-accent: gold;
-  --spacing-base: 1rem;
 } 

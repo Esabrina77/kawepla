@@ -13,7 +13,7 @@ export default function HomePage() {
       <section className={styles.hero}>
         <div className={styles.heroContent}>
           <h1>Nous sommes invités à célébrer votre amour</h1>
-          <p>Bienvenue sur WeddingPlan, la plateforme qui transforme vos invitations de mariage en une expérience élégante et intuitive.</p>
+          <p>Bienvenue sur Kawepla, la plateforme qui transforme vos invitations de mariage en une expérience élégante et intuitive.</p>
           <div className={styles.heroButtons}>
             <Link href="/auth/register" title="Commencer à créer votre invitation de mariage">
               <Button variant="primary" size="large">
@@ -34,7 +34,7 @@ export default function HomePage() {
       <section className={styles.about}>
         <div className={styles.container}>
           <div className={styles.sectionHeader}>
-            <h2>Pourquoi WeddingPlan ?</h2>
+            <h2>Pourquoi Kawepla ?</h2>
             <p>Parce que chaque mariage mérite une invitation à la hauteur de l'événement :</p>
           </div>
           <div className={styles.aboutGrid}>

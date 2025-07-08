@@ -7,7 +7,7 @@ generator client {
 
 datasource db {
   provider = "postgresql"
-  url      = "postgresql://weduser:wed_password200@localhost:5432/wedding_invitations"
+  url      = env("DATABASE_URL")
 }
 
 enum UserRole {

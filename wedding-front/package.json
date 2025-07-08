@@ -4,8 +4,8 @@
   "private": true,
   "scripts": {
     "dev": "next dev -p 3012 --turbopack",
-    "build": "next build -p 3012",
-    "start": "next start",
+    "build": "next build",
+    "start": "next start -p 3012",
     "lint": "next lint"
   },
   "dependencies": {

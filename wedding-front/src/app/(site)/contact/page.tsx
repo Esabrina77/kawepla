@@ -20,7 +20,7 @@ export default function ContactPage() {
                 <h2>Informations de contact</h2>
                 <div className={styles.infoList}>
                   <a 
-                    href="mailto:contact@weddingplan.fr" 
+                    href="mailto:whethefoot@gmail.com" 
                     className={styles.infoItem}
                     title="Nous envoyer un email"
                   >
@@ -49,7 +49,7 @@ export default function ContactPage() {
                     </svg>
                     <div>
                       <h3>Email</h3>
-                      <p>contact@weddingplan.fr</p>
+                      <p>whethefoot@gmail.com</p>
                     </div>
                   </a>
                   <a 
