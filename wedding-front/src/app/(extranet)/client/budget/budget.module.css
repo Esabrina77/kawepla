@@ -172,14 +172,38 @@
 }
 
 @media (max-width: 768px) {
+  .budgetPage {
+    padding: var(--spacing-md);
+  }
+
   .header {
     flex-direction: column;
     gap: var(--spacing-md);
+    text-align: center;
+  }
+
+  .header h1 {
+    font-size: 1.5rem;
+  }
+
+  .addButton {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .categoryGrid {
+    grid-template-columns: 1fr;
+    gap: var(--spacing-sm);
   }
 
   .budgetStats {
     flex-direction: column;
     gap: var(--spacing-md);
+    text-align: center;
+  }
+
+  .budgetStats > div {
+    align-items: center;
   }
 
   .expenseHeader {
@@ -191,5 +215,47 @@
   .expenseDetails {
     flex-direction: column;
     gap: var(--spacing-sm);
+  }
+
+  .amount {
+    font-size: var(--font-size-4xl);
+  }
+
+  .totalCard {
+    padding: var(--spacing-lg);
+  }
+}
+
+@media (max-width: 480px) {
+  .budgetPage {
+    padding: var(--spacing-sm);
+  }
+
+  .header h1 {
+    font-size: 1.3rem;
+  }
+
+  .amount {
+    font-size: var(--font-size-3xl);
+  }
+
+  .totalCard {
+    padding: var(--spacing-md);
+  }
+
+  .categoryCard {
+    padding: var(--spacing-md);
+  }
+
+  .expenseCard {
+    padding: var(--spacing-md);
+  }
+
+  .categoryGrid {
+    gap: var(--spacing-xs);
+  }
+
+  .expenseList {
+    gap: var(--spacing-xs);
   }
 } 

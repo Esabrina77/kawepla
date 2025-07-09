@@ -5,7 +5,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import styles from '@/styles/site/auth.module.css';
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api';
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3013';
 
 function VerifyEmailContent() {
   const router = useRouter();
@@ -45,7 +45,7 @@ function VerifyEmailContent() {
     }
 
     try {
-      const response = await fetch(`${API_URL}/auth/verify-email`, {
+      const response = await fetch(`${API_URL}/api/auth/verify-email`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -79,7 +79,7 @@ function VerifyEmailContent() {
     setError('');
 
     try {
-      const response = await fetch(`${API_URL}/auth/send-verification-code`, {
+      const response = await fetch(`${API_URL}/api/auth/send-verification-code`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

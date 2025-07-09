@@ -179,16 +179,19 @@
 @media (max-width: 768px) {
   .sidebar {
     width: 100%;
-    height: auto;
+    height: 80px;
     position: fixed;
     bottom: 0;
     top: auto;
     border-right: none;
     border-top: 1px solid var(--color-border);
+    background-color: white;
+    box-shadow: 0 -2px 20px rgba(0, 0, 0, 0.1);
   }
 
   .collapsed {
     width: 100%;
+    height: 80px;
   }
 
   .sidebarHeader {
@@ -198,7 +201,10 @@
   .navigation {
     flex-direction: row;
     justify-content: space-around;
-    padding: var(--spacing-sm);
+    align-items: center;
+    padding: var(--spacing-xs);
+    height: 100%;
+    overflow: visible;
   }
 
   .navItem {
@@ -206,10 +212,37 @@
     text-align: center;
     padding: var(--spacing-xs);
     gap: var(--spacing-xs);
+    flex: 1;
+    min-width: 0;
+    border-radius: 8px;
+    transition: all 0.2s ease;
+  }
+
+  .navItem:hover {
+    background-color: var(--color-background-light);
+  }
+
+  .navItem.active {
+    background-color: var(--color-primary-light);
+    color: var(--color-primary);
+  }
+
+  .icon {
+    width: 20px;
+    height: 20px;
+  }
+
+  .navContent {
+    align-items: center;
   }
 
   .title {
-    font-size: 12px;
+    font-size: 10px;
+    font-weight: 500;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 100%;
   }
 
   .description {
@@ -219,6 +252,34 @@
   .accessibilityNavItem,
   .sidebarFooter {
     display: none;
+  }
+}
+
+@media (max-width: 480px) {
+  .sidebar {
+    height: 70px;
+  }
+
+  .collapsed {
+    height: 70px;
+  }
+
+  .navigation {
+    padding: var(--spacing-xs);
+  }
+
+  .navItem {
+    padding: var(--spacing-xs) 2px;
+    gap: 2px;
+  }
+
+  .icon {
+    width: 18px;
+    height: 18px;
+  }
+
+  .title {
+    font-size: 9px;
   }
 }
 

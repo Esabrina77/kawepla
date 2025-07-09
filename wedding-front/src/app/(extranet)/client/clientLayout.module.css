@@ -20,11 +20,25 @@
 @media (max-width: 768px) {
   .main {
     margin-left: 0;
-    padding: var(--spacing-md);
-    padding-bottom: 80px; /* Espace pour la navigation mobile */
+    padding: var(--spacing-sm);
+    padding-bottom: 90px; /* Espace pour la navigation mobile */
+    min-height: calc(100vh - 80px);
   }
 
   .layout.collapsed .main {
     margin-left: 0;
+    padding-bottom: 90px;
+  }
+}
+
+@media (max-width: 480px) {
+  .main {
+    padding: var(--spacing-xs);
+    padding-bottom: 80px; /* Espace pour la navigation mobile plus petite */
+    min-height: calc(100vh - 70px);
+  }
+
+  .layout.collapsed .main {
+    padding-bottom: 80px;
   }
 } 

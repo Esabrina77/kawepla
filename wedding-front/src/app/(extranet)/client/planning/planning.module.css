@@ -168,14 +168,33 @@
 }
 
 @media (max-width: 768px) {
+  .planningPage {
+    padding: var(--spacing-md);
+  }
+
   .header {
     flex-direction: column;
     gap: var(--spacing-md);
+    text-align: center;
+  }
+
+  .header h1 {
+    font-size: 1.5rem;
+  }
+
+  .addButton {
+    width: 100%;
+    justify-content: center;
   }
 
   .timelineHeader {
     flex-direction: column;
     gap: var(--spacing-md);
+    text-align: center;
+  }
+
+  .categoryFilter {
+    width: 100%;
   }
 
   .taskHeader {
@@ -187,10 +206,51 @@
   .taskFooter {
     flex-direction: column;
     gap: var(--spacing-md);
+    align-items: flex-start;
   }
 
   .taskActions {
     width: 100%;
-    justify-content: space-between;
+    justify-content: flex-start;
+  }
+
+  .taskCard {
+    padding: var(--spacing-md);
+  }
+
+  .progress {
+    padding: var(--spacing-md);
+  }
+}
+
+@media (max-width: 480px) {
+  .planningPage {
+    padding: var(--spacing-sm);
+  }
+
+  .header h1 {
+    font-size: 1.3rem;
+  }
+
+  .taskCard {
+    padding: var(--spacing-sm);
+  }
+
+  .progress {
+    padding: var(--spacing-sm);
+  }
+
+  .taskList {
+    gap: var(--spacing-sm);
+  }
+
+  .taskActions {
+    flex-wrap: wrap;
+    gap: var(--spacing-xs);
+  }
+
+  .statusButton {
+    width: 20px;
+    height: 20px;
   }
 } 

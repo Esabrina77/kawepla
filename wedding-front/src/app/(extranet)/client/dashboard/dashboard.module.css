@@ -75,4 +75,64 @@
 
 .exportButton:hover {
   background-color: var(--secondary-color-dark);
+}
+
+/* Mobile responsive styles */
+@media (max-width: 768px) {
+  .dashboard {
+    padding: 1rem;
+  }
+
+  .dashboard h1 {
+    font-size: 1.5rem;
+    margin-bottom: 1rem;
+    text-align: center;
+  }
+
+  .dashboard h2 {
+    font-size: 1.2rem;
+    margin-bottom: 0.75rem;
+  }
+
+  .statsGrid {
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 1rem;
+    margin-bottom: 2rem;
+  }
+
+  .statValue {
+    font-size: 1.8rem;
+  }
+
+  .actionGrid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+
+  .quickActions {
+    margin-top: 1rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .dashboard {
+    padding: 0.5rem;
+  }
+
+  .dashboard h1 {
+    font-size: 1.3rem;
+  }
+
+  .statsGrid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.75rem;
+  }
+
+  .statValue {
+    font-size: 1.5rem;
+  }
+
+  .statLabel {
+    font-size: 0.75rem;
+  }
 } 
