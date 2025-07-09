@@ -7,12 +7,12 @@ export default function TermsPage() {
       
       <section className={styles.legalSection}>
         <h2>1. Objet</h2>
-        <p>Les présentes conditions générales régissent l'utilisation de la plateforme WeddingPlan, destinée à la création et la gestion d'invitations de mariage.</p>
+        <p>Les présentes conditions générales régissent l'utilisation de la plateforme Kawepla, destinée à la création et la gestion d'invitations de mariage.</p>
       </section>
 
       <section className={styles.legalSection}>
         <h2>2. Services proposés</h2>
-        <p>WeddingPlan propose les services suivants :</p>
+        <p>Kawepla propose les services suivants :</p>
         <ul>
           <li>Création d'invitations personnalisées</li>
           <li>Gestion des invités</li>
