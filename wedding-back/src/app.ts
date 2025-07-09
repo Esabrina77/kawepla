@@ -5,7 +5,6 @@ import dotenv from 'dotenv';
 // Chargement des variables d'environnement
 dotenv.config();
 
-
 import express, { Application, Router, RequestHandler } from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
@@ -55,6 +54,7 @@ app.use(morgan('dev'));
 const allowedOrigins = [
   process.env.FRONTEND_URL || 'http://localhost:3012',
   'https://kawepla.kaporelo.com',
+  'https://kawepla-api.kaporelo.com',
   'http://localhost:3012',
   'http://localhost:3000'
 ];
@@ -64,7 +64,8 @@ app.use(cors({
     // Permettre les requêtes sans origin (ex: mobile apps, Postman)
     if (!origin) return callback(null, true);
     
-    if (allowedOrigins.includes(origin)) {
+    // Permettre tous les sous-domaines de kaporelo.com
+    if (origin.endsWith('.kaporelo.com') || allowedOrigins.includes(origin)) {
       callback(null, true);
     } else {
       console.log('CORS blocked origin:', origin);
@@ -129,8 +130,7 @@ app.use('/api/invitations', coupleRouter, invitationRoutes);
 app.use('/api/guests', coupleRouter, guestRoutes);
 
 //MESSAGES
-
-app.use('/api/messages',messageRoutes);
+app.use('/api/messages', messageRoutes);
 
 // Routes pour les messages RSVP des couples - routes spécifiques
 const rsvpMessagesRouter = express.Router();
