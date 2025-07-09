@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import styles from '@/styles/site/auth.module.css';
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api';
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3013';
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -33,7 +33,7 @@ export default function RegisterPage() {
     }
 
     try {
-      const response = await fetch(`${API_URL}/auth/register`, {
+      const response = await fetch(`${API_URL}/api/auth/register`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
