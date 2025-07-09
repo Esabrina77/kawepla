@@ -44,13 +44,13 @@ const menuItems = [
     description: 'Consultez les réponses et messages de vos invités',
     priority: 2
   },
-  // {
-  //   title: 'Budget',
-  //   path: '/client/budget',
-  //   icon: '/icons/money.svg',
-  //   description: 'Gérez votre budget de mariage',
-  //   priority: 2
-  // },
+  {
+    title: 'Discussions',
+    path: '/client/discussions',
+    icon: '/icons/discussions.svg',
+    description: 'Discutez avec la team Kawepla',
+    priority: 2
+  },
   // {
   //   title: 'Planning',
   //   path: '/client/planning',
