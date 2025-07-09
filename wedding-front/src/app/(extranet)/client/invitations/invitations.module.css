@@ -596,63 +596,253 @@
 }
 
 @media (max-width: 768px) {
-  .modalContent {
-    width: 98%;
-    height: 95vh;
-    margin: 2.5vh 1%;
-  }
-  
-  .formWithPreview {
+  .invitationsPage {
     padding: 1rem;
+  }
+
+  .header {
+    flex-direction: column;
+    gap: 1rem;
+    text-align: center;
+    margin-bottom: 1.5rem;
+  }
+
+  .header h1 {
+    font-size: 1.8rem;
+  }
+
+  .createButton {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .invitationsGrid {
+    grid-template-columns: 1fr;
     gap: 1rem;
   }
-  
-  .formRow {
-    grid-template-columns: 1fr;
-    gap: 0.75rem;
-  }
-  
-  .formGroup {
+
+  .invitationCard {
     padding: 1rem;
   }
-  
-  .modalHeader {
-    padding: 1rem 1.5rem;
+
+  .cardHeader {
+    flex-direction: column;
+    gap: 0.5rem;
+    align-items: flex-start;
   }
-  
+
+  .cardActions {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .editButton, .viewButton, .publishButton {
+    width: 100%;
+    text-align: center;
+  }
+
+  .modal {
+    align-items: flex-start;
+    padding: 1rem;
+  }
+
+  .modalContent {
+    width: 100%;
+    max-width: none;
+    margin: 0;
+    max-height: calc(100vh - 2rem);
+    overflow-y: auto;
+  }
+
+  .modalHeader {
+    padding: 1rem;
+  }
+
   .modalHeader h2 {
+    font-size: 1.3rem;
+  }
+
+  .formWithPreview {
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .formSection {
+    order: 2;
+  }
+
+  .previewSection {
+    order: 1;
+    max-width: none;
+    position: static;
+  }
+
+  .previewContainer {
+    height: 300px;
+  }
+
+  .preview {
+    height: 280px;
+  }
+
+  .form {
+    padding: 1rem;
+  }
+
+  .formGroup {
+    margin-bottom: 1rem;
+    padding: 1rem;
+  }
+
+  .formRow {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .formField {
+    width: 100%;
+  }
+
+  .formActions {
+    flex-direction: column;
+    gap: 0.5rem;
+    padding: 1rem;
+  }
+
+  .formActions button {
+    width: 100%;
+    padding: 0.75rem;
+  }
+
+  .designSelector {
+    grid-template-columns: 1fr;
+    gap: 0.5rem;
+  }
+
+  .designOption {
+    padding: 0.75rem;
+  }
+
+  .emptyState {
+    padding: 2rem 1rem;
+  }
+
+  .emptyIcon {
+    font-size: 3rem;
+  }
+
+  .emptyState h2 {
     font-size: 1.5rem;
   }
-  
-  .formActions {
-    padding: 1rem 1.5rem;
-    flex-direction: column;
-  }
-  
-  .designSelector {
-    grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
-    gap: 0.75rem;
-  }
-  
-  .preview {
-    min-height: 150px;
-    font-size: 0.9rem;
+
+  .createButtonLarge {
+    width: 100%;
   }
 }
 
 @media (max-width: 480px) {
-  .modalContent {
-    width: 100%;
-    height: 100vh;
-    border-radius: 0;
+  .invitationsPage {
+    padding: 0.5rem;
   }
-  
+
+  .header h1 {
+    font-size: 1.5rem;
+  }
+
+  .invitationCard {
+    padding: 0.75rem;
+  }
+
+  .cardHeader h3 {
+    font-size: 1.1rem;
+  }
+
+  .modal {
+    padding: 0.5rem;
+  }
+
+  .modalContent {
+    border-radius: 12px;
+    max-height: calc(100vh - 1rem);
+  }
+
+  .modalHeader {
+    padding: 0.75rem;
+  }
+
+  .modalHeader h2 {
+    font-size: 1.2rem;
+  }
+
+  .previewContainer {
+    height: 250px;
+  }
+
+  .preview {
+    height: 230px;
+  }
+
+  .form {
+    padding: 0.75rem;
+  }
+
+  .formGroup {
+    padding: 0.75rem;
+    margin-bottom: 0.75rem;
+  }
+
+  .formGroup h3 {
+    font-size: 1rem;
+  }
+
+  .formField input,
+  .formField textarea {
+    font-size: 16px; /* Évite le zoom sur iOS */
+  }
+
+  .formActions {
+    padding: 0.75rem;
+  }
+
   .formActions button {
-    min-width: 100px;
+    padding: 0.75rem;
     font-size: 0.9rem;
   }
-  
-  .designSelector {
-    grid-template-columns: 1fr 1fr;
+
+  .designOption {
+    padding: 0.5rem;
+  }
+
+  .designOption h4 {
+    font-size: 0.9rem;
+  }
+
+  .designOption p {
+    font-size: 0.8rem;
+  }
+
+  .emptyState {
+    padding: 1.5rem 0.75rem;
+  }
+
+  .emptyIcon {
+    font-size: 2.5rem;
+  }
+
+  .emptyState h2 {
+    font-size: 1.3rem;
+  }
+
+  .emptyState p {
+    font-size: 1rem;
+  }
+
+  .detail {
+    font-size: 0.9rem;
+  }
+
+  .status {
+    font-size: 0.7rem;
+    padding: 0.2rem 0.5rem;
   }
 } 

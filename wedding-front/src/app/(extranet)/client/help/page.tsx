@@ -78,8 +78,14 @@ export default function ClientHelpPage() {
     : faqData.filter(faq => faq.category === selectedCategory);
 
   return (
-    <div className="container mx-auto px-4 py-8">
+    <div className="help-container">
       <style jsx>{`
+        .help-container {
+          max-width: 1200px;
+          margin: 0 auto;
+          padding: 1rem;
+        }
+
         .help-header {
           background: linear-gradient(135deg, #C5A880 0%, #B39670 100%);
           color: white;
@@ -87,6 +93,29 @@ export default function ClientHelpPage() {
           border-radius: 1rem;
           margin-bottom: 2rem;
           text-align: center;
+        }
+
+        .help-header h1 {
+          font-size: 2.5rem;
+          margin-bottom: 1rem;
+          font-family: var(--font-heading);
+        }
+
+        .help-header p {
+          font-size: 1.2rem;
+          opacity: 0.9;
+          margin: 0;
+        }
+
+        .categories-container {
+          margin-bottom: 2rem;
+        }
+
+        .categories-grid {
+          display: flex;
+          flex-wrap: wrap;
+          gap: 1rem;
+          justify-content: center;
         }
         
         .category-button {
@@ -101,6 +130,7 @@ export default function ClientHelpPage() {
           align-items: center;
           gap: 0.5rem;
           font-weight: 500;
+          font-size: 0.9rem;
         }
         
         .category-button:hover {
@@ -139,12 +169,27 @@ export default function ClientHelpPage() {
         .faq-question:hover {
           background: #f9fafb;
         }
+
+        .faq-question h3 {
+          margin: 0;
+          font-size: 1.1rem;
+          color: #2c3e50;
+          flex: 1;
+        }
+
+        .faq-toggle {
+          font-size: 1.5rem;
+          color: #C5A880;
+          font-weight: bold;
+          margin-left: 1rem;
+        }
         
         .faq-answer {
           padding: 1.5rem;
           background: #f8f9fa;
           border-top: 1px solid #e5e7eb;
           line-height: 1.6;
+          color: #495057;
         }
         
         .guide-section {
@@ -153,6 +198,12 @@ export default function ClientHelpPage() {
           border-radius: 1rem;
           margin-bottom: 2rem;
           border: 1px solid #e5e7eb;
+        }
+
+        .guide-section h2 {
+          font-size: 1.8rem;
+          margin-bottom: 1.5rem;
+          color: #2c3e50;
         }
         
         .step {
@@ -177,105 +228,231 @@ export default function ClientHelpPage() {
           font-weight: bold;
           flex-shrink: 0;
         }
+
+        .step-content h3 {
+          margin: 0 0 0.5rem 0;
+          font-size: 1.1rem;
+          color: #2c3e50;
+        }
+
+        .step-content p {
+          margin: 0;
+          color: #6c757d;
+          line-height: 1.5;
+        }
+
+        /* Mobile responsive styles */
+        @media (max-width: 768px) {
+          .help-container {
+            padding: 0.5rem;
+          }
+
+          .help-header {
+            padding: 2rem 1rem;
+            margin-bottom: 1rem;
+          }
+
+          .help-header h1 {
+            font-size: 1.8rem;
+          }
+
+          .help-header p {
+            font-size: 1rem;
+          }
+
+          .categories-grid {
+            flex-direction: column;
+            gap: 0.5rem;
+          }
+
+          .category-button {
+            width: 100%;
+            justify-content: center;
+            padding: 0.75rem;
+          }
+
+          .guide-section {
+            padding: 1rem;
+            margin-bottom: 1rem;
+          }
+
+          .guide-section h2 {
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+          }
+
+          .step {
+            flex-direction: column;
+            gap: 0.75rem;
+            padding: 0.75rem;
+          }
+
+          .step-number {
+            align-self: flex-start;
+          }
+
+          .faq-question {
+            padding: 1rem;
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 0.5rem;
+          }
+
+          .faq-question h3 {
+            font-size: 1rem;
+          }
+
+          .faq-toggle {
+            align-self: flex-end;
+            margin-left: 0;
+          }
+
+          .faq-answer {
+            padding: 1rem;
+            font-size: 0.9rem;
+          }
+        }
+
+        @media (max-width: 480px) {
+          .help-container {
+            padding: 0.25rem;
+          }
+
+          .help-header {
+            padding: 1.5rem 0.75rem;
+            border-radius: 0.75rem;
+          }
+
+          .help-header h1 {
+            font-size: 1.5rem;
+          }
+
+          .help-header p {
+            font-size: 0.9rem;
+          }
+
+          .category-button {
+            padding: 0.5rem;
+            font-size: 0.8rem;
+          }
+
+          .guide-section {
+            padding: 0.75rem;
+            border-radius: 0.75rem;
+          }
+
+          .guide-section h2 {
+            font-size: 1.3rem;
+          }
+
+          .step {
+            padding: 0.5rem;
+          }
+
+          .step-content h3 {
+            font-size: 1rem;
+          }
+
+          .step-content p {
+            font-size: 0.9rem;
+          }
+
+          .faq-question {
+            padding: 0.75rem;
+          }
+
+          .faq-question h3 {
+            font-size: 0.9rem;
+          }
+
+          .faq-answer {
+            padding: 0.75rem;
+            font-size: 0.85rem;
+          }
+        }
       `}</style>
 
       <div className="help-header">
-        <h1 className="text-4xl font-serif mb-4">🎯 Centre d'aide</h1>
-        <p className="text-xl opacity-90">
+        <h1>🎯 Centre d'aide</h1>
+        <p>
           Tout ce que vous devez savoir pour organiser votre mariage parfait
         </p>
       </div>
 
       {/* Guide de démarrage rapide */}
       <div className="guide-section">
-        <h2 className="text-2xl font-bold mb-6 text-gray-800">🚀 Guide de démarrage rapide</h2>
+        <h2>🚀 Guide de démarrage rapide</h2>
         
         <div className="step">
           <div className="step-number">1</div>
-          <div>
-            <h3 className="font-semibold mb-2">Créez votre invitation</h3>
-            <p className="text-gray-600">Allez dans "Invitations" → "Nouvelle invitation" et remplissez les détails de votre mariage.</p>
+          <div className="step-content">
+            <h3>Créez votre invitation</h3>
+            <p>Allez dans "Invitations" → "Nouvelle invitation" et remplissez les détails de votre mariage.</p>
           </div>
         </div>
         
         <div className="step">
           <div className="step-number">2</div>
-          <div>
-            <h3 className="font-semibold mb-2">Ajoutez vos invités</h3>
-            <p className="text-gray-600">Dans "Invités", ajoutez manuellement ou importez votre liste d'invités via un fichier.</p>
+          <div className="step-content">
+            <h3>Ajoutez vos invités</h3>
+            <p>Dans "Invités", importez votre liste ou ajoutez-les manuellement.</p>
           </div>
         </div>
         
         <div className="step">
           <div className="step-number">3</div>
-          <div>
-            <h3 className="font-semibold mb-2">Personnalisez le design</h3>
-            <p className="text-gray-600">Choisissez un design et personnalisez les couleurs et le texte selon vos goûts.</p>
+          <div className="step-content">
+            <h3>Envoyez les invitations</h3>
+            <p>Publiez votre invitation et envoyez-la à vos invités par email.</p>
           </div>
         </div>
         
         <div className="step">
           <div className="step-number">4</div>
-          <div>
-            <h3 className="font-semibold mb-2">Publiez et envoyez</h3>
-            <p className="text-gray-600">Publiez votre invitation et envoyez-la à tous vos invités d'un clic.</p>
-          </div>
-        </div>
-        
-        <div className="step">
-          <div className="step-number">5</div>
-          <div>
-            <h3 className="font-semibold mb-2">Suivez les réponses</h3>
-            <p className="text-gray-600">Consultez le tableau de bord pour voir qui a répondu et planifiez en conséquence.</p>
+          <div className="step-content">
+            <h3>Suivez les réponses</h3>
+            <p>Consultez les RSVP et messages de vos invités en temps réel.</p>
           </div>
         </div>
       </div>
 
       {/* Filtres par catégorie */}
-      <div className="mb-8">
-        <h2 className="text-2xl font-bold mb-6 text-gray-800">❓ Questions fréquentes</h2>
-        <div className="flex flex-wrap gap-3 mb-6">
+      <div className="categories-container">
+        <div className="categories-grid">
           <button
-            onClick={() => setSelectedCategory('all')}
             className={`category-button ${selectedCategory === 'all' ? 'active' : ''}`}
+            onClick={() => setSelectedCategory('all')}
           >
-            <span>📚</span>
-            Toutes les questions
+            📋 Toutes les questions
           </button>
           {Object.entries(categories).map(([key, category]) => (
             <button
               key={key}
-              onClick={() => setSelectedCategory(key)}
               className={`category-button ${selectedCategory === key ? 'active' : ''}`}
+              onClick={() => setSelectedCategory(key)}
             >
-              <span>{category.icon}</span>
-              {category.name}
+              {category.icon} {category.name}
             </button>
           ))}
         </div>
       </div>
 
-      {/* Liste des FAQ */}
-      <div className="space-y-4">
+      {/* FAQ */}
+      <div className="faq-section">
         {filteredFAQs.map((faq) => (
           <div key={faq.id} className="faq-item">
             <div 
               className="faq-question"
               onClick={() => setOpenFAQ(openFAQ === faq.id ? null : faq.id)}
             >
-              <div className="flex items-center gap-3">
-                <span className={`px-2 py-1 rounded-full text-xs font-medium ${categories[faq.category as keyof typeof categories].color}`}>
-                  {categories[faq.category as keyof typeof categories].icon}
-                </span>
-                <span className="font-semibold text-gray-800">{faq.question}</span>
-              </div>
-              <span className="text-2xl text-gray-400">
+              <h3>{faq.question}</h3>
+              <span className="faq-toggle">
                 {openFAQ === faq.id ? '−' : '+'}
               </span>
             </div>
             {openFAQ === faq.id && (
               <div className="faq-answer">
-                <p className="text-gray-700">{faq.answer}</p>
+                <p>{faq.answer}</p>
               </div>
             )}
           </div>
