@@ -63,7 +63,7 @@ router.post('/:id/guests', checkGuestLimit, validateBody(guestSchema), (req, res
 });
 
 // Routes de modification (protégées)
-router.patch('/:id', validateInvitation(true), InvitationController.update);
+router.put('/:id', validateInvitation(true), InvitationController.update);
 router.delete('/:id', InvitationController.delete);
 
 export default router; 

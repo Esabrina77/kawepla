@@ -1,20 +1,48 @@
 'use client';
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card } from '@/components/Card/Card';
 import { rsvpApi } from '@/lib/api/rsvp';
 
-async function getStatus(token: string) {
-  try {
-    return await rsvpApi.getStatus(token);
-  } catch (error) {
-    console.error('Error fetching RSVP status:', error);
-    return null;
-  }
+interface RSVPResponse {
+  status: 'PENDING' | 'CONFIRMED' | 'DECLINED';
+  numberOfGuests?: number;
+  message?: string;
+  attendingCeremony?: boolean;
+  attendingReception?: boolean;
 }
 
-export default async function RSVPThankYouPage({ params }: { params: { token: string } }) {
-  const status = await getStatus(params.token);
+export default function RSVPThankYouPage({ params }: { params: { token: string } }) {
+  const [status, setStatus] = useState<RSVPResponse | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const getStatus = async () => {
+      try {
+        const statusData = await rsvpApi.getStatus(params.token);
+        setStatus(statusData);
+      } catch (error) {
+        console.error('Error fetching RSVP status:', error);
+        setStatus(null);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    getStatus();
+  }, [params.token]);
+
+  if (loading) {
+    return (
+      <div className="container mx-auto px-4 py-8" style={{ marginTop: '80px' }}>
+        <Card className="max-w-2xl mx-auto shadow-lg">
+          <div className="text-center p-12">
+            <p>Chargement...</p>
+          </div>
+        </Card>
+      </div>
+    );
+  }
 
   if (!status) {
     return (
@@ -153,7 +181,7 @@ export default async function RSVPThankYouPage({ params }: { params: { token: st
                 <div className="detail-item">
                   <div className="detail-icon">👥</div>
                   <span className="text-lg">
-                    {status.numberOfGuests} personne{status.numberOfGuests > 1 ? 's' : ''}
+                    {status.numberOfGuests || 1} personne{(status.numberOfGuests || 1) > 1 ? 's' : ''}
                   </span>
                 </div>
                 

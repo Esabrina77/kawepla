@@ -39,11 +39,6 @@ const menuItems = [
     path: '/super-admin/stats',
     icon: '/icons/stats.svg'
   },
-  {
-    title: 'Messages',
-    path: '/super-admin/messages',
-    icon: '/icons/rsvp.svg'
-  },
   // TODO: recevoir les discussions des clients
   {
     title: 'Discussions',

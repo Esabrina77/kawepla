@@ -132,14 +132,16 @@ export default function InvitationDetailPage() {
             Aperçu
           </button>
           
-          {!isEditing ? (
+          {!isEditing && invitation.status === 'DRAFT' && (
             <button 
               className={styles.editButton}
               onClick={() => router.push(`/client/invitations/${invitation.id}/edit`)}
             >
               Modifier
             </button>
-          ) : (
+          )}
+          
+          {isEditing && (
             <div className={styles.editActions}>
               <button 
                 className={styles.cancelButton}

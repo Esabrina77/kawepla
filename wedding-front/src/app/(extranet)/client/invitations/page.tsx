@@ -280,12 +280,14 @@ export default function InvitationsPage() {
               </div>
 
               <div className={styles.cardActions}>
-                <button 
-                  className={styles.editButton}
-                  onClick={() => router.push(`/client/invitations/${invitation.id}`)}
-                >
-                  Voir détails
-                </button>
+                {invitation.status === 'DRAFT' && (
+                  <button 
+                    className={styles.editButton}
+                    onClick={() => router.push(`/client/invitations/${invitation.id}`)}
+                  >
+                    Modifier
+                  </button>
+                )}
                 <button 
                   className={styles.viewButton}
                   onClick={() => router.push(`/client/invitations/${invitation.id}/preview`)}

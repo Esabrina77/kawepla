@@ -51,13 +51,13 @@ const menuItems = [
     description: 'Discutez avec la team Kawepla',
     priority: 2
   },
-  // {
-  //   title: 'Planning',
-  //   path: '/client/planning',
-  //   icon: '/icons/planning.svg',
-  //   description: 'Planifiez votre mariage',
-  //   priority: 2
-  // },
+  {
+    title: 'Paramètres',
+    path: '/client/settings',
+    icon: '/icons/settings.svg',
+    description: 'Gérez vos paramètres',
+    priority: 2
+  },
   {
     title: 'Aide',
     path: '/client/help',

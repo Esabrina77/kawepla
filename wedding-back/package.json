@@ -28,6 +28,7 @@
     "@prisma/client": "^6.10.1",
     "@types/bcryptjs": "^2.4.6",
     "@types/nodemailer": "^6.4.17",
+    "@types/web-push": "^3.6.4",
     "aws-sdk": "^2.1691.0",
     "bcrypt": "^6.0.0",
     "bcryptjs": "^3.0.2",
@@ -45,6 +46,7 @@
     "nodemailer": "^7.0.5",
     "prisma": "^6.10.1",
     "socket.io": "^4.8.1",
+    "web-push": "^3.6.7",
     "zod": "^3.25.67"
   },
   "devDependencies": {
