@@ -57,8 +57,8 @@ const allowedOrigins = [
   'https://kawepla-api.kaporelo.com',
   'http://localhost:3012',
   'http://localhost:3000',
-  'http://10.0.0.200:3012',
-  'https://10.0.0.200:3012'
+  'http://kapescape.kaporelo.com',
+  'https://kapescape.kaporelo.com',
 ];
 
 app.use(cors({
