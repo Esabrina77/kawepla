@@ -80,12 +80,7 @@ export default function DesignDetailPage({ params }: Props) {
           ← Retour aux designs
         </button>
         <h1>{design.name}</h1>
-        <button 
-          className={styles.selectButton}
-          onClick={handleSelectDesign}
-        >
-          Choisir ce design
-        </button>
+
       </div>
 
       <div className={styles.content}>

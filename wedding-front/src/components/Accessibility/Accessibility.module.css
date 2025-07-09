@@ -1,35 +1,41 @@
-/* Conteneur principal */
+/* Container principal */
 .accessibilityContainer {
   position: relative;
-  display: flex;
+  display: inline-flex;
   align-items: center;
+  z-index: 100;
 }
 
 .mobileContainer {
-  width: 100%;
-  justify-content: center;
+  position: fixed;
+  bottom: var(--spacing-xl);
+  right: var(--spacing-xl);
+  z-index: 1000;
 }
 
 /* Bouton d'accessibilité */
 .accessibilityButton {
   display: flex;
   align-items: center;
-  justify-content: center;
-  padding: var(--spacing-sm);
+  gap: var(--spacing-sm);
+  padding: var(--spacing-md) var(--spacing-lg);
   background: white;
-  border: 1px solid var(--color-border);
-  border-radius: var(--border-radius-md);
+  border: 2px solid var(--color-border);
+  border-radius: var(--border-radius-full);
   color: var(--color-text);
+  font-size: var(--font-size-base);
   cursor: pointer;
   transition: all var(--transition-fast);
-  gap: var(--spacing-sm);
-  font-size: var(--font-size-sm);
+  box-shadow: var(--shadow-sm);
+  white-space: nowrap;
+  position: relative;
+  z-index: 101;
 }
 
 .accessibilityButton:hover {
-  background-color: var(--color-secondary);
   border-color: var(--color-primary);
-  color: var(--color-primary);
+  box-shadow: var(--shadow-md);
+  transform: translateY(-1px);
 }
 
 .accessibilityButton:focus {
@@ -38,12 +44,15 @@
 }
 
 .mobileButton {
-  padding: var(--spacing-md);
-  font-size: var(--font-size-base);
-  border-radius: var(--border-radius-lg);
-  background-color: var(--color-secondary);
-  border: 2px solid var(--color-primary);
-  width: 100%;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  padding: 0;
+  justify-content: center;
+  box-shadow: var(--shadow-lg);
+  background-color: var(--color-primary);
+  color: white;
+  border: none;
 }
 
 .mobileButton:hover {
@@ -63,21 +72,48 @@
   white-space: nowrap;
 }
 
-/* Popup d'accessibilité */
+/* Popup d'accessibilité - Desktop */
 .accessibilityPopup {
   position: absolute;
-  top: calc(100% + 8px);
+  top: calc(100% + 12px);
   right: 0;
-  min-width: 280px;
+  min-width: 320px;
+  max-width: 400px;
   background: white;
   border: 1px solid var(--color-border);
   border-radius: var(--border-radius-lg);
-  box-shadow: var(--shadow-lg);
+  box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
   z-index: 1000;
   padding: var(--spacing-xl);
   animation: slideIn 0.2s ease-out;
 }
 
+/* Flèche pointant vers le bouton - Desktop uniquement */
+.accessibilityPopup::before {
+  content: '';
+  position: absolute;
+  top: -8px;
+  right: 20px;
+  width: 0;
+  height: 0;
+  border-left: 8px solid transparent;
+  border-right: 8px solid transparent;
+  border-bottom: 8px solid white;
+}
+
+.accessibilityPopup::after {
+  content: '';
+  position: absolute;
+  top: -9px;
+  right: 20px;
+  width: 0;
+  height: 0;
+  border-left: 8px solid transparent;
+  border-right: 8px solid transparent;
+  border-bottom: 8px solid var(--color-border);
+}
+
+/* Popup mobile - Portal avec overlay */
 .mobilePopup {
   position: fixed;
   top: 50%;
@@ -92,6 +128,15 @@
   z-index: 1002;
   padding: var(--spacing-lg);
   box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  background: white;
+  border: 1px solid var(--color-border);
+  border-radius: var(--border-radius-lg);
+}
+
+/* Pas de flèche sur mobile */
+.mobilePopup::before,
+.mobilePopup::after {
+  display: none;
 }
 
 @keyframes slideIn {
@@ -186,10 +231,13 @@
   cursor: pointer;
   transition: all var(--transition-fast);
   text-align: center;
+  font-weight: 500;
 }
 
 .settingOption:hover {
   border-color: var(--color-primary);
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .settingOption:focus {
@@ -199,98 +247,167 @@
 }
 
 .settingOption.active {
-  background-color: var(--color-secondary);
+  background-color: var(--color-primary);
+  color: white;
   border-color: var(--color-primary);
-  color: var(--color-primary);
-  font-weight: 500;
 }
 
+.settingOption.active:hover {
+  background-color: var(--color-primary-dark);
+  transform: translateY(-1px);
+}
+
+/* Overlay pour mobile */
+.mobileOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 1001;
+  opacity: 0;
+  animation: fadeIn 0.2s ease-out forwards;
+}
+
+@keyframes fadeIn {
+  to {
+    opacity: 1;
+  }
+}
+
+/* Informations supplémentaires */
 .settingInfo {
+  margin-top: var(--spacing-sm);
   padding: var(--spacing-md);
-  background-color: var(--color-secondary);
+  background-color: var(--color-background);
   border-radius: var(--border-radius-md);
   border-left: 4px solid var(--color-primary);
-  margin-top: var(--spacing-sm);
 }
 
 .settingInfo p {
   margin: 0;
   font-size: var(--font-size-sm);
-  color: var(--color-text);
-  line-height: 1.5;
+  color: var(--color-text-light);
+  line-height: 1.4;
 }
 
-/* Styles pour les différents modes d'accessibilité */
+/* Styles pour les polices dyslexiques */
 html[data-font="dyslexic"] .accessibilityContainer {
-  --font-body: var(--font-opendyslexic);
-  --font-heading: var(--font-opendyslexic);
+  font-family: var(--font-opendyslexic) !important;
 }
 
+/* Styles pour le contraste élevé */
 html[data-contrast="high"] .accessibilityContainer {
-  --color-text: #000000;
-  --color-background: #FFFFFF;
-  --color-primary: #000000;
-  --color-secondary: #FFFFFF;
-  --color-border: #000000;
+  filter: contrast(1.5);
 }
 
 html[data-contrast="high"] .accessibilityButton,
 html[data-contrast="high"] .accessibilityPopup {
-  background-color: white !important;
-  color: black !important;
-  border-color: black !important;
+  border-color: #000;
+  box-shadow: 0 0 0 2px #000;
 }
 
 html[data-contrast="high"] .settingOption {
-  background-color: white !important;
-  color: black !important;
-  border-color: black !important;
+  border-color: #000;
 }
 
 html[data-contrast="high"] .settingOption.active {
-  background-color: black !important;
-  color: white !important;
+  background-color: #000;
+  border-color: #000;
 }
 
 /* Responsive Design */
 @media (max-width: 768px) {
   .accessibilityPopup {
-    min-width: 300px;
-    right: -20px;
-  }
-  
-  .mobilePopup {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    right: auto;
+    bottom: auto;
+    transform: translate(-50%, -50%);
     min-width: 280px;
+    max-width: 90vw;
+    z-index: 1002;
+  }
+
+  /* Masquer les flèches sur mobile */
+  .accessibilityPopup::before,
+  .accessibilityPopup::after {
+    display: none;
+  }
+
+  .mobilePopup {
     padding: var(--spacing-lg);
   }
-  
+
+  .popupHeader h3 {
+    font-size: var(--font-size-lg);
+  }
+
   .settingOptions {
     flex-direction: column;
+    gap: var(--spacing-xs);
   }
-  
+
   .settingOption {
-    font-size: var(--font-size-lg);
+    padding: var(--spacing-md) var(--spacing-lg);
+  }
+
+  .settingGroup {
+    gap: var(--spacing-md);
+  }
+
+  .popupContent {
+    gap: var(--spacing-md);
   }
 }
 
 @media (max-width: 480px) {
-  .accessibilityPopup {
-    font-size: var(--font-size-base);
-  }
-  
+  .accessibilityPopup,
   .mobilePopup {
+    min-width: 280px;
+    max-width: 95vw;
     padding: var(--spacing-md);
   }
-  
+
+  .popupHeader {
+    margin-bottom: var(--spacing-md);
+    padding-bottom: var(--spacing-sm);
+  }
+
   .popupHeader h3 {
+    font-size: var(--font-size-base);
+  }
+
+  .closeButton {
+    width: 28px;
+    height: 28px;
     font-size: var(--font-size-lg);
   }
-  
-  .settingGroup {
-    margin-bottom: var(--spacing-md);
+
+  .settingLabel {
+    font-size: var(--font-size-base);
   }
-  
-  .settingOptions {
-    gap: var(--spacing-md);
+
+  .settingOption {
+    padding: var(--spacing-sm) var(--spacing-md);
+    font-size: var(--font-size-sm);
+  }
+
+  .settingGroup {
+    gap: var(--spacing-sm);
+  }
+
+  .popupContent {
+    gap: var(--spacing-sm);
+  }
+
+  .settingInfo {
+    padding: var(--spacing-sm);
+  }
+
+  .settingInfo p {
+    font-size: var(--font-size-xs);
   }
 } 

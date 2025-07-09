@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useRef } from 'react';
+import { createPortal } from 'react-dom';
 import styles from './Accessibility.module.css';
 
 interface AccessibilityMenuProps {
@@ -16,6 +17,21 @@ export const AccessibilityMenu: React.FC<AccessibilityMenuProps> = ({ isMobile =
   });
   const [mounted, setMounted] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
+  const buttonRef = useRef<HTMLButtonElement>(null);
+
+  // Détection automatique du mobile
+  const [isActuallyMobile, setIsActuallyMobile] = useState(false);
+
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsActuallyMobile(window.innerWidth <= 768);
+    };
+
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
 
   // Gérer le montage côté client
   useEffect(() => {
@@ -71,7 +87,13 @@ export const AccessibilityMenu: React.FC<AccessibilityMenuProps> = ({ isMobile =
   // Fermer le menu si on clique à l'extérieur
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
+      if (
+        isMenuOpen &&
+        menuRef.current && 
+        buttonRef.current &&
+        !menuRef.current.contains(event.target as Node) &&
+        !buttonRef.current.contains(event.target as Node)
+      ) {
         closeMenu();
       }
     };
@@ -102,6 +124,19 @@ export const AccessibilityMenu: React.FC<AccessibilityMenuProps> = ({ isMobile =
     };
   }, [isMenuOpen]);
 
+  // Empêcher le scroll du body quand le menu est ouvert sur mobile
+  useEffect(() => {
+    if (isMenuOpen && isActuallyMobile) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'unset';
+    }
+
+    return () => {
+      document.body.style.overflow = 'unset';
+    };
+  }, [isMenuOpen, isActuallyMobile]);
+
   // Ne pas rendre le composant tant qu'il n'est pas monté côté client
   if (!mounted) {
     return (
@@ -131,12 +166,99 @@ export const AccessibilityMenu: React.FC<AccessibilityMenuProps> = ({ isMobile =
     );
   }
 
+  const PopupContent = () => (
+    <div 
+      ref={menuRef}
+      className={`${styles.accessibilityPopup} ${isActuallyMobile ? styles.mobilePopup : ''}`}
+    >
+      <div className={styles.popupHeader}>
+        <h3>Accessibilité</h3>
+        <button
+          onClick={closeMenu}
+          className={styles.closeButton}
+          aria-label="Fermer le menu d'accessibilité"
+        >
+          ×
+        </button>
+      </div>
+
+      <div className={styles.popupContent}>
+        <div className={styles.settingGroup}>
+          <label className={styles.settingLabel}>
+            Taille du texte
+          </label>
+          <div className={styles.settingOptions}>
+            <button
+              onClick={() => handleSettingChange('fontSize', 'normal')}
+              className={`${styles.settingOption} ${settings.fontSize === 'normal' ? styles.active : ''}`}
+            >
+              Normal
+            </button>
+            <button
+              onClick={() => handleSettingChange('fontSize', 'large')}
+              className={`${styles.settingOption} ${settings.fontSize === 'large' ? styles.active : ''}`}
+            >
+              Grand
+            </button>
+          </div>
+        </div>
+
+        <div className={styles.settingGroup}>
+          <label className={styles.settingLabel}>
+            Contraste
+          </label>
+          <div className={styles.settingOptions}>
+            <button
+              onClick={() => handleSettingChange('contrast', 'normal')}
+              className={`${styles.settingOption} ${settings.contrast === 'normal' ? styles.active : ''}`}
+            >
+              Normal
+            </button>
+            <button
+              onClick={() => handleSettingChange('contrast', 'high')}
+              className={`${styles.settingOption} ${settings.contrast === 'high' ? styles.active : ''}`}
+            >
+              Élevé
+            </button>
+          </div>
+        </div>
+
+        <div className={styles.settingGroup}>
+          <label className={styles.settingLabel}>
+            Police
+          </label>
+          <div className={styles.settingOptions}>
+            <button
+              onClick={() => handleSettingChange('font', 'normal')}
+              className={`${styles.settingOption} ${settings.font === 'normal' ? styles.active : ''}`}
+            >
+              Standard
+            </button>
+            <button
+              onClick={() => handleSettingChange('font', 'dyslexic')}
+              className={`${styles.settingOption} ${settings.font === 'dyslexic' ? styles.active : ''}`}
+            >
+              Dyslexie
+            </button>
+          </div>
+        </div>
+
+        <div className={styles.settingInfo}>
+          <p>
+            Ces paramètres améliorent l'accessibilité du site. Ils sont sauvegardés automatiquement dans votre navigateur.
+          </p>
+        </div>
+      </div>
+    </div>
+  );
+
   return (
-    <div className={`${styles.accessibilityContainer} ${isMobile ? styles.mobileContainer : ''}`} ref={menuRef}>
+    <div className={`${styles.accessibilityContainer} ${isMobile ? styles.mobileContainer : ''}`}>
       <button
+        ref={buttonRef}
         onClick={toggleMenu}
         className={`${styles.accessibilityButton} ${isMobile ? styles.mobileButton : ''}`}
-        aria-label="Ouvrir les options d'accessibilité"
+        aria-label="Options d'accessibilité"
         aria-expanded={isMenuOpen}
         title="Options d'accessibilité"
       >
@@ -154,93 +276,23 @@ export const AccessibilityMenu: React.FC<AccessibilityMenuProps> = ({ isMobile =
           <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" />
           <path d="M2 12h20" />
         </svg>
+        {!isMobile && <span className={styles.accessibilityButtonText}>Accessibilité</span>}
       </button>
 
       {isMenuOpen && (
-        <div className={`${styles.accessibilityPopup} ${isMobile ? styles.mobilePopup : ''}`}>
-          <div className={styles.popupHeader}>
-            <h3>Options d'accessibilité</h3>
-            <button
-              onClick={closeMenu}
-              className={styles.closeButton}
-              aria-label="Fermer le menu d'accessibilité"
-            >
-              ×
-            </button>
-          </div>
-
-          <div className={styles.popupContent}>
-            <div className={styles.settingGroup}>
-              <label className={styles.settingLabel}>
-                Taille du texte
-              </label>
-              <div className={styles.settingOptions}>
-                <button
-                  onClick={() => handleSettingChange('fontSize', 'normal')}
-                  className={`${styles.settingOption} ${settings.fontSize === 'normal' ? styles.active : ''}`}
-                >
-                  Normal
-                </button>
-                <button
-                  onClick={() => handleSettingChange('fontSize', 'large')}
-                  className={`${styles.settingOption} ${settings.fontSize === 'large' ? styles.active : ''}`}
-                >
-                  Grand
-                </button>
-              </div>
-            </div>
-
-            <div className={styles.settingGroup}>
-              <label className={styles.settingLabel}>
-                Contraste
-              </label>
-              <div className={styles.settingOptions}>
-                <button
-                  onClick={() => handleSettingChange('contrast', 'normal')}
-                  className={`${styles.settingOption} ${settings.contrast === 'normal' ? styles.active : ''}`}
-                >
-                  Normal
-                </button>
-                <button
-                  onClick={() => handleSettingChange('contrast', 'high')}
-                  className={`${styles.settingOption} ${settings.contrast === 'high' ? styles.active : ''}`}
-                >
-                  Élevé
-                </button>
-              </div>
-            </div>
-
-            <div className={styles.settingGroup}>
-              <label className={styles.settingLabel}>
-                Police
-              </label>
-              <div className={styles.settingOptions}>
-                <button
-                  onClick={() => handleSettingChange('font', 'normal')}
-                  className={`${styles.settingOption} ${settings.font === 'normal' ? styles.active : ''}`}
-                >
-                  Standard
-                </button>
-                <button
-                  onClick={() => handleSettingChange('font', 'verdana')}
-                  className={`${styles.settingOption} ${settings.font === 'verdana' ? styles.active : ''}`}
-                >
-                  Verdana
-                </button>
-                <button
-                  onClick={() => handleSettingChange('font', 'dyslexic')}
-                  className={`${styles.settingOption} ${settings.font === 'dyslexic' ? styles.active : ''}`}
-                >
-                  Dyslexique
-                </button>
-              </div>
-            </div>
-
-            <div className={styles.settingInfo}>
-              <p>Ces paramètres sont sauvegardés dans votre navigateur et s'appliquent à toutes les pages du site.</p>
-            </div>
-          </div>
-        </div>
+        <>
+          {isActuallyMobile ? (
+            createPortal(
+              <>
+                <div className={styles.mobileOverlay} onClick={closeMenu} />
+                <PopupContent />
+              </>,
+              document.body
+            )
+          ) : (
+            <PopupContent />
+          )}
+        </>
       )}
     </div>
   );

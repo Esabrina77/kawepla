@@ -44,20 +44,20 @@ const menuItems = [
     description: 'Consultez les réponses et messages de vos invités',
     priority: 2
   },
-  {
-    title: 'Budget',
-    path: '/client/budget',
-    icon: '/icons/money.svg',
-    description: 'Gérez votre budget de mariage',
-    priority: 2
-  },
-  {
-    title: 'Planning',
-    path: '/client/planning',
-    icon: '/icons/planning.svg',
-    description: 'Planifiez votre mariage',
-    priority: 2
-  },
+  // {
+  //   title: 'Budget',
+  //   path: '/client/budget',
+  //   icon: '/icons/money.svg',
+  //   description: 'Gérez votre budget de mariage',
+  //   priority: 2
+  // },
+  // {
+  //   title: 'Planning',
+  //   path: '/client/planning',
+  //   icon: '/icons/planning.svg',
+  //   description: 'Planifiez votre mariage',
+  //   priority: 2
+  // },
   {
     title: 'Aide',
     path: '/client/help',

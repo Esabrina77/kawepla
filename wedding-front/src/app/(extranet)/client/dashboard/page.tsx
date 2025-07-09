@@ -75,7 +75,7 @@ export default function DashboardPage() {
         </div>
       </section>
 
-      {/* Statistiques rapides */}
+      {/* Statistiques rapides
       <section className={styles.statsSection}>
         <h2>Aperçu rapide</h2>
         <div className={styles.statsGrid}>
@@ -108,7 +108,7 @@ export default function DashboardPage() {
             </div>
           </div>
         </div>
-      </section>
+      </section> */}
     </div>
   );
 } 
