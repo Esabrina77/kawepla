@@ -7,61 +7,87 @@ import styles from './Sidebar.module.css';
 import Image from 'next/image';
 import { AccessibilityMenu } from '@/components/Accessibility/AccessibilityMenu';
 import { useAuth } from '@/hooks/useAuth';
+import { 
+  LayoutDashboard, 
+  CalendarRange, 
+  Users, 
+  PaintBucket, 
+  MessageSquareText, 
+  MessagesSquare, 
+  HelpCircle, 
+  LogOut, 
+  ChevronLeft, 
+  ChevronRight, 
+  Plus, 
+  Home, 
+  Settings,
+  Images,
+  Image as ImageIcon,
+  CreditCard
+} from 'lucide-react';
 
 const menuItems = [
   {
     title: 'Tableau de bord',
     path: '/client/dashboard',
-    icon: '/icons/stats.svg',
+    icon: LayoutDashboard,
     description: 'Vue d\'ensemble de votre invitation',
-    priority: 1 // Haute priorité pour mobile
+    priority: 1
   },
   {
     title: 'Créer l\'événement',
     path: '/client/invitations',
-    icon: '/icons/planning.svg',
+    icon: CalendarRange,
     description: 'Gérez vos invitations',
     priority: 1
   },
   {
     title: 'Invités',
     path: '/client/guests',
-    icon: '/icons/guests.svg',
+    icon: Users,
     description: 'Gérez votre liste d\'invités et les RSVP',
     priority: 1
   },
   {
     title: 'Design',
     path: '/client/design',
-    icon: '/icons/design.svg',
+    icon: PaintBucket,
     description: 'Personnalisez votre invitation',
     priority: 2
   },
   {
-    title: 'Messages RSVP',
+    title: 'Réponses Invitations',
     path: '/client/messages',
-    icon: '/icons/rsvp.svg',
+    icon: MessageSquareText,
     description: 'Consultez les réponses et messages de vos invités',
+    priority: 2
+  },
+  {
+    title: 'Albums Photos',
+    path: '/client/photos',
+    icon: Images,
+    description: 'Gérez vos albums photos et les photos',
+    priority: 2
+  },
+  {
+    title: 'Facturation',
+    path: '/client/billing',
+    icon: CreditCard,
+    description: 'Gérez votre abonnement et facturation',
     priority: 2
   },
   {
     title: 'Discussions',
     path: '/client/discussions',
-    icon: '/icons/discussions.svg',
+    icon: MessagesSquare,
     description: 'Discutez avec la team Kawepla',
     priority: 2
   },
-  {
-    title: 'Paramètres',
-    path: '/client/settings',
-    icon: '/icons/settings.svg',
-    description: 'Gérez vos paramètres',
-    priority: 2
-  },
+  
   {
     title: 'Aide',
     path: '/client/help',
-    icon: '/icons/rsvp.svg',
+    icon: HelpCircle,
     description: 'Centre d\'aide et support',
     priority: 2
   }
@@ -92,7 +118,7 @@ export const Sidebar = () => {
     <>
       <aside className={`${styles.sidebar} ${isCollapsed ? styles.collapsed : ''}`}>
         <div className={styles.sidebarHeader}>
-          <Link href="/">
+          <Link href="/" data-tutorial="logo">
             <Image 
               src="/images/logo.png" 
               alt="WeddInvite" 
@@ -107,7 +133,7 @@ export const Sidebar = () => {
             className={styles.toggleButton}
             aria-label={isCollapsed ? "Développer le menu" : "Réduire le menu"}
           >
-            {isCollapsed ? '→' : '←'}
+            {isCollapsed ? <ChevronRight className={styles.toggleIcon} /> : <ChevronLeft className={styles.toggleIcon} />}
           </button>
         </div>
 
@@ -124,12 +150,7 @@ export const Sidebar = () => {
                 title={item.description}
               >
                 <span className={styles.icon}>
-                  <Image
-                    src={item.icon}
-                    alt=""
-                    width={24}
-                    height={24}
-                  />
+                  {<item.icon className={styles.menuIcon} size={24} />}
                 </span>
                 {!isCollapsed && (
                   <div className={styles.navContent}>
@@ -141,7 +162,7 @@ export const Sidebar = () => {
                 )}
               </Link>
             ))}
-            <div className={`${styles.navItem} ${styles.accessibilityNavItem}`}>
+            <div className={`${styles.navItem} ${styles.accessibilityNavItem}`} data-tutorial="accessibility">
               <AccessibilityMenu />
             </div>
           </div>
@@ -158,12 +179,7 @@ export const Sidebar = () => {
                 title={item.description}
               >
                 <span className={styles.icon}>
-                  <Image
-                    src={item.icon}
-                    alt=""
-                    width={20}
-                    height={20}
-                  />
+                  {<item.icon className={styles.menuIcon} size={20} />}
                 </span>
                 <div className={styles.navContent}>
                   <span className={styles.title}>{item.title}</span>
@@ -178,7 +194,7 @@ export const Sidebar = () => {
               title="Plus d'options"
             >
               <span className={styles.icon}>
-                <span className={styles.plusIcon}>+</span>
+                <Plus className={styles.plusIcon} size={24} />
               </span>
               <div className={styles.navContent}>
                 <span className={styles.title}>Plus</span>
@@ -195,12 +211,7 @@ export const Sidebar = () => {
               title="Se déconnecter"
             >
               <span className={styles.icon}>
-                <Image
-                  src="/icons/logout.svg"
-                  alt=""
-                  width={24}
-                  height={24}
-                />
+                <LogOut className={styles.menuIcon} size={24} />
               </span>
               {!isCollapsed && <span>Se déconnecter</span>}
             </button>
@@ -229,12 +240,7 @@ export const Sidebar = () => {
                 onClick={toggleMobileMenu}
               >
                 <span className={styles.icon}>
-                  <Image
-                    src="/images/logo.png"
-                    alt=""
-                    width={20}
-                    height={20}
-                  />
+                  <Home className={styles.menuIcon} size={20} />
                 </span>
                 <div className={styles.mobileMenuItemContent}>
                   <span className={styles.title}>Accueil</span>
@@ -253,12 +259,7 @@ export const Sidebar = () => {
                   onClick={toggleMobileMenu}
                 >
                   <span className={styles.icon}>
-                    <Image
-                      src={item.icon}
-                      alt=""
-                      width={20}
-                      height={20}
-                    />
+                    {<item.icon className={styles.menuIcon} size={20} />}
                   </span>
                   <div className={styles.mobileMenuItemContent}>
                     <span className={styles.title}>{item.title}</span>
@@ -287,12 +288,7 @@ export const Sidebar = () => {
                   className={styles.mobileLogoutButton}
                 >
                   <span className={styles.icon}>
-                    <Image
-                      src="/icons/logout.svg"
-                      alt=""
-                      width={20}
-                      height={20}
-                    />
+                    <LogOut className={styles.menuIcon} size={20} />
                   </span>
                   <span>Se déconnecter</span>
                 </button>

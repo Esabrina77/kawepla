@@ -51,34 +51,6 @@
   margin-bottom: 1.5rem;
 }
 
-.quickActions {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 1rem;
-}
-
-.quickActionButton {
-  background: linear-gradient(135deg, #3b82f6, #1d4ed8);
-  color: white;
-  border: none;
-  padding: 1rem;
-  border-radius: 12px;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  text-decoration: none;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.5rem;
-  box-shadow: 0 4px 6px -1px rgba(59, 130, 246, 0.3);
-}
-
-.quickActionButton:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 15px -3px rgba(59, 130, 246, 0.4);
-}
-
 .statsGrid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
@@ -370,10 +342,6 @@
   }
   
   .statsGrid {
-    grid-template-columns: 1fr;
-  }
-  
-  .quickActions {
     grid-template-columns: 1fr;
   }
   

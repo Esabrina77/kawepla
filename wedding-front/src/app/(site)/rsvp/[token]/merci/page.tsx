@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, use } from 'react';
 import { Card } from '@/components/Card/Card';
 import { rsvpApi } from '@/lib/api/rsvp';
 
@@ -12,17 +12,18 @@ interface RSVPResponse {
   attendingReception?: boolean;
 }
 
-export default function RSVPThankYouPage({ params }: { params: { token: string } }) {
+export default function RSVPThankYouPage({ params }: { params: Promise<{ token: string }> }) {
   const [status, setStatus] = useState<RSVPResponse | null>(null);
   const [loading, setLoading] = useState(true);
+  const { token } = use(params);
 
   useEffect(() => {
     const getStatus = async () => {
       try {
-        const statusData = await rsvpApi.getStatus(params.token);
+        const statusData = await rsvpApi.getStatus(token);
         setStatus(statusData);
-      } catch (error) {
-        console.error('Error fetching RSVP status:', error);
+  } catch (error) {
+    console.error('Error fetching RSVP status:', error);
         setStatus(null);
       } finally {
         setLoading(false);
@@ -30,7 +31,7 @@ export default function RSVPThankYouPage({ params }: { params: { token: string }
     };
 
     getStatus();
-  }, [params.token]);
+  }, [token]);
 
   if (loading) {
     return (
@@ -238,7 +239,7 @@ export default function RSVPThankYouPage({ params }: { params: { token: string }
               Vous pouvez toujours modifier votre réponse si nécessaire
             </p>
             <a
-              href={`/rsvp/${params.token}`}
+              href={`/rsvp/${token}`}
               className="back-link"
             >
               <span>🔄</span>

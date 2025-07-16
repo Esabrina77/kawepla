@@ -6,6 +6,32 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
 }
 
+// Simple event emitter pour les événements globaux
+class EventEmitter {
+  private events: { [key: string]: Function[] } = {};
+
+  on(event: string, callback: Function) {
+    if (!this.events[event]) {
+      this.events[event] = [];
+    }
+    this.events[event].push(callback);
+  }
+
+  off(event: string, callback: Function) {
+    if (this.events[event]) {
+      this.events[event] = this.events[event].filter(cb => cb !== callback);
+    }
+  }
+
+  emit(event: string, ...args: any[]) {
+    if (this.events[event]) {
+      this.events[event].forEach(callback => callback(...args));
+    }
+  }
+}
+
+export const globalEvents = new EventEmitter();
+
 // Exemple d'utilisation du système de templates
 export function getExampleTemplateData(): TemplateData {
   return {

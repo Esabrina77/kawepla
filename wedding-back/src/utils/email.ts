@@ -11,12 +11,12 @@ class EmailService {
   private transporter: nodemailer.Transporter;
 
   constructor() {
-    console.log('Configuration email:', {
-      host: process.env.SMTP_HOST,
-      port: process.env.SMTP_PORT,
-      user: process.env.SMTP_USER,
-      hasPassword: !!process.env.SMTP_PASSWORD
-    });
+    // console.log('Configuration email:', {
+    //   host: process.env.SMTP_HOST,
+    //   port: process.env.SMTP_PORT,
+    //   user: process.env.SMTP_USER,
+    //   hasPassword: !!process.env.SMTP_PASSWORD
+    // });
 
     this.transporter = nodemailer.createTransport({
       host: process.env.SMTP_HOST || 'smtp.gmail.com',

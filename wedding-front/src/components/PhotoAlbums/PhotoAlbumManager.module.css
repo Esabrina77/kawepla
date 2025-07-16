@@ -1,0 +1,560 @@
+/* PhotoAlbumManager.module.css */
+
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: var(--spacing-xl);
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--spacing-xl);
+}
+
+.header h2 {
+  color: var(--color-text);
+  font-size: 2rem;
+  margin: 0;
+}
+
+.createButton {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  background: linear-gradient(135deg, var(--color-primary), var(--color-primary-dark));
+  color: white;
+  border: none;
+  padding: var(--spacing-md) var(--spacing-lg);
+  border-radius: var(--border-radius-md);
+  font-weight: 500;
+  transition: all var(--transition-normal);
+}
+
+.createButton:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 15px rgba(197, 168, 128, 0.3);
+}
+
+.icon {
+  width: 16px;
+  height: 16px;
+}
+
+/* Formulaire de création */
+.createForm {
+  margin-bottom: var(--spacing-xl);
+  padding: var(--spacing-xl);
+  background: white;
+  border-radius: var(--border-radius-lg);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.formGroup {
+  margin-bottom: var(--spacing-lg);
+}
+
+.formGroup label {
+  display: block;
+  margin-bottom: var(--spacing-sm);
+  font-weight: 500;
+  color: var(--color-text);
+}
+
+.formGroup input,
+.formGroup textarea {
+  width: 100%;
+  padding: var(--spacing-md);
+  border: 2px solid var(--color-border);
+  border-radius: var(--border-radius-md);
+  font-size: 1rem;
+  transition: border-color var(--transition-normal);
+}
+
+.formGroup input:focus,
+.formGroup textarea:focus {
+  outline: none;
+  border-color: var(--color-primary);
+}
+
+.formGroup textarea {
+  resize: vertical;
+  min-height: 100px;
+}
+
+.checkbox {
+  display: flex !important;
+  align-items: center;
+  gap: var(--spacing-sm);
+  cursor: pointer;
+}
+
+.checkbox input {
+  width: auto !important;
+  margin: 0;
+}
+
+.formActions {
+  display: flex;
+  gap: var(--spacing-md);
+  justify-content: flex-end;
+}
+
+/* Grille des albums */
+.albumsGrid {
+  display: grid;
+  /* grid-template-columns: repeat(auto-fill, minmax(350px, 1fr)); */
+  gap: var(--spacing-xl);
+}
+
+.albumCard {
+  background: white;
+  border-radius: var(--border-radius-lg);
+  padding: var(--spacing-xl);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  transition: transform var(--transition-normal);
+}
+
+.albumCard:hover {
+  transform: translateY(-2px);
+}
+
+.albumHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--spacing-md);
+}
+
+.albumHeader h3 {
+  color: var(--color-text);
+  margin: 0;
+  font-size: 1.25rem;
+}
+
+.albumActions {
+  display: flex;
+  gap: var(--spacing-sm);
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.albumActions button {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  padding: var(--spacing-sm) var(--spacing-md);
+  border-radius: var(--border-radius-md);
+  font-size: 0.875rem;
+  font-weight: 500;
+  transition: all var(--transition-normal);
+  border: 1px solid var(--color-border);
+  background: white;
+  color: var(--color-text);
+  min-width: fit-content;
+  white-space: nowrap;
+}
+
+.albumActions button:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+}
+
+.albumActions button:active {
+  transform: translateY(0);
+}
+
+.albumActions button svg {
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+}
+
+/* Couleurs spécifiques pour certains boutons */
+.albumActions button[title*="Copier"]:hover,
+.albumActions button[title*="Copié"] {
+  background: var(--color-success);
+  color: white;
+  border-color: var(--color-success);
+}
+
+.albumActions button[title*="QR code"]:hover {
+  background: var(--color-primary);
+  color: white;
+  border-color: var(--color-primary);
+}
+
+.albumDescription {
+  color: var(--color-text-light);
+  margin-bottom: var(--spacing-md);
+  font-size: 0.9rem;
+}
+
+.albumStats {
+  display: flex;
+  gap: var(--spacing-md);
+  align-items: center;
+  margin-bottom: var(--spacing-lg);
+  font-size: 0.9rem;
+  color: var(--color-text-light);
+}
+
+.publicBadge {
+  background: linear-gradient(135deg, var(--color-primary), var(--color-primary-dark));
+  color: white;
+  padding: var(--spacing-xs) var(--spacing-sm);
+  border-radius: var(--border-radius-sm);
+  font-size: 0.8rem;
+  font-weight: 500;
+}
+
+/* Zone d'upload */
+.uploadZone {
+  margin-bottom: var(--spacing-lg);
+}
+
+.fileInput {
+  display: none;
+}
+
+.uploadLabel {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-sm);
+  padding: var(--spacing-lg);
+  border: 2px dashed var(--color-border);
+  border-radius: var(--border-radius-md);
+  cursor: pointer;
+  transition: all var(--transition-normal);
+  color: var(--color-text-light);
+  font-weight: 500;
+}
+
+.uploadLabel:hover {
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+  background: rgba(197, 168, 128, 0.05);
+}
+
+/* Grille des photos */
+.photosGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: var(--spacing-md);
+  margin-top: var(--spacing-lg);
+}
+
+.photoCard {
+  position: relative;
+  border-radius: var(--border-radius-md);
+  overflow: hidden;
+  background: white;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.photoContainer {
+  position: relative;
+  aspect-ratio: 1;
+  overflow: hidden;
+}
+
+.photoContainer::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0);
+  transition: background var(--transition-normal);
+  z-index: 1;
+  pointer-events: none;
+}
+
+.photoContainer:hover::before {
+  background: rgba(0, 0, 0, 0.1);
+}
+
+.photoImage {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform var(--transition-normal);
+  cursor: pointer;
+}
+
+.photoImage:hover {
+  transform: scale(1.05);
+}
+
+.photoCard:hover .photoImage {
+  transform: scale(1.05);
+}
+
+.photoOverlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: var(--spacing-sm);
+  opacity: 0;
+  transition: opacity var(--transition-normal);
+  pointer-events: none; /* Permet aux clics de passer à travers l'overlay */
+}
+
+.photoCard:hover .photoOverlay {
+  opacity: 1;
+}
+
+.photoStatus {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  color: white;
+  font-size: 0.8rem;
+  font-weight: 500;
+}
+
+.statusIcon {
+  width: 14px;
+  height: 14px;
+}
+
+.photoActions {
+  display: flex;
+  gap: var(--spacing-xs);
+  justify-content: center;
+  pointer-events: auto; /* Permet aux boutons d'être cliquables */
+}
+
+.clickIndicator {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  color: white;
+  font-size: 0.75rem;
+  font-weight: 500;
+  margin-bottom: var(--spacing-xs);
+  padding: var(--spacing-xs) var(--spacing-sm);
+  background: rgba(0, 0, 0, 0.6);
+  border-radius: var(--border-radius-sm);
+  backdrop-filter: blur(4px);
+  pointer-events: auto; /* Permet à l'indicateur d'être visible et cliquable si nécessaire */
+}
+
+.clickIndicator .icon {
+  width: 12px;
+  height: 12px;
+}
+
+.photoActions > div:last-child {
+  display: flex;
+  gap: var(--spacing-xs);
+  justify-content: center;
+}
+
+.photoActions button {
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border-radius: var(--border-radius-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: auto; /* Assure que les boutons sont cliquables */
+}
+
+.approveButton {
+  background: var(--color-success);
+  color: white;
+  border: none;
+}
+
+.publishButton {
+  background: var(--color-primary);
+  color: white;
+  border: none;
+}
+
+.rejectButton {
+  background: var(--color-error);
+  color: white;
+  border: none;
+}
+
+.deleteButton {
+  background: rgba(255, 255, 255, 0.2);
+  color: white;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.photoCaption {
+  padding: var(--spacing-sm);
+  font-size: 0.8rem;
+  color: var(--color-text);
+  margin: 0;
+}
+
+.photoUploader {
+  padding: 0 var(--spacing-sm) var(--spacing-sm);
+  font-size: 0.75rem;
+  color: var(--color-text-light);
+  margin: 0;
+}
+
+/* État vide */
+.emptyState {
+  text-align: center;
+  padding: var(--spacing-xxl);
+  color: var(--color-text-light);
+}
+
+.emptyIcon {
+  width: 64px;
+  height: 64px;
+  margin: 0 auto var(--spacing-lg);
+  color: var(--color-border);
+}
+
+.emptyState h3 {
+  color: var(--color-text);
+  margin-bottom: var(--spacing-md);
+}
+
+.emptyState p {
+  margin-bottom: var(--spacing-lg);
+  max-width: 400px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* États de chargement et d'erreur */
+.loading,
+.error {
+  text-align: center;
+  padding: var(--spacing-xxl);
+  font-size: 1.1rem;
+}
+
+.error {
+  color: var(--color-error);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .container {
+    padding: var(--spacing-lg);
+  }
+
+  .header {
+    flex-direction: column;
+    gap: var(--spacing-md);
+    align-items: stretch;
+  }
+
+  .albumsGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .photosGrid {
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  }
+
+  .formActions {
+    flex-direction: column;
+  }
+
+  .albumHeader {
+    flex-direction: column;
+    gap: var(--spacing-sm);
+    align-items: stretch;
+  }
+
+  .albumActions {
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .shareSteps {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Share Info Section */
+.shareInfo {
+  margin-top: 40px;
+}
+
+.shareCard {
+  background: linear-gradient(135deg, #fefcf8 0%, #f8f6f0 100%);
+  border: 1px solid #e8e2d4;
+}
+
+.shareHeader {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.shareIcon {
+  color: #c5a880;
+  width: 24px;
+  height: 24px;
+}
+
+.shareHeader h3 {
+  color: #2c2c2c;
+  margin: 0;
+  font-size: 1.3rem;
+}
+
+.shareContent p {
+  color: #666;
+  margin-bottom: 24px;
+  line-height: 1.6;
+}
+
+.shareSteps {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+}
+
+.shareStep {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px;
+  background: white;
+  border-radius: 8px;
+  border: 1px solid #e8e2d4;
+}
+
+.stepNumber {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  background: #c5a880;
+  color: white;
+  border-radius: 50%;
+  font-weight: 600;
+  font-size: 0.9rem;
+  flex-shrink: 0;
+}
+
+.shareStep span:last-child {
+  color: #2c2c2c;
+  font-size: 0.9rem;
+} 

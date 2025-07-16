@@ -21,6 +21,9 @@ import rsvpRoutes from './routes/rsvp';
 import { RSVPController } from './controllers/rsvpController';
 import { UserController } from './controllers/userController';
 import messageRoutes from './routes/messages';
+import shareableInvitationRoutes from './routes/shareableInvitation';
+import photoAlbumRoutes from './routes/photoAlbums';
+import subscriptionRoutes from './routes/subscriptions';
 
 // Import des middlewares
 import { errorHandler } from './middleware/errorHandler';
@@ -56,7 +59,6 @@ const allowedOrigins = [
   'https://kawepla.kaporelo.com',
   'https://kawepla-api.kaporelo.com',
   'http://localhost:3012',
-  'http://localhost:3000',
   'http://kapescape.kaporelo.com',
   'https://kapescape.kaporelo.com',
 ];
@@ -133,6 +135,15 @@ app.use('/api/guests', coupleRouter, guestRoutes);
 
 //MESSAGES
 app.use('/api/messages', messageRoutes);
+
+// Routes pour les albums photos
+app.use('/api/photos', photoAlbumRoutes);
+
+// Routes pour les abonnements
+app.use('/api/subscriptions', subscriptionRoutes);
+
+// Routes pour les liens partageables
+app.use('/api/invitations', coupleRouter, shareableInvitationRoutes);
 
 // Routes pour les messages RSVP des couples - routes spécifiques
 const rsvpMessagesRouter = express.Router();

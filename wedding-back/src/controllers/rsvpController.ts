@@ -4,6 +4,7 @@
  */
 import { Request, Response, NextFunction } from 'express';
 import { RSVPService } from '../services/rsvpService';
+import { ShareableInvitationService } from '../services/shareableInvitationService';
 import { RSVPStatus } from '@prisma/client';
 
 export class RSVPController {
@@ -187,6 +188,77 @@ export class RSVPController {
       }
     } catch (error) {
       next(error);
+    }
+  }
+
+  /**
+   * Créer une réponse RSVP via lien partageable
+   */
+  static async createRSVPFromShareableLink(shareableToken: string, data: any) {
+    try {
+      // Récupérer l'invitation via le token partageable
+      const invitation = await ShareableInvitationService.getInvitationByShareableToken(shareableToken, true);
+      
+      // Créer l'invité avec les infos personnelles et associer le lien
+      const guest = await RSVPService.createGuestFromShareableLink(invitation.id, data, shareableToken);
+      
+      // Créer la réponse RSVP
+      const rsvp = await RSVPService.createRSVP(guest.inviteToken, {
+        status: data.status,
+        numberOfGuests: data.numberOfGuests,
+        message: data.message,
+        attendingCeremony: data.attendingCeremony,
+        attendingReception: data.attendingReception,
+        profilePhotoUrl: data.profilePhotoUrl
+      });
+
+      return {
+        guest: {
+          firstName: guest.firstName,
+          lastName: guest.lastName,
+          email: guest.email,
+          phone: guest.phone
+        },
+        rsvp: {
+          status: rsvp.status,
+          numberOfGuests: rsvp.numberOfGuests,
+          message: rsvp.message,
+          attendingCeremony: rsvp.attendingCeremony,
+          attendingReception: rsvp.attendingReception
+        },
+        invitation: {
+          coupleName: invitation.coupleName,
+          weddingDate: invitation.weddingDate,
+          venueName: invitation.venueName,
+          venueAddress: invitation.venueAddress
+        },
+        message: 'Votre réponse a été enregistrée avec succès !'
+      };
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  /**
+   * Obtenir le statut d'une réponse via lien partageable
+   */
+  static async getStatusFromShareableLink(shareableToken: string) {
+    try {
+      const invitation = await ShareableInvitationService.getInvitationByShareableToken(shareableToken);
+      
+      // Pour les liens partageables, on renvoie les infos de l'invitation
+      // et on indique que le lien est encore utilisable
+      return {
+        invitationId: invitation.id,
+        shareableToken,
+        coupleName: invitation.coupleName,
+        weddingDate: invitation.weddingDate,
+        venueName: invitation.venueName,
+        venueAddress: invitation.venueAddress,
+        message: 'Ce lien partageable permet de répondre à l\'invitation'
+      };
+    } catch (error) {
+      throw error;
     }
   }
 } 

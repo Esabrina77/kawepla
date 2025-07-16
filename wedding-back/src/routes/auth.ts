@@ -13,4 +13,9 @@ router.post('/login', validateBody(loginSchema), AuthController.login);
 router.post('/send-verification-code', AuthController.sendVerificationCode);
 router.post('/verify-email', AuthController.verifyEmail);
 
+// Routes de réinitialisation de mot de passe
+router.post('/forgot-password', AuthController.forgotPassword);
+router.post('/reset-password', AuthController.resetPassword);
+router.post('/verify-reset-token', AuthController.verifyResetToken);
+
 export default router; 

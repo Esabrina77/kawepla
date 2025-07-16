@@ -79,6 +79,22 @@ export class GuestController {
   }
 
   /**
+   * Mettre à jour la photo de profil d'un invité
+   */
+  static async updateProfilePhoto(req: Request, res: Response, next: NextFunction): Promise<void> {
+    try {
+      const { id } = req.params;
+      const userId = (req as any).user.id;
+      const { profilePhotoUrl } = req.body;
+      
+      const guest = await GuestService.updateGuestProfilePhoto(id, userId, profilePhotoUrl);
+      res.json(guest);
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  /**
    * Supprimer un invité
    */
   static async delete(req: Request, res: Response, next: NextFunction): Promise<void> {

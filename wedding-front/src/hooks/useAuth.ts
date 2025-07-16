@@ -102,6 +102,71 @@ export function useAuth() {
     }
   };
 
+  const forgotPassword = async (email: string) => {
+    try {
+      setError(null);
+      setLoading(true);
+      await authApi.forgotPassword(email);
+      return true;
+    } catch (error) {
+      if (error instanceof Error) {
+        setError(error.message);
+      } else {
+        setError('Erreur lors de l\'envoi du lien de réinitialisation');
+      }
+      throw error;
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const verifyResetToken = async (token: string) => {
+    try {
+      setError(null);
+      setLoading(true);
+      await authApi.verifyResetToken(token);
+      return true;
+    } catch (error) {
+      if (error instanceof Error) {
+        setError(error.message);
+      } else {
+        setError('Token invalide ou expiré');
+      }
+      throw error;
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const resetPassword = async (token: string, newPassword: string) => {
+    try {
+      setError(null);
+      setLoading(true);
+      await authApi.resetPassword(token, newPassword);
+      router.push('/auth/login?message=password-reset-success');
+    } catch (error) {
+      if (error instanceof Error) {
+        setError(error.message);
+      } else {
+        setError('Erreur lors de la réinitialisation du mot de passe');
+      }
+      throw error;
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const refreshUser = async () => {
+    try {
+      const updatedUser = await authApi.fetchUser();
+      setUser(updatedUser);
+      return updatedUser;
+    } catch (error) {
+      console.error('Erreur lors du rafraîchissement de l\'utilisateur:', error);
+      return null;
+    }
+  };
+
   return {
     user,
     loading,
@@ -109,6 +174,10 @@ export function useAuth() {
     login,
     register,
     logout,
+    forgotPassword,
+    verifyResetToken,
+    resetPassword,
+    refreshUser,
     isAuthenticated: authApi.isAuthenticated(),
     isAdmin: user?.role === 'ADMIN',
     isCouple: user?.role === 'COUPLE',

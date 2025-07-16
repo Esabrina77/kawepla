@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import styles from './extranetLayout.module.css';
 import { featherscriptFont, harringtonFont, openDyslexicFont } from '@/fonts/fonts';
+import { ToastProvider } from '@/components/ui/toast';
 
 export const metadata: Metadata = {
   title: "KaWePla - Espace personnel",
@@ -13,8 +14,10 @@ export default function ExtranetLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div className={`${styles.layout} ${featherscriptFont.variable} ${harringtonFont.variable} ${openDyslexicFont.variable}`}>
-      {children}
-    </div>
+    <ToastProvider>
+      <div className={`${styles.layout} ${featherscriptFont.variable} ${harringtonFont.variable} ${openDyslexicFont.variable}`}>
+        {children}
+      </div>
+    </ToastProvider>
   );
 } 

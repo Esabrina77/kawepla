@@ -102,7 +102,7 @@ export default function LoginPage() {
                 placeholder="••••••••"
                 disabled={authLoading}
               />
-              <Link href="/auth/reset-password" className={styles.forgotPassword}>
+              <Link href="/auth/forgot-password" className={styles.forgotPassword}>
                 Mot de passe oublié ?
               </Link>
             </div>

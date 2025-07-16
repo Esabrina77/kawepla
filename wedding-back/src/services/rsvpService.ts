@@ -12,6 +12,7 @@ type RSVPCreateInput = {
   message?: string;
   attendingCeremony?: boolean;
   attendingReception?: boolean;
+  profilePhotoUrl?: string;
 };
 
 type RSVPUpdateInput = Partial<RSVPCreateInput>;
@@ -90,6 +91,7 @@ export class RSVPService {
         message: data.message,
         attendingCeremony: data.attendingCeremony ?? true,
         attendingReception: data.attendingReception ?? true,
+        profilePhotoUrl: data.profilePhotoUrl,
         guestId: guest.id,
         invitationId: guest.invitationId,
         respondedAt: new Date()
@@ -204,7 +206,86 @@ export class RSVPService {
             plusOneName: true
           }
         }
+      },
+      orderBy: {
+        respondedAt: 'desc'
       }
     });
+  }
+
+  /**
+   * Créer un invité via lien partageable
+   */
+  static async createGuestFromShareableLink(invitationId: string, data: any, shareableToken: string) {
+    // Validation côté service
+    if (!data.firstName || data.firstName.trim().length < 2) {
+      throw new Error('Le prénom est requis (minimum 2 caractères)');
+    }
+    if (!data.lastName || data.lastName.trim().length < 2) {
+      throw new Error('Le nom est requis (minimum 2 caractères)');
+    }
+    
+    // Téléphone requis
+    if (!data.phone || data.phone.trim().length < 8) {
+      throw new Error('Le numéro de téléphone est requis (minimum 8 caractères)');
+    }
+
+    // Récupérer l'invitation et son propriétaire
+    const invitation = await prisma.invitation.findUnique({
+      where: { id: invitationId },
+      select: { userId: true }
+    });
+
+    if (!invitation) {
+      throw new Error('Invitation non trouvée');
+    }
+
+    // Vérifier l'unicité de l'email pour cette invitation (si email fourni)
+    if (data.email) {
+      const existingGuest = await prisma.guest.findFirst({
+        where: {
+          invitationId: invitationId,
+          email: data.email
+        }
+      });
+
+      if (existingGuest) {
+        throw new Error('Cet email est déjà utilisé par un autre invité pour cette invitation');
+      }
+    }
+
+    // Générer un token unique pour cet invité
+    const inviteToken = `guest-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+    
+    // Créer l'invité en liant au propriétaire de l'invitation
+    const guest = await prisma.guest.create({
+      data: {
+        firstName: data.firstName,
+        lastName: data.lastName,
+        email: data.email || null,
+        phone: data.phone,
+        invitationId: invitationId,
+        userId: invitation.userId, // Lier au propriétaire de l'invitation
+        inviteToken: inviteToken,
+        plusOne: data.numberOfGuests > 1,
+        plusOneName: data.numberOfGuests > 1 ? `${data.firstName} + ${data.numberOfGuests - 1} personne(s)` : null,
+        invitationType: 'SHAREABLE',
+        sharedLinkUsed: true
+      }
+    });
+
+    // Associer le lien partageable au guest
+    await prisma.shareableLink.update({
+      where: { token: shareableToken },
+      data: {
+        status: 'USED',
+        guestId: guest.id,
+        usedCount: {
+          increment: 1
+        }
+      }
+    });
+
+    return guest;
   }
 } 

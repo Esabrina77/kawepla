@@ -7,6 +7,7 @@ export interface RSVPResponse {
   attendingCeremony?: boolean;
   attendingReception?: boolean;
   dietaryRestrictions?: string;
+  profilePhotoUrl?: string;
 }
 
 export interface RSVPInvitation {

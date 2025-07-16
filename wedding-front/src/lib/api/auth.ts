@@ -1,4 +1,5 @@
 import { LoginCredentials, RegisterData, TokenResponse, User } from '@/types';
+import { apiClient } from './apiClient';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3013';
 
@@ -74,6 +75,18 @@ export const authApi = {
     return authData;
   },
 
+  async forgotPassword(email: string): Promise<void> {
+    await apiClient.post('/auth/forgot-password', { email });
+  },
+
+  async verifyResetToken(token: string): Promise<void> {
+    await apiClient.post('/auth/verify-reset-token', { token });
+  },
+
+  async resetPassword(token: string, password: string): Promise<void> {
+    await apiClient.post('/auth/reset-password', { token, password });
+  },
+
   getToken(): string | null {
     if (typeof window === 'undefined') return null;
     const match = document.cookie.match(new RegExp('(^| )token=([^;]+)'));
@@ -92,6 +105,20 @@ export const authApi = {
     try {
       return JSON.parse(decodeURIComponent(match[2]));
     } catch {
+      return null;
+    }
+  },
+
+  async fetchUser(): Promise<User | null> {
+    try {
+      const response = await apiClient.get('/users/profile') as User;
+      if (response && response.id) {
+        setCookie('user', JSON.stringify(response));
+        return response;
+      }
+      return null;
+    } catch (error) {
+      console.error('Error fetching user:', error);
       return null;
     }
   },

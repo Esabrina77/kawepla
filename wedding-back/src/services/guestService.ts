@@ -114,9 +114,9 @@ export class GuestService {
   }
 
   /**
-   * Supprimer un invité
+   * Mettre à jour la photo de profil d'un invité
    */
-  static async deleteGuest(id: string, userId: string): Promise<void> {
+  static async updateGuestProfilePhoto(id: string, userId: string, profilePhotoUrl: string | null): Promise<Guest> {
     const guest = await prisma.guest.findFirst({
       where: {
         id,
@@ -128,8 +128,43 @@ export class GuestService {
       throw new Error('Invité non trouvé ou accès non autorisé');
     }
 
-    await prisma.guest.delete({
-      where: { id }
+    return prisma.guest.update({
+      where: { id },
+      data: { profilePhotoUrl }
+    });
+  }
+
+  /**
+   * Supprimer un invité
+   */
+  static async deleteGuest(id: string, userId: string): Promise<void> {
+    const guest = await prisma.guest.findFirst({
+      where: {
+        id,
+        userId
+      },
+      include: {
+        rsvp: true
+      }
+    });
+
+    if (!guest) {
+      throw new Error('Invité non trouvé ou accès non autorisé');
+    }
+
+    // Utiliser une transaction pour s'assurer que tout est supprimé correctement
+    await prisma.$transaction(async (tx) => {
+      // Supprimer d'abord les RSVP associés (si ils existent)
+      if (guest.rsvp) {
+        await tx.rSVP.delete({
+          where: { guestId: id }
+        });
+      }
+
+      // Supprimer l'invité
+      await tx.guest.delete({
+        where: { id }
+      });
     });
   }
 

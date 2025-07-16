@@ -36,7 +36,7 @@ async function createUsers() {
         role: 'COUPLE',
         emailVerified: true,
         isActive: true,
-        subscriptionTier: 'BASIC'
+        subscriptionTier: 'FREE'
       }
     });
     console.log('✅ Created couple user: couple@test.com');

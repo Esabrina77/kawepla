@@ -176,6 +176,12 @@
   display: none;
 }
 
+.crownIcon {
+  color: var(--primary-color);
+  margin-right: 4px;
+  vertical-align: middle;
+}
+
 /* Menu desktop et mobile */
 .desktopMenu {
   display: flex;
@@ -504,6 +510,27 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  width: 24px;
+  height: 24px;
+}
+
+.menuIcon {
+  color: var(--text-color);
+  transition: color 0.3s ease;
+}
+
+.active .menuIcon {
+  color: var(--primary-color);
+}
+
+.toggleIcon {
+  color: var(--text-color);
+  width: 20px;
+  height: 20px;
+}
+
+.plusIcon {
+  color: var(--text-color);
   width: 24px;
   height: 24px;
 } 

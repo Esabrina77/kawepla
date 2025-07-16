@@ -3,6 +3,12 @@
 import React, { useState } from 'react';
 import { Card } from '@/components/Card/Card';
 import { Button } from '@/components/Button/Button';
+import {
+  Target, Rocket, Mail, Users, CheckCircle, DollarSign,
+  FileText, ClipboardList, UserPlus, MessageSquare,
+  HelpCircle, BookOpen, HeadphonesIcon
+} from 'lucide-react';
+import Link from 'next/link';
 
 interface FAQItem {
   id: string;
@@ -63,18 +69,18 @@ const faqData: FAQItem[] = [
 ];
 
 const categories = {
-  invitations: { name: 'Invitations', icon: '💌', color: 'bg-blue-100 text-blue-800' },
-  invites: { name: 'Gestion des invités', icon: '👥', color: 'bg-green-100 text-green-800' },
-  rsvp: { name: 'Réponses RSVP', icon: '✅', color: 'bg-purple-100 text-purple-800' },
-  budget: { name: 'Budget', icon: '💰', color: 'bg-yellow-100 text-yellow-800' }
+  invitations: { name: 'Invitations', icon: <Mail size={16} />, color: 'bg-blue-100 text-blue-800' },
+  invites: { name: 'Gestion des invités', icon: <Users size={16} />, color: 'bg-green-100 text-green-800' },
+  rsvp: { name: 'Réponses RSVP', icon: <CheckCircle size={16} />, color: 'bg-purple-100 text-purple-800' },
+  budget: { name: 'Budget', icon: <DollarSign size={16} />, color: 'bg-yellow-100 text-yellow-800' }
 };
 
 export default function ClientHelpPage() {
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [openFAQ, setOpenFAQ] = useState<string | null>(null);
 
-  const filteredFAQs = selectedCategory === 'all' 
-    ? faqData 
+  const filteredFAQs = selectedCategory === 'all'
+    ? faqData
     : faqData.filter(faq => faq.category === selectedCategory);
 
   return (
@@ -373,7 +379,7 @@ export default function ClientHelpPage() {
       `}</style>
 
       <div className="help-header">
-        <h1>🎯 Centre d'aide</h1>
+        <h1><Target className="inline mr-2" size={32} /> Centre d'aide</h1>
         <p>
           Tout ce que vous devez savoir pour organiser votre mariage parfait
         </p>
@@ -381,8 +387,8 @@ export default function ClientHelpPage() {
 
       {/* Guide de démarrage rapide */}
       <div className="guide-section">
-        <h2>🚀 Guide de démarrage rapide</h2>
-        
+        <h2><Rocket className="inline mr-2" size={24} /> Guide de démarrage rapide</h2>
+
         <div className="step">
           <div className="step-number">1</div>
           <div className="step-content">
@@ -390,7 +396,7 @@ export default function ClientHelpPage() {
             <p>Allez dans "Invitations" → "Nouvelle invitation" et remplissez les détails de votre mariage.</p>
           </div>
         </div>
-        
+
         <div className="step">
           <div className="step-number">2</div>
           <div className="step-content">
@@ -398,7 +404,7 @@ export default function ClientHelpPage() {
             <p>Dans "Invités", importez votre liste ou ajoutez-les manuellement.</p>
           </div>
         </div>
-        
+
         <div className="step">
           <div className="step-number">3</div>
           <div className="step-content">
@@ -406,7 +412,7 @@ export default function ClientHelpPage() {
             <p>Publiez votre invitation et envoyez-la à vos invités par email.</p>
           </div>
         </div>
-        
+
         <div className="step">
           <div className="step-number">4</div>
           <div className="step-content">
@@ -423,7 +429,7 @@ export default function ClientHelpPage() {
             className={`category-button ${selectedCategory === 'all' ? 'active' : ''}`}
             onClick={() => setSelectedCategory('all')}
           >
-            📋 Toutes les questions
+            <ClipboardList size={16} className="mr-2" /> Toutes les questions
           </button>
           {Object.entries(categories).map(([key, category]) => (
             <button
@@ -441,7 +447,7 @@ export default function ClientHelpPage() {
       <div className="faq-section">
         {filteredFAQs.map((faq) => (
           <div key={faq.id} className="faq-item">
-            <div 
+            <div
               className="faq-question"
               onClick={() => setOpenFAQ(openFAQ === faq.id ? null : faq.id)}
             >
@@ -462,17 +468,21 @@ export default function ClientHelpPage() {
       {/* Section contact */}
       <div className="mt-12 p-8 bg-gradient-to-r from-blue-50 to-purple-50 rounded-xl border border-blue-200">
         <div className="text-center">
-          <h3 className="text-2xl font-bold mb-4 text-gray-800">🤝 Besoin d'aide supplémentaire ?</h3>
+
+          <h3 className="text-2xl font-bold mb-4 text-gray-800">
+            <MessageSquare className="inline mr-2" size={24} /> Besoin d'aide supplémentaire ?
+          </h3>
+
           <p className="text-gray-600 mb-6">
             Notre équipe est là pour vous accompagner dans l'organisation de votre mariage.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Button variant="primary">
-              📧 Contacter le support
-            </Button>
-            <Button variant="outline">
-              📖 Consulter la documentation
-            </Button>
+            <Link href="/client/discussions">
+              <Button variant="primary">
+                <HeadphonesIcon className="inline mr-2" size={16} />
+                Contacter le support
+              </Button>
+            </Link>
           </div>
         </div>
       </div>

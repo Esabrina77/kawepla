@@ -1,13 +1,28 @@
 import Link from 'next/link';
+import Image from 'next/image';
+import { Mail, Phone, Clock, MapPin } from 'lucide-react';
 import styles from './Footer.module.css';
 
 export function Footer() {
+  const currentYear = new Date().getFullYear();
+  
   return (
     <footer className={styles.footer}>
       <div className={styles.footerContent}>
         <div className={styles.footerSection}>
-          <h3>KaWePla</h3>
-          <p>Créez et gérez des invitations de mariage uniques et élégantes pour votre jour spécial.</p>
+          <div className={styles.logoContainer}>
+            <Link href="/">
+              <Image 
+                src="/images/logo.png"
+                alt="Jawepla"
+                width={150}
+                height={100}
+                className={styles.logo}
+                priority
+              />
+            </Link>
+          </div>
+          <p>Créez et gérez des invitations de mariage uniques et élégantes pour votre jour spécial. Notre plateforme vous accompagne dans l'organisation de votre mariage.</p>
         </div>
 
         <div className={styles.footerSection}>
@@ -17,6 +32,7 @@ export function Footer() {
             <li><Link href="/pricing">Tarifs</Link></li>
             <li><Link href="/testimonies">Témoignages</Link></li>
             <li><Link href="/contact">Contact</Link></li>
+            <li><Link href="/faq">FAQ</Link></li>
           </ul>
         </div>
 
@@ -32,17 +48,26 @@ export function Footer() {
         <div className={styles.footerSection}>
           <h4>Contact</h4>
           <ul>
-            <li>Email: whethefoot@gmail.com</li>
-            <li>Téléphone: +33 1 23 45 67 89</li>
-            <li>Du lundi au vendredi</li>
-            <li>9h - 18h</li>
+            <li>
+              <Mail size={16} className={styles.contactIcon} />
+              kawepla.kaporelo@gmail.com
+            </li>
+
+            <li>
+              <Clock size={16} className={styles.contactIcon} />
+              Lun-Ven, 9h-18h
+            </li>
+            <li>
+              <MapPin size={16} className={styles.contactIcon} />
+              Paris, France
+            </li>
           </ul>
         </div>
       </div>
 
       <div className={styles.footerBottom}>
         <div className={styles.container}>
-          <p>&copy; {new Date().getFullYear()} Kawepla. Tous droits réservés.</p>
+          <p>&copy; {currentYear} Kawepla. Tous droits réservés.</p>
         </div>
       </div>
     </footer>

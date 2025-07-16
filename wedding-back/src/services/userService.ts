@@ -10,6 +10,9 @@ import {
 import { UpdateUserInput } from '@/middleware/validation';
 import { SUBSCRIPTION_FEATURES } from '@/types';
 import { UserRole, User } from '@prisma/client';
+import { randomBytes } from 'crypto';
+import { EmailVerificationService } from '@/services/emailVerificationService';
+import { emailService } from '../utils/email';
 
 export class UserService {
   static async createUser(data: CreateUserDto & { emailVerified?: boolean }): Promise<TokenResponse> {
@@ -30,7 +33,7 @@ export class UserService {
         firstName: data.firstName,
         lastName: data.lastName,
         role: data.role || UserRole.COUPLE,
-        subscriptionTier: 'BASIC',
+        subscriptionTier: 'FREE',
         isActive: true,
         emailVerified: data.emailVerified ?? false
       }
@@ -434,5 +437,95 @@ export class UserService {
     // Pour l'instant, on ne fait rien car le schéma n'a pas de champ "lu"
     // Cette méthode est prête pour une future extension
     return { success: true };
+  }
+  
+
+  /**
+   * Envoyer un token de réinitialisation de mot de passe
+   */
+  static async sendPasswordResetToken(email: string): Promise<void> {
+    const user = await prisma.user.findUnique({
+      where: { email }
+    });
+
+    if (!user) {
+      throw new Error('Utilisateur non trouvé');
+    }
+
+    // Generate unique token
+    const token = randomBytes(32).toString('hex');
+    const expiresAt = new Date(Date.now() + 3600000); // 1 hour
+
+    try {
+      // Save token
+      await prisma.passwordReset.create({
+        data: {
+          token,
+          email,
+          userId: user.id,
+          expiresAt
+        }
+      });
+
+      // Send reset email
+      const resetLink = `${process.env.FRONTEND_URL}/auth/reset-password?token=${token}`;
+      await emailService.sendEmail({
+        to: email,
+        subject: 'Réinitialisation de votre mot de passe',
+        html: `Pour réinitialiser votre mot de passe, cliquez sur ce lien : ${resetLink}\n\nCe lien expirera dans 1 heure.`,
+        text: `Pour réinitialiser votre mot de passe, cliquez sur ce lien : ${resetLink}\n\nCe lien expirera dans 1 heure.`
+      });
+    } catch (error) {
+      console.error('Erreur lors de l\'envoi du token de réinitialisation:', error);
+      throw new Error('Erreur lors de l\'envoi du token de réinitialisation');
+    }
+  }
+
+  static async verifyResetToken(token: string): Promise<boolean> {
+    const resetToken = await prisma.passwordReset.findFirst({
+      where: {
+        token,
+        expiresAt: {
+          gt: new Date()
+        },
+        used: false
+      }
+    });
+
+    return !!resetToken;
+  }
+
+  static async resetPassword(token: string, newPassword: string): Promise<void> {
+    const resetToken = await prisma.passwordReset.findFirst({
+      where: {
+        token,
+        expiresAt: {
+          gt: new Date()
+        },
+        used: false
+      },
+      include: {
+        user: true
+      }
+    });
+
+    if (!resetToken) {
+      throw new Error('Token invalide ou expiré');
+    }
+
+    // Hasher le nouveau mot de passe
+    const hashedPassword = await hashPassword(newPassword);
+
+    // Mettre à jour le mot de passe et marquer le token comme utilisé
+    await prisma.$transaction([
+      prisma.user.update({
+        where: { id: resetToken.userId },
+        data: { password: hashedPassword }
+      }),
+      prisma.passwordReset.update({
+        where: { id: resetToken.id },
+        data: { used: true }
+      })
+    ]);
   }
 } 

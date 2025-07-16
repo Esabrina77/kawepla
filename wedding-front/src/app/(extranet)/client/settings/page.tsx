@@ -1,7 +1,16 @@
+'use client';
+
 import styles from './settings.module.css';
 import Image from 'next/image';
+import { useTutorial } from '@/hooks/useTutorial';
+import { mainTutorialConfig } from '@/components/Tutorial/tutorialConfig';
 
 export default function SettingsPage() {
+  const tutorial = useTutorial(mainTutorialConfig);
+
+  const handleRestartTutorial = () => {
+    tutorial.restartTutorial();
+  };
   return (
     <div className={styles.settingsContainer}>
       <div className={styles.header}>
@@ -95,15 +104,38 @@ export default function SettingsPage() {
               <label>Mot de passe</label>
               <button className="secondaryButton">Changer le mot de passe</button>
             </div>
+          </div>
+        </section>
+
+        {/* <section className={styles.settingsSection}>
+          <h2>Aide et formation</h2>
+          <div className={styles.settingsCard}>
             <div className={styles.settingItem}>
-              <label>Double authentification</label>
-              <div className={styles.toggle}>
-                <input type="checkbox" id="2fa" />
-                <label htmlFor="2fa">Activer la double authentification</label>
+              <label>Tutoriel interactif</label>
+              <div className={styles.settingDescription}>
+                <p>Découvrez ou redécouvrez les fonctionnalités de KaWePla grâce à notre guide interactif</p>
+                <button 
+                  className="primaryButton"
+                  onClick={handleRestartTutorial}
+                  style={{ marginTop: '8px' }}
+                >
+                  🎯 Relancer le tutoriel
+                </button>
+              </div>
+            </div>
+            <div className={styles.settingItem}>
+              <label>Centre d'aide</label>
+              <div className={styles.settingDescription}>
+                <p>Consultez notre documentation complète et nos FAQ</p>
+                <button className="secondaryButton" style={{ marginTop: '8px' }}>
+                  📖 Accéder au centre d'aide
+                </button>
               </div>
             </div>
           </div>
-        </section>
+        </section> */}
+
+
       </div>
 
       <div className={styles.actions}>

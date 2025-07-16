@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { guestsApi, CreateGuestData, UpdateGuestData } from '@/lib/api/guests';
 import { Guest } from '@/types';
+import { globalEvents } from '@/lib/utils';
 
 export function useGuests(invitationId: string) {
   const [guests, setGuests] = useState<Guest[]>([]);
@@ -71,6 +72,9 @@ export function useGuests(invitationId: string) {
       await guestsApi.delete(invitationId, id);
       setGuests(prev => prev.filter(guest => guest.id !== id));
       await loadStatistics();
+      
+      // Émettre l'événement pour notifier les autres hooks
+      globalEvents.emit('guest-deleted', { guestId: id, invitationId });
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Une erreur est survenue');
       throw err;

@@ -1,0 +1,127 @@
+.pricingCard {
+  position: relative;
+  border: 2px solid var(--color-border);
+  border-radius: 12px;
+  padding: 24px;
+  transition: all 0.3s ease;
+  background: white;
+}
+
+.pricingCard:hover {
+  border-color: var(--color-primary);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+}
+
+.popular {
+  border-color: var(--color-primary);
+  transform: scale(1.05);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.15);
+}
+
+.popularBadge {
+  position: absolute;
+  top: -12px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--color-primary);
+  color: white;
+  padding: 6px 16px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.planName {
+  font-size: 24px;
+  font-weight: 700;
+  margin-bottom: 8px;
+  color: var(--color-text);
+}
+
+.price {
+  display: flex;
+  align-items: baseline;
+  gap: 4px;
+  margin-bottom: 16px;
+}
+
+.amount {
+  font-size: 48px;
+  font-weight: 800;
+  color: var(--color-primary);
+}
+
+.period {
+  font-size: 16px;
+  color: var(--color-text-secondary);
+  font-weight: 500;
+}
+
+.description {
+  color: var(--color-text-secondary);
+  margin-bottom: 24px;
+  line-height: 1.5;
+}
+
+.features {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 24px 0;
+}
+
+.feature {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--color-border-light);
+}
+
+.feature:last-child {
+  border-bottom: none;
+}
+
+.checkIcon {
+  color: var(--color-success);
+  flex-shrink: 0;
+}
+
+.limits {
+  background: var(--color-background-light);
+  padding: 16px;
+  border-radius: 8px;
+  margin-bottom: 24px;
+}
+
+.limit {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 4px 0;
+  font-size: 14px;
+  color: var(--color-text-secondary);
+}
+
+.selectButton {
+  width: 100%;
+  padding: 12px 24px;
+  font-weight: 600;
+  font-size: 16px;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .popular {
+    transform: none;
+  }
+  
+  .amount {
+    font-size: 36px;
+  }
+  
+  .planName {
+    font-size: 20px;
+  }
+} 

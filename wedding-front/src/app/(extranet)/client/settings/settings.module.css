@@ -128,6 +128,17 @@
   cursor: pointer;
 }
 
+.settingDescription {
+  margin-top: var(--spacing-xs);
+}
+
+.settingDescription p {
+  font-size: 13px;
+  color: var(--color-text-light);
+  line-height: 1.4;
+  margin: 0;
+}
+
 .actions {
   display: flex;
   justify-content: flex-end;

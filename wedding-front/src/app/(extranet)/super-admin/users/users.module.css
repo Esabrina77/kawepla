@@ -138,6 +138,38 @@
   border: none;
 }
 
+.subscriptionBadge {
+  display: inline-block;
+  padding: 0.375rem 1rem;
+  border-radius: 9999px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #fff;
+  border: none;
+}
+
+.tierFREE {
+  background: linear-gradient(135deg, #6b7280, #4b5563);
+}
+
+.tierESSENTIAL {
+  background: linear-gradient(135deg, #059669, #047857);
+}
+
+.tierELEGANT {
+  background: linear-gradient(135deg, #d4af37, #b8941f);
+}
+
+.tierPREMIUM {
+  background: linear-gradient(135deg, #7c3aed, #5b21b6);
+}
+
+.tierLUXE {
+  background: linear-gradient(135deg, #dc2626, #991b1b);
+}
+
 .userMeta {
   color: #64748b;
   font-size: 0.95rem;
@@ -192,6 +224,26 @@
   background: linear-gradient(135deg, #e5e7eb, #cbd5e1);
 }
 
+/* Styles pour les sections d'édition */
+.editSection {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.editLabel {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #374151;
+  margin-bottom: 0.25rem;
+}
+
+.editSection .filterInput {
+  width: 100%;
+  max-width: 200px;
+}
+
 @media (max-width: 1024px) {
   .userGrid {
     grid-template-columns: 1fr;
@@ -216,6 +268,14 @@
     width: 100%;
     text-align: center;
     padding: 0.5rem 1rem;
-    font-size: 0.9rem;
+  }
+  .badges {
+    flex-wrap: wrap;
+  }
+  .editSection {
+    margin-bottom: 0.75rem;
+  }
+  .editSection .filterInput {
+    max-width: 100%;
   }
 } 

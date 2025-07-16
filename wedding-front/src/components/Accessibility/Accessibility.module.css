@@ -8,8 +8,8 @@
 
 .mobileContainer {
   position: fixed;
-  bottom: var(--spacing-xl);
-  right: var(--spacing-xl);
+  bottom: 150px;
+  right: 10px;
   z-index: 1000;
 }
 
@@ -218,6 +218,7 @@
 .settingOptions {
   display: flex;
   gap: var(--spacing-sm);
+  flex-wrap: wrap;
 }
 
 .settingOption {

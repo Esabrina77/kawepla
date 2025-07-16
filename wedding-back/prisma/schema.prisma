@@ -17,9 +17,18 @@ enum UserRole {
 }
 
 enum SubscriptionTier {
-  BASIC
-  STANDARD
+  FREE
+  ESSENTIAL
+  ELEGANT
   PREMIUM
+  LUXE
+}
+
+enum SubscriptionStatus {
+  ACTIVE
+  CANCELED
+  EXPIRED
+  PAST_DUE
 }
 
 enum RSVPStatus {
@@ -34,6 +43,16 @@ enum InvitationStatus {
   ARCHIVED
 }
 
+enum InvitationType {
+  PERSONAL    // Invité pré-créé (mode actuel)
+  SHAREABLE   // Via lien partageable (nouveau)
+}
+
+enum ShareableLinkStatus {
+  SHARED      // Lien partagé mais pas encore utilisé
+  USED        // Lien utilisé par un invité
+}
+
 model User {
   id                String            @id @default(cuid())
   email             String            @unique
@@ -41,25 +60,49 @@ model User {
   firstName         String
   lastName          String
   role              UserRole          @default(COUPLE)
-  subscriptionTier  SubscriptionTier  @default(BASIC)
+  subscriptionTier  SubscriptionTier  @default(FREE)
+  subscriptionStatus SubscriptionStatus @default(ACTIVE)
   subscriptionEndDate DateTime?
   isActive          Boolean           @default(true)
   emailVerified     Boolean           @default(false)
   createdAt         DateTime          @default(now())
   updatedAt         DateTime          @updatedAt
 
+  // Stripe fields
+  stripeCustomerId    String?
+  stripeSubscriptionId String?
+  stripePriceId       String?
+  
   // Relations
   invitations       Invitation[]
   guests            Guest[]
   refreshTokens     RefreshToken[]
   adminDesigns      Design[]          @relation("AdminDesigns")
+  passwordResets    PasswordReset[]
+  subscriptions     Subscription[]
   
   // Relations pour la messagerie
   userConversations Conversation[]    @relation("UserConversations")
   adminConversations Conversation[]   @relation("AdminConversations")
   sentMessages      Message[]         @relation("SentMessages")
 
+  // Services supplémentaires achetés
+  additionalServices UserAdditionalService[]
+
   @@map("users")
+}
+
+model UserAdditionalService {
+  id        String   @id @default(cuid())
+  userId    String
+  serviceId String   // ID du service (GUESTS_30, GUESTS_50, etc.)
+  quantity  Int      // Quantité achetée
+  type      String   // Type de service (guests, photos, designs)
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("user_additional_services")
 }
 
 model RefreshToken {
@@ -83,6 +126,25 @@ model EmailVerification {
   createdAt DateTime @default(now())
 
   @@map("email_verifications")
+}
+
+model Subscription {
+  id                String             @id @default(cuid())
+  userId            String
+  tier              SubscriptionTier
+  status            SubscriptionStatus @default(ACTIVE)
+  stripeSubscriptionId String?         @unique
+  stripePriceId     String?
+  stripeCustomerId  String?
+  currentPeriodStart DateTime?
+  currentPeriodEnd  DateTime?
+  cancelAtPeriodEnd Boolean           @default(false)
+  createdAt         DateTime          @default(now())
+  updatedAt         DateTime          @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("subscriptions")
 }
 
 model Design {
@@ -165,6 +227,13 @@ model Invitation {
   createdAt       DateTime          @default(now())
   updatedAt       DateTime          @updatedAt
 
+  // NOUVEAU: Lien partageable
+  shareableToken    String?  @unique
+  shareableEnabled  Boolean  @default(false)
+  shareableMaxUses  Int?     @default(50)
+  shareableUsedCount Int     @default(0)
+  shareableExpiresAt DateTime?
+
   // Relations
   userId          String
   user            User              @relation(fields: [userId], references: [id], onDelete: Cascade)
@@ -173,8 +242,31 @@ model Invitation {
   guests          Guest[]
   rsvps           RSVP[]
   conversations   Conversation[]
+  shareableLinks  ShareableLink[]   // Nouvelle relation pour les liens partageables
+  photoAlbums     PhotoAlbum[]
 
   @@map("invitations")
+}
+
+// NOUVEAU: Table pour les liens partageables (tous restent valides)
+model ShareableLink {
+  id              String   @id @default(cuid())
+  token           String   @unique
+  status          ShareableLinkStatus @default(SHARED)
+  isActive        Boolean  @default(true)
+  maxUses         Int      @default(50)
+  usedCount       Int      @default(0)
+  expiresAt       DateTime?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  // Relations
+  invitationId    String
+  invitation      Invitation @relation(fields: [invitationId], references: [id], onDelete: Cascade)
+  guestId         String?    @unique // Guest associé quand le lien est utilisé
+  guest           Guest?     @relation(fields: [guestId], references: [id], onDelete: SetNull)
+
+  @@map("shareable_links")
 }
 
 model Guest {
@@ -183,6 +275,7 @@ model Guest {
   lastName      String
   email         String?
   phone         String?
+  profilePhotoUrl String? // URL de la photo de profil Firebase Storage
   isVIP         Boolean  @default(false)
   dietaryRestrictions String?
   plusOne       Boolean  @default(false)
@@ -193,12 +286,18 @@ model Guest {
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
 
+  // NOUVEAU: Type d'invitation
+  invitationType    InvitationType @default(PERSONAL)
+  sharedLinkUsed    Boolean        @default(false)
+
   // Relations
   userId        String
   user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   invitationId  String
   invitation    Invitation @relation(fields: [invitationId], references: [id], onDelete: Cascade)
   rsvp          RSVP?
+  shareableLink ShareableLink? // Lien partageable utilisé par cet invité
+  photos        Photo[]
 
   // Contrainte d'unicité : un email ne peut être utilisé qu'une seule fois par invitation
   @@unique([invitationId, email], name: "unique_email_per_invitation")
@@ -212,6 +311,7 @@ model RSVP {
   attendingCeremony Boolean  @default(true)
   attendingReception Boolean @default(true)
   numberOfGuests Int        @default(1)
+  profilePhotoUrl String?   // URL de la photo de profil ajoutée par l'invité
   respondedAt   DateTime?
   createdAt     DateTime    @default(now())
   updatedAt     DateTime    @updatedAt
@@ -270,7 +370,72 @@ enum ConversationStatus {
 
 enum MessageType {
   TEXT
-  IMAGE
-  FILE
+  RSVP_NOTIFICATION
   SYSTEM
+}
+
+enum PhotoStatus {
+  PENDING     // Photo en attente de validation
+  APPROVED    // Photo approuvée par les mariés
+  REJECTED    // Photo rejetée
+  PUBLIC      // Photo publiée publiquement
+}
+
+model PasswordReset {
+  id        String   @id @default(cuid())
+  email     String
+  token     String   @unique
+  expiresAt DateTime
+  used      Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  // Relations
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("password_resets")
+}
+
+// Modèle pour les albums photos
+model PhotoAlbum {
+  id            String   @id @default(cuid())
+  title         String
+  description   String?
+  isPublic      Boolean  @default(false)
+  coverPhotoUrl String?  // Photo de couverture de l'album
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  // Relations
+  invitationId  String
+  invitation    Invitation @relation(fields: [invitationId], references: [id], onDelete: Cascade)
+  photos        Photo[]
+
+  @@map("photo_albums")
+}
+
+// Modèle pour les photos individuelles
+model Photo {
+  id            String      @id @default(cuid())
+  originalUrl   String      // URL originale sur Firebase Storage
+  compressedUrl String?     // URL de la version compressée
+  thumbnailUrl  String?     // URL de la miniature
+  filename      String      // Nom original du fichier
+  size          Int         // Taille en bytes
+  width         Int?        // Largeur en pixels
+  height        Int?        // Hauteur en pixels
+  mimeType      String      // Type MIME (image/jpeg, image/png, etc.)
+  status        PhotoStatus @default(PENDING)
+  caption       String?     // Légende de la photo
+  uploadedAt    DateTime    @default(now())
+  approvedAt    DateTime?   // Date d'approbation par les mariés
+  publishedAt   DateTime?   // Date de publication publique
+
+  // Relations
+  albumId       String
+  album         PhotoAlbum  @relation(fields: [albumId], references: [id], onDelete: Cascade)
+  uploadedById  String?     // Guest qui a uploadé la photo
+  uploadedBy    Guest?      @relation(fields: [uploadedById], references: [id], onDelete: SetNull)
+
+  @@map("photos")
 } 

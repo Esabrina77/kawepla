@@ -4,6 +4,7 @@ export type Guest = {
   lastName: string;
   email: string;
   phone?: string;
+  profilePhotoUrl?: string; // URL de la photo de profil Firebase Storage
   status: 'pending' | 'confirmed' | 'declined';
   token: string;
   dietaryRestrictions?: string;
@@ -15,7 +16,7 @@ export type Guest = {
   rsvp?: {
     id: string;
     status: 'PENDING' | 'CONFIRMED' | 'DECLINED';
-    attendees: number;
+    numberOfGuests: number;
     dietaryRestrictions?: string;
     message?: string;
     createdAt: string;
@@ -82,7 +83,7 @@ export type WeddingConfig = {
   languages?: string[];
 };
 
-export type PlanTier = 'basic' | 'standard' | 'premium';
+export type PlanTier = 'FREE' | 'ESSENTIAL' | 'ELEGANT' | 'PREMIUM' | 'LUXE';
 
 export type Statistics = {
   totalGuests: number;

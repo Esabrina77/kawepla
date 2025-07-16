@@ -13,7 +13,7 @@ export const AccessibilityMenu: React.FC<AccessibilityMenuProps> = ({ isMobile =
   const [settings, setSettings] = useState({
     fontSize: 'normal',
     contrast: 'normal',
-    font: 'normal'
+    font: 'poppins'
   });
   const [mounted, setMounted] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
@@ -41,7 +41,7 @@ export const AccessibilityMenu: React.FC<AccessibilityMenuProps> = ({ isMobile =
     const savedSettings = {
       fontSize: localStorage.getItem('accessibility-font-size') || 'normal',
       contrast: localStorage.getItem('accessibility-contrast') || 'normal',
-      font: localStorage.getItem('accessibility-font') || 'normal'
+      font: localStorage.getItem('accessibility-font') || 'poppins'
     };
     
     setSettings(savedSettings);
@@ -228,11 +228,23 @@ export const AccessibilityMenu: React.FC<AccessibilityMenuProps> = ({ isMobile =
             Police
           </label>
           <div className={styles.settingOptions}>
-            <button
-              onClick={() => handleSettingChange('font', 'normal')}
-              className={`${styles.settingOption} ${settings.font === 'normal' ? styles.active : ''}`}
+          <button
+              onClick={() => handleSettingChange('font', 'poppins')}
+              className={`${styles.settingOption} ${settings.font === 'poppins' ? styles.active : ''}`}
             >
-              Standard
+              Poppins (Défaut)
+            </button>
+            <button
+              onClick={() => handleSettingChange('font', 'open-sans')}
+              className={`${styles.settingOption} ${settings.font === 'open-sans' ? styles.active : ''}`}
+            >
+              Open Sans
+            </button>
+            <button
+              onClick={() => handleSettingChange('font', 'featherscript')}
+              className={`${styles.settingOption} ${settings.font === 'featherscript' ? styles.active : ''}`}
+            >
+              Décorative
             </button>
             <button
               onClick={() => handleSettingChange('font', 'dyslexic')}

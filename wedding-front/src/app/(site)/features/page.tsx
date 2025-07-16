@@ -6,362 +6,246 @@ import Link from 'next/link';
 
 const currentFeatures = [
   {
-    title: 'Invitations Personnalisées',
-    description: 'Créez jusqu\'à 2 invitations avec tous les détails de votre mariage.',
+    title: 'Invitations Numériques Personnalisées',
+    description: 'Créez des invitations élégantes avec nos designs prédéfinis et personnalisez-les selon vos goûts.',
     icon: '/icons/design.svg',
     details: [
-      'Formulaire complet de création',
-      'Designs élégants disponibles',
+      'Designs prédéfinis de haute qualité',
+      'Personnalisation des textes et informations',
       'Prévisualisation en temps réel',
-      'Statuts brouillon/publié'
+      'Format adaptatif (mobile, desktop)',
+      'Gestion des statuts (brouillon, publié, archivé)'
     ],
     status: 'available'
   },
   {
-    title: 'Gestion des Invités',
-    description: 'Gérez jusqu\'à 5 invités par invitation avec import en masse.',
+    title: 'Gestion Complète des Invités',
+    description: 'Gérez facilement votre liste d\'invités avec import/export et catégorisation.',
     icon: '/icons/guests.svg',
     details: [
-      'Ajout manuel et import CSV/JSON',
-      'Validation complète des données',
-      'Badges VIP et accompagnants',
-      'Recherche et filtrage avancés'
+      'Import CSV/JSON/TXT en un clic',
+      'Gestion des accompagnants (+1)',
+      'Catégorisation VIP',
+      'Restrictions alimentaires',
+      'Upload de photos de profil'
     ],
     status: 'available'
   },
   {
-    title: 'RSVP Sécurisé',
-    description: 'Système de réponse en ligne avec tokens uniques.',
+    title: 'Système RSVP Sécurisé',
+    description: 'Collectez les réponses de vos invités avec des liens personnalisés et sécurisés.',
     icon: '/icons/rsvp.svg',
     details: [
-      'Formulaire public sécurisé',
-      'Gestion des restrictions alimentaires',
-      'Suivi des accompagnants',
-      'Page de remerciement personnalisée'
+      'Liens RSVP uniques par invité',
+      'Liens partageables pour groupes',
+      'Gestion des réponses (confirmé, décliné, en attente)',
+      'Suivi en temps réel des réponses',
+      'Interface mobile optimisée'
     ],
     status: 'available'
   },
   {
-    title: 'Envoi d\'Emails',
-    description: 'Envoyez vos invitations par email avec suivi des statuts.',
+    title: 'Albums Photos Collaboratifs',
+    description: 'Créez des albums photos où vos invités peuvent partager leurs souvenirs.',
+    icon: '/icons/photos.svg',
+    details: [
+      'Création d\'albums multiples',
+      'Upload de photos par les invités',
+      'Modération des photos',
+      'Partage sécurisé avec liens',
+      'Téléchargement des albums'
+    ],
+    status: 'available'
+  },
+  {
+    title: 'Messagerie Intégrée',
+    description: 'Communiquez directement avec vos invités via le système de messagerie.',
+    icon: '/icons/discussions.svg',
+    details: [
+      'Conversations privées',
+      'Messages en temps réel',
+      'Notifications automatiques',
+      'Historique des conversations',
+      'Interface intuitive'
+    ],
+    status: 'available'
+  },
+  {
+    title: 'Système d\'Abonnements',
+    description: 'Choisissez le forfait qui correspond à vos besoins avec des limites claires.',
     icon: '/icons/planning.svg',
     details: [
-      'Envoi individuel ou en masse',
-      'Système de rappels automatiques',
-      'Suivi des envois et ouvertures',
-      'Templates personnalisés'
-    ],
-    status: 'available'
-  },
-  {
-    title: 'Statistiques en Temps Réel',
-    description: 'Suivez les réponses et statistiques de vos invitations.',
-    icon: '/icons/stats.svg',
-    details: [
-      'Dashboard complet',
-      'Compteurs confirmés/refusés',
-      'Taux de réponse',
-      'Export des données CSV'
-    ],
-    status: 'available'
-  },
-  {
-    title: 'Application PWA',
-    description: 'Installez l\'app sur votre téléphone comme une app native.',
-    icon: '/icons/money.svg',
-    details: [
-      'Installation mobile/desktop',
-      'Fonctionnement hors ligne',
-      'Interface responsive',
-      'Performance optimisée'
+      'Forfaits adaptés à tous les budgets',
+      'Limites claires par forfait',
+      'Paiement sécurisé via Stripe',
+      'Changement de forfait facile',
+      'Support client dédié'
     ],
     status: 'available'
   }
 ];
 
-const futureFeatures = [
+const upcomingFeatures = [
   {
-    title: 'Invitations Illimitées',
-    description: 'Plus de limites sur le nombre d\'invitations et d\'invités.',
-    icon: '/icons/design.svg',
-    details: [
-      'Invitations sans limite',
-      'Invités illimités',
-      'Gestion multi-événements',
-      'Historique complet'
-    ],
-    status: 'coming-soon'
-  },
-  {
-    title: 'Designs Premium',
-    description: 'Thèmes avancés avec animations et personnalisation poussée.',
-    icon: '/icons/design.svg',
-    details: [
-      'Thèmes animés',
-      'Personnalisation avancée',
-      'Couleurs personnalisées',
-      'Polices premium'
-    ],
-    status: 'coming-soon'
-  },
-  {
-    title: 'Album Photos',
-    description: 'Partagez vos plus beaux moments avec vos invités.',
-    icon: '/icons/photos.svg',
-    details: [
-      'Galerie responsive',
-      'Upload facile',
-      'Partage sécurisé',
-      'Commentaires des invités'
-    ],
-    status: 'coming-soon'
-  },
-  {
-    title: 'Vidéos d\'Invitation',
-    description: 'Créez des invitations vidéo personnalisées.',
-    icon: '/icons/photos.svg',
-    details: [
-      'Templates vidéo',
-      'Montage simplifié',
-      'Musique personnalisée',
-      'Partage optimisé'
-    ],
-    status: 'coming-soon'
-  },
-  {
-    title: 'Notifications SMS',
-    description: 'Envoyez des rappels par SMS à vos invités.',
-    icon: '/icons/planning.svg',
-    details: [
-      'SMS automatiques',
-      'Rappels programmés',
-      'Confirmation par SMS',
-      'Suivi des livraisons'
-    ],
-    status: 'coming-soon'
-  },
-  {
-    title: 'Multi-langues',
-    description: 'Support international avec traductions automatiques.',
-    icon: '/icons/guests.svg',
-    details: [
-      'Interface multilingue',
-      'Invitations traduites',
-      'Détection automatique',
-      'Support RTL'
-    ],
-    status: 'coming-soon'
-  },
-  {
-    title: 'Intégrations Avancées',
-    description: 'Connectez votre mariage aux services populaires.',
-    icon: '/icons/planning.svg',
-    details: [
-      'Google Calendar',
-      'Réseaux sociaux',
-      'Services de livraison',
-      'Plateformes de paiement'
-    ],
-    status: 'coming-soon'
-  },
-  {
-    title: 'Analytics Premium',
-    description: 'Analyses poussées avec géolocalisation et insights.',
+    title: 'Analytics Avancées',
+    description: 'Obtenez des insights détaillés sur vos invitations et réponses.',
     icon: '/icons/stats.svg',
     details: [
-      'Heatmaps géographiques',
-      'Insights comportementaux',
-      'Rapports personnalisés',
-      'Prédictions IA'
+      'Tableaux de bord en temps réel',
+      'Taux de réponse par catégorie',
+      'Exportation des rapports',
+      'Statistiques de participation',
+      'Analyse des tendances'
     ],
-    status: 'coming-soon'
+    status: 'coming_soon'
+  },
+  {
+    title: 'Intégrations Tierces',
+    description: 'Connectez vos outils favoris pour une expérience complète.',
+    icon: '/icons/planning.svg',
+    details: [
+      'Synchronisation Google Calendar',
+      'Partage sur réseaux sociaux',
+      'Intégration avec services de paiement',
+      'Notifications SMS',
+      'Synchronisation contacts'
+    ],
+    status: 'coming_soon'
+  },
+  {
+    title: 'Événements Multiples',
+    description: 'Gérez plusieurs événements liés à votre mariage.',
+    icon: '/icons/guests.svg',
+    details: [
+      'Gestion fiançailles/mariage/réception',
+      'Invités partagés entre événements',
+      'Calendrier unifié',
+      'Budgets séparés',
+      'Planification coordonnée'
+    ],
+    status: 'coming_soon'
   }
 ];
 
 export default function FeaturesPage() {
   return (
-    <div className={styles.features}>
-      <section className={styles.header}>
-        <div className="container">
-          <h1>Fonctionnalités</h1>
-          <p>Découvrez ce qui est disponible maintenant et ce qui arrive bientôt</p>
-          <div className={styles.versionBadge}>
-            <span>🚀 Version 1.0 - Bêta Gratuite</span>
-          </div>
-        </div>
-      </section>
+    <div className={styles.container}>
+      <header className={styles.header}>
+        <h1 className={styles.title}>Fonctionnalités</h1>
+        <p className={styles.subtitle}>
+          Découvrez tous les outils à votre disposition pour créer le mariage parfait
+        </p>
+      </header>
 
-      {/* Fonctionnalités actuelles */}
-      <section className={styles.currentFeatures}>
-        <div className="container">
+      <main className={styles.main}>
+        {/* Fonctionnalités actuelles */}
+        <section className={styles.featuresSection}>
           <div className={styles.sectionHeader}>
-            <h2>✅ Disponible maintenant</h2>
-            <p>Toutes ces fonctionnalités sont gratuites en version V1</p>
+            <h2 className={styles.sectionTitle}>Fonctionnalités Disponibles</h2>
+            <p className={styles.sectionSubtitle}>
+              Toutes ces fonctionnalités sont actuellement disponibles et prêtes à l'emploi
+            </p>
           </div>
-          <div className={styles.grid}>
-            {currentFeatures.map((feature) => (
-              <Card key={feature.title} variant="elevated" className={`${styles.featureCard} ${styles.available}`}>
-                <CardHeader>
-                  <div className={styles.iconWrapper}>
-                    <Image
-                      src={feature.icon}
+
+          <div className={styles.featuresGrid}>
+            {currentFeatures.map((feature, index) => (
+              <Card key={index} className={styles.featureCard}>
+                <CardHeader className={styles.cardHeader}>
+                  <div className={styles.iconContainer}>
+                    <Image 
+                      src={feature.icon} 
                       alt={feature.title}
-                      width={32}
-                      height={32}
+                      width={40}
+                      height={40}
+                      className={styles.featureIcon}
                     />
-                    <span className={styles.statusBadge}>Disponible</span>
                   </div>
-                  <CardTitle>{feature.title}</CardTitle>
-                  <p className={styles.description}>{feature.description}</p>
+                  <CardTitle className={styles.cardTitle}>{feature.title}</CardTitle>
                 </CardHeader>
-                <CardContent>
+                <CardContent className={styles.cardContent}>
+                  <p className={styles.description}>{feature.description}</p>
                   <ul className={styles.detailsList}>
-                    {feature.details.map((detail) => (
-                      <li key={detail}>
-                        <svg
-                          className={styles.checkIcon}
-                          width="20"
-                          height="20"
-                          viewBox="0 0 24 24"
-                          fill="none"
-                          xmlns="http://www.w3.org/2000/svg"
-                        >
-                          <path
-                            d="M20 6L9 17L4 12"
-                            stroke="currentColor"
-                            strokeWidth="2"
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                          />
-                        </svg>
+                    {feature.details.map((detail, detailIndex) => (
+                      <li key={detailIndex} className={styles.detailItem}>
+                        <span className={styles.checkmark}>✓</span>
                         {detail}
                       </li>
                     ))}
                   </ul>
+                  <div className={styles.statusBadge}>
+                    <span className={styles.statusAvailable}>Disponible</span>
+                  </div>
                 </CardContent>
               </Card>
             ))}
           </div>
-        </div>
-      </section>
+        </section>
 
-      {/* Fonctionnalités futures */}
-      <section className={styles.futureFeatures}>
-        <div className="container">
+        {/* Fonctionnalités à venir */}
+        <section className={styles.upcomingSection}>
           <div className={styles.sectionHeader}>
-            <h2>🚧 Prochainement disponibles</h2>
-            <p>Ces fonctionnalités seront disponibles dans les prochaines versions</p>
+            <h2 className={styles.sectionTitle}>Fonctionnalités à Venir</h2>
+            <p className={styles.sectionSubtitle}>
+              Ces fonctionnalités sont en cours de développement et seront bientôt disponibles
+            </p>
           </div>
-          <div className={styles.grid}>
-            {futureFeatures.map((feature) => (
-              <Card key={feature.title} variant="default" className={`${styles.featureCard} ${styles.comingSoon}`}>
-                <CardHeader>
-                  <div className={styles.iconWrapper}>
-                    <Image
-                      src={feature.icon}
+
+          <div className={styles.featuresGrid}>
+            {upcomingFeatures.map((feature, index) => (
+              <Card key={index} className={`${styles.featureCard} ${styles.upcomingCard}`}>
+                <CardHeader className={styles.cardHeader}>
+                  <div className={styles.iconContainer}>
+                    <Image 
+                      src={feature.icon} 
                       alt={feature.title}
-                      width={32}
-                      height={32}
+                      width={40}
+                      height={40}
+                      className={styles.featureIcon}
                     />
-                    <span className={styles.statusBadge}>Bientôt</span>
                   </div>
-                  <CardTitle>{feature.title}</CardTitle>
-                  <p className={styles.description}>{feature.description}</p>
+                  <CardTitle className={styles.cardTitle}>{feature.title}</CardTitle>
                 </CardHeader>
-                <CardContent>
+                <CardContent className={styles.cardContent}>
+                  <p className={styles.description}>{feature.description}</p>
                   <ul className={styles.detailsList}>
-                    {feature.details.map((detail) => (
-                      <li key={detail}>
-                        <svg
-                          className={styles.checkIcon}
-                          width="20"
-                          height="20"
-                          viewBox="0 0 24 24"
-                          fill="none"
-                          xmlns="http://www.w3.org/2000/svg"
-                        >
-                          <path
-                            d="M20 6L9 17L4 12"
-                            stroke="currentColor"
-                            strokeWidth="2"
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                          />
-                        </svg>
+                    {feature.details.map((detail, detailIndex) => (
+                      <li key={detailIndex} className={styles.detailItem}>
+                        <span className={styles.comingSoonMark}>⏳</span>
                         {detail}
                       </li>
                     ))}
                   </ul>
+                  <div className={styles.statusBadge}>
+                    <span className={styles.statusComingSoon}>Bientôt disponible</span>
+                  </div>
                 </CardContent>
               </Card>
             ))}
           </div>
-        </div>
-      </section>
+        </section>
 
-      {/* Limites actuelles */}
-      <section className={styles.limitations}>
-        <div className="container">
-          <Card variant="elevated" className={styles.limitationsCard}>
-            <CardHeader>
-              <CardTitle>📋 Limites de la version V1 (Gratuite)</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className={styles.limitationsList}>
-                <div className={styles.limitation}>
-                  <span className={styles.limitNumber}>2</span>
-                  <div>
-                    <h4>Invitations maximum</h4>
-                    <p>Vous pouvez créer jusqu'à 2 invitations différentes</p>
-                  </div>
-                </div>
-                <div className={styles.limitation}>
-                  <span className={styles.limitNumber}>5</span>
-                  <div>
-                    <h4>Invités par invitation</h4>
-                    <p>Chaque invitation peut contenir jusqu'à 5 invités</p>
-                  </div>
-                </div>
-                <div className={styles.limitation}>
-                  <span className={styles.limitNumber}>10</span>
-                  <div>
-                    <h4>Invités total</h4>
-                    <p>Maximum 10 invités au total sur votre compte</p>
-                  </div>
-                </div>
-              </div>
-              <div className={styles.upgradeInfo}>
-                <p>Ces limites seront levées dans les versions payantes futures</p>
-                <Link href="/pricing">
-                  <Button variant="primary">
-                    Voir la roadmap
-                  </Button>
-                </Link>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-      </section>
-
-      {/* Call to action */}
-      <section className={styles.cta}>
-        <div className="container">
-          <h2>Prêt à commencer ?</h2>
-          <p>Créez votre première invitation gratuitement dès maintenant</p>
-          <div className={styles.ctaButtons}>
-            <Link href="/auth/register">
-              <Button variant="primary" size="large">
-                Commencer gratuitement
-              </Button>
-            </Link>
-            <Link href="/pricing">
-              <Button variant="outline" size="large">
-                Voir les tarifs
-              </Button>
-            </Link>
+        {/* Call to Action */}
+        <section className={styles.ctaSection}>
+          <div className={styles.ctaContent}>
+            <h2 className={styles.ctaTitle}>Prêt à commencer ?</h2>
+            <p className={styles.ctaDescription}>
+              Créez votre première invitation en quelques minutes avec toutes ces fonctionnalités
+            </p>
+            <div className={styles.ctaButtons}>
+              <Link href="/register">
+                <Button className={styles.primaryButton}>
+                  Commencer gratuitement
+                </Button>
+              </Link>
+              <Link href="/pricing">
+                <Button variant="outline" className={styles.secondaryButton}>
+                  Voir les tarifs
+                </Button>
+              </Link>
+            </div>
           </div>
-        </div>
-      </section>
+        </section>
+      </main>
     </div>
   );
 } 

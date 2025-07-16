@@ -14,6 +14,7 @@ export default function UsersPage() {
     setFilters, 
     toggleUserStatus, 
     changeUserRole, 
+    changeUserSubscriptionTier,
     deleteUser 
   } = useAdminUsers();
 
@@ -35,6 +36,14 @@ export default function UsersPage() {
     }
   };
 
+  const handleSubscriptionTierChange = async (userId: string, newTier: 'FREE' | 'ESSENTIAL' | 'ELEGANT' | 'PREMIUM' | 'LUXE') => {
+    try {
+      await changeUserSubscriptionTier(userId, newTier);
+    } catch (error) {
+      console.error('Erreur lors du changement de forfait:', error);
+    }
+  };
+
   const handleDelete = async (userId: string) => {
     if (window.confirm('Êtes-vous sûr de vouloir supprimer cet utilisateur ?')) {
       try {
@@ -51,6 +60,17 @@ export default function UsersPage() {
       case 'COUPLE': return 'Couple';
       case 'GUEST': return 'Invité';
       default: return role;
+    }
+  };
+
+  const getSubscriptionTierLabel = (tier: string) => {
+    switch (tier) {
+      case 'FREE': return 'Découverte';
+      case 'ESSENTIAL': return 'Essentiel';
+      case 'ELEGANT': return 'Élégant';
+      case 'PREMIUM': return 'Premium';
+      case 'LUXE': return 'Luxe';
+      default: return tier;
     }
   };
 
@@ -163,6 +183,7 @@ export default function UsersPage() {
                 <div className={styles.badges}>
                   <span className={`${styles.roleBadge} ${user.role === 'ADMIN' ? styles.roleAdmin : user.role === 'COUPLE' ? styles.roleCouple : styles.roleGuest}`}>{getRoleLabel(user.role)}</span>
                   <span className={`${styles.statusBadge} ${user.isActive ? '' : styles.statusInactive}`}>{user.isActive ? 'Actif' : 'Inactif'}</span>
+                  <span className={`${styles.subscriptionBadge} ${styles[`tier${user.subscriptionTier}`]}`}>{getSubscriptionTierLabel(user.subscriptionTier)}</span>
                   {user.emailVerified && (
                     <span className={styles.verifiedBadge}>Email vérifié</span>
                   )}
@@ -176,15 +197,32 @@ export default function UsersPage() {
             <div className={styles.actions}>
               {editingUser === user.id ? (
                 <>
-                  <select 
-                    className={styles.filterInput}
-                    value={user.role}
-                    onChange={(e) => handleRoleChange(user.id, e.target.value as 'ADMIN' | 'COUPLE' | 'GUEST')}
-                  >
-                    <option value="COUPLE">Couple</option>
-                    <option value="ADMIN">Admin</option>
-                    <option value="GUEST">Invité</option>
-                  </select>
+                  <div className={styles.editSection}>
+                    <label className={styles.editLabel}>Rôle:</label>
+                    <select 
+                      className={styles.filterInput}
+                      value={user.role}
+                      onChange={(e) => handleRoleChange(user.id, e.target.value as 'ADMIN' | 'COUPLE' | 'GUEST')}
+                    >
+                      <option value="COUPLE">Couple</option>
+                      <option value="ADMIN">Admin</option>
+                      <option value="GUEST">Invité</option>
+                    </select>
+                  </div>
+                  <div className={styles.editSection}>
+                    <label className={styles.editLabel}>Forfait:</label>
+                    <select 
+                      className={styles.filterInput}
+                      value={user.subscriptionTier}
+                      onChange={(e) => handleSubscriptionTierChange(user.id, e.target.value as 'FREE' | 'ESSENTIAL' | 'ELEGANT' | 'PREMIUM' | 'LUXE')}
+                    >
+                      <option value="FREE">Découverte</option>
+                      <option value="ESSENTIAL">Essentiel</option>
+                      <option value="ELEGANT">Élégant</option>
+                      <option value="PREMIUM">Premium</option>
+                      <option value="LUXE">Luxe</option>
+                    </select>
+                  </div>
                   <button className={`${styles.actionButton} ${styles.secondary}`} onClick={() => setEditingUser(null)}>Fermer</button>
                 </>
               ) : (

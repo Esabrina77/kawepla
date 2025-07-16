@@ -7,16 +7,22 @@ import { useDesigns } from '@/hooks/useDesigns';
 import { useAuth } from '@/hooks/useAuth';
 import { TemplateEngine } from '@/lib/templateEngine';
 import { mergeTemplateData } from '@/lib/templateEngine';
-import { SubscriptionLimits, canCreateInvitation } from '@/components/SubscriptionLimits/SubscriptionLimits';
+import { SubscriptionLimits } from '@/components/SubscriptionLimits/SubscriptionLimits';
+import { TutorialGuide } from '@/components/Tutorial/TutorialGuide';
+import { invitationsTutorialConfig } from '@/components/Tutorial/tutorialConfig';
+import { Plus, FileText, Calendar, MapPin, Edit3, Eye, Send } from 'lucide-react';
 import styles from './invitations.module.css';
+import { useSubscriptionLimits } from '@/hooks/useSubscriptionLimits';
 
 export default function InvitationsPage() {
   const router = useRouter();
   const { user } = useAuth();
   const { invitations, loading, error, createInvitation, updateInvitation, publishInvitation } = useInvitations();
   const { designs } = useDesigns();
+  const { limits, usage, remaining, refresh: refreshLimits } = useSubscriptionLimits();
   const [showCreateForm, setShowCreateForm] = useState(false);
   const [selectedDesignId, setSelectedDesignId] = useState<string>('');
+  const [showPreview, setShowPreview] = useState(true);
   const [formData, setFormData] = useState({
     coupleName: '',
     weddingDate: '',
@@ -37,8 +43,25 @@ export default function InvitationsPage() {
     contact: ''
   });
 
-  // Vérifier si l'utilisateur peut créer une invitation
-  const canCreate = canCreateInvitation(user, invitations);
+  // Vérifier si l'utilisateur peut créer une invitation basé sur les vraies limites
+  const canCreate = remaining ? remaining.invitations > 0 : false;
+  
+  // Debug temporaire
+  console.log('Debug limites invitations:', {
+    limits: limits?.invitations,
+    usage: usage?.invitations,
+    remaining: remaining?.invitations,
+    canCreate,
+    invitationsCount: invitations?.length,
+    userTier: user?.subscriptionTier
+  });
+
+  // Rafraîchir les limites après un changement de forfait
+  useEffect(() => {
+    if (user?.subscriptionTier) {
+      refreshLimits();
+    }
+  }, [user?.subscriptionTier, refreshLimits]);
 
   // Vérifier si l'utilisateur a sélectionné un design
   useEffect(() => {
@@ -224,15 +247,22 @@ export default function InvitationsPage() {
 
   return (
     <div className={styles.invitationsPage}>
+      <TutorialGuide config={invitationsTutorialConfig} />
       <div className={styles.header}>
         <h1>Mes Invitations</h1>
-        {canCreate && (
+        {canCreate ? (
           <button 
             className={styles.createButton}
             onClick={handleCreateInvitation}
+            data-tutorial="create-invitation"
           >
             Créer une invitation
           </button>
+        ) : (
+          <div className={styles.limitReached}>
+            <p>Limite d'invitations atteinte ({usage?.invitations}/{limits?.invitations})</p>
+            <p>Améliorez votre forfait pour créer plus d'invitations</p>
+          </div>
         )}
       </div>
       
@@ -241,7 +271,9 @@ export default function InvitationsPage() {
       
       {invitations.length === 0 && !showCreateForm ? (
         <div className={styles.emptyState}>
-          <div className={styles.emptyIcon}>📝</div>
+          <div className={styles.emptyIcon}>
+            <FileText size={48} />
+          </div>
           <h2>Aucune invitation créée</h2>
           <p>Commencez par créer votre première invitation de mariage</p>
           {canCreate && (
@@ -249,12 +281,13 @@ export default function InvitationsPage() {
               className={styles.createButtonLarge}
               onClick={handleCreateInvitation}
             >
+              <Plus className={styles.buttonIcon} />
               Créer ma première invitation
             </button>
           )}
         </div>
       ) : (
-        <div className={styles.invitationsGrid}>
+        <div className={styles.invitationsGrid} data-tutorial="invitation-list">
           {invitations.map((invitation) => (
             <div key={invitation.id} className={styles.invitationCard}>
               <div className={styles.cardHeader}>
@@ -266,25 +299,30 @@ export default function InvitationsPage() {
               
               <div className={styles.cardContent}>
                 <div className={styles.detail}>
-                  <strong>Date:</strong> {new Date(invitation.weddingDate).toLocaleDateString('fr-FR')}
+                  <Calendar className={styles.detailIcon} />
+                  <span><strong>Date:</strong> {new Date(invitation.weddingDate).toLocaleDateString('fr-FR')}</span>
                 </div>
                 <div className={styles.detail}>
-                  <strong>Lieu:</strong> {invitation.venueName}
+                  <MapPin className={styles.detailIcon} />
+                  <span><strong>Lieu:</strong> {invitation.venueName}</span>
                 </div>
                 <div className={styles.detail}>
-                  <strong>Adresse:</strong> {invitation.venueAddress}
+                  <MapPin className={styles.detailIcon} />
+                  <span><strong>Adresse:</strong> {invitation.venueAddress}</span>
                 </div>
                 <div className={styles.detail}>
-                  <strong>Design:</strong> {getDesignName(invitation.designId)}
+                  <FileText className={styles.detailIcon} />
+                  <span><strong>Design:</strong> {getDesignName(invitation.designId)}</span>
                 </div>
               </div>
 
-              <div className={styles.cardActions}>
+              <div className={styles.cardActions} data-tutorial="shareable-links">
                 {invitation.status === 'DRAFT' && (
                   <button 
                     className={styles.editButton}
                     onClick={() => router.push(`/client/invitations/${invitation.id}`)}
                   >
+                    <Edit3 className={styles.buttonIcon} />
                     Modifier
                   </button>
                 )}
@@ -292,6 +330,7 @@ export default function InvitationsPage() {
                   className={styles.viewButton}
                   onClick={() => router.push(`/client/invitations/${invitation.id}/preview`)}
                 >
+                  <Eye className={styles.buttonIcon} />
                   Aperçu
                 </button>
                 {invitation.status === 'DRAFT' && (
@@ -299,13 +338,14 @@ export default function InvitationsPage() {
                     className={styles.publishButton}
                     onClick={() => handlePublish(invitation.id)}
                   >
+                    <Send className={styles.buttonIcon} />
                     Publier
                   </button>
                 )}
               </div>
-          </div>
-      ))}
-    </div>
+            </div>
+          ))}
+        </div>
       )}
 
       {/* Formulaire de création avec prévisualisation */}
@@ -323,6 +363,15 @@ export default function InvitationsPage() {
             </div>
             
             <div className={styles.formWithPreview}>
+              {/* Bouton de basculement pour mobile */}
+              <button 
+                className={`${styles.previewToggle} ${showPreview ? styles.active : ''}`}
+                onClick={() => setShowPreview(!showPreview)}
+                type="button"
+              >
+                {showPreview ? '👁️ Masquer l\'aperçu' : '👁️ Voir l\'aperçu'}
+              </button>
+              
               {/* Formulaire */}
               <div className={styles.formSection}>
                 <form onSubmit={handleFormSubmit} className={styles.form}>
@@ -551,7 +600,7 @@ export default function InvitationsPage() {
               </div>
 
               {/* Prévisualisation */}
-              <div className={styles.previewSection}>
+              <div className={`${styles.previewSection} ${!showPreview ? styles.previewHidden : ''}`}>
                 <h3>Aperçu en temps réel</h3>
                 <div className={styles.previewContainer}>
                   {selectedDesign ? (

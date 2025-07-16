@@ -1,3 +1,39 @@
+/* Styles spécifiques pour Poppins */
+:root[data-font="poppins"] {
+  /* Application de la police Poppins */
+  --font-body: var(--font-poppins);
+  --font-heading: var(--font-poppins);
+
+  /* Ajustements typographiques pour Poppins */ 
+  letter-spacing: 0.01em;
+  word-spacing: 0.02em;
+  line-height: 1.5;
+}
+
+/* Styles spécifiques pour Open Sans */
+:root[data-font="open-sans"] {
+  /* Application de la police Open Sans */
+  --font-body: var(--font-open-sans);
+  --font-heading: var(--font-open-sans);
+
+  /* Ajustements typographiques pour Open Sans */
+  letter-spacing: 0.01em;
+  word-spacing: 0.02em;
+  line-height: 1.5;
+}
+
+/* Styles spécifiques pour Featherscript (police décorative) */
+:root[data-font="featherscript"] {
+  /* Application de la police décorative Featherscript */
+  --font-body: var(--font-featherscript);
+  --font-heading: var(--font-featherscript);
+
+  /* Ajustements typographiques pour Featherscript */
+  letter-spacing: 0.02em;
+  word-spacing: 0.05em;
+  line-height: 1.6;
+}
+
 /* Styles spécifiques pour OpenDyslexic */
 :root[data-font="dyslexic"] {
   /* Variables des tailles de police ajustées pour OpenDyslexic (-4px) */
@@ -20,18 +56,6 @@
   letter-spacing: 0.05em;
   word-spacing: 0.1em;
   line-height: 1.5;
-}
-
-/* Styles spécifiques pour Verdana */
-:root[data-font="verdana"] {
-  /* Application de la police Verdana */
-  --font-body: Verdana, sans-serif;
-  --font-heading: Verdana, sans-serif;
-
-  /* Ajustements typographiques pour Verdana */
-  letter-spacing: 0.02em;
-  word-spacing: 0.05em;
-  line-height: 1.4;
 }
 
 /* Application des tailles spécifiques pour OpenDyslexic */

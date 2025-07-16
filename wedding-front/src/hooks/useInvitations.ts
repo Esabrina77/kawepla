@@ -175,6 +175,40 @@ export function useInvitations() {
     }
   };
 
+  const generateShareableLink = async (id: string, options: { maxUses?: number; expiresAt?: string } = {}): Promise<any> => {
+    try {
+      const response = await apiClient.post(`/invitations/${id}/generate-shareable-link`, {
+        maxUses: options.maxUses || 50,
+        ...(options.expiresAt && { expiresAt: options.expiresAt })
+      });
+      
+      return response;
+    } catch (error) {
+      console.error('Erreur lors de la génération du lien partageable:', error);
+      throw error;
+    }
+  };
+
+  const getShareableStats = async (id: string): Promise<any> => {
+    try {
+      const response = await apiClient.get(`/invitations/${id}/shareable-stats`);
+      return response;
+    } catch (error) {
+      console.error('Erreur lors de la récupération des statistiques:', error);
+      throw error;
+    }
+  };
+
+  const disableShareableLink = async (id: string): Promise<any> => {
+    try {
+      const response = await apiClient.delete(`/invitations/${id}/shareable-link`);
+      return response;
+    } catch (error) {
+      console.error('Erreur lors de la désactivation du lien:', error);
+      throw error;
+    }
+  };
+
   useEffect(() => {
     fetchInvitations();
   }, []);
@@ -187,7 +221,10 @@ export function useInvitations() {
     getInvitationById,
     createInvitation,
     updateInvitation,
-    publishInvitation
+    publishInvitation,
+    generateShareableLink,
+    getShareableStats,
+    disableShareableLink
   };
 }
 

@@ -8,7 +8,15 @@ import { Button } from '@/components/Button/Button';
 import { Card } from '@/components/Card/Card';
 import { SubscriptionLimits } from '@/components/SubscriptionLimits/SubscriptionLimits';
 import { apiClient } from '@/lib/api/apiClient';
+import { guestsApi } from '@/lib/api/guests';
+import PhoneInput from '@/components/PhoneInput/PhoneInput';
+import { ConditionalTutorial } from '@/components/Tutorial/ConditionalTutorial';
+import { guestsTutorialConfig } from '@/components/Tutorial/tutorialConfig';
+import { Users, Plus, FolderOpen, Search, User, Star, UserPlus, Mail, Phone, Utensils, Trash2, CheckCircle, Clock, XCircle, Link2, Send, Bell, Edit3, ClipboardList, Copy, RefreshCw, Share2, AlertTriangle, Info, FileText, Upload, Loader, HelpCircle, FileUp } from 'lucide-react';
 import styles from './guests.module.css';
+import { Guest } from '@/types';
+import PhotoModal from '@/components/PhotoModal/PhotoModal';
+import { useSubscriptionLimits } from '@/hooks/useSubscriptionLimits';
 
 // Composant Modal personnalisé
 interface ModalProps {
@@ -38,10 +46,10 @@ function CustomModal({
 
   const getIcon = () => {
     switch (type) {
-      case 'success': return '✅';
-      case 'error': return '❌';
-      case 'warning': return '⚠️';
-      default: return 'ℹ️';
+      case 'success': return <CheckCircle className={styles.modalIcon} />;
+      case 'error': return <XCircle className={styles.modalIcon} />;
+      case 'warning': return <AlertTriangle className={styles.modalIcon} />;
+      default: return <Info className={styles.modalIcon} />;
     }
   };
 
@@ -153,37 +161,273 @@ export default function GuestsPage() {
 
   return (
     <div className={styles.guestsPage}>
+      <ConditionalTutorial 
+        config={guestsTutorialConfig} 
+        condition={() => {
+          // Vérifier que l'utilisateur a au moins une invitation
+          return invitations.length > 0;
+        }}
+        delay={1500}
+      />
       {/* Affichage des limites d'abonnement */}
+      <div data-tutorial="subscription-limits">
       <SubscriptionLimits invitationId={selectedInvitationId} />
+      </div>
       
       {/* Sélecteur d'invitation si plusieurs */}
       {invitations.length > 1 && (
         <div className={styles.invitationSelector}>
-          <Card>
-            <h3>📋 Sélectionner l'invitation à gérer</h3>
+          <label htmlFor="invitation-select" className={styles.selectorLabel}>
+            <ClipboardList className={styles.headerIcon} /> Sélectionner l'invitation à gérer
+          </label>
+          <div className={styles.invitationSelect}>
             <select 
-              value={selectedInvitationId} 
+              id="invitation-select"
+              value={selectedInvitationId || ''} 
               onChange={(e) => setSelectedInvitationId(e.target.value)}
-              className={styles.invitationSelect}
             >
               {invitations.map(invitation => (
                 <option key={invitation.id} value={invitation.id}>
                   {invitation.coupleName || invitation.title} 
                   {invitation.weddingDate && ` - ${new Date(invitation.weddingDate).toLocaleDateString('fr-FR')}`}
-                  {invitation.status === 'PUBLISHED' ? ' ✅ Publiée' : ' 📝 Brouillon'}
+                  {` • ${invitation.status === 'PUBLISHED' ? 'Publiée' : 'Brouillon'}`}
                 </option>
               ))}
             </select>
-          </Card>
+          </div>
         </div>
       )}
       
-      <GuestsList invitationId={selectedInvitationId} invitation={selectedInvitation} />
+      {/* Gestion directe des invitations */}
+      <InvitationManagement invitationId={selectedInvitationId} invitation={selectedInvitation} />
+
+
+      
     </div>
   );
 }
 
-function GuestsList({ invitationId, invitation }: { invitationId: string, invitation: any }) {
+// Composant pour gérer les liens partageables
+function ShareableLinkManager({ invitationId }: { invitationId: string }) {
+  const [shareableLink, setShareableLink] = useState<{
+    url: string;
+    maxUses: number;
+    usedCount: number;
+    expiresAt?: Date;
+    remainingGuests: number;
+  } | null>(null);
+  const [loading, setLoading] = useState(false);
+  const { limits, usage, remaining } = useSubscriptionLimits();
+
+  // Charger les statistiques du lien partageable existant
+  useEffect(() => {
+    const fetchShareableStats = async () => {
+      try {
+        const response = await apiClient.get(`/invitations/${invitationId}/shareable-stats`);
+        const stats = response as any;
+        
+        if (stats.shareableEnabled && stats.shareableUrl) {
+          setShareableLink({
+            url: stats.shareableUrl,
+            maxUses: stats.shareableMaxUses,
+            usedCount: stats.shareableUsedCount,
+            expiresAt: stats.shareableExpiresAt ? new Date(stats.shareableExpiresAt) : undefined,
+            remainingGuests: remaining?.guests || 0
+          });
+        }
+      } catch (error) {
+        console.error('Erreur lors de la récupération des statistiques:', error);
+      }
+    };
+
+    fetchShareableStats();
+  }, [invitationId, remaining?.guests]);
+
+  const generateShareableLink = async () => {
+    try {
+      setLoading(true);
+      const response = await apiClient.post(`/invitations/${invitationId}/generate-shareable-link`, {
+        // Pas d'expiration - on n'envoie pas expiresAt
+      });
+      
+      // Adapter la réponse du backend au format attendu par le frontend
+      if (response) {
+        const backendResponse = response as any;
+        setShareableLink({
+          url: backendResponse.shareableUrl,
+          maxUses: backendResponse.maxUses,
+          usedCount: backendResponse.usedCount,
+          expiresAt: backendResponse.expiresAt ? new Date(backendResponse.expiresAt) : undefined,
+          remainingGuests: remaining?.guests || 0
+        });
+      }
+    } catch (error) {
+      console.error('Erreur lors de la génération du lien:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const regenerateShareableLink = async () => {
+    try {
+      setLoading(true);
+      const response = await apiClient.post(`/invitations/${invitationId}/generate-shareable-link`, {});
+      
+      if (response) {
+        const backendResponse = response as any;
+        const newLink = {
+          url: backendResponse.shareableUrl,
+          maxUses: backendResponse.maxUses,
+          usedCount: backendResponse.usedCount,
+          expiresAt: backendResponse.expiresAt ? new Date(backendResponse.expiresAt) : undefined,
+          remainingGuests: remaining?.guests || 0
+        };
+        setShareableLink(newLink);
+        return newLink.url;
+      }
+    } catch (error) {
+      console.error('Erreur lors de la régénération du lien:', error);
+    } finally {
+      setLoading(false);
+    }
+    return null;
+  };
+
+  const copyToClipboard = async () => {
+    try {
+      const newUrl = await regenerateShareableLink();
+      if (newUrl) {
+        await navigator.clipboard.writeText(newUrl);
+        // On pourrait ajouter une notification de succès ici
+      }
+    } catch (error) {
+      console.error('Erreur lors de la copie:', error);
+    }
+  };
+
+  const shareLink = async (url: string) => {
+    const message = `Vous êtes invité à notre mariage ! Cliquez sur ce lien pour confirmer votre présence : ${url}`;
+    
+    // Utiliser l'API Web Share si disponible
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: 'Invitation de mariage',
+          text: message,
+          url: url
+        });
+        await regenerateShareableLink();
+      } catch (error) {
+        console.log('Partage annulé ou erreur:', error);
+      }
+    } else {
+      // Fallback : copier dans le presse-papier
+      try {
+        await navigator.clipboard.writeText(message);
+        alert('Le message d\'invitation a été copié dans le presse-papier !');
+        await regenerateShareableLink();
+      } catch (error) {
+        console.error('Erreur lors de la copie:', error);
+      }
+    }
+  };
+
+  return (
+    <div className={styles.shareableContent}>
+      {!shareableLink ? (
+        <div className={styles.generateSection}>
+          <p>Créez un lien unique que vous pouvez partager avec vos invités.</p>
+          <Button 
+            onClick={generateShareableLink} 
+            variant="primary"
+            disabled={loading || (remaining?.guests || 0) <= 0}
+          >
+            {loading ? <Loader className={styles.spinIcon} /> : <Link2 className={styles.buttonIcon} />} Générer un lien partageable
+            {(remaining?.guests || 0) <= 0 && <span className={styles.limitReached}> (Limite atteinte)</span>}
+          </Button>
+          {(remaining?.guests || 0) <= 0 && (
+            <p className={styles.warningText}>
+              <AlertTriangle className={styles.warningIcon} /> Vous avez atteint la limite d'invités de votre forfait
+            </p>
+          )}
+        </div>
+      ) : (
+        <div className={styles.shareableLinkInfo}>
+          {/* Explication importante sur l'utilisation */}
+          <div className={styles.importantNotice}>
+            <div className={styles.noticeIcon}><HelpCircle className={styles.infoIcon} /></div>
+            <div className={styles.noticeContent}>
+              Partagez ce lien avec votre invité. Chaque lien est personnel et permet de répondre facilement à l'invitation.
+            </div>
+          </div>
+          
+          <div className={styles.linkDisplay}>
+            <input 
+              type="text" 
+              value={shareableLink.url} 
+              readOnly 
+              className={styles.linkInput}
+            />
+            <Button 
+              onClick={copyToClipboard}
+              variant="outline"
+              className={styles.copyButton}
+            >
+              <Copy className={styles.buttonIcon} /> Copier le lien
+            </Button>
+          </div>
+          
+          <div className={styles.shareStats}>
+            <div className={styles.usageStats}>
+              <div className={styles.usageCount}>
+                <span>Utilisé {shareableLink.usedCount} fois</span>
+              </div>
+              <div className={styles.remainingCount}>
+                <span>{remaining?.guests || 0} invités restants sur {limits?.guests || 0}</span>
+              </div>
+            </div>
+            <div className={styles.progressBar}>
+              <div 
+                className={styles.progressFill} 
+                style={{ 
+                  width: `${((usage?.guests || 0) / (limits?.guests || 1)) * 100}%`,
+                  backgroundColor: (remaining?.guests || 0) <= 10 ? '#ff4444' : '#4CAF50'
+                }}
+              />
+            </div>
+          </div>
+          
+          <div className={styles.shareButtons}>
+            <Button 
+              onClick={regenerateShareableLink} 
+              variant="primary"
+              disabled={loading || (remaining?.guests || 0) <= 0}
+            >
+              <RefreshCw className={styles.buttonIcon} /> Générer un nouveau lien
+            </Button>
+            <Button 
+              onClick={() => shareLink(shareableLink.url)} 
+              variant="outline"
+              disabled={(remaining?.guests || 0) <= 0}
+            >
+              <Share2 className={styles.buttonIcon} /> Partager
+            </Button>
+          </div>
+
+          {(remaining?.guests || 0) <= 10 && (
+            <div className={styles.warningText}>
+              <AlertTriangle className={styles.warningIcon} /> Il ne vous reste que {remaining?.guests} invités disponibles
+          </div>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
+type GuestHookProps = ReturnType<typeof useGuests>;
+
+function GuestsList({ invitationId, invitation, ...guestProps }: { invitationId: string, invitation: any } & GuestHookProps) {
   const {
     guests,
     statistics,
@@ -192,8 +436,9 @@ function GuestsList({ invitationId, invitation }: { invitationId: string, invita
     createGuest,
     updateGuest,
     deleteGuest,
-    importGuests
-  } = useGuests(invitationId);
+    importGuests,
+    loadGuests
+  } = guestProps;
 
   const [showAddForm, setShowAddForm] = useState(false);
   const [sendingEmails, setSendingEmails] = useState(false);
@@ -203,6 +448,9 @@ function GuestsList({ invitationId, invitation }: { invitationId: string, invita
   const [importFile, setImportFile] = useState<File | null>(null);
   const [importing, setImporting] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+  const [showImportModal, setShowImportModal] = useState(false);
+  const [photoModalOpen, setPhotoModalOpen] = useState(false);
+  const [selectedPhoto, setSelectedPhoto] = useState<{ url: string; alt: string } | null>(null);
   
   // États pour les modals
   const [modal, setModal] = useState<{
@@ -296,7 +544,7 @@ function GuestsList({ invitationId, invitation }: { invitationId: string, invita
       }
       
       // Vérifier l'unicité de l'email
-      const emailExists = guests.some(guest => 
+      const emailExists = guests.some((guest) => 
         guest.email && guest.email.toLowerCase() === formData.email.trim().toLowerCase()
       );
       if (emailExists) {
@@ -789,26 +1037,36 @@ function GuestsList({ invitationId, invitation }: { invitationId: string, invita
     );
   };
 
-  const getGuestStatus = (guest: any) => {
-    if (guest.rsvp) {
-      switch (guest.rsvp.status) {
-        case 'CONFIRMED': return 'Confirmé';
-        case 'DECLINED': return 'Refusé';
-        default: return 'En attente';
-      }
-    }
-    return 'Pas de réponse';
+  const getGuestCount = (guest: Guest) => {
+    return guest.rsvp?.numberOfGuests || (guest.rsvp as any)?.attendees || 1;
   };
 
-  const getGuestStatusColor = (guest: any) => {
-    if (guest.rsvp) {
+  const getGuestStatus = (guest: Guest) => {
+    if (!guest.rsvp) return 'En attente';
       switch (guest.rsvp.status) {
-        case 'CONFIRMED': return '#4CAF50';
-        case 'DECLINED': return '#f44336';
-        default: return '#ff9800';
+        case 'CONFIRMED': return 'Confirmé';
+      case 'DECLINED': return 'Décliné';
+        default: return 'En attente';
       }
+  };
+
+  const getGuestStatusColor = (guest: Guest) => {
+    if (!guest.rsvp) return '#f59e0b';
+      switch (guest.rsvp.status) {
+      case 'CONFIRMED': return '#10b981';
+      case 'DECLINED': return '#ef4444';
+      default: return '#f59e0b';
     }
-    return '#9e9e9e';
+  };
+
+  const handlePhotoClick = (photoUrl: string, alt: string) => {
+    setSelectedPhoto({ url: photoUrl, alt });
+    setPhotoModalOpen(true);
+  };
+
+  const closePhotoModal = () => {
+    setPhotoModalOpen(false);
+    setSelectedPhoto(null);
   };
 
   if (loading) {
@@ -820,10 +1078,10 @@ function GuestsList({ invitationId, invitation }: { invitationId: string, invita
   }
 
   const canSendEmails = invitation?.status === 'PUBLISHED';
-  const guestsWithEmails = guests.filter(g => g.email);
+  const guestsWithEmails = guests.filter((g) => g.email);
 
   // Filtrer les invités selon la recherche
-  const filteredGuests = guests.filter(guest => {
+  const filteredGuests = guests.filter((guest) => {
     if (!searchQuery.trim()) return true;
     
     const query = searchQuery.toLowerCase().trim();
@@ -842,19 +1100,56 @@ function GuestsList({ invitationId, invitation }: { invitationId: string, invita
     );
   });
 
+  const { limits, usage, remaining } = useSubscriptionLimits();
+
+  // Vérifier si on peut ajouter des invités
+  const canAddGuests = (remaining?.guests || 0) > 0;
+
   return (
     <div className={styles.guestsPage}>
       <div className={styles.header}>
         <h1>Gestion des invités</h1>
-        <div className={styles.actions}>
-          <Button onClick={() => setShowAddForm(true)} variant="primary">
-            ➕ Ajouter un invité
-          </Button>
-          <Button onClick={() => setShowBulkImport(true)} variant="outline">
-            📂 Import en masse
-          </Button>
-        </div>
+        {invitation?.status === 'PUBLISHED' && (
+          <div className={styles.actions}>
+            <Button 
+              onClick={() => setShowAddForm(true)} 
+              variant="primary" 
+              data-tutorial="add-guest"
+              disabled={!canAddGuests}
+            >
+              <Plus className={styles.buttonIcon} /> Ajouter un invité
+              {!canAddGuests && <span className={styles.limitReached}> (Limite atteinte)</span>}
+            </Button>
+            <Button 
+              onClick={() => setShowBulkImport(true)} 
+              variant="outline" 
+              data-tutorial="import-guests"
+              disabled={!canAddGuests}
+            >
+              <FolderOpen className={styles.buttonIcon} /> Import en masse
+              {!canAddGuests && <span className={styles.limitReached}> (Limite atteinte)</span>}
+            </Button>
+          </div>
+        )}
       </div>
+
+      {invitation?.status !== 'PUBLISHED' && (
+        <div className={styles.restrictedAccess}>
+          <div className={styles.restrictedIcon}>
+            <AlertTriangle className={styles.warningIcon} />
+          </div>
+          <h3>Invitation non publiée</h3>
+          <p>Vous devez d'abord publier votre invitation pour pouvoir ajouter des invités et envoyer des invitations par email.</p>
+          <div className={styles.restrictedActions}>
+            <Button 
+              onClick={() => window.location.href = '/client/invitations'} 
+              variant="primary"
+            >
+              Publier mon invitation
+            </Button>
+          </div>
+        </div>
+      )}
 
       {/* Modal d'import en masse */}
       {showBulkImport && (
@@ -871,7 +1166,7 @@ function GuestsList({ invitationId, invitation }: { invitationId: string, invita
         >
           <div className={styles.modalContent}>
             <div className={styles.modalHeader}>
-              <h2>📂 Import en masse d'invités</h2>
+              <h2><FolderOpen className={styles.headerIcon} /> Import en masse d'invités</h2>
               <button 
                 className={styles.closeButton}
                 onClick={() => {
@@ -887,20 +1182,20 @@ function GuestsList({ invitationId, invitation }: { invitationId: string, invita
             <div className={styles.modalBody}>
               {!importPreview ? (
                 <div className={styles.importStep}>
-                  <h3>📋 1. Téléchargez un template</h3>
+                  <h3><FileText className={styles.headerIcon} /> 1. Téléchargez un template</h3>
                   <div className={styles.templateButtons}>
                     <Button onClick={() => downloadTemplate('csv')} variant="outline">
-                      📄 Template CSV
+                      <FileText className={styles.buttonIcon} /> Template CSV
                     </Button>
                     <Button onClick={() => downloadTemplate('json')} variant="outline">
-                      📄 Template JSON
+                      <FileText className={styles.buttonIcon} /> Template JSON
                     </Button>
                     <Button onClick={() => downloadTemplate('txt')} variant="outline">
-                      📄 Template TXT
+                      <FileText className={styles.buttonIcon} /> Template TXT
                     </Button>
                   </div>
 
-                  <h3>📝 2. Remplissez le fichier</h3>
+                  <h3><FileText className={styles.headerIcon} /> 2. Remplissez le fichier</h3>
                   <div className={styles.formatInfo}>
                     <h4>📋 Règles de validation :</h4>
                     <ul>
@@ -943,7 +1238,7 @@ function GuestsList({ invitationId, invitation }: { invitationId: string, invita
                     </ul>
                   </div>
 
-                  <h3>📤 3. Uploadez votre fichier</h3>
+                  <h3><Upload className={styles.headerIcon} /> 3. Uploadez votre fichier</h3>
                   <div className={styles.uploadArea}>
             <input
               type="file"
@@ -959,7 +1254,7 @@ function GuestsList({ invitationId, invitation }: { invitationId: string, invita
                       onClick={() => document.getElementById('bulkUpload')?.click()}
                       variant="primary"
                     >
-                      📤 Choisir un fichier
+                      <FileUp className={styles.buttonIcon} /> Choisir un fichier
                     </Button>
                     <p>Formats supportés: CSV, JSON, TXT (max 5MB)</p>
                   </div>
@@ -970,11 +1265,11 @@ function GuestsList({ invitationId, invitation }: { invitationId: string, invita
                   
                   <div className={styles.previewStats}>
                     <div className={styles.statItem}>
-                      <span>✅ Invités valides</span>
+                      <span><CheckCircle className={styles.statIcon} /> Invités valides</span>
                       <strong>{importPreview.validGuests || importPreview.totalGuests}</strong>
                     </div>
                     <div className={styles.statItem}>
-                      <span>❌ Erreurs</span>
+                      <span><AlertTriangle className={styles.statIcon} /> Erreurs</span>
                       <strong>{importPreview.errors.length}</strong>
                     </div>
                   </div>
@@ -1017,7 +1312,15 @@ function GuestsList({ invitationId, invitation }: { invitationId: string, invita
                       variant="primary"
                       disabled={importing || (importPreview.validGuests || importPreview.totalGuests) === 0}
                     >
-                      {importing ? '⏳ Import en cours...' : `✅ Confirmer l'import (${importPreview.validGuests || importPreview.totalGuests} invités)`}
+                      {importing ? (
+                        <>
+                          <Loader className={styles.spinIcon} /> Import en cours...
+                        </>
+                      ) : (
+                        <>
+                          <CheckCircle className={styles.buttonIcon} /> Confirmer l'import ({importPreview.validGuests || importPreview.totalGuests} invités)
+                        </>
+                      )}
                     </Button>
                     <Button 
                       onClick={() => {
@@ -1036,63 +1339,15 @@ function GuestsList({ invitationId, invitation }: { invitationId: string, invita
         </div>
       )}
 
-      {!canSendEmails && (
-        <div className={styles.warning}>
-          <Card>
-            <h3>⚠️ Invitation non publiée</h3>
-            <p>Vous devez publier votre invitation avant de pouvoir envoyer des emails aux invités.</p>
-            <Link href="/client/invitations">
-              <Button variant="primary">Publier l'invitation</Button>
-            </Link>
-          </Card>
-      </div>
-      )}
-
-
-
-      {statistics && (
-        <div className={styles.statistics}>
-          <Card>
-            <h2>📊 Statistiques</h2>
-            <div className={styles.statsGrid}>
-              <div className={styles.statItem}>
-                <span>Total invités</span>
-                <strong>{guests.length}</strong>
-              </div>
-              <div className={styles.statItem}>
-                <span>Avec email</span>
-                <strong>{guestsWithEmails.length}</strong>
-              </div>
-              <div className={styles.statItem}>
-                <span>Invitations envoyées</span>
-                <strong>{guests.filter(g => g.invitationSentAt).length}</strong>
-              </div>
-              <div className={styles.statItem}>
-                <span>Confirmés</span>
-                <strong>{guests.filter(g => g.rsvp?.status === 'CONFIRMED').length}</strong>
-              </div>
-              <div className={styles.statItem}>
-                <span>Refusés</span>
-                <strong>{guests.filter(g => g.rsvp?.status === 'DECLINED').length}</strong>
-              </div>
-              <div className={styles.statItem}>
-                <span>En attente</span>
-                <strong>{guests.filter(g => !g.rsvp || g.rsvp?.status === 'PENDING').length}</strong>
-              </div>
-            </div>
-          </Card>
-        </div>
-      )}
-
       {/* Barre de recherche */}
       <div className={styles.searchSection}>
         <Card>
           <div className={styles.searchContainer}>
             <div className={styles.searchInputWrapper}>
-              <span className={styles.searchIcon}>🔍</span>
+              <Search className={styles.searchIcon} />
               <input
                 type="text"
-                placeholder="Rechercher un invité (nom, email, téléphone, restrictions...)"
+                placeholder="Rechercher un invité (nom, email, téléphone...)"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className={styles.searchInput}
@@ -1103,7 +1358,7 @@ function GuestsList({ invitationId, invitation }: { invitationId: string, invita
                   className={styles.clearSearch}
                   title="Effacer la recherche"
                 >
-                  ✕
+                  <XCircle size={16} />
                 </button>
               )}
             </div>
@@ -1116,16 +1371,18 @@ function GuestsList({ invitationId, invitation }: { invitationId: string, invita
         </Card>
       </div>
 
+
+
       {showAddForm && (
         <div className={styles.addForm}>
           <Card>
-            <h2>➕ Ajouter un invité</h2>
+            <h2><UserPlus className={styles.headerIcon} /> Ajouter un invité</h2>
             <form onSubmit={handleSubmit}>
               <div className={styles.formGrid}>
                 <input
                   type="text"
                   name="firstName"
-                  placeholder="Prénom * (min. 2 caractères)"
+                  placeholder="Prénom *"
                   value={formData.firstName}
                   onChange={handleInputChange}
                   required
@@ -1134,7 +1391,7 @@ function GuestsList({ invitationId, invitation }: { invitationId: string, invita
                 <input
                   type="text"
                   name="lastName"
-                  placeholder="Nom * (min. 2 caractères)"
+                  placeholder="Nom *"
                   value={formData.lastName}
                   onChange={handleInputChange}
                   required
@@ -1143,25 +1400,16 @@ function GuestsList({ invitationId, invitation }: { invitationId: string, invita
                 <input
                   type="email"
                   name="email"
-                  placeholder="Email (requis si pas de téléphone)"
+                  placeholder="Email"
                   value={formData.email}
                   onChange={handleInputChange}
                 />
-                <input
-                  type="tel"
-                  name="phone"
-                  placeholder="Téléphone (requis si pas d'email)"
+                <PhoneInput
                   value={formData.phone}
-                  onChange={handleInputChange}
-                  pattern="[\+]?[0-9\s\-\(\)]{8,}"
-                  title="Minimum 8 caractères, chiffres/espaces/+/-/() autorisés"
-                />
-                <textarea
-                  name="dietaryRestrictions"
-                  placeholder="Restrictions alimentaires (optionnel)"
-                  value={formData.dietaryRestrictions}
-                  onChange={handleInputChange}
-                  rows={2}
+                  onChange={(value: string) => setFormData(prev => ({ ...prev, phone: value }))}
+                  placeholder="Téléphone"
+                  name="phone"
+                  required={!formData.email}
                 />
                 <div className={styles.checkboxGroup}>
                   <label>
@@ -1171,7 +1419,7 @@ function GuestsList({ invitationId, invitation }: { invitationId: string, invita
                       checked={formData.isVIP}
                       onChange={handleInputChange}
                     />
-                    ⭐ Invité VIP
+                    <Star className={styles.checkboxIcon} /> Invité VIP
                   </label>
                 <label>
                   <input
@@ -1180,25 +1428,33 @@ function GuestsList({ invitationId, invitation }: { invitationId: string, invita
                       checked={formData.plusOne}
                       onChange={handleInputChange}
                     />
-                    👥 Autorisé à venir accompagné
+                    <Users className={styles.checkboxIcon} /> Accompagné
                   </label>
                 </div>
                 {formData.plusOne && (
                   <input
                     type="text"
                     name="plusOneName"
-                    placeholder="Nom de l'accompagnant (optionnel)"
+                    placeholder="Nom de l'accompagnant"
                     value={formData.plusOneName}
                     onChange={handleInputChange}
                   />
                 )}
+                <textarea
+                  name="dietaryRestrictions"
+                  placeholder="Restrictions alimentaires (optionnel)"
+                  value={formData.dietaryRestrictions}
+                  onChange={handleInputChange}
+                  rows={2}
+                />
               </div>
               <div className={styles.formActions}>
-                <Button type="submit" variant="primary">
-                  Ajouter l'invité
+                <Button type="submit" variant="primary" disabled={!canAddGuests}>
+                  <UserPlus className={styles.buttonIcon} /> Ajouter l'invité
+                  {!canAddGuests && <span className={styles.limitReached}> (Limite atteinte)</span>}
                 </Button>
                 <Button type="button" variant="outline" onClick={() => setShowAddForm(false)}>
-                  Annuler
+                  <XCircle className={styles.buttonIcon} /> Annuler
                 </Button>
               </div>
             </form>
@@ -1206,50 +1462,66 @@ function GuestsList({ invitationId, invitation }: { invitationId: string, invita
         </div>
       )}
 
-      <div className={styles.guestsList}>
-        <h2>👥 Liste des invités ({searchQuery ? `${filteredGuests.length} sur ${guests.length}` : guests.length})</h2>
+      <div className={styles.guestsList} data-tutorial="guests-list">
+        <h2><Users className={styles.headerIcon} /> Liste des invités ({searchQuery ? `${filteredGuests.length} sur ${guests.length}` : guests.length})</h2>
         <div className={styles.guestsGrid}>
-          {filteredGuests.map(guest => (
+          {filteredGuests.map((guest) => (
           <Card key={guest.id} className={styles.guestCard}>
             <div className={styles.guestInfo}>
                 <div className={styles.guestHeader}>
+                  {(guest.profilePhotoUrl || (guest as any).rsvp?.profilePhotoUrl) && (
+                    <div className={styles.guestPhotoSection}>
+                      <img 
+                        src={guest.profilePhotoUrl || (guest as any).rsvp?.profilePhotoUrl} 
+                        alt={`Photo de ${guest.firstName} ${guest.lastName}`} 
+                        className={`${styles.guestPhoto} cursor-pointer hover:opacity-80 transition-opacity`}
+                        onClick={() => handlePhotoClick(guest.profilePhotoUrl || (guest as any).rsvp?.profilePhotoUrl, `Photo de ${guest.firstName} ${guest.lastName}`)}
+                      />
+                    </div>
+                  )}
+                  <div className={styles.guestNameSection}>
                   <h3>
                     {guest.firstName} {guest.lastName}
-                    {guest.isVIP && <span className={styles.vipBadge}>⭐ VIP</span>}
-                    {guest.plusOne && <span className={styles.plusOneBadge}>👥 +1</span>}
+                      {guest.isVIP && <span className={styles.vipBadge}><Star className={styles.badgeIcon} /> VIP</span>}
+                      {guest.rsvp?.status === 'CONFIRMED' && getGuestCount(guest) > 2 && (
+                        <span className={styles.groupBadge}><Users className={styles.badgeIcon} /> Groupe ({getGuestCount(guest)})</span>
+                      )}
+                      {guest.rsvp?.status === 'CONFIRMED' && getGuestCount(guest) === 2 && (
+                        <span className={styles.plusOneBadge}><Users className={styles.badgeIcon} /> +1</span>
+                      )}
                   </h3>
                   <div 
                     className={styles.statusBadge}
                     style={{ backgroundColor: getGuestStatusColor(guest) }}
                   >
                     {getGuestStatus(guest)}
+                    </div>
                   </div>
                 </div>
                 
                 <div className={styles.guestDetails}>
-                  <p>📧 {guest.email}</p>
-                  {guest.phone && <p>📞 {guest.phone}</p>}
+                  {guest.email && <p><Mail className={styles.detailIcon} /> {guest.email}</p>}
+                  {guest.phone && <p><Phone className={styles.detailIcon} /> {guest.phone}</p>}
               {guest.dietaryRestrictions && (
-                    <p>🥗 Restrictions : {guest.dietaryRestrictions}</p>
-                  )}
-                  {guest.plusOne && guest.plusOneName && (
-                    <p>👥 Accompagnant : {guest.plusOneName}</p>
+                    <p className={styles.dietaryRestrictions}>
+                      <Utensils className={styles.detailIcon} /> {guest.dietaryRestrictions}
+                    </p>
                   )}
                   {guest.invitationSentAt && (
                     <p className={styles.sentDate}>
-                      ✅ Invitation envoyée le {new Date(guest.invitationSentAt).toLocaleDateString('fr-FR')}
+                      <CheckCircle className={styles.detailIcon} /> Envoyée le {new Date(guest.invitationSentAt).toLocaleDateString('fr-FR')}
                     </p>
                   )}
                   {guest.usedAt && (
                     <p className={styles.usedDate}>
-                      🔗 Lien utilisé le {new Date(guest.usedAt).toLocaleDateString('fr-FR')}
+                      <Clock className={styles.detailIcon} /> Répondu le {new Date(guest.usedAt).toLocaleDateString('fr-FR')}
                 </p>
               )}
             </div>
               </div>
               
             <div className={styles.guestActions}>
-                {canSendEmails && guest.email && (
+                {canSendEmails && guest.email && (guest as any).invitationType !== 'SHAREABLE' && (
                   <div className={styles.emailActions}>
                     {!guest.invitationSentAt && (
                       <Button
@@ -1257,7 +1529,7 @@ function GuestsList({ invitationId, invitation }: { invitationId: string, invita
                         variant="primary"
                         size="small"
                       >
-                        📧 Envoyer invitation
+                        <Send className={styles.actionIcon} /> Envoyer invitation
                       </Button>
                     )}
                     {guest.invitationSentAt && !guest.rsvp && (
@@ -1266,9 +1538,14 @@ function GuestsList({ invitationId, invitation }: { invitationId: string, invita
                         variant="outline"
                         size="small"
                       >
-                        🔔 Envoyer rappel
+                        <Bell className={styles.actionIcon} /> Envoyer rappel
                       </Button>
                     )}
+                  </div>
+                )}
+                {(guest as any).invitationType === 'SHAREABLE' && (
+                  <div className={styles.shareableInfo}>
+                    <span className={styles.shareableBadge}><Link2 className={styles.badgeIcon} /> Via lien partageable</span>
                   </div>
                 )}
               <Button
@@ -1276,7 +1553,7 @@ function GuestsList({ invitationId, invitation }: { invitationId: string, invita
                 onClick={() => handleDeleteGuest(guest.id)}
                 size="small"
               >
-                  🗑️ Supprimer
+                  <Trash2 className={styles.actionIcon} /> Supprimer
               </Button>
             </div>
           </Card>
@@ -1287,7 +1564,7 @@ function GuestsList({ invitationId, invitation }: { invitationId: string, invita
               <h3>Aucun invité trouvé</h3>
               <p>Aucun invité ne correspond à votre recherche "{searchQuery}".</p>
               <Button onClick={() => setSearchQuery('')} variant="primary">
-                🔄 Effacer la recherche
+                <RefreshCw className={styles.buttonIcon} /> Effacer la recherche
               </Button>
             </Card>
           )}
@@ -1297,7 +1574,7 @@ function GuestsList({ invitationId, invitation }: { invitationId: string, invita
               <h3>Aucun invité ajouté</h3>
               <p>Commencez par ajouter vos premiers invités pour pouvoir envoyer les invitations.</p>
               <Button onClick={() => setShowAddForm(true)} variant="primary">
-                ➕ Ajouter le premier invité
+                <UserPlus className={styles.buttonIcon} /> Ajouter le premier invité
               </Button>
             </Card>
           )}
@@ -1316,6 +1593,258 @@ function GuestsList({ invitationId, invitation }: { invitationId: string, invita
         confirmText={modal.confirmText}
         cancelText={modal.cancelText}
       />
+      
+      {/* Modal pour agrandir les photos */}
+      {selectedPhoto && (
+        <PhotoModal
+          isOpen={photoModalOpen}
+          onClose={closePhotoModal}
+          photoUrl={selectedPhoto.url}
+          alt={selectedPhoto.alt}
+        />
+      )}
     </div>
   );
 } 
+
+
+
+// Nouveau composant pour gérer les invitations avec une UX épurée
+function InvitationManagement({ invitationId, invitation }: { invitationId: string, invitation: any }) {
+  const [activeTab, setActiveTab] = useState<'guests' | 'shareable' | 'email'>('guests');
+  const guestHookProps = useGuests(invitationId);
+
+  if (guestHookProps.loading) {
+    return <div>Chargement des invités...</div>;
+  }
+
+  if (guestHookProps.error) {
+    return <div>Une erreur est survenue lors du chargement des invités.</div>;
+  }
+
+  return (
+    <div className={styles.invitationManagement}>
+      {/* Onglets de navigation */}
+      <div className={styles.tabsContainer} data-tutorial="guest-tabs">
+        <Card>
+          <div className={styles.tabs}>
+            <button
+              className={`${styles.tab} ${activeTab === 'guests' ? styles.tabActive : ''}`}
+              onClick={() => setActiveTab('guests')}
+            >
+              <Users className={styles.tabIcon} />
+              <span className={styles.tabLabel}>Invités</span>
+            </button>
+            <button
+              className={`${styles.tab} ${activeTab === 'shareable' ? styles.tabActive : ''}`}
+              onClick={() => setActiveTab('shareable')}
+            >
+              <Link2 className={styles.tabIcon} />
+              <span className={styles.tabLabel}>Lien Partageable</span>
+            </button>
+            <button
+              className={`${styles.tab} ${activeTab === 'email' ? styles.tabActive : ''}`}
+              onClick={() => setActiveTab('email')}
+            >
+              <Mail className={styles.tabIcon} />
+              <span className={styles.tabLabel}>Invitations Email</span>
+            </button>
+          </div>
+        </Card>
+      </div>
+
+      {/* Contenu des onglets */}
+      <div className={styles.tabContent}>
+        {activeTab === 'guests' && (
+          <GuestsTab
+            invitationId={invitationId}
+            invitation={invitation}
+            {...guestHookProps}
+          />
+        )}
+        {activeTab === 'email' && (
+          <EmailInvitationsTab
+            invitationId={invitationId}
+            invitation={invitation}
+            {...guestHookProps}
+          />
+        )}
+        {activeTab === 'shareable' && (
+          <ShareableInvitationsTab invitationId={invitationId} invitation={invitation} />
+        )}
+      </div>
+    </div>
+  );
+}
+
+// Onglet pour tous les invités (email + lien partageable)
+function GuestsTab({ invitationId, invitation, ...guestProps }: { invitationId: string, invitation: any } & GuestHookProps) {
+  return (
+    <div className={styles.guestsTab}>
+      <div className={styles.tabHeader}>
+        <h2><Users className={styles.headerIcon} /> Tous les Invités</h2>
+        <p>Vue d'ensemble de tous vos invités, qu'ils aient été ajoutés manuellement ou via le lien partageable</p>
+      </div>
+      <GuestsList invitationId={invitationId} invitation={invitation} {...guestProps} />
+    </div>
+  );
+}
+
+// Onglet pour les invitations email
+function EmailInvitationsTab({ invitationId, invitation, ...guestProps }: { invitationId: string, invitation: any } & GuestHookProps) {
+  const { guests } = guestProps;
+  const emailGuests = guests.filter(g => (g as any).invitationType !== 'SHAREABLE');
+  const canSendEmails = invitation?.status === 'PUBLISHED';
+  const [showAddForm, setShowAddForm] = useState(false);
+  const [showBulkImport, setShowBulkImport] = useState(false);
+  
+  return (
+    <div className={styles.emailInvitationsTab}>
+      <div className={styles.tabHeader}>
+        <h2><Mail className={styles.headerIcon} /> Invitations Email</h2>
+        <p>Gestion des invitations par email</p>
+      </div>
+      
+      <div className={styles.emailManagement}>
+        <Card>
+          {/* Affichage conditionnel des actions selon le statut de l'invitation */}
+          {invitation?.status === 'PUBLISHED' ? (
+            <div className={styles.header}>
+              <h2>Gestion des invités</h2>
+              <div className={styles.actions}>
+                <Button onClick={() => setShowAddForm(true)} variant="primary" data-tutorial="add-guest">
+                  <Plus className={styles.buttonIcon} /> Ajouter un invité
+                </Button>
+                <Button onClick={() => setShowBulkImport(true)} variant="outline" data-tutorial="import-guests">
+                  <FolderOpen className={styles.buttonIcon} /> Import en masse
+                </Button>
+              </div>
+            </div>
+          ) : (
+            <div className={styles.restrictedAccess}>
+              <div className={styles.restrictedIcon}>
+                <AlertTriangle className={styles.warningIcon} />
+              </div>
+              <h3>Invitation non publiée</h3>
+              <p>Vous devez d'abord publier votre invitation pour pouvoir ajouter des invités et envoyer des invitations par email.</p>
+              <div className={styles.restrictedActions}>
+                <Button 
+                  onClick={() => window.location.href = '/client/invitations'} 
+                  variant="primary"
+                >
+                  Publier mon invitation
+                </Button>
+              </div>
+            </div>
+          )}
+
+          <div className={styles.emailStats}>
+            <div className={styles.statItem}>
+              <span><Mail className={styles.statIcon} /> Invités par email</span>
+              <strong>{emailGuests.length}</strong>
+            </div>
+            <div className={styles.statItem}>
+              <span><Send className={styles.statIcon} /> Emails envoyés</span>
+              <strong>{emailGuests.filter(g => g.invitationSentAt).length}</strong>
+            </div>
+            <div className={styles.statItem}>
+              <span><CheckCircle className={styles.statIcon} /> Confirmés</span>
+              <strong>{emailGuests.filter(g => g.rsvp?.status === 'CONFIRMED').length}</strong>
+            </div>
+          </div>
+          
+          <div className={styles.emailActions}>
+            {canSendEmails && emailGuests.length > 0 && (
+              <div className={styles.bulkActions}>
+                <Button
+                  onClick={() => {
+                    // Fonction d'envoi en masse depuis GuestsList
+                    const event = new CustomEvent('sendAllInvitations');
+                    document.dispatchEvent(event);
+                  }}
+                  variant="primary"
+                >
+                  <Send className={styles.buttonIcon} /> Envoyer toutes les invitations
+                </Button>
+              </div>
+            )}
+            
+            <div className={styles.managementActions}>
+              <p><HelpCircle className={styles.infoIcon} /> <strong>Conseil :</strong> Utilisez l'onglet "Invités" pour ajouter, modifier ou voir tous vos invités.</p>
+            </div>
+          </div>
+        </Card>
+      </div>
+
+      
+
+    </div>
+  );
+}
+
+// Onglet pour les liens partageables
+function ShareableInvitationsTab({ invitationId, invitation }: { invitationId: string, invitation: any }) {
+  const { guests } = useGuests(invitationId);
+  const shareableGuests = guests.filter(g => (g as any).invitationType === 'SHAREABLE');
+  
+  return (
+    <div className={styles.shareableInvitationsTab}>
+      <div className={styles.tabHeader}>
+        <h2><Link2 className={styles.headerIcon} /> Lien Partageable</h2>
+        <p>Partagez un lien unique sur vos réseaux sociaux, WhatsApp ou SMS</p>
+      </div>
+      
+      <div className={styles.shareableContent} data-tutorial="shareable-links">
+        {invitation?.status === 'PUBLISHED' ? (
+          <>
+            <ShareableLinkManager invitationId={invitationId} />
+            
+            {/* Statistiques rapides */}
+            <Card>
+              <div className={styles.shareableStats}>
+                <div className={styles.statItem}>
+                  <span><Link2 className={styles.statIcon} /> Réponses via lien</span>
+                  <strong>{shareableGuests.length}</strong>
+                </div>
+                <div className={styles.statItem}>
+                  <span><CheckCircle className={styles.statIcon} /> Confirmés</span>
+                  <strong>{shareableGuests.filter(g => g.rsvp?.status === 'CONFIRMED').length}</strong>
+                </div>
+                <div className={styles.statItem}>
+                  <span><XCircle className={styles.statIcon} /> Refusés</span>
+                  <strong>{shareableGuests.filter(g => g.rsvp?.status === 'DECLINED').length}</strong>
+                </div>
+              </div>
+              
+              <div className={styles.shareableNote}>
+                <p><HelpCircle className={styles.infoIcon} /> <strong>Conseil :</strong> Consultez l'onglet "Invités" pour voir tous les détails des réponses via lien partageable.</p>
+              </div>
+            </Card>
+          </>
+        ) : (
+          <div className={styles.restrictedAccess}>
+            <div className={styles.restrictedIcon}>
+              <AlertTriangle className={styles.warningIcon} />
+            </div>
+            <h3>Invitation non publiée</h3>
+            <p>Vous devez d'abord publier votre invitation pour pouvoir générer des liens partageables.</p>
+            <div className={styles.restrictedActions}>
+              <Button 
+                onClick={() => window.location.href = '/client/invitations'} 
+                variant="primary"
+              >
+                Publier mon invitation
+              </Button>
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+
+
+ 
+
+ 

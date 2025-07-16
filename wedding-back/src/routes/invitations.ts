@@ -3,7 +3,7 @@ import { InvitationController } from '../controllers/invitationController';
 import { GuestController, uploadMiddleware } from '../controllers/guestController';
 import { validateInvitation, validateBody } from '../middleware/validation';
 import { authMiddleware } from '../middleware/auth';
-import { checkInvitationLimit, checkGuestLimit, checkBulkImportLimit } from '../middleware/subscriptionLimits';
+import { checkInvitationLimit, checkGuestLimit } from '../middleware/subscriptionLimits';
 import { z } from 'zod';
 
 const router = Router();
@@ -49,11 +49,11 @@ router.delete('/:id/guests/:guestId', (req, res, next) => {
   req.params.id = req.params.guestId; // Pour que le controller reçoive l'ID de l'invité
   GuestController.delete(req, res, next);
 });
-router.post('/:id/guests/preview-import', checkBulkImportLimit, uploadMiddleware, (req, res, next) => {
+router.post('/:id/guests/preview-import', uploadMiddleware, (req, res, next) => {
   req.body.invitationId = req.params.id;
   GuestController.previewImport(req, res, next);
 });
-router.post('/:id/guests/bulk-import', checkBulkImportLimit, uploadMiddleware, (req, res, next) => {
+router.post('/:id/guests/bulk-import', uploadMiddleware, (req, res, next) => {
   req.body.invitationId = req.params.id;
   GuestController.bulkImport(req, res, next);
 });

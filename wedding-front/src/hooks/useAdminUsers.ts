@@ -7,7 +7,7 @@ interface User {
   firstName: string;
   lastName: string;
   role: 'ADMIN' | 'COUPLE' | 'GUEST';
-  subscriptionTier: 'BASIC' | 'STANDARD' | 'PREMIUM';
+  subscriptionTier: 'FREE' | 'ESSENTIAL' | 'ELEGANT' | 'PREMIUM' | 'LUXE';
   isActive: boolean;
   emailVerified: boolean;
   createdAt: string;
@@ -86,6 +86,10 @@ export const useAdminUsers = () => {
     return updateUser(id, { role });
   };
 
+  const changeUserSubscriptionTier = async (id: string, subscriptionTier: 'FREE' | 'ESSENTIAL' | 'ELEGANT' | 'PREMIUM' | 'LUXE') => {
+    return updateUser(id, { subscriptionTier });
+  };
+
   // Filtrer les utilisateurs
   useEffect(() => {
     let filtered = [...users];
@@ -125,6 +129,7 @@ export const useAdminUsers = () => {
     deleteUser,
     toggleUserStatus,
     changeUserRole,
+    changeUserSubscriptionTier,
     refetch: fetchUsers,
   };
 }; 

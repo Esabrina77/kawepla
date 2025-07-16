@@ -17,8 +17,13 @@ export default function MessagesPage() {
     return value.toLowerCase().includes(searchTerm.toLowerCase());
   };
 
-  // Filtrer les messages par terme de recherche
+  // Filtrer les messages par terme de recherche et exclure les messages vides
   const filteredMessages = messages.filter(message => {
+    // Exclure les messages vides ou contenant seulement des espaces
+    if (!message.message || !message.message.trim()) {
+      return false;
+    }
+    
     if (!searchTerm.trim()) return true;
     
     return (
@@ -96,7 +101,7 @@ export default function MessagesPage() {
   return (
     <div className={styles.messagesContainer}>
       <div className={styles.header}>
-        <h1>Messages RSVP</h1>
+        <h1>Messages de vos invités</h1>
         <p>Messages laissés par vos invités lors de leur réponse</p>
       </div>
 
@@ -238,7 +243,6 @@ export default function MessagesPage() {
                   <h3>Invitation</h3>
                   <div className={styles.invitationInfo}>
                     <h4>Informations de l'invitation</h4>
-                    <p><strong>Titre:</strong> {selectedMessage.invitation.title}</p>
                     <p><strong>Répondu le:</strong> {formatDate(selectedMessage.respondedAt || selectedMessage.createdAt)}</p>
                   </div>
                 </div>

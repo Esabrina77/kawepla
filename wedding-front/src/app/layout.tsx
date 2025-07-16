@@ -1,5 +1,12 @@
 import '@/styles/globals.css';
-import { featherscriptFont, harringtonFont, openDyslexicFont } from '@/fonts/fonts';
+import { 
+  featherscriptFont, 
+  harringtonFont, 
+  openDyslexicFont, 
+  openSansFont, 
+  poppinsFont
+} from '@/fonts/fonts';
+import { ToastProvider } from '@/components/ui/toast';
 
 export default function RootLayout({
   children,
@@ -7,7 +14,7 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="fr" className={`${featherscriptFont.variable} ${harringtonFont.variable} ${openDyslexicFont.variable}`} suppressHydrationWarning>
+    <html lang="fr" className={`${featherscriptFont.variable} ${harringtonFont.variable} ${openDyslexicFont.variable} ${openSansFont.variable} ${poppinsFont.variable}`} suppressHydrationWarning>
       <head>
         <meta charSet="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -19,7 +26,9 @@ export default function RootLayout({
         <link rel="apple-touch-icon" href="/icons/apple-icon.png" />
       </head>
       <body suppressHydrationWarning>
-        {children}
+        <ToastProvider>
+          {children}
+        </ToastProvider>
       </body>
     </html>
   );

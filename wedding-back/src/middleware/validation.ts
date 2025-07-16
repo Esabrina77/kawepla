@@ -204,7 +204,7 @@ export const loginSchema = z.object({
 export const updateUserSchema = z.object({
   firstName: z.string().min(2).optional(),
   lastName: z.string().min(2).optional(),
-  subscriptionTier: z.enum(['BASIC', 'STANDARD', 'PREMIUM']).optional(),
+  subscriptionTier: z.enum(['FREE', 'ESSENTIAL', 'ELEGANT', 'PREMIUM', 'LUXE']).optional(),
 });
 
 // Types exportés

@@ -58,7 +58,7 @@ const faqs = [
     questions: [   
       {
         question: 'Comment puis-je contacter le support ?',
-        answer: 'Notre équipe support est disponible par email 7j/7. Les clients Premium bénéficient également d\'un support téléphonique prioritaire.'
+        answer: 'Notre équipe support est disponible par email 7j/7.'
       },
       {
         question: 'Mes données sont-elles sécurisées ?',

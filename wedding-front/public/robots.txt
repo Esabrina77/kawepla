@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://kawepla.kaporelo.com/sitemap.xml

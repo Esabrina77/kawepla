@@ -7,49 +7,62 @@ import styles from './Sidebar.module.css';
 import Image from 'next/image';
 import { AccessibilityMenu } from '@/components/Accessibility/AccessibilityMenu';
 import { useAuth } from '@/hooks/useAuth';
+import { 
+  LayoutDashboard, 
+  ScrollText, 
+  Paintbrush, 
+  Users, 
+  CalendarRange, 
+  LineChart, 
+  MessagesSquare, 
+  Settings, 
+  HelpCircle, 
+  LogOut, 
+  ChevronLeft, 
+  ChevronRight,
+  Crown
+} from 'lucide-react';
 
 const menuItems = [
   {
     title: 'Tableau de bord',
     path: '/super-admin/dashboard',
-    icon: '/icons/stats.svg'
+    icon: LayoutDashboard
   },
   {
     title: 'Templates',
     path: '/super-admin/templates',
-    icon: '/icons/design.svg'
+    icon: ScrollText
   },
   {
     title: 'Designs',
     path: '/super-admin/design',
-    icon: '/icons/design.svg'
+    icon: Paintbrush
   },
   {
     title: 'Utilisateurs',
     path: '/super-admin/users',
-    icon: '/icons/guests.svg'
+    icon: Users
   },
   {
     title: 'Invitations',
     path: '/super-admin/invitations',
-    icon: '/icons/rsvp.svg'
+    icon: CalendarRange
   },
   {
     title: 'Statistiques',
     path: '/super-admin/stats',
-    icon: '/icons/stats.svg'
+    icon: LineChart
   },
-  // TODO: recevoir les discussions des clients
   {
     title: 'Discussions',
     path: '/super-admin/discussions',
-    icon: '/icons/discussions.svg'
+    icon: MessagesSquare
   },
-  // TODO: Ajouter les paramètres
   // {
   //   title: 'Paramètres',
   //   path: '/super-admin/settings',
-  //   icon: '/icons/planning.svg'
+  //   icon: Settings
   // }
 ];
 
@@ -82,7 +95,7 @@ export const SuperAdminSidebar = () => {
         <div className={styles.sidebarHeaderButtons}>
         {!isCollapsed && (
           <div className={styles.superAdminBadge}>
-            SUPER ADMIN
+            <Crown className={styles.crownIcon} size={16} /> SUPER ADMIN
           </div>
         )}
         <button 
@@ -90,7 +103,7 @@ export const SuperAdminSidebar = () => {
           className={styles.toggleButton}
           aria-label={isCollapsed ? "Développer le menu" : "Réduire le menu"}
         >
-          {isCollapsed ? '→' : '←'}
+          {isCollapsed ? <ChevronRight className={styles.toggleIcon} /> : <ChevronLeft className={styles.toggleIcon} />}
         </button>
         </div>
       </div>  
@@ -105,12 +118,7 @@ export const SuperAdminSidebar = () => {
             }`}
           >
             <span className={styles.icon}>
-              <Image
-                src={item.icon}
-                alt=""
-                width={24}
-                height={24}
-              />
+              {<item.icon className={styles.menuIcon} size={24} />}
             </span>
             {!isCollapsed && <span className={styles.title}>{item.title}</span>}
           </Link>
@@ -124,12 +132,7 @@ export const SuperAdminSidebar = () => {
         <div className={styles.footerContent}>
           <Link href="/super-admin/help" className={styles.helpLink}>
             <span className={styles.icon}>
-              <Image
-                src="/icons/rsvp.svg"
-                alt=""
-                width={24}
-                height={24}
-              />
+              <HelpCircle className={styles.menuIcon} size={24} />
             </span>
             {!isCollapsed && <span>Aide</span>}
           </Link>
@@ -139,12 +142,7 @@ export const SuperAdminSidebar = () => {
             title="Se déconnecter"
           >
             <span className={styles.icon}>
-              <Image
-                src="/icons/logout.svg"
-                alt=""
-                width={24}
-                height={24}
-              />
+              <LogOut className={styles.menuIcon} size={24} />
             </span>
             {!isCollapsed && <span>Se déconnecter</span>}
           </button>

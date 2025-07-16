@@ -4,6 +4,13 @@ import { GuestController, uploadMiddleware } from '../controllers/guestControlle
 const router = Router();
 
 /**
+ * @route   PATCH /api/guests/:id/profile-photo
+ * @desc    Mettre à jour la photo de profil d'un invité
+ * @access  Privé (authentifié)
+ */
+router.patch('/:id/profile-photo', GuestController.updateProfilePhoto);
+
+/**
  * @route   POST /api/guests/:id/send-invitation
  * @desc    Envoyer une invitation par email à un invité
  * @access  Privé (authentifié)

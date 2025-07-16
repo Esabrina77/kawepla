@@ -67,4 +67,8 @@ export const guestsApi = {
   // Envoyer toutes les invitations d'une invitation
   sendAllInvitations: (invitationId: string) => 
     apiClient.post(`/invitations/${invitationId}/guests/send-all`),
+
+  // Mettre à jour la photo de profil d'un invité
+  updateProfilePhoto: (guestId: string, profilePhotoUrl: string | null) => 
+    apiClient.patch<Guest>(`/guests/${guestId}/profile-photo`, { profilePhotoUrl }),
 }; 

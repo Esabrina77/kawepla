@@ -1,268 +1,346 @@
-import { Button } from '@/components/Button/Button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/Card/Card';
+import { Button } from '@/components/Button/Button';
 import styles from '@/styles/site/pricing.module.css';
 import Link from 'next/link';
 
-const currentPlan = {
-  name: 'Gratuit V1',
-  price: '0€',
-  description: 'Version bêta gratuite avec fonctionnalités de base',
-  features: [
-    '2 invitations maximum',
-    '5 invités par invitation (10 total)',
-    'Design simple',
-    'RSVP de base',
-    'Gestion des invités',
-    'Restrictions alimentaires',
-    'Export des données'
-  ],
-  available: true
-};
-
-const futurePlans = [
+const plans = [
   {
-    name: 'Basique',
-    price: '49€',
-    description: 'Pour les couples qui souhaitent une solution simple et efficace',
+    id: 'FREE',
+    name: 'Découverte',
+    price: 0,
+    period: 'Gratuit',
+    description: 'Parfait pour tester la plateforme',
     features: [
-      'Invitations illimitées',
-      'Invités illimités',
-      'Designs multiples',
-      'RSVP avancé',
-      'Album photo',
-      'QR Code de partage',
-      'Statistiques détaillées'
+      '1 invitation personnalisable',
+      'Jusqu\'à 10 invités',
+      'RSVP basique',
+      '1 design standard',
+      'Support communautaire'
     ],
-    comingSoon: true
+    limitations: [
+      'Pas d\'albums photos',
+      'Pas de messagerie',
+      'Fonctionnalités limitées'
+    ],
+    limits: {
+      invitations: 1,
+      guests: 10,
+      photos: 0,
+      designs: 1
+    },
+    cta: 'Commencer gratuitement',
+    popular: false
   },
   {
-    name: 'Standard',
-    price: '99€',
-    description: 'Pour une expérience plus complète avec plus de fonctionnalités',
+    id: 'ESSENTIAL',
+    name: 'Essentiel',
+    price: 39,
+    period: 'Paiement unique',
+    description: 'Idéal pour les petits mariages intimes',
     features: [
-      'Toutes les fonctionnalités de Basique',
-      'Thèmes premium',
-      'Notifications email/SMS',
-      'Programme détaillé',
-      'Mini-vidéo d\'invitation',
-      'Galerie photo post-mariage',
+      '2 invitations personnalisables',
+      'Jusqu\'à 75 invités',
+      'RSVP avec préférences alimentaires',
+      '5 designs premium',
+      'Album photos (50 photos max)',
+      'Messagerie intégrée',
+      'Support email'
+    ],
+    limitations: [
+      'Analytics basiques',
+      'Modération photos manuelle'
+    ],
+    limits: {
+      invitations: 2,
+      guests: 75,
+      photos: 50,
+      designs: 5
+    },
+    cta: 'Choisir Essentiel',
+    popular: false
+  },
+  {
+    id: 'ELEGANT',
+    name: 'Élégant',
+    price: 69,
+    period: 'Paiement unique',
+    description: 'Le plus populaire - parfait pour la plupart des mariages',
+    features: [
+      '3 invitations personnalisables',
+      'Jusqu\'à 150 invités',
+      'RSVP complet + messages',
+      '10 designs premium',
+      'Album photos (150 photos max)',
+      'QR codes personnalisés',
+      'Liens partageables',
       'Support prioritaire'
     ],
-    popular: true,
-    comingSoon: true
+    limitations: [],
+    limits: {
+      invitations: 3,
+      guests: 150,
+      photos: 150,
+      designs: 10
+    },
+    cta: 'Choisir Élégant',
+    popular: true
   },
   {
+    id: 'PREMIUM',
     name: 'Premium',
-    price: '239€',
-    description: 'Pour une expérience luxueuse sans compromis',
+    price: 99,
+    period: 'Paiement unique',
+    description: 'Pour les grands mariages et événements complexes',
     features: [
-      'Toutes les fonctionnalités de Standard',
-      'Thèmes premium avec animations',
-      'Option multi-langues',
-      'Heatmap géographique',
-      'Intégration Google Calendar',
-      'Badge VIP invités',
-      'Espace liste de mariage/cadeaux',
-      'Support dédié 24/7'
+      '5 invitations personnalisables',
+      'Jusqu\'à 300 invités',
+      'Toutes les fonctionnalités RSVP',
+      '20 designs premium',
+      'Album photos (500 photos max)',
+      'Analytics détaillées',
+      'Modération automatique',
+      'Support VIP'
     ],
-    comingSoon: true
+    limitations: [],
+    limits: {
+      invitations: 5,
+      guests: 300,
+      photos: 500,
+      designs: 20
+    },
+    cta: 'Choisir Premium',
+    popular: false
+  },
+  {
+    id: 'LUXE',
+    name: 'Luxe',
+    price: 149,
+    period: 'Paiement unique',
+    description: 'L\'expérience ultime pour les mariages d\'exception',
+    features: [
+      '10 invitations personnalisables',
+      'Jusqu\'à 500 invités',
+      'Album photos (1000 photos max)',
+      '50 designs + personnalisations',
+      'Accès bêta aux nouvelles fonctionnalités',
+    ],
+    limitations: [],
+    limits: {
+      invitations: 10,
+      guests: 500,
+      photos: 1000,
+      designs: 50
+    },
+    cta: 'Choisir Luxe',
+    popular: false
+  }
+];
+
+const additionalServices = [
+  {
+    id: 'GUESTS_30',
+    name: 'Pack 30 invités supplémentaires',
+    price: 15,
+    description: 'Ajoutez 30 invités supplémentaires à votre forfait actuel',
+    icon: '👥'
+  },
+  {
+    id: 'GUESTS_50',
+    name: 'Pack 50 invités supplémentaires',
+    price: 25,
+    description: 'Ajoutez 50 invités supplémentaires à votre forfait actuel',
+    icon: '👥'
+  },
+  {
+    id: 'PHOTOS_50',
+    name: '50 photos supplémentaires',
+    price: 15,
+    description: 'Augmentez votre limite de photos de 50 unités',
+    icon: '📸'
+  },
+  {
+    id: 'DESIGN_PREMIUM',
+    name: 'Design premium supplémentaire',
+    price: 20,
+    description: 'Accédez à un design premium exclusif',
+    icon: '🎨'
   }
 ];
 
 export default function PricingPage() {
   return (
-    <div className={styles.pricing}>
-      <section className={styles.header}>
-        <div className="container">
-          <h1>Tarifs - Version 1.0 (Bêta)</h1>
-          <p>Nous sommes actuellement en phase de développement V1. Profitez gratuitement de nos fonctionnalités de base !</p>
-          <div className={styles.betaBadge}>
-            <span>🚀 Version Bêta</span>
-          </div>
+    <div className={styles.container}>
+      <header className={styles.header}>
+        <h1 className={styles.title}>Tarifs Transparents</h1>
+        <p className={styles.subtitle}>
+          Choisissez le forfait qui correspond parfaitement à votre mariage
+        </p>
+        <div className={styles.badge}>
+          <span className={styles.badgeText}>Paiement unique • Pas d'abonnement</span>
         </div>
-      </section>
+      </header>
 
-      {/* Plan actuel gratuit */}
-      <section className={styles.currentPlan}>
-        <div className="container">
-          <h2>Actuellement disponible</h2>
-          <div className={styles.singlePlan}>
-            <Card variant="elevated" className={`${styles.planCard} ${styles.current}`}>
-              <div className={styles.currentBadge}>Disponible maintenant</div>
-              <CardHeader>
-                <CardTitle>{currentPlan.name}</CardTitle>
-                <div className={styles.price}>
-                  <span className={styles.amount}>{currentPlan.price}</span>
-                  <span className={styles.period}>/toujours</span>
-                </div>
-                <p className={styles.description}>{currentPlan.description}</p>
-              </CardHeader>
-              <CardContent>
-                <ul className={styles.features}>
-                  {currentPlan.features.map((feature) => (
-                    <li key={feature}>
-                      <svg
-                        className={styles.checkIcon}
-                        width="24"
-                        height="24"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        xmlns="http://www.w3.org/2000/svg"
-                      >
-                        <path
-                          d="M20 6L9 17L4 12"
-                          stroke="currentColor"
-                          strokeWidth="2"
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                        />
-                      </svg>
-                      {feature}
-                    </li>
-                  ))}
-                </ul>
-                <Button variant="primary" size="large" fullWidth>
-                  <Link href="/auth/register">
-                    Commencer gratuitement
-                  </Link>
-                </Button>
-              </CardContent>
-            </Card>
-          </div>
-        </div>
-      </section>
-
-      {/* Plans futurs */}
-      <section className={styles.futurePlans}>
-        <div className="container">
-          <h2>Prochainement disponibles</h2>
-          <p className={styles.comingSoonText}>
-            Ces plans seront disponibles dans les prochaines versions. Inscrivez-vous dès maintenant pour être notifié !
-          </p>
-          <div className={styles.planGrid}>
-            {futurePlans.map((plan) => (
-              <Card
-                key={plan.name}
-                variant={plan.popular ? 'elevated' : 'default'}
-                className={`${styles.planCard} ${plan.popular ? styles.popular : ''} ${styles.comingSoon}`}
-              >
+      <main className={styles.main}>
+        {/* Plans principaux */}
+        <section className={styles.plansSection}>
+          <div className={styles.plansGrid}>
+            {plans.map((plan) => (
+              <Card key={plan.id} className={`${styles.planCard} ${plan.popular ? styles.popular : ''}`}>
                 {plan.popular && (
-                  <div className={styles.popularBadge}>Plus populaire</div>
-                )}
-                <div className={styles.comingSoonBadge}>Bientôt disponible</div>
-                <CardHeader>
-                  <CardTitle>{plan.name}</CardTitle>
-                  <div className={styles.price}>
-                    <span className={styles.amount}>{plan.price}</span>
-                    <span className={styles.period}>/mariage</span>
+                  <div className={styles.popularBadge}>
+                    <span>Le plus populaire</span>
                   </div>
-                  <p className={styles.description}>{plan.description}</p>
+                )}
+                
+                <CardHeader className={styles.planHeader}>
+                  <CardTitle className={styles.planName}>{plan.name}</CardTitle>
+                  <div className={styles.planPrice}>
+                    <span className={styles.price}>{plan.price}€</span>
+                    <span className={styles.period}>{plan.period}</span>
+                  </div>
+                  <p className={styles.planDescription}>{plan.description}</p>
                 </CardHeader>
-                <CardContent>
-                  <ul className={styles.features}>
-                    {plan.features.map((feature) => (
-                      <li key={feature}>
-                        <svg
-                          className={styles.checkIcon}
-                          width="24"
-                          height="24"
-                          viewBox="0 0 24 24"
-                          fill="none"
-                          xmlns="http://www.w3.org/2000/svg"
-                        >
-                          <path
-                            d="M20 6L9 17L4 12"
-                            stroke="currentColor"
-                            strokeWidth="2"
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                          />
-                        </svg>
-                        {feature}
-                      </li>
-                    ))}
-                  </ul>
-                  <Button variant="outline" size="large" fullWidth disabled>
-                    Bientôt disponible
+
+                <CardContent className={styles.planContent}>
+                  <div className={styles.limits}>
+                    <h4>Limites incluses :</h4>
+                    <ul className={styles.limitsList}>
+                      <li>{plan.limits.invitations} invitation{plan.limits.invitations > 1 ? 's' : ''}</li>
+                      <li>{plan.limits.guests} invité{plan.limits.guests > 1 ? 's' : ''}</li>
+                      <li>{plan.limits.photos} photo{plan.limits.photos > 1 ? 's' : ''}</li>
+                      <li>{plan.limits.designs} design{plan.limits.designs > 1 ? 's' : ''}</li>
+                    </ul>
+                  </div>
+
+                  <div className={styles.features}>
+                    <h4>Fonctionnalités :</h4>
+                    <ul className={styles.featuresList}>
+                      {plan.features.map((feature, index) => (
+                        <li key={index} className={styles.featureItem}>
+                          <span className={styles.checkmark}>✓</span>
+                          {feature}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+
+                  {plan.limitations.length > 0 && (
+                    <div className={styles.limitations}>
+                      <h4>Limitations :</h4>
+                      <ul className={styles.limitationsList}>
+                        {plan.limitations.map((limitation, index) => (
+                          <li key={index} className={styles.limitationItem}>
+                            <span className={styles.crossmark}>✗</span>
+                            {limitation}
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+
+                  <div className={styles.planAction}>
+                    <Link href={plan.id === 'FREE' ? '/register' : `/pricing/checkout/${plan.id}`}>
+                      <Button className={`${styles.ctaButton} ${plan.popular ? styles.popularButton : ''}`}>
+                        {plan.cta}
+                      </Button>
+                    </Link>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </section>
+
+        {/* Services supplémentaires */}
+        <section className={styles.additionalServicesSection}>
+          <div className={styles.sectionHeader}>
+            <h2 className={styles.sectionTitle}>Services Supplémentaires</h2>
+            <p className={styles.sectionSubtitle}>
+              Besoin de plus ? Ajoutez ces services à votre forfait
+            </p>
+          </div>
+
+          <div className={styles.servicesGrid}>
+            {additionalServices.map((service) => (
+              <Card key={service.id} className={styles.serviceCard}>
+                <CardHeader className={styles.serviceHeader}>
+                  <div className={styles.serviceIcon}>{service.icon}</div>
+                  <CardTitle className={styles.serviceName}>{service.name}</CardTitle>
+                  <div className={styles.servicePrice}>+{service.price}€</div>
+                </CardHeader>
+                <CardContent className={styles.serviceContent}>
+                  <p className={styles.serviceDescription}>{service.description}</p>
+                  <Button className={styles.serviceButton} variant="outline">
+                    Ajouter au panier
                   </Button>
                 </CardContent>
               </Card>
             ))}
           </div>
-        </div>
-      </section>
+        </section>
 
-      <section className={styles.roadmap}>
-        <div className="container">
-          <h2>🗺️ Feuille de route</h2>
-          <div className={styles.roadmapContent}>
-            <div className={styles.phase}>
-              <div className={styles.phaseHeader}>
-                <span className={styles.phaseNumber}>V1</span>
-                <h3>Phase actuelle - Bêta gratuite</h3>
-                <span className={styles.phaseStatus}>✅ Disponible</span>
-              </div>
-              <ul>
-                <li>✅ Création d'invitations de base</li>
-                <li>✅ Gestion des invités (limité à 10 total)</li>
-                <li>✅ RSVP simple</li>
-                <li>✅ Export des données</li>
-              </ul>
+        {/* FAQ Section */}
+        <section className={styles.faqSection}>
+          <div className={styles.sectionHeader}>
+            <h2 className={styles.sectionTitle}>Questions Fréquentes</h2>
+          </div>
+
+          <div className={styles.faqGrid}>
+            <div className={styles.faqItem}>
+              <h3 className={styles.faqQuestion}>Puis-je changer de forfait après l'achat ?</h3>
+              <p className={styles.faqAnswer}>
+                Oui, vous pouvez passer à un forfait supérieur à tout moment. 
+                La différence de prix vous sera facturée.
+              </p>
             </div>
-            
-            <div className={styles.phase}>
-              <div className={styles.phaseHeader}>
-                <span className={styles.phaseNumber}>V2</span>
-                <h3>Prochaine phase - Plans payants</h3>
-                <span className={styles.phaseStatus}>🚧 En développement</span>
-              </div>
-              <ul>
-                <li>🔄 Invitations et invités illimités</li>
-                <li>🔄 Designs multiples</li>
-                <li>🔄 Album photo</li>
-                <li>🔄 Notifications automatiques</li>
-              </ul>
+
+            <div className={styles.faqItem}>
+              <h3 className={styles.faqQuestion}>Que se passe-t-il si je dépasse les limites ?</h3>
+              <p className={styles.faqAnswer}>
+                Vous pouvez acheter des services supplémentaires ou passer à un forfait supérieur.
+                Votre compte ne sera pas suspendu.
+              </p>
             </div>
-            
-            <div className={styles.phase}>
-              <div className={styles.phaseHeader}>
-                <span className={styles.phaseNumber}>V3</span>
-                <h3>Fonctionnalités avancées</h3>
-                <span className={styles.phaseStatus}>📋 Planifié</span>
-              </div>
-              <ul>
-                <li>📋 Vidéos d'invitation</li>
-                <li>📋 Multi-langues</li>
-                <li>📋 Intégrations tierces</li>
-                <li>📋 Analytics avancés</li>
-              </ul>
+
+            <div className={styles.faqItem}>
+              <h3 className={styles.faqQuestion}>Y a-t-il une période d'essai ?</h3>
+              <p className={styles.faqAnswer}>
+                Le forfait Découverte est gratuit et vous permet de tester toutes les fonctionnalités de base.
+              </p>
+            </div>
+
+            <div className={styles.faqItem}>
+              <h3 className={styles.faqQuestion}>Les données sont-elles sauvegardées ?</h3>
+              <p className={styles.faqAnswer}>
+                Oui, toutes vos données sont automatiquement sauvegardées et sécurisées.
+                Vous conservez l'accès même après votre mariage.
+              </p>
             </div>
           </div>
-        </div>
-      </section>
+        </section>
 
-      <section className={styles.betaInfo}>
-        <div className="container">
-          <h2>Pourquoi commencer maintenant ?</h2>
-          <div className={styles.betaAdvantages}>
-            <div className={styles.advantage}>
-              <span className={styles.advantageIcon}>💰</span>
-              <h3>Gratuit à vie</h3>
-              <p>Les utilisateurs bêta conservent l'accès gratuit aux fonctionnalités de base</p>
-            </div>
-            <div className={styles.advantage}>
-              <span className={styles.advantageIcon}>🎯</span>
-              <h3>Influence le développement</h3>
-              <p>Vos retours nous aident à améliorer le produit</p>
-            </div>
-            <div className={styles.advantage}>
-              <span className={styles.advantageIcon}>⚡</span>
-              <h3>Accès prioritaire</h3>
-              <p>Soyez les premiers à tester les nouvelles fonctionnalités</p>
+        {/* CTA Section */}
+        <section className={styles.ctaSection}>
+          <div className={styles.ctaContent}>
+            <h2 className={styles.ctaTitle}>Prêt à commencer ?</h2>
+            <p className={styles.ctaDescription}>
+              Commencez gratuitement et passez à un forfait payant quand vous êtes prêt
+            </p>
+            <div className={styles.ctaButtons}>
+              <Link href="/register">
+                <Button className={styles.primaryButton}>
+                  Commencer gratuitement
+                </Button>
+              </Link>
+              <Link href="/contact">
+                <Button variant="outline" className={styles.secondaryButton}>
+                  Nous contacter
+                </Button>
+              </Link>
             </div>
           </div>
-        </div>
-      </section>
+        </section>
+      </main>
     </div>
   );
 } 

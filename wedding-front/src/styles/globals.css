@@ -35,8 +35,8 @@
   --background-info-light: #d1ecf1;
 
   /* Typographie */
-  --font-heading: var(--font-featherscript);
-  --font-body: var(--font-featherscript);
+  --font-heading: var(--font-poppins);
+  --font-body: var(--font-poppins);
   
   /* Espacements */
   --spacing-xs: 0.25rem;
@@ -452,4 +452,53 @@ select:disabled {
   color: var(--color-error);
   font-size: 12px;
   margin-top: 4px;
+}
+
+/* Styles globaux pour le tutoriel - éléments mis en évidence */
+.tutorial-highlighted {
+  position: relative !important;
+  z-index: 10001 !important;
+  background: rgba(255, 255, 255, 0.1) !important;
+  border-radius: 8px !important;
+  box-shadow: 
+    0 0 0 2px rgba(79, 70, 229, 0.8),
+    0 0 20px rgba(79, 70, 229, 0.5) !important;
+  transition: all 0.3s ease !important;
+}
+
+.tutorial-highlighted::before {
+  content: '';
+  position: absolute;
+  top: -4px;
+  left: -4px;
+  right: -4px;
+  bottom: -4px;
+  background: linear-gradient(45deg, 
+    rgba(79, 70, 229, 0.3), 
+    rgba(124, 58, 237, 0.3), 
+    rgba(79, 70, 229, 0.3));
+  border-radius: 12px;
+  z-index: -1;
+  animation: tutorialGlow 2s ease-in-out infinite alternate;
+}
+
+@keyframes tutorialGlow {
+  0% {
+    opacity: 0.5;
+    transform: scale(1);
+  }
+  100% {
+    opacity: 0.8;
+    transform: scale(1.02);
+  }
+}
+
+/* Mode sombre pour les éléments du tutoriel */
+@media (prefers-color-scheme: dark) {
+  .tutorial-highlighted {
+    background: rgba(255, 255, 255, 0.05) !important;
+    box-shadow: 
+      0 0 0 2px rgba(79, 70, 229, 0.9),
+      0 0 25px rgba(79, 70, 229, 0.6) !important;
+  }
 }
