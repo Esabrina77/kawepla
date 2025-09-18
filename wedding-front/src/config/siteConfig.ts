@@ -216,9 +216,9 @@ export const SITE_CONFIG = {
 
   // === MÉTADONNÉES SEO ===
   seo: {
-    titre: "KaWePla - Organisez votre événement de rêve en 10 minutes | Invitations numériques",
-    description: "Plus de 210 organisateurs nous font confiance ! Créez vos invitations d'événements numériques élégantes, gérez vos invités et suivez les réponses en temps réel. Gratuit à tester.",
-    keywords: "invitation événement, événement numérique, RSVP événement, gestion invités événement, plateforme événement, organisation événement, invitation mariage, invitation anniversaire, invitation baptême, invitation communion, organisation événement, gestion invités, RSVP numérique"
+    titre: "Kawepla - Plateforme complète pour organiser vos événements",
+    description: "Plus de 210 organisateurs nous font confiance ! Organisez tous vos événements avec Kawepla : invitations numériques, gestion des invités, albums photos, messagerie et prestataires. Gratuit à tester.",
+    keywords: "organisation événement, plateforme événement, invitation événement, événement numérique, RSVP événement, gestion invités événement, invitation mariage, invitation anniversaire, invitation baptême, invitation communion, prestataires événement, album photos événement, messagerie événement, organisation événement complète"
   }
 };
 

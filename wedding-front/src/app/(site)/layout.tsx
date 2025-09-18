@@ -3,8 +3,8 @@ import { Header } from '@/components/Header/Header';
 import { Footer } from '@/components/Footer/Footer';
 
 export const metadata: Metadata = {
-  title: "KaWePla - Créez votre invitation d'événement unique",
-  description: "Créez des invitations d'événements élégantes et gérez vos invités facilement avec KaWePla",
+  title: "Kawepla - Plateforme complète pour organiser vos événements",
+  description: "Organisez tous vos événements avec Kawepla : invitations numériques, gestion des invités, albums photos, messagerie et prestataires",
 };
 
 export default function SiteLayout({

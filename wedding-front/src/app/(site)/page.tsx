@@ -203,7 +203,7 @@ export default function HomePage() {
           </div>
           
           <h1 className={`heading-hero mb-lg ${styles.heroTitle}`}>
-            <span>La plateforme complète</span>
+            <span>Kawepla - La plateforme complète</span>
             <br />
             <span className={styles.heroTitleAccent}>pour organiser vos événements</span>
           </h1>
@@ -239,8 +239,10 @@ export default function HomePage() {
               src="/images/events.jpg"
               alt="Exemple d'invitation d'événement numérique Kawepla"
               className={styles.heroImage}
+              onError={(e) => {
+                e.currentTarget.src = '/images/hero.png';
+              }}
             />
-
           </div>
         </div>
       </section>
@@ -402,6 +404,9 @@ export default function HomePage() {
                     src={testimonial.photo} 
                     alt={testimonial.name}
                     className={styles.testimonialPhoto}
+                    onError={(e) => {
+                      e.currentTarget.src = '/images/testimonials.png';
+                    }}
                   />
                   <div className={styles.testimonialInfo}>
                     <div className={styles.testimonialName}>

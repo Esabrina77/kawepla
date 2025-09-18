@@ -22,7 +22,7 @@ export default function SettingsPage() {
           <div className={styles.settingsCard}>
             <div className={styles.settingItem}>
               <label>Nom de l'application</label>
-              <input type="text" className="superAdminInput" defaultValue="KaWePla" />
+              <input type="text" className="superAdminInput" defaultValue="Kawepla" />
             </div>
             <div className={styles.settingItem}>
               <label>URL du site</label>

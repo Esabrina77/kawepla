@@ -1,7 +1,7 @@
 {
-  "name": "Kawepla - Organisez votre événement de rêve",
+  "name": "Kawepla - Plateforme complète pour organiser vos événements",
   "short_name": "Kawepla",
-  "description": "Créez vos invitations d'événements numériques élégantes, gérez vos invités et suivez les réponses en temps réel",
+  "description": "Organisez tous vos événements avec Kawepla : invitations numériques, gestion des invités, albums photos, messagerie et prestataires",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#FDF8F3",

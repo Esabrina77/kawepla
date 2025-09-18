@@ -11,7 +11,7 @@ self.addEventListener('push', function(event) {
   console.log('Push event reçu:', event);
   
   let notificationData = {
-    title: 'KaWePla',
+    title: 'Kawepla',
     body: 'Vous avez reçu une nouvelle notification',
     icon: '/icons/logo-192.png',
     badge: '/icons/logo-192.png',
@@ -73,7 +73,7 @@ self.addEventListener('push', function(event) {
           break;
           
         default:
-          notificationData.title = data.title || 'KaWePla';
+          notificationData.title = data.title || 'Kawepla';
           notificationData.body = data.body || 'Nouvelle notification';
           notificationData.data.url = data.url || '/';
       }

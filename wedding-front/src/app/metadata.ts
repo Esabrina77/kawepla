@@ -5,9 +5,9 @@ const metadata: Metadata = {
   title: SITE_CONFIG.seo.titre,
   description: SITE_CONFIG.seo.description,
   keywords: SITE_CONFIG.seo.keywords,
-  authors: [{ name: 'KaWePla Team' }],
-  creator: 'KaWePla',
-  publisher: 'KaWePla',
+  authors: [{ name: 'Kawepla Team' }],
+  creator: 'Kawepla',
+  publisher: 'Kawepla',
   formatDetection: {
     email: false,
     address: false,
@@ -21,13 +21,13 @@ const metadata: Metadata = {
     title: SITE_CONFIG.seo.titre,
     description: SITE_CONFIG.seo.description,
     url: 'https://kawepla.kaporelo.com',
-    siteName: 'KaWePla',
+    siteName: 'Kawepla',
     images: [
       {
         url: '/images/og-image.jpg',
         width: 1200,
         height: 630,
-        alt: 'KaWePla - Plateforme d\'invitations de événement numériques',
+        alt: 'Kawepla - Plateforme d\'invitations d\'événements numériques',
       },
     ],
     locale: 'fr_FR',
