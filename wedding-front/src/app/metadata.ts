@@ -41,12 +41,6 @@ const metadata: Metadata = {
   },
   manifest: '/manifest.json',
   themeColor: '#D4B895',
-  colorScheme: 'light dark',
-  viewport: {
-    width: 'device-width',
-    initialScale: 1,
-    maximumScale: 1,
-  },
   robots: {
     index: true,
     follow: true,

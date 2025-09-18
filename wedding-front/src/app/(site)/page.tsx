@@ -1,3 +1,5 @@
+'use client';
+
 import React from 'react';
 import { 
   Palette, Camera, Users, BarChart3, CheckCircle, ArrowRight, Star, Sparkles, 
