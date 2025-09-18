@@ -5,7 +5,7 @@
   "scripts": {
     "dev": "next dev --turbopack --port 3012",
     "build": "next build",
-    "start": "next start",
+    "start": "next start -p 3012",
     "lint": "next lint",
     "type-check": "tsc --noEmit",
     "build:analyze": "ANALYZE=true next build",
