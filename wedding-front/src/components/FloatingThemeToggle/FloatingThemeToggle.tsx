@@ -30,25 +30,39 @@ export const FloatingThemeToggle: React.FC = () => {
     localStorage.setItem('floatingIconPosition', JSON.stringify(position));
   }, [position]);
 
-  const handleMouseDown = (e: React.MouseEvent) => {
+  const handleStart = (clientX: number, clientY: number) => {
     if (iconRef.current) {
       const rect = iconRef.current.getBoundingClientRect();
       setDragOffset({
-        x: e.clientX - rect.left,
-        y: e.clientY - rect.top,
+        x: clientX - rect.left,
+        y: clientY - rect.top,
       });
       setIsDragging(true);
     }
   };
 
-  const handleMouseMove = (e: MouseEvent) => {
-    if (isDragging) {
-      const newX = e.clientX - dragOffset.x;
-      const newY = e.clientY - dragOffset.y;
+  const handleMouseDown = (e: React.MouseEvent) => {
+    handleStart(e.clientX, e.clientY);
+  };
+
+  const handleTouchStart = (e: React.TouchEvent) => {
+    e.preventDefault();
+    const touch = e.touches[0];
+    handleStart(touch.clientX, touch.clientY);
+  };
+
+  const handleMove = (clientX: number, clientY: number) => {
+    if (isDragging && iconRef.current) {
+      const newX = clientX - dragOffset.x;
+      const newY = clientY - dragOffset.y;
       
-      // Limiter à la zone visible
-      const maxX = window.innerWidth - 60;
-      const maxY = window.innerHeight - 60;
+      // Obtenir la taille réelle du bouton
+      const iconRect = iconRef.current.getBoundingClientRect();
+      const iconSize = Math.max(iconRect.width, iconRect.height);
+      
+      // Limiter à la zone visible avec la taille réelle du bouton
+      const maxX = window.innerWidth - iconSize;
+      const maxY = window.innerHeight - iconSize;
       
       setPosition({
         x: Math.max(0, Math.min(newX, maxX)),
@@ -57,18 +71,40 @@ export const FloatingThemeToggle: React.FC = () => {
     }
   };
 
-  const handleMouseUp = () => {
+  const handleMouseMove = (e: MouseEvent) => {
+    handleMove(e.clientX, e.clientY);
+  };
+
+  const handleTouchMove = (e: TouchEvent) => {
+    e.preventDefault();
+    const touch = e.touches[0];
+    handleMove(touch.clientX, touch.clientY);
+  };
+
+  const handleEnd = () => {
     setIsDragging(false);
+  };
+
+  const handleMouseUp = () => {
+    handleEnd();
+  };
+
+  const handleTouchEnd = () => {
+    handleEnd();
   };
 
   useEffect(() => {
     if (isDragging) {
       document.addEventListener('mousemove', handleMouseMove);
       document.addEventListener('mouseup', handleMouseUp);
+      document.addEventListener('touchmove', handleTouchMove, { passive: false });
+      document.addEventListener('touchend', handleTouchEnd);
       
       return () => {
         document.removeEventListener('mousemove', handleMouseMove);
         document.removeEventListener('mouseup', handleMouseUp);
+        document.removeEventListener('touchmove', handleTouchMove);
+        document.removeEventListener('touchend', handleTouchEnd);
       };
     }
   }, [isDragging, dragOffset]);
@@ -83,6 +119,7 @@ export const FloatingThemeToggle: React.FC = () => {
         cursor: isDragging ? 'grabbing' : 'grab',
       }}
       onMouseDown={handleMouseDown}
+      onTouchStart={handleTouchStart}
       onClick={(e) => {
         if (!isDragging) {
           e.preventDefault();

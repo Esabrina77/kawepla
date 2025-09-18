@@ -14,6 +14,9 @@
   backdrop-filter: blur(10px);
   border: 2px solid var(--border-color);
   animation: floatIn 0.5s ease-out;
+  /* Améliorer la visibilité sur tous les écrans */
+  -webkit-tap-highlight-color: transparent;
+  touch-action: none;
 }
 
 .floatingIcon:active {
@@ -63,11 +66,34 @@
   .floatingIcon {
     width: 48px;
     height: 48px;
+    /* Améliorer la visibilité sur mobile */
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+    border-width: 3px;
   }
   
   .icon {
     width: 20px;
     height: 20px;
+  }
+}
+
+@media (max-width: 480px) {
+  .floatingIcon {
+    width: 44px;
+    height: 44px;
+    /* Zone de touch plus grande */
+    min-width: 44px;
+    min-height: 44px;
+  }
+  
+  .icon {
+    width: 18px;
+    height: 18px;
+  }
+  
+  /* Améliorer l'accessibilité tactile */
+  .floatingIcon:active {
+    transform: scale(0.9);
   }
 }
 
