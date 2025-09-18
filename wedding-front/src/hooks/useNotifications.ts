@@ -162,7 +162,7 @@ export const useNotifications = () => {
       // S'abonner aux push notifications
       const subscription = await registration.pushManager.subscribe({
         userVisibleOnly: true,
-        applicationServerKey: vapidPublicKey
+        applicationServerKey: vapidPublicKey as unknown as ArrayBuffer
       });
 
       // Envoyer la subscription au serveur
@@ -325,5 +325,5 @@ function urlBase64ToUint8Array(base64String: string): Uint8Array {
   for (let i = 0; i < rawData.length; ++i) {
     outputArray[i] = rawData.charCodeAt(i);
   }
-  return outputArray;
+  return outputArray as Uint8Array;
 } 
