@@ -7,15 +7,8 @@ import {
   Search, 
   MapPin, 
   Star, 
-  Euro, 
-  Filter, 
   Users, 
-  Calendar,
-  Phone,
-  Mail,
-  Camera,
-  ChevronDown,
-  SlidersHorizontal
+  Camera
 } from 'lucide-react';
 import styles from './providers.module.css';
 
@@ -29,16 +22,17 @@ export default function ProvidersPage() {
     eventType: '',
     minRating: 0,
     maxPrice: '',
-    radius: 25
+    radius: 25,
+    searchTerm: ''
   });
   
-  const [showFilters, setShowFilters] = useState(false);
   const [locationPermission, setLocationPermission] = useState<'granted' | 'denied' | 'pending'>('pending');
 
   useEffect(() => {
     // Essayer de charger les providers par défaut
     loadDefaultProviders();
   }, []);
+
 
   const loadDefaultProviders = async () => {
     try {
@@ -58,26 +52,12 @@ export default function ProvidersPage() {
 
   const handleSearch = async () => {
     try {
-      if (locationPermission === 'granted') {
-        await getCurrentLocationAndSearch({
-          categoryId: searchParams.categoryId,
-          eventType: searchParams.eventType,
-          minRating: searchParams.minRating,
-          maxPrice: searchParams.maxPrice ? parseFloat(searchParams.maxPrice) : undefined,
-          radius: searchParams.radius
-        });
-      } else {
-        // Recherche sans géolocalisation avec Paris par défaut
-        await searchByLocation({
-          latitude: 48.8566,
-          longitude: 2.3522,
-          categoryId: searchParams.categoryId,
-          eventType: searchParams.eventType,
-          minRating: searchParams.minRating,
-          maxPrice: searchParams.maxPrice ? parseFloat(searchParams.maxPrice) : undefined,
-          radius: searchParams.radius
-        });
-      }
+      // Charger tous les prestataires puis filtrer côté client
+      await searchProviders({
+        categoryId: searchParams.categoryId || undefined,
+        minRating: searchParams.minRating || undefined,
+        limit: 100 // Augmenter la limite pour avoir plus de résultats à filtrer
+      });
     } catch (error) {
       console.error('Erreur lors de la recherche:', error);
     }
@@ -137,36 +117,12 @@ export default function ProvidersPage() {
           <input
             type="text"
             placeholder="Rechercher par ville ou prestataire..."
-            disabled
+            value={searchParams.searchTerm}
+            onChange={(e) => setSearchParams(prev => ({ ...prev, searchTerm: e.target.value }))}
             className={styles.searchInput}
           />
-          <small className={styles.locationNote}>
-            {locationPermission === 'granted' ? '📍 Géolocalisation activée' : '📍 Tous les prestataires'}
-          </small>
+ 
         </div>
-
-        <button
-          onClick={() => setShowFilters(!showFilters)}
-          className={styles.filterToggle}
-        >
-          <SlidersHorizontal size={16} />
-          Filtres
-        </button>
-        
-        <button 
-          onClick={() => {
-            if (locationPermission === 'granted') {
-              setLocationPermission('denied');
-              loadDefaultProviders();
-            } else {
-              handleSearch();
-            }
-          }}
-          className={styles.locationButton}
-        >
-          <MapPin size={16} />
-          {locationPermission === 'granted' ? 'Désactiver géoloc' : 'Activer géoloc'}
-        </button>
         
         <button onClick={handleSearch} className={styles.searchButton}>
           <Search size={16} />
@@ -174,79 +130,6 @@ export default function ProvidersPage() {
         </button>
       </div>
 
-      {/* Panel de filtres */}
-      {showFilters && (
-        <div className={styles.filtersPanel}>
-            <div className={styles.filterRow}>
-              <div className={styles.filterGroup}>
-                <label>Catégorie</label>
-                <select
-                  value={searchParams.categoryId}
-                  onChange={(e) => setSearchParams(prev => ({ ...prev, categoryId: e.target.value }))}
-                >
-                  <option value="">Toutes les catégories</option>
-                  {categories.map(category => (
-                    <option key={category.id} value={category.id}>
-                      {category.icon} {category.name}
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              <div className={styles.filterGroup}>
-                <label>Type d'événement</label>
-                <select
-                  value={searchParams.eventType}
-                  onChange={(e) => setSearchParams(prev => ({ ...prev, eventType: e.target.value }))}
-                >
-                  <option value="">Tous les événements</option>
-                  <option value="event">événement</option>
-                  <option value="birthday">Anniversaire</option>
-                  <option value="corporate">Événement d'entreprise</option>
-                  <option value="other">Autre</option>
-                </select>
-              </div>
-
-              <div className={styles.filterGroup}>
-                <label>Note minimum</label>
-                <select
-                  value={searchParams.minRating}
-                  onChange={(e) => setSearchParams(prev => ({ ...prev, minRating: parseFloat(e.target.value) }))}
-                >
-                  <option value={0}>Toutes les notes</option>
-                  <option value={4}>4+ étoiles</option>
-                  <option value={4.5}>4.5+ étoiles</option>
-                  <option value={5}>5 étoiles</option>
-                </select>
-              </div>
-            </div>
-
-            <div className={styles.filterRow}>
-              <div className={styles.filterGroup}>
-                <label>Prix maximum (€)</label>
-                <input
-                  type="number"
-                  value={searchParams.maxPrice}
-                  onChange={(e) => setSearchParams(prev => ({ ...prev, maxPrice: e.target.value }))}
-                  placeholder="Ex: 1000"
-                />
-              </div>
-
-              <div className={styles.filterGroup}>
-                <label>Rayon de recherche</label>
-                <select
-                  value={searchParams.radius}
-                  onChange={(e) => setSearchParams(prev => ({ ...prev, radius: parseInt(e.target.value) }))}
-                >
-                  <option value={10}>10 km</option>
-                  <option value={25}>25 km</option>
-                  <option value={50}>50 km</option>
-                  <option value={100}>100 km</option>
-                </select>
-              </div>
-            </div>
-          </div>
-        )}
 
       {/* Résultats */}
       <div className={styles.resultsSection}>
@@ -264,8 +147,36 @@ export default function ProvidersPage() {
           </div>
         )}
 
+        {providers.length > 0 && searchParams.searchTerm.trim() && (
+          <div className={styles.resultsCount}>
+            {(() => {
+              const filteredProviders = providers.filter(provider => {
+                const searchTerm = searchParams.searchTerm.toLowerCase();
+                return (
+                  provider.businessName.toLowerCase().includes(searchTerm) ||
+                  provider.category?.name.toLowerCase().includes(searchTerm) ||
+                  provider.displayCity.toLowerCase().includes(searchTerm) ||
+                  provider.description?.toLowerCase().includes(searchTerm)
+                );
+              });
+              return `${filteredProviders.length} prestataire${filteredProviders.length > 1 ? 's' : ''} trouvé${filteredProviders.length > 1 ? 's' : ''}`;
+            })()}
+          </div>
+        )}
+
         <div className={styles.providersGrid}>
-          {providers.map((provider) => (
+          {providers
+            .filter(provider => {
+              if (!searchParams.searchTerm.trim()) return true;
+              const searchTerm = searchParams.searchTerm.toLowerCase();
+              return (
+                provider.businessName.toLowerCase().includes(searchTerm) ||
+                provider.category?.name.toLowerCase().includes(searchTerm) ||
+                provider.displayCity.toLowerCase().includes(searchTerm) ||
+                provider.description?.toLowerCase().includes(searchTerm)
+              );
+            })
+            .map((provider) => (
             <div key={provider.id} className={styles.providerCard}>
               <div className={styles.providerHeader}>
                 <div className={styles.providerPhoto}>

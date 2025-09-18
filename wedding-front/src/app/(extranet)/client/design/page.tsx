@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useDesigns } from '@/hooks/useDesigns';
 import { Design } from '@/types';
-import { TemplateEngine } from '@/lib/templateEngine';
+import { TemplateEngine, getPreviewDataByType } from '@/lib/templateEngine';
 import { 
   Palette, 
   Search, 
@@ -33,12 +33,9 @@ export default function ClientDesignPage() {
     }
   }, []);
 
-  // Données d'exemple pour les prévisualisations
-  const miniPreviewData = {
-    organisateurName: "A & B",
-    day: "15",
-    month: "Juin",
-    year: "2024"
+  // Données d'exemple pour les prévisualisations (adaptées au type d'événement)
+  const getPreviewData = (design: Design) => {
+    return getPreviewDataByType(design.category || 'event');
   };
 
   // Filtrer les designs
@@ -63,9 +60,7 @@ export default function ClientDesignPage() {
   
   // Options pour le filtre
   const filterOptions = [
-    { value: 'all', label: 'Tous les designs' },
-    { value: 'premium', label: 'Designs Premium' },
-    { value: 'free', label: 'Designs Gratuits' },
+
     ...categories.filter(cat => cat !== 'all').map(cat => ({
       value: cat,
       label: cat.charAt(0).toUpperCase() + cat.slice(1)
@@ -183,15 +178,7 @@ export default function ClientDesignPage() {
                 <div 
                   className={styles.previewContent}
                   dangerouslySetInnerHTML={{
-                    __html: new TemplateEngine().render(design, {
-                      eventTitle: "Emma & Lucas",
-                      eventDate: new Date('2025-06-14T15:00:00'),
-                      eventTime: "15h00",
-                      location: "Château de la Roseraie, Paris",
-                      eventType: "event",
-                      customText: "Ont le plaisir de vous inviter à célébrer leur événement.",
-                      moreInfo: "cérémonie suivie d'un cocktail et dîner."
-                    })
+                    __html: new TemplateEngine().render(design, getPreviewData(design))
                   }}
                 />
               ) : (

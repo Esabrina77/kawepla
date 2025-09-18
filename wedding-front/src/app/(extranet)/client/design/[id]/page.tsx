@@ -4,8 +4,7 @@ import { useEffect, useState, use } from 'react';
 import { useRouter } from 'next/navigation';
 import { useDesigns } from '@/hooks/useDesigns';
 import { Design } from '@/types';
-import { TemplateEngine } from '@/lib/templateEngine';
-import { getDefaultInvitationData } from '@/lib/templateEngine';
+import { TemplateEngine, getPreviewDataByType } from '@/lib/templateEngine';
 import { Palette, ArrowLeft, Crown } from 'lucide-react';
 import styles from './design-detail.module.css';
 
@@ -25,8 +24,10 @@ export default function DesignDetailPage({ params }: Props) {
   // Unwrap params avec React.use()
   const resolvedParams = use(params);
 
-  // Données d'exemple pour la prévisualisation avec le nouveau format
-  const previewData = getDefaultInvitationData();
+  // Données d'exemple pour la prévisualisation (adaptées au type d'événement)
+  const getPreviewData = (design: Design | null) => {
+    return getPreviewDataByType(design?.category || 'event');
+  };
 
   useEffect(() => {
     const fetchDesign = async () => {
@@ -95,7 +96,7 @@ export default function DesignDetailPage({ params }: Props) {
             <div 
               className={styles.preview}
               dangerouslySetInnerHTML={{
-                __html: new TemplateEngine().render(design, previewData)
+                __html: new TemplateEngine().render(design, getPreviewData(design))
               }}
               key={`preview-${design.id}`}
             />

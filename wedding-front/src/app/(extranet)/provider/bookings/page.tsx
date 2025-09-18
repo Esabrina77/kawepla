@@ -293,9 +293,9 @@ export default function ProviderBookingsPage() {
             <div key={booking.id} className={styles.bookingCard}>
                 {/* Status Badge */}
                 <div 
-                  className={styles.statusBadge}
+                    className={styles.statusBadge}
                   style={{ backgroundColor: statusInfo.color + '20', borderColor: statusInfo.color }}
-                >
+                  >
                   <StatusIcon size={12} />
                   <span style={{ color: statusInfo.color }}>{statusInfo.label}</span>
                 </div>

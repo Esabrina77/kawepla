@@ -215,15 +215,75 @@ export function getDefaultInvitationData(): InvitationData {
   const defaultElements = getDefaultElements('event');
   
   return {
-    eventTitle: "Emma & Lucas",
+    eventTitle: "Mon Événement",
     eventDate: new Date('2025-06-14'),
     eventTime: "15:00",
-    location: "Château de la Roseraie, 12 avenue des Lavandes, 75000 Paris",
+    location: "Lieu de l'événement",
     eventType: "event",
-    customText: "", // Pas de texte par défaut pour les champs optionnels
-    moreInfo: "", // Pas de texte par défaut pour les champs optionnels
+    customText: "Vous êtes cordialement invité à notre événement", // Texte générique
+    moreInfo: "Merci de confirmer votre présence", // Texte générique
     elements: defaultElements
   };
+}
+
+// Fonction pour obtenir des données de prévisualisation selon le type d'événement
+export function getPreviewDataByType(eventType: string = 'event'): InvitationData {
+  const defaultElements = getDefaultElements(eventType);
+  
+  const previewData: Record<string, InvitationData> = {
+    'event': {
+      eventTitle: "Mon Événement",
+      eventDate: new Date('2025-06-14'),
+      eventTime: "15:00",
+      location: "Lieu de l'événement",
+      eventType: "event",
+      customText: "Vous êtes cordialement invité à notre événement",
+      moreInfo: "Merci de confirmer votre présence",
+      elements: defaultElements
+    },
+    'BIRTHDAY': {
+      eventTitle: "Anniversaire de Marie",
+      eventDate: new Date('2025-07-20'),
+      eventTime: "19:00",
+      location: "Restaurant Le Bistrot, Paris",
+      eventType: "BIRTHDAY",
+      customText: "Venez célébrer l'anniversaire de Marie",
+      moreInfo: "Cadeaux optionnels",
+      elements: defaultElements
+    },
+    'BAPTISM': {
+      eventTitle: "Baptême de Lucas",
+      eventDate: new Date('2025-08-15'),
+      eventTime: "14:00",
+      location: "Église Saint-Pierre, Lyon",
+      eventType: "BAPTISM",
+      customText: "Vous êtes invité au baptême de Lucas",
+      moreInfo: "Cérémonie suivie d'un goûter",
+      elements: defaultElements
+    },
+    'ANNIVERSARY': {
+      eventTitle: "50 ans de Mariage",
+      eventDate: new Date('2025-09-10'),
+      eventTime: "18:00",
+      location: "Salle des Fêtes, Marseille",
+      eventType: "ANNIVERSARY",
+      customText: "Célébrons ensemble nos 50 ans de bonheur",
+      moreInfo: "Dîner dansant",
+      elements: defaultElements
+    },
+    'CORPORATE': {
+      eventTitle: "Séminaire Entreprise",
+      eventDate: new Date('2025-10-05'),
+      eventTime: "09:00",
+      location: "Centre de Conférences, Paris",
+      eventType: "CORPORATE",
+      customText: "Séminaire annuel de l'entreprise",
+      moreInfo: "Déjeuner inclus",
+      elements: defaultElements
+    }
+  };
+  
+  return previewData[eventType] || previewData['event'];
 }
 
 // Fonction pour convertir les données d'invitation en données de template (NOUVELLE architecture)

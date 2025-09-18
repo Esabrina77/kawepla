@@ -196,6 +196,107 @@
   border-color: var(--color-primary);
 }
 
+.input {
+  width: 100%;
+  padding: 0.5rem;
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  font-family: inherit;
+  font-size: 0.85rem;
+}
+
+.input:focus {
+  outline: none;
+  border-color: var(--color-primary);
+}
+
+.helpText {
+  display: block;
+  margin-top: 0.25rem;
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+  font-style: italic;
+}
+
+.tagInputContainer {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.tagInput {
+  flex: 1;
+  padding: 0.5rem;
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  font-family: inherit;
+  font-size: 0.85rem;
+}
+
+.tagInput:focus {
+  outline: none;
+  border-color: var(--color-primary);
+}
+
+.addTagButton {
+  padding: 0.5rem 0.75rem;
+  background: var(--color-primary);
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: bold;
+  transition: all 0.2s ease;
+}
+
+.addTagButton:hover:not(:disabled) {
+  background: var(--color-primary-hover);
+}
+
+.addTagButton:disabled {
+  background: var(--text-secondary);
+  cursor: not-allowed;
+}
+
+.tagsList {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.25rem 0.5rem;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: 16px;
+  font-size: 0.8rem;
+  color: var(--text-primary);
+}
+
+.removeTagButton {
+  background: none;
+  border: none;
+  color: var(--text-secondary);
+  cursor: pointer;
+  font-size: 1rem;
+  line-height: 1;
+  padding: 0;
+  margin-left: 0.25rem;
+  transition: color 0.2s ease;
+}
+
+.removeTagButton:hover {
+  color: var(--alert-error);
+}
+
 .select {
   width: 100%;
   padding: 0.5rem;
@@ -326,6 +427,28 @@
   border-radius: 6px;
   cursor: pointer;
   background: transparent;
+}
+
+.colorCodeInput {
+  margin-top: 0.5rem;
+}
+
+.colorCodeField {
+  width: 100%;
+  padding: 0.5rem;
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+  font-family: 'Courier New', monospace;
+  font-size: 0.9rem;
+  text-align: center;
+}
+
+.colorCodeField:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 2px rgba(var(--color-primary-rgb), 0.1);
 }
 
 .colorInput::-webkit-color-swatch-wrapper {
@@ -488,7 +611,10 @@
 /* Invitation Preview - Container pour le templateEngine */
 .invitationPreview {
   width: 100%;
-  min-height: 100%;
+  height: 100%;
+  transform: scale(0.8);
+  transform-origin: center;
+  overflow: hidden;
 }
 
 /* Responsive */

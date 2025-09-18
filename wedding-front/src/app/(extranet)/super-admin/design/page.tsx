@@ -4,8 +4,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useDesigns } from '@/hooks/useDesigns';
 import { Design } from '@/types';
-import { TemplateEngine } from '@/lib/templateEngine';
-import { getDefaultInvitationData } from '@/lib/templateEngine';
+import { TemplateEngine, getPreviewDataByType } from '@/lib/templateEngine';
 import { 
   Palette, 
   Search, 
@@ -30,18 +29,10 @@ export default function SuperAdminDesignPage() {
   const [searchTerm, setSearchTerm] = useState<string>('');
   const [selectedFilter, setSelectedFilter] = useState<string>('all');
 
-  // Données d'exemple pour les prévisualisations (NOUVELLE architecture)
-  const miniPreviewData = {
-    eventTitle: "Antoine & Marie",
-    eventDate: new Date('2024-06-15T15:00:00'),
-    eventTime: "15h00",
-    location: "Château de Versailles, Paris",
-    eventType: "event",
-    customText: "Ont le plaisir de vous inviter à célébrer leur événement",
-    moreInfo: "cérémonie suivie d'un cocktail et dîner"
+  // Données d'exemple pour les prévisualisations (adaptées au type d'événement)
+  const getPreviewData = (design: Design) => {
+    return getPreviewDataByType(design.category || 'event');
   };
-
-  const fullPreviewData = getDefaultInvitationData();
 
   // Filtrer les designs en fonction de la recherche et du filtre
   const filteredDesigns = designs.filter(design => {
@@ -208,14 +199,20 @@ export default function SuperAdminDesignPage() {
                 <div 
                   className={styles.previewContent}
                   dangerouslySetInnerHTML={{
-                    __html: new TemplateEngine().render(design, miniPreviewData)
+                    __html: new TemplateEngine().render(design, getPreviewData(design))
                   }}
+                  key={`card-preview-${design.id}`}
                 />
               ) : (
                 <div className={styles.previewPlaceholder}>
                   <Palette style={{ width: '48px', height: '48px', marginBottom: 'var(--space-sm)' }} />
                   <h3>{design.name}</h3>
                   <p>Aperçu non disponible</p>
+                  <p style={{ fontSize: '0.7rem', color: '#666' }}>
+                    Template: {design.template ? '✓' : '✗'} | 
+                    Styles: {design.styles ? '✓' : '✗'} | 
+                    Variables: {design.variables ? '✓' : '✗'}
+                  </p>
                 </div>
               )}
             </div>
@@ -328,8 +325,9 @@ export default function SuperAdminDesignPage() {
                   <div 
                     className={styles.fullPreview}
                     dangerouslySetInnerHTML={{
-                      __html: new TemplateEngine().render(selectedDesign, fullPreviewData)
+                      __html: new TemplateEngine().render(selectedDesign, getPreviewData(selectedDesign))
                     }}
+                    key={`modal-preview-${selectedDesign.id}`}
                   />
                 ) : (
                   <div className={styles.noPreview}>

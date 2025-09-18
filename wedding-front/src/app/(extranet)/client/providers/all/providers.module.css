@@ -48,6 +48,14 @@
   margin-bottom: var(--space-md);
 }
 
+.resultsCount {
+  text-align: center;
+  margin: var(--space-md) 0;
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
 /* Section de recherche */
 .filtersContainer {
   display: flex;

@@ -182,6 +182,8 @@ export default function CreateDesignPage() {
   const [designName, setDesignName] = useState('');
   const [description, setDescription] = useState('');
   const [category, setCategory] = useState('minimaliste');
+  const [tags, setTags] = useState<string[]>([]);
+  const [newTag, setNewTag] = useState('');
   const [eventType, setEventType] = useState<'event' | 'BIRTHDAY' | 'BAPTISM' | 'ANNIVERSARY' | 'CORPORATE'>('event');
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [uploadedImageUrl, setUploadedImageUrl] = useState<string | null>(null);
@@ -400,6 +402,17 @@ export default function CreateDesignPage() {
     });
   };
 
+  const addTag = () => {
+    const tag = newTag.trim();
+    if (tag && !tags.includes(tag)) {
+      setTags([...tags, tag]);
+      setNewTag('');
+    }
+  };
+
+  const removeTag = (index: number) => {
+    setTags(tags.filter((_, i) => i !== index));
+  };
 
   const handleSave = async () => {
     if (!designName.trim()) {
@@ -451,7 +464,7 @@ export default function CreateDesignPage() {
         name: designName,
         description: description || `Design ${eventType.toLowerCase()} créé le ${new Date().toLocaleDateString()}`,
         category: category,
-        tags: [category, eventType.toLowerCase(), 'moderne', 'positionnable'],
+        tags: tags.length > 0 ? tags : [],
         isActive: true,
         isPremium: priceType !== 'FREE',
         priceType: priceType,
@@ -660,6 +673,15 @@ export default function CreateDesignPage() {
                       className={styles.colorInput}
                     />
                   </div>
+                  <div className={styles.colorCodeInput}>
+                    <input
+                      type="text"
+                      value={getSelectedElement()?.styles.color || '#000000'}
+                      onChange={(e) => updateElementStyle('color', e.target.value)}
+                      placeholder="#000000"
+                      className={styles.colorCodeField}
+                    />
+                  </div>
                 </div>
 
                 {/* Police */}
@@ -769,6 +791,54 @@ export default function CreateDesignPage() {
                 className={styles.textarea}
                 rows={3}
               />
+                </div>
+
+                <div className={styles.formGroup}>
+                  <label>Tags</label>
+                  <div className={styles.tagInputContainer}>
+                    <input
+                      type="text"
+                      value={newTag}
+                      onChange={(e) => setNewTag(e.target.value)}
+                      onKeyPress={(e) => {
+                        if (e.key === 'Enter') {
+                          e.preventDefault();
+                          addTag();
+                        }
+                      }}
+                      placeholder="Ajouter un tag..."
+                      className={styles.tagInput}
+                    />
+                    <button
+                      type="button"
+                      onClick={addTag}
+                      disabled={!newTag.trim()}
+                      className={styles.addTagButton}
+                    >
+                      +
+                    </button>
+                  </div>
+                  
+                  {tags.length > 0 && (
+                    <div className={styles.tagsList}>
+                      {tags.map((tag, index) => (
+                        <span key={index} className={styles.tag}>
+                          {tag}
+                          <button
+                            type="button"
+                            onClick={() => removeTag(index)}
+                            className={styles.removeTagButton}
+                          >
+                            ×
+                          </button>
+                        </span>
+                      ))}
+                    </div>
+                  )}
+                  
+                  <small className={styles.helpText}>
+                    Ajoutez des mots-clés pour faciliter la recherche de votre design
+                  </small>
                 </div>
           </div>
         </div>

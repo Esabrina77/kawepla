@@ -275,9 +275,9 @@ export default function SharedRSVPPage() {
           <div className={styles.loadingContent}>
             <div className={styles.loadingIcon}>
               <Heart style={{ width: '24px', height: '24px' }} />
-            </div>
+                </div>
             <p className={styles.loadingText}>Chargement de votre invitation...</p>
-          </div>
+            </div>
         </div>
       </div>
     );
@@ -290,18 +290,18 @@ export default function SharedRSVPPage() {
           <div className={styles.errorContent}>
             <div className={styles.errorIcon}>
               <XCircle style={{ width: '32px', height: '32px' }} />
-            </div>
+                </div>
             <h1 className={`heading-2 ${styles.errorTitle}`}>Lien d'invitation invalide</h1>
             <p className={styles.errorText}>{error || "Ce lien d'invitation n'existe pas ou a expiré."}</p>
-            <Button
-              variant="primary"
-              className="mt-6"
-              onClick={() => window.location.reload()}
-            >
-              <RefreshCw style={{ width: '16px', height: '16px', marginRight: '8px' }} />
-              Rafraîchir
-            </Button>
-          </div>
+              <Button
+                variant="primary"
+                className="mt-6"
+                onClick={() => window.location.reload()}
+              >
+                <RefreshCw style={{ width: '16px', height: '16px', marginRight: '8px' }} />
+                Rafraîchir
+              </Button>
+            </div>
         </div>
       </div>
     );
@@ -364,7 +364,7 @@ export default function SharedRSVPPage() {
               <div className={styles.checkingContent}>
                 <div className={styles.checkingIcon}>
                   <Heart style={{ width: '24px', height: '24px' }} />
-                </div>
+                  </div>
                 <p className={styles.checkingText}>Vérification de votre réponse...</p>
               </div>
             ) : existingResponse ? (

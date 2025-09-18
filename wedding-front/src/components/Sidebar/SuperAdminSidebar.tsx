@@ -26,7 +26,7 @@ import {
 const menuItems = [
   {
     title: 'Tableau de bord',
-    path: '/super-admin/dashboard',
+    path: '/',
     icon: LayoutDashboard,
     description: 'Vue d\'ensemble administrateur',
     priority: 1

@@ -64,9 +64,9 @@ export default function RSVPPage() {
   }, [invitation]);
 
   const loadInvitationData = async () => {
-    setLoading(true);
-    setError(null);
-    
+      setLoading(true);
+      setError(null);
+      
     try {
       // Charger les détails de l'invitation avec le design
       const response = await rsvpApi.getInvitation(token);
@@ -80,22 +80,22 @@ export default function RSVPPage() {
     }
     
     // Charger le statut RSVP s'il existe (séparément pour ne pas faire échouer l'invitation)
-    try {
-      const statusData = await rsvpApi.getStatus(token);
-      if (statusData) {
-        setRsvpStatus(statusData);
-        setFormData({
-          status: statusData.status,
-          message: statusData.message || '',
-          attendingCeremony: statusData.attendingCeremony ?? true,
-          attendingReception: statusData.attendingReception ?? true,
-          profilePhotoUrl: statusData.profilePhotoUrl || '',
+      try {
+        const statusData = await rsvpApi.getStatus(token);
+        if (statusData) {
+          setRsvpStatus(statusData);
+          setFormData({
+            status: statusData.status,
+            message: statusData.message || '',
+            attendingCeremony: statusData.attendingCeremony ?? true,
+            attendingReception: statusData.attendingReception ?? true,
+            profilePhotoUrl: statusData.profilePhotoUrl || '',
           plusOne: statusData.guest?.plusOne || false,
           plusOneName: statusData.guest?.plusOneName || '',
           dietaryRestrictions: statusData.guest?.dietaryRestrictions || ''
-        });
-        // Si une réponse existe déjà, afficher la réponse au lieu du formulaire
-        setShowExistingResponse(true);
+          });
+          // Si une réponse existe déjà, afficher la réponse au lieu du formulaire
+          setShowExistingResponse(true);
       } else {
         // Pas de RSVP, c'est normal pour une première visite
         console.log('Pas de statut RSVP existant - première visite');
