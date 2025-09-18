@@ -2,8 +2,25 @@
 
 import { useState } from 'react';
 import styles from './stats.module.css';
-import Image from 'next/image';
 import { useAdminStats } from '@/hooks/useAdminStats';
+import { 
+  BarChart3, 
+  Users, 
+  Target, 
+  FileText, 
+  Mail, 
+  TrendingUp, 
+  Calendar, 
+  RefreshCw,
+  Heart,
+  Shield,
+  User,
+  CheckCircle,
+  Clock,
+  Archive,
+  AlertCircle,
+  DollarSign
+} from 'lucide-react';
 
 export default function StatsPage() {
   const { stats, loading, error, refetch } = useAdminStats();
@@ -12,18 +29,8 @@ export default function StatsPage() {
   if (loading) {
     return (
       <div className={styles.statsContainer}>
-        <div className={styles.header}>
-          <h1>
-            <Image
-              src="/icons/stats.svg"
-              alt=""
-              width={32}
-              height={32}
-            />
-            Statistiques globales
-          </h1>
-        </div>
-        <div className="text-center py-8">
+        <div className={styles.loadingContainer}>
+          <div className={styles.loadingSpinner}></div>
           <p>Chargement des statistiques...</p>
         </div>
       </div>
@@ -33,23 +40,11 @@ export default function StatsPage() {
   if (error) {
     return (
       <div className={styles.statsContainer}>
-        <div className={styles.header}>
-          <h1>
-            <Image
-              src="/icons/stats.svg"
-              alt=""
-              width={32}
-              height={32}
-            />
-            Statistiques globales
-          </h1>
-        </div>
-        <div className="text-center py-8 text-red-600">
-          <p>{error}</p>
-          <button 
-            onClick={refetch}
-            className="mt-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
-          >
+        <div className={styles.errorContainer}>
+          <AlertCircle style={{ width: '24px', height: '24px' }} />
+          <p>Erreur: {error}</p>
+          <button onClick={refetch} className={styles.retryButton}>
+            <RefreshCw style={{ width: '16px', height: '16px' }} />
             Réessayer
           </button>
         </div>
@@ -61,243 +56,220 @@ export default function StatsPage() {
 
   return (
     <div className={styles.statsContainer}>
-      <div className={styles.header}>
-        <h1>
-          <Image
-            src="/icons/stats.svg"
-            alt=""
-            width={32}
-            height={32}
-          />
-          Statistiques globales
+      {/* Header Section */}
+      <div className={styles.headerSection}>
+        <div className={styles.badge}>
+          <BarChart3 style={{ width: '16px', height: '16px' }} />
+          Statistiques
+        </div>
+        
+        <h1 className={styles.title}>
+          Vue <span className={styles.titleAccent}>analytique</span>
         </h1>
-        <div className={styles.dateFilter}>
-          <select 
-            className="superAdminInput"
-            value={dateFilter}
-            onChange={(e) => setDateFilter(e.target.value)}
-          >
-            <option value="7">7 derniers jours</option>
-            <option value="30">30 derniers jours</option>
-            <option value="90">90 derniers jours</option>
-            <option value="365">12 derniers mois</option>
-          </select>
-          <button 
-            onClick={refetch}
-            className="ml-2 px-3 py-1 bg-blue-500 text-white rounded text-sm hover:bg-blue-600"
-          >
+        
+        <p className={styles.subtitle}>
+          Analysez les performances et l'activité de votre plateforme Kawepla
+        </p>
+
+        <div className={styles.filtersContainer}>
+          <div className={styles.filterContainer}>
+            <Calendar className={styles.filterIcon} />
+            <select 
+              className={styles.filterSelect}
+              value={dateFilter}
+              onChange={(e) => setDateFilter(e.target.value)}
+            >
+              <option value="7">7 derniers jours</option>
+              <option value="30">30 derniers jours</option>
+              <option value="90">90 derniers jours</option>
+              <option value="365">12 derniers mois</option>
+            </select>
+          </div>
+          
+          <button onClick={refetch} className={styles.refreshButton}>
+            <RefreshCw style={{ width: '16px', height: '16px' }} />
             Actualiser
           </button>
         </div>
       </div>
 
+      {/* Main Stats Grid */}
       <div className={styles.statsGrid}>
         <div className={styles.statCard}>
           <div className={styles.statIcon}>
-            <Image
-              src="/icons/guests.svg"
-              alt=""
-              width={24}
-              height={24}
-            />
+            <Users style={{ width: '24px', height: '24px' }} />
           </div>
-          <div className={styles.statInfo}>
+          <div className={styles.statContent}>
             <h3>Utilisateurs totaux</h3>
-            <div className={styles.statValue}>
-              <strong>{stats.users.total}</strong>
-              <div className="text-sm text-gray-600">
-                {stats.users.active} actifs, {stats.users.inactive} inactifs
-              </div>
+            <div className={styles.statValue}>{stats.users.total}</div>
+            <div className={styles.statChange}>
+              <TrendingUp style={{ width: '14px', height: '14px' }} />
+              {stats.users.active} actifs, {stats.users.inactive} inactifs
             </div>
           </div>
         </div>
 
         <div className={styles.statCard}>
           <div className={styles.statIcon}>
-            <Image
-              src="/icons/rsvp.svg"
-              alt=""
-              width={24}
-              height={24}
-            />
+            <Target style={{ width: '24px', height: '24px' }} />
           </div>
-          <div className={styles.statInfo}>
+          <div className={styles.statContent}>
             <h3>Taux de conversion RSVP</h3>
-            <div className={styles.statValue}>
-              <strong>{stats.activity.conversionRate}%</strong>
-              <div className="text-sm text-gray-600">
-                {stats.activity.totalRSVPs} réponses sur {stats.guests.total} invités
-              </div>
+            <div className={styles.statValue}>{stats.activity.conversionRate}%</div>
+            <div className={styles.statChange}>
+              <CheckCircle style={{ width: '14px', height: '14px' }} />
+              {stats.activity.totalRSVPs} réponses sur {stats.guests.total} invités
             </div>
           </div>
         </div>
 
         <div className={styles.statCard}>
           <div className={styles.statIcon}>
-            <Image
-              src="/icons/design.svg"
-              alt=""
-              width={24}
-              height={24}
-            />
+            <FileText style={{ width: '24px', height: '24px' }} />
           </div>
-          <div className={styles.statInfo}>
+          <div className={styles.statContent}>
             <h3>Invitations créées</h3>
-            <div className={styles.statValue}>
-              <strong>{stats.invitations.total}</strong>
-              <div className="text-sm text-gray-600">
-                {stats.invitations.thisMonth} ce mois-ci
-              </div>
+            <div className={styles.statValue}>{stats.invitations.total}</div>
+            <div className={styles.statChange}>
+              <TrendingUp style={{ width: '14px', height: '14px' }} />
+              {stats.invitations.thisMonth} ce mois-ci
             </div>
           </div>
         </div>
 
         <div className={styles.statCard}>
           <div className={styles.statIcon}>
-            <Image
-              src="/icons/money.svg"
-              alt=""
-              width={24}
-              height={24}
-            />
+            <Mail style={{ width: '24px', height: '24px' }} />
           </div>
-          <div className={styles.statInfo}>
+          <div className={styles.statContent}>
             <h3>Emails envoyés</h3>
-            <div className={styles.statValue}>
-              <strong>{stats.activity.emailsSent}</strong>
-              <div className="text-sm text-gray-600">
-                Invitations distribuées
-              </div>
+            <div className={styles.statValue}>{stats.activity.emailsSent}</div>
+            <div className={styles.statChange}>
+              <Mail style={{ width: '14px', height: '14px' }} />
+              Invitations distribuées
             </div>
           </div>
         </div>
       </div>
 
-      <div className={styles.detailsGrid}>
-        <div className={styles.detailCard}>
-          <div className={styles.cardHeader}>
-            <h3>Répartition des utilisateurs</h3>
-          </div>
-          <div className={styles.cardContent}>
+      {/* Detailed Stats */}
+      <div className={styles.detailedStats}>
+        <div className={styles.statsCard}>
+          <h3 className={styles.cardTitle}>
+            <Users style={{ width: '18px', height: '18px' }} />
+            Répartition des utilisateurs
+          </h3>
+          <div className={styles.statsList}>
             <div className={styles.statItem}>
-              <div className={styles.statItemHeader}>
-                <span className={styles.statLabel}>Couples</span>
-                <span className={`${styles.statBadge} ${styles.roleCouple}`}>
-                  {stats.users.byRole.COUPLE}
-                </span>
-              </div>
+              <span className={styles.statLabel}>
+                <Heart style={{ width: '14px', height: '14px' }} />
+                organisateurs
+              </span>
+              <span className={styles.statCount}>{stats.users.byRole.organisateur}</span>
             </div>
             <div className={styles.statItem}>
-              <div className={styles.statItemHeader}>
-                <span className={styles.statLabel}>Admins</span>
-                <span className={`${styles.statBadge} ${styles.roleAdmin}`}>
-                  {stats.users.byRole.ADMIN}
-                </span>
-              </div>
+              <span className={styles.statLabel}>
+                <Shield style={{ width: '14px', height: '14px' }} />
+                Admins
+              </span>
+              <span className={styles.statCount}>{stats.users.byRole.ADMIN}</span>
             </div>
             <div className={styles.statItem}>
-              <div className={styles.statItemHeader}>
-                <span className={styles.statLabel}>Invités</span>
-                <span className={`${styles.statBadge} ${styles.roleGuest}`}>
-                  {stats.users.byRole.GUEST}
-                </span>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div className={styles.detailCard}>
-          <div className={styles.cardHeader}>
-            <h3>État des invitations</h3>
-          </div>
-          <div className={styles.cardContent}>
-            <div className={styles.statItem}>
-              <div className={styles.statItemHeader}>
-                <span className={styles.statLabel}>Brouillons</span>
-                <span className={`${styles.statBadge} ${styles.statusDraft}`}>
-                  {stats.invitations.draft}
-                </span>
-              </div>
-            </div>
-            <div className={styles.statItem}>
-              <div className={styles.statItemHeader}>
-                <span className={styles.statLabel}>Publiées</span>
-                <span className={`${styles.statBadge} ${styles.statusPublished}`}>
-                  {stats.invitations.published}
-                </span>
-              </div>
-            </div>
-            <div className={styles.statItem}>
-              <div className={styles.statItemHeader}>
-                <span className={styles.statLabel}>Archivées</span>
-                <span className={`${styles.statBadge} ${styles.statusArchived}`}>
-                  {stats.invitations.archived}
-                </span>
-              </div>
+              <span className={styles.statLabel}>
+                <User style={{ width: '14px', height: '14px' }} />
+                Invités
+              </span>
+              <span className={styles.statCount}>{stats.users.byRole.GUEST}</span>
             </div>
           </div>
         </div>
 
-        <div className={styles.detailCard}>
-          <div className={styles.cardHeader}>
-            <h3>Réponses RSVP</h3>
-          </div>
-          <div className={styles.cardContent}>
+        <div className={styles.statsCard}>
+          <h3 className={styles.cardTitle}>
+            <FileText style={{ width: '18px', height: '18px' }} />
+            État des invitations
+          </h3>
+          <div className={styles.statsList}>
             <div className={styles.statItem}>
-              <div className={styles.statItemHeader}>
-                <span className={styles.statLabel}>Confirmées</span>
-                <span className={`${styles.statBadge} ${styles.rsvpConfirmed}`}>
-                  {stats.guests.confirmed}
-                </span>
-              </div>
+              <span className={styles.statLabel}>
+                <Clock style={{ width: '14px', height: '14px' }} />
+                Brouillons
+              </span>
+              <span className={styles.statCount}>{stats.invitations.draft}</span>
             </div>
             <div className={styles.statItem}>
-              <div className={styles.statItemHeader}>
-                <span className={styles.statLabel}>Déclinées</span>
-                <span className={`${styles.statBadge} ${styles.rsvpDeclined}`}>
-                  {stats.guests.declined}
-                </span>
-              </div>
+              <span className={styles.statLabel}>
+                <CheckCircle style={{ width: '14px', height: '14px' }} />
+                Publiées
+              </span>
+              <span className={styles.statCount}>{stats.invitations.published}</span>
             </div>
             <div className={styles.statItem}>
-              <div className={styles.statItemHeader}>
-                <span className={styles.statLabel}>En attente</span>
-                <span className={`${styles.statBadge} ${styles.rsvpPending}`}>
-                  {stats.guests.pending}
-                </span>
-              </div>
+              <span className={styles.statLabel}>
+                <Archive style={{ width: '14px', height: '14px' }} />
+                Archivées
+              </span>
+              <span className={styles.statCount}>{stats.invitations.archived}</span>
             </div>
           </div>
         </div>
 
-        <div className={styles.detailCard}>
-          <div className={styles.cardHeader}>
-            <h3>Activité récente</h3>
+        <div className={styles.statsCard}>
+          <h3 className={styles.cardTitle}>
+            <Target style={{ width: '18px', height: '18px' }} />
+            Réponses RSVP
+          </h3>
+          <div className={styles.statsList}>
+            <div className={styles.statItem}>
+              <span className={styles.statLabel}>
+                <CheckCircle style={{ width: '14px', height: '14px' }} />
+                Confirmées
+              </span>
+              <span className={styles.statCount}>{stats.guests.confirmed}</span>
+            </div>
+            <div className={styles.statItem}>
+              <span className={styles.statLabel}>
+                <AlertCircle style={{ width: '14px', height: '14px' }} />
+                Déclinées
+              </span>
+              <span className={styles.statCount}>{stats.guests.declined}</span>
+            </div>
+            <div className={styles.statItem}>
+              <span className={styles.statLabel}>
+                <Clock style={{ width: '14px', height: '14px' }} />
+                En attente
+              </span>
+              <span className={styles.statCount}>{stats.guests.pending}</span>
+            </div>
           </div>
-          <div className={styles.cardContent}>
+        </div>
+
+        <div className={styles.statsCard}>
+          <h3 className={styles.cardTitle}>
+            <TrendingUp style={{ width: '18px', height: '18px' }} />
+            Activité récente
+          </h3>
+          <div className={styles.statsList}>
             <div className={styles.statItem}>
-              <div className={styles.statItemHeader}>
-                <span className={styles.statLabel}>Nouveaux utilisateurs (30j)</span>
-                <span className={`${styles.statBadge} ${styles.activityPositive}`}>
-                  +{stats.users.recentRegistrations}
-                </span>
-              </div>
+              <span className={styles.statLabel}>
+                <Users style={{ width: '14px', height: '14px' }} />
+                Nouveaux utilisateurs (30j)
+              </span>
+              <span className={styles.statCount}>+{stats.users.recentRegistrations}</span>
             </div>
             <div className={styles.statItem}>
-              <div className={styles.statItemHeader}>
-                <span className={styles.statLabel}>Invitations ce mois</span>
-                <span className={`${styles.statBadge} ${styles.activityPositive}`}>
-                  +{stats.invitations.thisMonth}
-                </span>
-              </div>
+              <span className={styles.statLabel}>
+                <FileText style={{ width: '14px', height: '14px' }} />
+                Invitations ce mois
+              </span>
+              <span className={styles.statCount}>+{stats.invitations.thisMonth}</span>
             </div>
             <div className={styles.statItem}>
-              <div className={styles.statItemHeader}>
-                <span className={styles.statLabel}>Taux de réponse</span>
-                <span className={`${styles.statBadge} ${styles.activityNeutral}`}>
-                  {stats.activity.conversionRate}%
-                </span>
-              </div>
+              <span className={styles.statLabel}>
+                <Target style={{ width: '14px', height: '14px' }} />
+                Taux de réponse
+              </span>
+              <span className={styles.statCount}>{stats.activity.conversionRate}%</span>
             </div>
           </div>
         </div>

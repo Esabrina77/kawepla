@@ -1,0 +1,127 @@
+.countdownTimer {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+  background: linear-gradient(135deg, var(--luxury-burgundy), var(--luxury-champagne-gold));
+  color: white;
+  padding: var(--space-md) var(--space-lg);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-lg);
+  animation: pulse 2s infinite;
+}
+
+.timerIcon {
+  color: white;
+  flex-shrink: 0;
+}
+
+.timerContent {
+  flex: 1;
+}
+
+.timerLabel {
+  font-size: 0.875rem;
+  font-weight: 500;
+  margin-bottom: var(--space-xs);
+  opacity: 0.9;
+}
+
+.timerDigits {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+}
+
+.timeUnit {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-width: 40px;
+}
+
+.number {
+  font-size: 1.5rem;
+  font-weight: 700;
+  line-height: 1;
+  background: rgba(255, 255, 255, 0.2);
+  padding: var(--space-xs) var(--space-sm);
+  border-radius: var(--radius-sm);
+  min-width: 40px;
+  text-align: center;
+  backdrop-filter: blur(10px);
+}
+
+.label {
+  font-size: 0.75rem;
+  font-weight: 500;
+  margin-top: var(--space-xs);
+  opacity: 0.8;
+}
+
+.separator {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.8);
+  margin-top: -8px;
+}
+
+@keyframes pulse {
+  0%, 100% { 
+    transform: scale(1);
+    box-shadow: var(--shadow-lg);
+  }
+  50% { 
+    transform: scale(1.02);
+    box-shadow: var(--shadow-xl);
+  }
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .countdownTimer {
+    flex-direction: column;
+    text-align: center;
+    gap: var(--space-sm);
+  }
+
+  .timerDigits {
+    justify-content: center;
+  }
+
+  .timeUnit {
+    min-width: 35px;
+  }
+
+  .number {
+    font-size: 1.25rem;
+    min-width: 35px;
+  }
+
+  .separator {
+    font-size: 1rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .timerDigits {
+    gap: var(--space-xs);
+  }
+
+  .timeUnit {
+    min-width: 30px;
+  }
+
+  .number {
+    font-size: 1rem;
+    min-width: 30px;
+    padding: 4px 6px;
+  }
+
+  .label {
+    font-size: 0.625rem;
+  }
+
+  .separator {
+    font-size: 0.875rem;
+  }
+}

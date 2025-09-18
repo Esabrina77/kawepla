@@ -1,53 +1,17 @@
 'use client';
 import { useState, useEffect, useCallback } from 'react';
-import { apiClient } from '../lib/api/apiClient';
+import { designsApi, DesignFilters } from '@/lib/api/designs';
+import { Design } from '@/types';
 
-export interface Design {
-  id: string;
-  name: string;
-  description: string;
-  category?: string;
-  tags?: string[];
-  isActive: boolean;
-  isPremium: boolean;
-  createdAt: string;
-  updatedAt: string;
-  template: {
-    layout: string;
-    sections: Record<string, {
-      html: string;
-      position: string;
-    }>;
-  };
-  styles: {
-    base: Record<string, Record<string, string>>;
-    components: Record<string, Record<string, Record<string, string>>>;
-    animations: Record<string, { keyframes: Record<string, Record<string, string>> }>;
-  };
-  variables: {
-    colors: Record<string, string>;
-    typography: {
-      bodyFont: string;
-      headingFont: string;
-      fontSize: {
-        base: string;
-        heading: Record<string, string>;
-      };
-    };
-    spacing: Record<string, string>;
-    breakpoints?: Record<string, string>;
-  };
-  components?: any;
-  version?: string;
-}
 
 export interface CreateDesignData {
   name: string;
-  description: string;
+  description?: string;
   category?: string;
   tags?: string[];
   isActive: boolean;
   isPremium: boolean;
+  priceType?: 'FREE' | 'ESSENTIAL' | 'ELEGANT' | 'ELEGANT' | 'LUXE';
   template: {
     layout: string;
     sections: Record<string, {
@@ -58,21 +22,42 @@ export interface CreateDesignData {
   styles: {
     base: Record<string, Record<string, string>>;
     components: Record<string, Record<string, Record<string, string>>>;
-    animations: Record<string, { keyframes: Record<string, Record<string, string>> }>;
+    animations?: Record<string, { keyframes: Record<string, Record<string, string>> }>;
   };
   variables: {
-    colors: Record<string, string>;
+    colors: {
+      primary: string;
+      secondary: string;
+      accent?: string;
+      background?: string;
+      text?: string;
+      [key: string]: string | undefined;
+    };
     typography: {
-      bodyFont: string;
       headingFont: string;
+      bodyFont: string;
       fontSize: {
         base: string;
-        heading: Record<string, string>;
+        heading: {
+          h1: string;
+          h2: string;
+          h3: string;
+        };
       };
     };
-    spacing: Record<string, string>;
-    breakpoints?: Record<string, string>;
+    spacing: {
+      base: string;
+      sections: string;
+      components: string;
+    };
+    breakpoints?: {
+      mobile: string;
+      tablet: string;
+      desktop: string;
+    };
   };
+  customFonts?: Record<string, any>;
+  backgroundImage?: string;
   components?: any;
   version?: string;
 }
@@ -87,9 +72,9 @@ export function useDesigns() {
       setLoading(true);
       setError(null);
       
-      // Appel direct à l'API comme dans Postman
-      const response = await apiClient.get<{ designs: Design[] }>('/designs');
-      setDesigns(response.designs || []);
+      // Utiliser la nouvelle API
+      const response = await designsApi.getAll();
+      setDesigns(response || []);
     } catch (err) {
       console.error('Error fetching designs:', err);
       setError(err instanceof Error ? err.message : 'Une erreur est survenue');
@@ -100,9 +85,9 @@ export function useDesigns() {
 
   const getDesignById = useCallback(async (id: string): Promise<Design | null> => {
     try {
-      // Appel direct à l'API comme dans Postman
-      const response = await apiClient.get<{ design: Design }>(`/designs/${id}`);
-      return response.design;
+      // Utiliser la nouvelle API
+      const response = await designsApi.getById(id);
+      return response;
     } catch (err) {
       console.error(`Error fetching design ${id}:`, err);
       throw new Error(err instanceof Error ? err.message : 'Une erreur est survenue');
@@ -111,9 +96,9 @@ export function useDesigns() {
 
   const createDesign = useCallback(async (data: CreateDesignData): Promise<Design> => {
     try {
-      const response = await apiClient.post<{ design: Design }>('/designs', data);
+      const response = await designsApi.create(data);
       await fetchDesigns(); // Refresh the list
-      return response.design;
+      return response;
     } catch (err) {
       console.error('Error creating design:', err);
       throw new Error(err instanceof Error ? err.message : 'Erreur lors de la création du design');
@@ -122,9 +107,9 @@ export function useDesigns() {
 
   const updateDesign = useCallback(async (id: string, data: Partial<CreateDesignData>): Promise<Design> => {
     try {
-      const response = await apiClient.put<{ design: Design }>(`/designs/${id}`, data);
+      const response = await designsApi.update(id, data);
       await fetchDesigns(); // Refresh the list
-      return response.design;
+      return response;
     } catch (err) {
       console.error(`Error updating design ${id}:`, err);
       throw new Error(err instanceof Error ? err.message : 'Erreur lors de la mise à jour du design');
@@ -133,7 +118,7 @@ export function useDesigns() {
 
   const deleteDesign = useCallback(async (id: string): Promise<void> => {
     try {
-      await apiClient.delete(`/designs/${id}`);
+      await designsApi.delete(id);
       await fetchDesigns(); // Refresh the list
     } catch (err) {
       console.error(`Error deleting design ${id}:`, err);

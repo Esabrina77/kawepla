@@ -5,7 +5,7 @@
 
 .main {
   flex: 1;
-  margin-left: 250px;
+  margin-left: 150px;
   padding: var(--spacing-xl);
   background-color: var(--color-background);
   min-height: 100vh;

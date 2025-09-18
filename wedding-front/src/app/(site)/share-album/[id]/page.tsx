@@ -2,8 +2,6 @@
 
 import React, { useState, useEffect } from 'react';
 import { useParams } from 'next/navigation';
-import { Card } from '@/components/Card/Card';
-import { Button } from '@/components/Button/Button';
 import { 
   Camera, 
   Upload, 
@@ -23,7 +21,10 @@ import {
   X,
   ZoomIn,
   Download,
-  Grid3X3
+  Grid3X3,
+  Eye,
+  Share2,
+  Copy
 } from 'lucide-react';
 import { uploadToFirebase } from '@/lib/firebase';
 import imageCompression from 'browser-image-compression';
@@ -33,7 +34,6 @@ import 'swiper/css';
 import 'swiper/css/navigation';
 import 'swiper/css/pagination';
 import 'swiper/css/effect-coverflow';
-import { VineAnimation } from '@/components/VineAnimation/VineAnimation';
 import styles from './share-album.module.css';
 
 interface Album {
@@ -43,8 +43,8 @@ interface Album {
   isPublic: boolean;
   invitation: {
     id: string;
-    coupleName: string;
-    weddingDate: string;
+    organisateurName: string;
+    eventDate: string;
   };
   photos: Array<{
     id: string;
@@ -168,7 +168,7 @@ export default function ShareAlbumPage() {
         const timestamp = Date.now();
         const random = Math.random().toString(36).substring(2, 8);
         const originalName = file.name.split('.')[0]; // Nom sans extension
-        const fileName = `guest-photos/${albumId}/${timestamp}-${random}-${originalName}.jpg`;
+        const fileName = `guest-photos/album/${albumId}/${timestamp}-${random}-${originalName}.jpg`;
         
         // Créer un nouveau fichier avec le bon nom et extension
         const renamedFile = new File([compressedFile], `${timestamp}-${random}-${originalName}.jpg`, {
@@ -199,7 +199,7 @@ export default function ShareAlbumPage() {
         uploadedCount++;
       }
       
-      setSuccessMessage(`${uploadedCount} photo(s) uploadée(s) avec succès ! Les mariés les valideront bientôt.`);
+      setSuccessMessage(`${uploadedCount} photo(s) uploadée(s) avec succès ! Les organisateurs les valideront bientôt.`);
       
       // Réinitialiser le formulaire
       setSelectedFiles([]);
@@ -244,6 +244,28 @@ export default function ShareAlbumPage() {
   const approvedPhotos = album?.photos?.filter(photo => photo.status === 'APPROVED' || photo.status === 'PUBLIC') || [];
   const recentPhotos = approvedPhotos.slice(-10).reverse(); // 10 dernières photos, les plus récentes en premier
 
+  // Fonction pour obtenir l'URL d'affichage d'une photo avec fallback
+  const getPhotoDisplayUrl = (photo: any): string => {
+    // Essayer dans l'ordre : thumbnail, compressed, original
+    const url = photo.thumbnailUrl || photo.compressedUrl || photo.originalUrl;
+    
+    if (!url) {
+      console.warn('No photo URL available for photo:', photo.id);
+      // Retourner une image placeholder
+      return `https://via.placeholder.com/300x300/cccccc/666666?text=Photo+${photo.id}`;
+    }
+    
+    return url;
+  };
+
+  // Fonction pour gérer les erreurs de chargement d'image
+  const handleImageError = (event: React.SyntheticEvent<HTMLImageElement, Event>, photo: any) => {
+    console.warn('Image failed to load:', photo);
+    const img = event.target as HTMLImageElement;
+    img.src = `https://via.placeholder.com/300x300/cccccc/666666?text=Photo+${photo.id}`;
+    img.alt = 'Photo non disponible';
+  };
+
   if (loading) {
     return (
       <div className={styles.container}>
@@ -263,11 +285,11 @@ export default function ShareAlbumPage() {
   if (error && !album) {
     return (
       <div className={styles.container}>
-        <Card className={styles.errorCard}>
+        <div className={styles.errorCard}>
           <AlertCircle className={styles.errorIcon} />
           <h2>Album non accessible</h2>
           <p>{error}</p>
-        </Card>
+        </div>
       </div>
     );
   }
@@ -275,15 +297,24 @@ export default function ShareAlbumPage() {
   return (
     <div className={styles.container}>
       {/* En-tête luxueux */}
-      <div className={styles.luxuryHeader}>
-        <h1 className={styles.luxuryTitle}>{album?.title}</h1>
-        <div className={styles.coupleInfo}>
+      <div className={styles.headerSection}>
+        <div className={styles.badge}>
+          <Camera style={{ width: '16px', height: '16px' }} />
+          Album photos partagé
+        </div>
+        
+        <h1 className={styles.title}>
+          {album?.title}
+        </h1>
+        
+        <div className={styles.organisateurInfo}>
           <Flower2 className={styles.flowerIcon} />
-          <span className={styles.coupleName}>Mariage de {album?.invitation.coupleName}</span>
+          <span className={styles.organisateurName}>événement de {album?.invitation.organisateurName}</span>
           <Flower2 className={styles.flowerIcon} />
         </div>
-        <div className={styles.weddingDate}>
-          {new Date(album?.invitation.weddingDate || '').toLocaleDateString('fr-FR', {
+        
+        <div className={styles.eventDate}>
+          {new Date(album?.invitation.eventDate || '').toLocaleDateString('fr-FR', {
             weekday: 'long',
             year: 'numeric',
             month: 'long',
@@ -312,9 +343,10 @@ export default function ShareAlbumPage() {
                 onClick={() => openPhotoModal(index)}
               >
                 <img 
-                  src={photo.thumbnailUrl || photo.compressedUrl} 
-                  alt={photo.caption || 'Photo du mariage'} 
+                  src={getPhotoDisplayUrl(photo)} 
+                  alt={photo.caption || 'Photo du événement'} 
                   className={styles.gridImage}
+                  onError={(e) => handleImageError(e, photo)}
                 />
                 <div className={styles.photoGridOverlay}>
                   <ZoomIn className={styles.zoomIcon} />
@@ -358,9 +390,10 @@ export default function ShareAlbumPage() {
 
             <div className={styles.modalImageContainer}>
               <img 
-                src={approvedPhotos[selectedPhotoIndex].compressedUrl} 
-                alt={approvedPhotos[selectedPhotoIndex].caption || 'Photo du mariage'}
+                src={getPhotoDisplayUrl(approvedPhotos[selectedPhotoIndex])} 
+                alt={approvedPhotos[selectedPhotoIndex].caption || 'Photo du événement'}
                 className={styles.modalImage}
+                onError={(e) => handleImageError(e, approvedPhotos[selectedPhotoIndex])}
               />
             </div>
 
@@ -381,7 +414,7 @@ export default function ShareAlbumPage() {
                   className={styles.downloadButton}
                   onClick={async () => {
                     try {
-                      const imageUrl = approvedPhotos[selectedPhotoIndex].compressedUrl;
+                      const imageUrl = getPhotoDisplayUrl(approvedPhotos[selectedPhotoIndex]);
                       const response = await fetch(imageUrl, {
                         mode: 'cors',
                         headers: {
@@ -397,7 +430,7 @@ export default function ShareAlbumPage() {
                       const url = window.URL.createObjectURL(blob);
                       const link = document.createElement('a');
                       link.href = url;
-                      link.download = `photo_mariage_${selectedPhotoIndex + 1}.jpg`;
+                      link.download = `photo_événement_${selectedPhotoIndex + 1}.jpg`;
                       
                       // Déclencher le téléchargement
                       document.body.appendChild(link);
@@ -409,7 +442,7 @@ export default function ShareAlbumPage() {
                     } catch (error) {
                       console.error('Erreur lors du téléchargement:', error);
                       // Fallback vers l'ancienne méthode
-                      window.open(approvedPhotos[selectedPhotoIndex].compressedUrl, '_blank');
+                      window.open(getPhotoDisplayUrl(approvedPhotos[selectedPhotoIndex]), '_blank');
                     }
                   }}
                 >
@@ -427,14 +460,14 @@ export default function ShareAlbumPage() {
       )}
 
       {/* Section d'upload luxueuse */}
-      <Card className={styles.luxuryUploadSection}>
+      <div className={styles.uploadSection}>
         <div className={styles.uploadHeader}>
           <div className={styles.uploadIcon}>
             <Gift className={styles.giftIcon} />
           </div>
           <h2 className={styles.uploadTitle}>Partagez vos Souvenirs</h2>
           <p className={styles.uploadSubtitle}>
-            Contribuez à créer un album inoubliable pour les mariés
+            Contribuez à créer un album inoubliable pour les organisateurs
           </p>
         </div>
 
@@ -556,17 +589,15 @@ export default function ShareAlbumPage() {
           {/* Boutons d'action élégants */}
           <div className={styles.actionButtons}>
             {selectedFiles.length > 0 && (
-              <Button
-                variant="outline"
+              <button
                 onClick={clearSelection}
                 disabled={uploading}
-                className={styles.elegantButton}
+                className={styles.cancelButton}
               >
                 Annuler
-              </Button>
+              </button>
             )}
-            <Button
-              variant="primary"
+            <button
               onClick={handleUpload}
               disabled={uploading || selectedFiles.length === 0}
               className={styles.primaryButton}
@@ -582,13 +613,13 @@ export default function ShareAlbumPage() {
                   Partager {selectedFiles.length} photo(s)
                 </>
               )}
-            </Button>
+            </button>
           </div>
         </div>
-      </Card>
+      </div>
 
       {/* Conseils élégants */}
-      <Card className={styles.tipsSection}>
+      <div className={styles.tipsSection}>
         <div className={styles.tipsHeader}>
           <Crown className={styles.tipsIcon} />
           <h3>Conseils pour de magnifiques photos</h3>
@@ -608,10 +639,10 @@ export default function ShareAlbumPage() {
           </div>
           <div className={styles.tip}>
             <CheckCircle className={styles.tipIcon} />
-            <p>Vos photos seront validées par les mariés</p>
+            <p>Vos photos seront validées par les organisateurs</p>
           </div>
         </div>
-      </Card>
+      </div>
     </div>
   );
 } 

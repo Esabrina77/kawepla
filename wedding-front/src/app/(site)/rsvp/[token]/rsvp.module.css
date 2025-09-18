@@ -1,0 +1,422 @@
+/* ===== RSVP PAGE - DESIGN SYSTEM ===== */
+
+.container {
+  margin-top: 70px;
+}
+
+.rsvpLayout {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--space-xl);
+}
+
+/* Mobile uniquement - invitation et formulaire prennent toute la largeur */
+@media (max-width: 767px) {
+  .rsvpLayout {
+    grid-template-columns: 1fr;
+    gap: var(--space-lg);
+    padding: 0;
+  }
+  
+  .invitationColumn,
+  .formColumn {
+    width: 100vw;
+    margin-left: calc(-50vw + 50%);
+    margin-right: calc(-50vw + 50%);
+  }
+  
+  .invitationColumn .card,
+  .formColumn .card {
+    border-radius: 0;
+    margin: 0;
+    width: 100%;
+  }
+}
+
+@media (min-width: 1024px) {
+  .rsvpLayout {
+    grid-template-columns: 1fr 1fr;
+    max-width: 1400px;
+    margin: 0 auto;
+  }
+  
+  .invitationColumn {
+    position: sticky;
+    top: 120px;
+    height: fit-content;
+  }
+}
+
+@media (min-width: 1280px) {
+  .rsvpLayout {
+    grid-template-columns: 1.2fr 0.8fr;
+  }
+}
+
+/* Loading State */
+.loadingCard {
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.loadingContent {
+  text-align: center;
+  padding: var(--space-2xl);
+}
+
+.loadingIcon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 60px;
+  height: 60px;
+  margin: 0 auto var(--space-lg);
+  border-radius: var(--radius-md);
+  background: var(--color-primary);
+  color: var(--text-primary);
+}
+
+.loadingTitle {
+  color: var(--text-primary);
+  margin-bottom: var(--space-sm);
+}
+
+.loadingText {
+  color: var(--text-secondary);
+}
+
+/* Error State */
+.errorCard {
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.errorContent {
+  text-align: center;
+  padding: var(--space-2xl);
+}
+
+.errorIcon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 60px;
+  height: 60px;
+  margin: 0 auto var(--space-lg);
+  border-radius: var(--radius-md);
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+}
+
+.errorTitle {
+  color: var(--text-primary);
+  margin-bottom: var(--space-sm);
+}
+
+.errorText {
+  color: var(--text-secondary);
+}
+
+/* Invitation Column */
+.invitationCard {
+  overflow: hidden;
+}
+
+.fallbackInvitation {
+  text-align: center;
+  padding: var(--space-xl);
+}
+
+.fallbackTitle {
+  font-family: var(--font-sans);
+  font-size: 2rem;
+  margin-bottom: var(--space-lg);
+  color: var(--text-primary);
+}
+
+.fallbackDate {
+  font-size: 1.5rem;
+  margin-bottom: var(--space-sm);
+  color: var(--color-primary);
+  font-weight: 600;
+}
+
+.fallbackTime {
+  font-size: 1.25rem;
+  margin-bottom: var(--space-sm);
+  color: var(--text-secondary);
+}
+
+.fallbackLocation {
+  font-size: 1.25rem;
+  color: var(--text-primary);
+}
+
+.fallbackCustomText {
+  margin: var(--space-lg) 0;
+  font-size: 1.125rem;
+  font-style: italic;
+  color: var(--text-secondary);
+}
+
+/* Form Column */
+.formCard {
+  padding: var(--space-xl);
+}
+
+.formTitle {
+  color: var(--text-primary);
+  margin-bottom: var(--space-lg);
+  text-align: center;
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-lg);
+}
+
+.formSection {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+}
+
+.formLabel {
+  display: block;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--text-primary);
+  margin-bottom: var(--space-md);
+}
+
+.responseButtons {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+}
+
+.responseButton {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-sm);
+}
+
+.checkboxGroup {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+}
+
+.checkboxLabel {
+  display: inline-flex;
+  align-items: center;
+  cursor: pointer;
+  color: var(--text-primary);
+}
+
+.checkbox {
+  margin-right: var(--space-sm);
+  width: 16px;
+  height: 16px;
+  accent-color: var(--color-primary);
+}
+
+.plusOneSection {
+  margin-top: var(--space-md);
+}
+
+.plusOneLabel {
+  display: inline-flex;
+  align-items: center;
+  cursor: pointer;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--text-primary);
+  margin-bottom: var(--space-sm);
+  gap: var(--space-sm);
+}
+
+.textInput {
+  width: 100%;
+  padding: var(--space-md);
+  font-size: 1rem;
+  border: 2px solid var(--border-color);
+  border-radius: var(--radius-md);
+  transition: all var(--transition-normal);
+  background: var(--bg-card);
+  color: var(--text-primary);
+}
+
+.textInput:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px rgba(197, 168, 128, 0.1);
+}
+
+.textarea {
+  width: 100%;
+  padding: var(--space-md);
+  font-size: 1rem;
+  border: 2px solid var(--border-color);
+  border-radius: var(--radius-md);
+  transition: all var(--transition-normal);
+  background: var(--bg-card);
+  color: var(--text-primary);
+  resize: none;
+  min-height: 120px;
+}
+
+.textarea:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px rgba(197, 168, 128, 0.1);
+}
+
+.dietaryTextarea {
+  min-height: 80px;
+}
+
+.errorMessage {
+  color: var(--error-color);
+  font-size: 0.875rem;
+  text-align: center;
+  background: var(--bg-error);
+  padding: var(--space-md);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-error);
+}
+
+.submitButton {
+  width: 100%;
+  height: 56px;
+  font-size: 1.125rem;
+}
+
+.submitButton:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none !important;
+}
+
+.updateNote {
+  font-size: 0.875rem;
+  text-align: center;
+  color: var(--text-secondary);
+}
+
+/* Existing Response */
+.responseContent {
+  text-align: center;
+}
+
+.responseTitle {
+  color: var(--text-primary);
+  margin-bottom: var(--space-lg);
+}
+
+.guestWelcome {
+  text-align: center;
+  font-size: 1.1rem;
+  color: var(--text-secondary);
+  margin-bottom: var(--space-md);
+}
+
+.guestName {
+  color: var(--color-primary);
+  font-weight: 600;
+}
+
+.statusContainer {
+  text-align: center;
+  margin-bottom: var(--space-xl);
+}
+
+.statusIcon {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto var(--space-lg);
+  color: var(--text-primary);
+}
+
+.statusIconConfirmed {
+  background: var(--color-primary);
+}
+
+.statusIconDeclined {
+  background: var(--error-color);
+}
+
+.statusTitle {
+  color: var(--text-primary);
+  margin-bottom: var(--space-sm);
+}
+
+.detailsList {
+  background: rgba(197, 168, 128, 0.1);
+  border-radius: var(--radius-md);
+  padding: var(--space-md);
+  margin: var(--space-md) 0;
+}
+
+.detailItem {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  margin-bottom: var(--space-sm);
+  color: var(--text-primary);
+}
+
+.detailItem:last-child {
+  margin-bottom: 0;
+}
+
+.messageBox {
+  background: var(--bg-secondary);
+  border-radius: var(--radius-md);
+  padding: var(--space-md);
+  margin: var(--space-md) 0;
+}
+
+.messageTitle {
+  color: var(--text-primary);
+  margin-bottom: var(--space-sm);
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+}
+
+.messageText {
+  color: var(--text-secondary);
+  font-style: italic;
+}
+
+.responseDate {
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+}
+
+@media (max-width: 768px) {
+  .fallbackTitle {
+    font-size: 1.5rem;
+  }
+  
+  .fallbackDate {
+    font-size: 1.25rem;
+  }
+  
+  .fallbackTime,
+  .fallbackLocation {
+    font-size: 1rem;
+  }
+  
+  .fallbackCustomText {
+    font-size: 1rem;
+  }
+}

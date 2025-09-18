@@ -1,6 +1,6 @@
 import { apiClient } from './apiClient';
 
-export interface SubscriptionPlan {
+export interface ServicePurchasePlan {
   id: string;
   name: string;
   description: string;
@@ -25,7 +25,7 @@ export interface AdditionalService {
 }
 
 export class StripeApi {
-  async getPlans(): Promise<SubscriptionPlan[]> {
+  async getPlans(): Promise<ServicePurchasePlan[]> {
     return await apiClient.get('/subscriptions/plans');
   }
 
@@ -51,6 +51,14 @@ export class StripeApi {
 
   async createAdditionalServiceCheckoutSession(serviceId: string): Promise<{ url: string; sessionId: string }> {
     return await apiClient.post('/subscriptions/create-additional-service-checkout-session', { serviceId });
+  }
+
+  async getActivePurchases(): Promise<any> {
+    return await apiClient.get('/subscriptions/active-purchases');
+  }
+
+  async getPurchaseHistory(): Promise<any> {
+    return await apiClient.get('/subscriptions/purchase-history');
   }
 }
 

@@ -1,3 +1,5 @@
+import { ServiceTier } from '@prisma/client';
+
 // Les enums Prisma ne sont pas exportés, on utilise 'string' pour les types d'enum
 
 // User Types
@@ -20,8 +22,6 @@ export interface UserResponse {
   firstName: string;
   lastName: string;
   role: UserRole;
-  subscriptionTier: string;
-  subscriptionEndDate?: Date;
   isActive: boolean;
   emailVerified: boolean;
   createdAt: Date;
@@ -40,7 +40,6 @@ export interface AuthUser {
   id: string;
   email: string;
   role: UserRole;
-  subscriptionTier: string;
   isActive: boolean;
 }
 
@@ -56,21 +55,20 @@ export interface TokenResponse {
 
 // Invitation Types
 export interface CreateInvitationDto {
-  title: string;
+  // NOUVELLE ARCHITECTURE SIMPLIFIÉE
+  eventTitle: string;      // "Emma & Lucas" ou "Anniversaire de Marie"
+  eventDate: Date;         // Date de l'événement
+  eventTime?: string;      // "15h00" (optionnel)
+  location: string;        // "Château de la Roseraie, Paris"
+  eventType?: string;      // Type d'événement (WEDDING, BIRTHDAY, etc.)
+  customText?: string;     // Texte libre personnalisable
+  moreInfo?: string;       // Informations supplémentaires
+  
+  // Champs techniques conservés
   description?: string;
-  weddingDate: Date;
-  ceremonyTime?: string;
-  receptionTime?: string;
-  venueName: string;
-  venueAddress: string;
-  venueCoordinates?: string;
-  customDomain?: string;
-  theme: ThemeConfig;
+  status?: string;
   photos?: string[];
-  program?: ProgramDetails;
-  restrictions?: string;
   languages?: string[];
-  maxGuests?: number;
   designId: string;
 }
 
@@ -80,22 +78,20 @@ export interface UpdateInvitationDto extends Partial<CreateInvitationDto> {
 
 export interface InvitationResponse {
   id: string;
-  title: string;
+  // NOUVELLE ARCHITECTURE SIMPLIFIÉE
+  eventTitle: string;
+  eventDate: Date;
+  eventTime?: string;
+  location: string;
+  eventType: string;
+  customText?: string;
+  moreInfo?: string;
+  
+  // Champs techniques conservés
   description?: string;
-  weddingDate: Date;
-  ceremonyTime?: string;
-  receptionTime?: string;
-  venueName: string;
-  venueAddress: string;
-  venueCoordinates?: string;
-  customDomain?: string;
   status: string;
-  theme: ThemeConfig;
   photos: string[];
-  program?: ProgramDetails;
-  restrictions?: string;
   languages: string[];
-  maxGuests?: number;
   createdAt: Date;
   updatedAt: Date;
   design: DesignResponse;
@@ -212,7 +208,7 @@ export interface DesignVariables {
     sections: string;
     components: string;
   };
-  breakpoints: {
+  breakpoints?: {
     mobile: string;
     tablet: string;
     desktop: string;
@@ -234,18 +230,20 @@ export interface DesignComponents {
 export interface CreateDesignDto {
   name: string;
   description?: string;
-  isPremium?: boolean;
-  price?: number;
+  category?: string;
+  tags?: string[];
+  isActive?: boolean;
+  priceType?: ServiceTier;
   template: DesignTemplate;
   styles: DesignStyles;
-  components?: DesignComponents;
   variables: DesignVariables;
+  customFonts?: Record<string, string>;
+  backgroundImage?: string;
 }
 
 export interface DesignResponse extends CreateDesignDto {
   id: string;
   isActive: boolean;
-  createdBy?: string;
   createdAt: Date;
   updatedAt: Date;
   version: string;
@@ -313,29 +311,29 @@ export interface PaginatedResponse<T> {
   };
 }
 
-// Subscription Features
-export interface SubscriptionFeatures {
-  BASIC: string[];
-  STANDARD: string[];
-  PREMIUM: string[];
+// ServicePurchase Features
+export interface ServicePurchaseFeatures {
+  FREE: string[];
+  ESSENTIAL: string[];
+  ELEGANT: string[];
 }
 
-export const SUBSCRIPTION_FEATURES: SubscriptionFeatures = {
-  BASIC: [
+export const SUBSCRIPTION_FEATURES: ServicePurchaseFeatures = {
+  FREE: [
     '1 design simple',
     'Invitation personnalisée',
     'RSVP',
     'Liste des invités',
     'Export CSV'
   ],
-  STANDARD: [
+  ESSENTIAL: [
     'Plusieurs designs',
     'Album photo',
     'QR Code de partage',
     'Programme détaillé',
     'Statistiques simples'
   ],
-  PREMIUM: [
+  ELEGANT: [
     'Thèmes premium avec animations',
     'Notifications email/SMS',
     'Mini-vidéo d\'invitation',
@@ -362,3 +360,137 @@ export type RequestHandler = (
   res: Response,
   next: NextFunction
 ) => void | Response; 
+
+// Provider Types V1
+export interface CreateProviderProfileDto {
+  businessName: string;
+  categoryId: string;
+  description: string;
+  // GÉOLOCALISATION V1
+  latitude: number;        // Coordonnées GPS (avec offset sécurité)
+  longitude: number;       // Coordonnées GPS (avec offset sécurité)
+  serviceRadius?: number;  // Rayon d'intervention en km (défaut: 25km)
+  displayCity: string;     // Ville affichée publiquement
+  // CONTACT OBLIGATOIRE V1
+  phone: string;           // Téléphone obligatoire
+  // PHOTOS FIREBASE V1
+  profilePhoto?: string;   // URL Firebase
+  portfolio?: string[];    // URLs Firebase (max 6)
+}
+
+export interface ProviderProfileResponse {
+  id: string;
+  businessName: string;
+  categoryId: string;
+  description: string;
+  // GÉOLOCALISATION V1
+  latitude: number;
+  longitude: number;
+  serviceRadius: number;
+  displayCity: string;
+  // CONTACT
+  phone: string;
+  // PHOTOS
+  profilePhoto?: string;
+  portfolio: string[];
+  // STATUT V1 (auto-approuvé)
+  status: string;
+  verifiedAt: Date;
+  // STRIPE CONNECT V1
+  stripeAccountId?: string;
+  stripeOnboarded: boolean;
+  commissionRate: number;
+  // MÉTRIQUES
+  rating: number;
+  reviewCount: number;
+  bookingCount: number;
+  totalEarnings: number;
+  createdAt: Date;
+  updatedAt: Date;
+  category: ServiceCategoryResponse;
+  user: {
+    id: string;
+    firstName: string;
+    lastName: string;
+    email: string;
+  };
+}
+
+export interface ServiceCategoryResponse {
+  id: string;
+  name: string;
+  description?: string;
+  icon?: string;
+  color?: string;
+}
+
+// NOUVEAU: Types pour géolocalisation V1
+export interface GeoSearchParams {
+  latitude: number;
+  longitude: number;
+  radius?: number;        // Rayon de recherche en km (défaut: 25km)
+  categoryId?: string;
+  eventType?: string;
+  minRating?: number;
+  maxPrice?: number;
+  limit?: number;
+  offset?: number;
+}
+
+// NOUVEAU: Types pour booking V1
+export interface CreateBookingDto {
+  serviceId: string;
+  eventDate: Date;
+  eventTime?: string;
+  eventType: string;      // WEDDING, BIRTHDAY, etc.
+  clientName: string;
+  clientPhone: string;
+  clientEmail: string;
+  guestCount?: number;
+  message?: string;
+}
+
+export interface BookingResponse {
+  id: string;
+  serviceId: string;
+  eventDate: Date;
+  eventTime?: string;
+  eventType: string;
+  clientName: string;
+  clientPhone: string;
+  clientEmail: string;
+  guestCount?: number;
+  message?: string;
+  status: string;
+  totalPrice: number;
+  ourCommission: number;
+  providerAmount: number;
+  stripePaymentIntentId?: string;
+  confirmedAt?: Date;
+  paidAt?: Date;
+  createdAt: Date;
+  service: {
+    id: string;
+    name: string;
+    price: number;
+  };
+  provider: {
+    id: string;
+    businessName: string;
+    phone: string;
+  };
+}
+
+// NOUVEAU: Types pour Stripe Connect V1
+export interface StripeConnectDto {
+  providerId: string;
+  returnUrl: string;
+  refreshUrl: string;
+}
+
+export interface CommissionCalculation {
+  totalPrice: number;
+  commissionRate: number;
+  ourCommission: number;
+  providerAmount: number;
+} 

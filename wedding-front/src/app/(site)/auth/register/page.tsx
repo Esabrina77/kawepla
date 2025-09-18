@@ -3,14 +3,15 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { useAuth } from '@/hooks/useAuth';
 import styles from '@/styles/site/auth.module.css';
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3013';
-
 export default function RegisterPage() {
+  const { register, isLoading: authLoading } = useAuth();
   const router = useRouter();
   const [error, setError] = useState<string>('');
   const [loading, setLoading] = useState(false);
+  const [userType, setUserType] = useState<'HOST' | 'PROVIDER'>('HOST');
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -33,27 +34,20 @@ export default function RegisterPage() {
     }
 
     try {
-      const response = await fetch(`${API_URL}/api/auth/register`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          email: data.email,
-          password: data.password,
-          firstName: data.firstName,
-          lastName: data.lastName,
-        }),
+      const result = await register({
+        email: data.email,
+        password: data.password,
+        firstName: data.firstName,
+        lastName: data.lastName,
+        role: userType,
       });
 
-      const result = await response.json();
-
-      if (!response.ok) {
-        throw new Error(result.message || 'Erreur lors de l\'inscription');
+      if (!result.success) {
+        setError(result.error || 'Erreur lors de l\'inscription');
+      } else {
+        // Rediriger vers la page de vérification d'email
+        router.push(`/auth/verify-email?email=${encodeURIComponent(data.email)}`);
       }
-
-      // Rediriger vers la page de vérification d'email
-      router.push(`/auth/verify-email?email=${encodeURIComponent(data.email)}`);
 
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Une erreur est survenue');
@@ -67,8 +61,8 @@ export default function RegisterPage() {
       <div className={styles.container}>
         <div className={styles.authCard}>
           <div className={styles.header}>
-            <h1>Créez votre compte</h1>
-            <p>Commencez à créer vos invitations de mariage</p>
+            <h1>Création de compte</h1>
+            <p>Rejoignez Kawepla et créez vos invitations d'événements numériques</p>
           </div>
 
           <form className={styles.form} onSubmit={handleSubmit}>
@@ -78,6 +72,48 @@ export default function RegisterPage() {
               </div>
             )}
 
+            {/* Sélection du type d'utilisateur */}
+            <div className={styles.userTypeSelector}>
+              <h3>Je suis un :</h3>
+              <div className={styles.userTypeOptions}>
+                <label className={`${styles.userTypeOption} ${userType === 'HOST' ? styles.selected : ''}`}>
+                  <input
+                    type="radio"
+                    name="userType"
+                    value="HOST"
+                    checked={userType === 'HOST'}
+                    onChange={(e) => setUserType(e.target.value as 'HOST' | 'PROVIDER')}
+                    disabled={loading}
+                  />
+                  <div className={styles.userTypeContent}>
+                    <div className={styles.userTypeIcon}>💒</div>
+                    <div className={styles.userTypeText}>
+                      <strong>Organisateur</strong>
+                      <span>Organiser mon événement</span>
+                    </div>
+                  </div>
+                </label>
+                
+                <label className={`${styles.userTypeOption} ${userType === 'PROVIDER' ? styles.selected : ''}`}>
+                  <input
+                    type="radio"
+                    name="userType"
+                    value="PROVIDER"
+                    checked={userType === 'PROVIDER'}
+                    onChange={(e) => setUserType(e.target.value as 'HOST' | 'PROVIDER')}
+                    disabled={loading}
+                  />
+                  <div className={styles.userTypeContent}>
+                    <div className={styles.userTypeIcon}>🎯</div>
+                    <div className={styles.userTypeText}>
+                      <strong>Prestataire</strong>
+                      <span>Proposer mes services</span>
+                    </div>
+                  </div>
+                </label>
+              </div>
+            </div>
+
             <div className={styles.formRow}>
               <div className={styles.formGroup}>
                 <label htmlFor="firstName">Prénom</label>
@@ -86,7 +122,7 @@ export default function RegisterPage() {
                   name="firstName"
                   type="text"
                   required
-                  className="fullWidth"
+                  className={styles.fullWidth}
                   placeholder="Votre prénom"
                   disabled={loading}
                 />
@@ -98,7 +134,7 @@ export default function RegisterPage() {
                   name="lastName"
                   type="text"
                   required
-                  className="fullWidth"
+                  className={styles.fullWidth}
                   placeholder="Votre nom"
                   disabled={loading}
                 />
@@ -113,7 +149,7 @@ export default function RegisterPage() {
                 type="email"
                 autoComplete="email"
                 required
-                className="fullWidth"
+                className={styles.fullWidth}
                 placeholder="votre@email.com"
                 disabled={loading}
               />
@@ -127,7 +163,7 @@ export default function RegisterPage() {
                 type="password"
                 autoComplete="new-password"
                 required
-                className="fullWidth"
+                className={styles.fullWidth}
                 placeholder="••••••••"
                 disabled={loading}
               />
@@ -144,7 +180,7 @@ export default function RegisterPage() {
                 type="password"
                 autoComplete="new-password"
                 required
-                className="fullWidth"
+                className={styles.fullWidth}
                 placeholder="••••••••"
                 disabled={loading}
               />

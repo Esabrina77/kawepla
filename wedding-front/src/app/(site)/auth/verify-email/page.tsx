@@ -1,103 +1,68 @@
 'use client';
 
-import { useState, useEffect, Suspense } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useState, useEffect } from 'react';
+import { useSearchParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { useAuth } from '@/hooks/useAuth';
+import { Mail, ArrowLeft, CheckCircle, AlertCircle, Key } from 'lucide-react';
 import styles from '@/styles/site/auth.module.css';
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3013';
-
-function VerifyEmailContent() {
-  const router = useRouter();
+export default function VerifyEmailPage() {
+  const { verifyEmail, sendVerificationCode } = useAuth();
   const searchParams = useSearchParams();
-  const [email, setEmail] = useState('');
-  const [code, setCode] = useState('');
-  const [loading, setLoading] = useState(false);
-  const [resendLoading, setResendLoading] = useState(false);
-  const [error, setError] = useState('');
-  const [success, setSuccess] = useState('');
-  const [resendSuccess, setResendSuccess] = useState('');
+  const router = useRouter();
+  const email = searchParams.get('email') || '';
+  const [verificationCode, setVerificationCode] = useState('');
+  const [isVerifying, setIsVerifying] = useState(false);
+  const [verificationError, setVerificationError] = useState('');
+  const [verificationSuccess, setVerificationSuccess] = useState(false);
+  const [isResending, setIsResending] = useState(false);
+  const [resendSuccess, setResendSuccess] = useState(false);
+  const [resendError, setResendError] = useState('');
 
-  useEffect(() => {
-    // Récupérer l'email depuis les paramètres d'URL
-    const emailParam = searchParams.get('email');
-    if (emailParam) {
-      setEmail(emailParam);
-    }
-  }, [searchParams]);
-
-  const handleVerify = async (e: React.FormEvent) => {
+  const handleVerifyCode = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError('');
-    setSuccess('');
-    setLoading(true);
-
-    if (!email || !code) {
-      setError('Veuillez remplir tous les champs');
-      setLoading(false);
-      return;
-    }
-
-    if (code.length !== 6) {
-      setError('Le code doit contenir 6 chiffres');
-      setLoading(false);
-      return;
-    }
-
+    if (!verificationCode || !email) return;
+    
+    setIsVerifying(true);
+    setVerificationError('');
+    
     try {
-      const response = await fetch(`${API_URL}/api/auth/verify-email`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ email, code }),
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.message || 'Erreur lors de la vérification');
-      }
-
-      setSuccess('Email vérifié avec succès ! Redirection vers la connexion...');
+      const result = await verifyEmail(email, verificationCode);
       
-      // Rediriger vers la page de connexion après 2 secondes
-      setTimeout(() => {
-        router.push('/auth/login');
-      }, 2000);
-
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Une erreur est survenue');
+      if (result.success) {
+        setVerificationSuccess(true);
+        setTimeout(() => {
+          router.push('/auth/login');
+        }, 2000);
+      } else {
+        setVerificationError(result.error || 'Erreur lors de la vérification');
+      }
+    } catch (error) {
+      setVerificationError('Erreur lors de la vérification');
     } finally {
-      setLoading(false);
+      setIsVerifying(false);
     }
   };
 
-  const handleResendCode = async () => {
-    setResendLoading(true);
-    setResendSuccess('');
-    setError('');
-
+  const handleResendVerification = async () => {
+    if (!email) return;
+    
+    setIsResending(true);
+    setResendError('');
+    
     try {
-      const response = await fetch(`${API_URL}/api/auth/send-verification-code`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ email }),
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.message || 'Erreur lors de l\'envoi du code');
+      const result = await sendVerificationCode(email);
+      
+      if (result.success) {
+        setResendSuccess(true);
+      } else {
+        setResendError(result.error || 'Erreur lors de l\'envoi du code');
       }
-
-      setResendSuccess('Nouveau code envoyé avec succès !');
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Une erreur est survenue');
+    } catch (error) {
+      setResendError('Erreur lors de l\'envoi du code de vérification');
     } finally {
-      setResendLoading(false);
+      setIsResending(false);
     }
   };
 
@@ -106,110 +71,101 @@ function VerifyEmailContent() {
       <div className={styles.container}>
         <div className={styles.authCard}>
           <div className={styles.header}>
-            <h1>Vérification de votre email</h1>
-            <p>Saisissez le code de vérification envoyé à votre adresse email</p>
+            <div className={styles.iconContainer}>
+              <Mail size={56} className={styles.icon} />
+            </div>
+            <h1>Vérifiez votre email</h1>
+            <p className={styles.description}>
+              {email ? (
+                <>Nous avons envoyé un code de vérification à <strong className={styles.emailHighlight}>{email}</strong></>
+              ) : (
+                'Nous avons envoyé un code de vérification à votre adresse email'
+              )}
+            </p>
           </div>
 
-          <form className={styles.form} onSubmit={handleVerify}>
-            {error && (
-              <div className={styles.error}>
-                <p>{error}</p>
-              </div>
-            )}
-
-            {success && (
-              <div className={styles.success}>
-                <p>{success}</p>
-              </div>
-            )}
-
-            {resendSuccess && (
-              <div className={styles.success}>
-                <p>{resendSuccess}</p>
-              </div>
-            )}
-
+          {/* Formulaire de vérification */}
+          <form onSubmit={handleVerifyCode} className={styles.form}>
             <div className={styles.formGroup}>
-              <label htmlFor="email">Adresse email</label>
-              <input
-                id="email"
-                name="email"
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
-                className="fullWidth"
-                placeholder="votre@email.com"
-                disabled={loading}
-              />
-            </div>
-
-            <div className={styles.formGroup}>
-              <label htmlFor="code">Code de vérification (6 chiffres)</label>
-              <input
-                id="code"
-                name="code"
-                type="text"
-                value={code}
-                onChange={(e) => {
-                  const value = e.target.value.replace(/\D/g, '').slice(0, 6);
-                  setCode(value);
-                }}
-                required
-                className="fullWidth"
-                placeholder="123456"
-                disabled={loading}
-                maxLength={6}
-                style={{ 
-                  fontSize: '1.5rem', 
-                  textAlign: 'center', 
-                  letterSpacing: '0.5rem',
-                  fontWeight: 'bold'
-                }}
-              />
-              <div className={styles.passwordHint}>
-                Le code expire dans 10 minutes
+              <label htmlFor="verificationCode" className={styles.inputLabel}>
+                Code de vérification
+              </label>
+              <div className={styles.codeInputContainer}>
+                <Key size={20} className={styles.codeInputIcon} />
+                <input
+                  id="verificationCode"
+                  type="text"
+                  value={verificationCode}
+                  onChange={(e) => setVerificationCode(e.target.value)}
+                  placeholder="Entrez le code à 6 chiffres"
+                  maxLength={6}
+                  pattern="[0-9]{6}"
+                  required
+                  className={styles.codeInput}
+                  disabled={isVerifying}
+                />
               </div>
+              <small className={styles.inputHint}>
+                Vérifiez votre boîte de réception et saisissez le code reçu
+              </small>
             </div>
 
-            <div className={styles.formActions}>
-              <button
-                type="submit"
-                className={styles.submitButton}
-                disabled={loading || !email || code.length !== 6}
-              >
-                {loading ? 'Vérification...' : 'Vérifier mon email'}
-              </button>
-            </div>
+            {verificationError && (
+              <div className={`${styles.messageBox} ${styles.error}`}>
+                <AlertCircle size={20} />
+                <span>{verificationError}</span>
+              </div>
+            )}
 
-            <div className={styles.resendSection}>
-              <p>Vous n&apos;avez pas reçu le code ?</p>
-              <button
-                type="button"
-                onClick={handleResendCode}
-                disabled={resendLoading || !email}
-                className={styles.resendButton}
-              >
-                {resendLoading ? 'Envoi...' : 'Renvoyer le code'}
-              </button>
-            </div>
+            {verificationSuccess && (
+              <div className={`${styles.messageBox} ${styles.success}`}>
+                <CheckCircle size={20} />
+                <span>Email vérifié avec succès ! Redirection en cours...</span>
+              </div>
+            )}
+
+            <button
+              type="submit"
+              disabled={isVerifying || !verificationCode || verificationCode.length !== 6 || verificationSuccess}
+              className={`${styles.submitButton} ${isVerifying ? styles.loading : ''}`}
+            >
+              {isVerifying ? 'Vérification...' : 'Vérifier mon email'}
+            </button>
           </form>
 
+          <div className={styles.actionsContainer}>
+            <button
+              type="button"
+              onClick={handleResendVerification}
+              disabled={isResending || !email}
+              className={styles.resendButton}
+            >
+              {isResending ? 'Envoi...' : 'Renvoyer le code'}
+            </button>
+
+            {resendSuccess && (
+              <div className={`${styles.messageBox} ${styles.success}`}>
+                <CheckCircle size={16} />
+                <span>Code renvoyé avec succès !</span>
+              </div>
+            )}
+
+            {resendError && (
+              <div className={`${styles.messageBox} ${styles.error}`}>
+                <AlertCircle size={16} />
+                <span>{resendError}</span>
+              </div>
+            )}
+          </div>
+
           <div className={styles.footer}>
-            <p>
-              Déjà vérifié ? <Link href="/auth/login">Se connecter</Link>
-            </p>
+            <Link href="/auth/login" className={styles.backButton}>
+              <ArrowLeft size={18} />
+              Retour à la connexion
+            </Link>
           </div>
         </div>
       </div>
     </div>
-  );
-}
-
-export default function VerifyEmailPage() {
-  return (
-    <Suspense fallback={<div>Chargement...</div>}>
-      <VerifyEmailContent />
-    </Suspense>
   );
 } 

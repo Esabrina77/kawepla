@@ -1,7 +1,8 @@
 import { Request, Response } from 'express';
 import { StripeService } from '../services/stripeService';
+import { prisma } from '../lib/prisma';
 
-export class SubscriptionController {
+export class ServicePurchaseController {
   /**
    * Obtenir tous les plans disponibles
    */
@@ -154,6 +155,94 @@ export class SubscriptionController {
     } catch (error) {
       console.error('Erreur lors du changement de plan:', error);
       res.status(500).json({ error: 'Erreur lors du changement de plan' });
+    }
+  }
+
+  /**
+   * Obtenir les achats actifs d'un utilisateur avec limites cumulées
+   */
+  static async getActivePurchases(req: Request, res: Response) {
+    try {
+      const userId = req.user?.id;
+
+      if (!userId) {
+        return res.status(401).json({ error: 'Utilisateur non authentifié' });
+      }
+
+      // Récupérer tous les achats actifs
+      const activePurchases = await prisma.servicePurchase.findMany({
+        where: { 
+          userId: userId,
+          status: 'ACTIVE'
+        },
+        orderBy: { purchasedAt: 'desc' }
+      });
+
+      // Calculer les limites totales
+      const totalLimits = await StripeService.getUserTotalLimits(userId);
+      const currentTier = await StripeService.getUserCurrentTier(userId);
+
+      // Grouper par tier pour l'affichage (exclure FREE car il est automatique)
+      const purchasesByTier = activePurchases.reduce((acc, purchase) => {
+        const tier = purchase.tier;
+        if (!acc[tier]) {
+          acc[tier] = {
+            tier,
+            count: 0,
+            purchases: []
+          };
+        }
+        acc[tier].count += purchase.quantity;
+        acc[tier].purchases.push(purchase);
+        return acc;
+      }, {} as Record<string, any>);
+
+      // Calculer les limites FREE de base
+      const freeLimits = StripeService.getPlanDetails('FREE')?.limits || {
+        invitations: 1,
+        guests: 30,
+        photos: 20,
+        designs: 1
+      };
+
+      res.json({
+        activePurchases: Object.values(purchasesByTier),
+        totalLimits,
+        freeLimits, // Ajouter les limites gratuites pour clarifier
+        currentTier,
+        hasPaidPurchases: activePurchases.length > 0
+      });
+    } catch (error) {
+      console.error('Erreur lors de la récupération des achats actifs:', error);
+      res.status(500).json({ error: 'Erreur lors de la récupération des achats actifs' });
+    }
+  }
+
+  /**
+   * Obtenir l'historique des achats d'un utilisateur
+   */
+  static async getPurchaseHistory(req: Request, res: Response) {
+    try {
+      const userId = req.user?.id;
+
+      if (!userId) {
+        return res.status(401).json({ error: 'Utilisateur non authentifié' });
+      }
+
+      // Retourner uniquement l'historique des achats (pas les achats actifs)
+      const purchaseHistory = await prisma.purchaseHistory.findMany({
+        where: { userId: userId },
+        orderBy: { purchasedAt: 'desc' }
+      });
+
+      const purchases = {
+        purchaseHistory
+      };
+
+      res.json(purchases);
+    } catch (error) {
+      console.error('Erreur lors de la récupération de l\'historique:', error);
+      res.status(500).json({ error: 'Erreur lors de la récupération de l\'historique' });
     }
   }
 } 

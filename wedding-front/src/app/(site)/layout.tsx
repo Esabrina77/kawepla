@@ -1,13 +1,10 @@
 import type { Metadata } from "next";
-import "@/styles/globals.css";
-import "@/styles/accessibility.css";
-import { Navigation } from '@/components/Navigation/Navigation';
+import { Header } from '@/components/Header/Header';
 import { Footer } from '@/components/Footer/Footer';
-import styles from '@/styles/layout.module.css';
 
 export const metadata: Metadata = {
-  title: "KaWepla - Créez votre invitation de mariage unique",
-  description: "Créez des invitations de mariage élégantes et gérez vos invités facilement avec KaWepla  la",
+  title: "KaWePla - Créez votre invitation d'événement unique",
+  description: "Créez des invitations d'événements élégantes et gérez vos invités facilement avec KaWePla",
 };
 
 export default function SiteLayout({
@@ -16,9 +13,9 @@ export default function SiteLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div className={styles.layout}>
-      <Navigation />
-      <main className={styles.mainContent}>
+    <div style={{minHeight: '100vh', display: 'flex', flexDirection: 'column'}}>
+      <Header />
+      <main style={{flex: 1}}>
         {children}
       </main>
       <Footer />

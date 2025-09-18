@@ -2,8 +2,22 @@
 
 import { useState } from 'react';
 import styles from './users.module.css';
-import Image from 'next/image';
 import { useAdminUsers } from '@/hooks/useAdminUsers';
+import { 
+  Users, 
+  Search, 
+  Filter, 
+  Edit, 
+  Trash2, 
+  Power, 
+  PowerOff, 
+  Shield, 
+  Heart, 
+  User,
+  CheckCircle,
+  Calendar,
+  Mail
+} from 'lucide-react';
 
 export default function UsersPage() {
   const { 
@@ -14,7 +28,6 @@ export default function UsersPage() {
     setFilters, 
     toggleUserStatus, 
     changeUserRole, 
-    changeUserSubscriptionTier,
     deleteUser 
   } = useAdminUsers();
 
@@ -28,19 +41,11 @@ export default function UsersPage() {
     }
   };
 
-  const handleRoleChange = async (userId: string, newRole: 'ADMIN' | 'COUPLE' | 'GUEST') => {
+  const handleRoleChange = async (userId: string, newRole: 'ADMIN' | 'HOST' | 'GUEST' | 'PROVIDER') => {
     try {
       await changeUserRole(userId, newRole);
     } catch (error) {
       console.error('Erreur lors du changement de rôle:', error);
-    }
-  };
-
-  const handleSubscriptionTierChange = async (userId: string, newTier: 'FREE' | 'ESSENTIAL' | 'ELEGANT' | 'PREMIUM' | 'LUXE') => {
-    try {
-      await changeUserSubscriptionTier(userId, newTier);
-    } catch (error) {
-      console.error('Erreur lors du changement de forfait:', error);
     }
   };
 
@@ -57,181 +62,216 @@ export default function UsersPage() {
   const getRoleLabel = (role: string) => {
     switch (role) {
       case 'ADMIN': return 'Admin';
-      case 'COUPLE': return 'Couple';
+      case 'HOST': return 'Organisateur';
+      case 'PROVIDER': return 'Prestataire';
       case 'GUEST': return 'Invité';
       default: return role;
     }
   };
 
-  const getSubscriptionTierLabel = (tier: string) => {
-    switch (tier) {
-      case 'FREE': return 'Découverte';
-      case 'ESSENTIAL': return 'Essentiel';
-      case 'ELEGANT': return 'Élégant';
-      case 'PREMIUM': return 'Premium';
-      case 'LUXE': return 'Luxe';
-      default: return tier;
+  const getRoleIcon = (role: string) => {
+    switch (role) {
+      case 'ADMIN': return <Shield style={{ width: '14px', height: '14px' }} />;
+      case 'HOST': return <Heart style={{ width: '14px', height: '14px' }} />;
+      case 'PROVIDER': return <User style={{ width: '14px', height: '14px' }} />;
+      case 'GUEST': return <User style={{ width: '14px', height: '14px' }} />;
+      default: return <User style={{ width: '14px', height: '14px' }} />;
     }
   };
 
   if (loading) {
     return (
-      <div className={styles.container}>
-        <div className={styles.header}>
-          <h1>
-            <Image
-              src="/icons/guests.svg"
-              alt=""
-              width={32}
-              height={32}
-            />
-            Gestion des utilisateurs
-          </h1>
+      <div className={styles.usersContainer}>
+        <div className={styles.loadingContainer}>
+          <div className={styles.loadingSpinner}></div>
+          <p>Chargement des utilisateurs...</p>
         </div>
-        <div className={styles.loading}>Chargement des utilisateurs...</div>
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className={styles.container}>
-        <div className={styles.header}>
-          <h1>
-            <Image
-              src="/icons/guests.svg"
-              alt=""
-              width={32}
-              height={32}
-            />
-            Gestion des utilisateurs
-          </h1>
+      <div className={styles.usersContainer}>
+        <div className={styles.errorContainer}>
+          <p>Erreur: {error}</p>
         </div>
-        <div className={styles.error}>{error}</div>
       </div>
     );
   }
 
   return (
-    <div className={styles.container}>
-      <div className={styles.header}>
-        <h1>
-          <Image
-            src="/icons/guests.svg"
-            alt=""
-            width={32}
-            height={32}
-          />
+    <div className={styles.usersContainer}>
+      {/* Header Section */}
+      <div className={styles.headerSection}>
+        <div className={styles.badge}>
+          <Users style={{ width: '16px', height: '16px' }} />
           Gestion des utilisateurs
+        </div>
+        
+        <h1 className={styles.title}>
+          Vos <span className={styles.titleAccent}>utilisateurs</span>
         </h1>
-        <p>{users.length} utilisateur{users.length > 1 ? 's' : ''}</p>
+        
+        <p className={styles.subtitle}>
+          Gérez les comptes et les permissions de votre plateforme Kawepla
+        </p>
       </div>
 
-      <div className={styles.filters}>
-        <input
-          type="search"
-          placeholder="Rechercher un utilisateur..."
-          className={styles.filterInput}
-          value={filters.search || ''}
-          onChange={(e) => setFilters(prev => ({ ...prev, search: e.target.value }))}
-        />
-        <select 
-          className={styles.filterInput}
-          value={filters.isActive === undefined ? 'all' : filters.isActive ? 'active' : 'inactive'}
-          onChange={(e) => {
-            const value = e.target.value;
-            setFilters(prev => ({ 
-              ...prev, 
-              isActive: value === 'all' ? undefined : value === 'active' 
-            }));
-          }}
-        >
-          <option value="all">Tous les statuts</option>
-          <option value="active">Actifs</option>
-          <option value="inactive">Inactifs</option>
-        </select>
-        <select 
-          className={styles.filterInput}
-          value={filters.role || 'all'}
-          onChange={(e) => {
-            const value = e.target.value;
-            setFilters(prev => ({ 
-              ...prev, 
-              role: value === 'all' ? undefined : value as 'ADMIN' | 'COUPLE' | 'GUEST'
-            }));
-          }}
-        >
-          <option value="all">Tous les rôles</option>
-          <option value="COUPLE">Couples</option>
-          <option value="ADMIN">Admins</option>
-          <option value="GUEST">Invités</option>
-        </select>
+      {/* Filters */}
+      <div className={styles.filtersContainer}>
+        <div className={styles.searchContainer}>
+          <Search className={styles.searchIcon} />
+          <input
+            type="text"
+            placeholder="Rechercher un utilisateur..."
+            value={filters.search || ''}
+            onChange={(e) => setFilters(prev => ({ ...prev, search: e.target.value }))}
+            className={styles.searchInput}
+          />
+        </div>
+
+        <div className={styles.filterContainer}>
+          <Filter className={styles.filterIcon} />
+          <select 
+            className={styles.filterSelect}
+            value={filters.isActive === undefined ? 'all' : filters.isActive ? 'active' : 'inactive'}
+            onChange={(e) => {
+              const value = e.target.value;
+              setFilters(prev => ({ 
+                ...prev, 
+                isActive: value === 'all' ? undefined : value === 'active' 
+              }));
+            }}
+          >
+            <option value="all">Tous les statuts</option>
+            <option value="active">Actifs</option>
+            <option value="inactive">Inactifs</option>
+          </select>
+        </div>
+
+        <div className={styles.filterContainer}>
+          <Filter className={styles.filterIcon} />
+          <select 
+            className={styles.filterSelect}
+            value={filters.role || 'all'}
+            onChange={(e) => {
+              const value = e.target.value;
+              setFilters(prev => ({ 
+                ...prev, 
+                role: value === 'all' ? undefined : value as 'ADMIN' | 'HOST' | 'GUEST' | 'PROVIDER'
+              }));
+            }}
+          >
+            <option value="all">Tous les rôles</option>
+            <option value="HOST">Organisateurs</option>
+            <option value="PROVIDER">Prestataires</option>
+            <option value="ADMIN">Admins</option>
+            <option value="GUEST">Invités</option>
+          </select>
+        </div>
       </div>
 
-      <div className={styles.userGrid}>
+      {/* Users Grid */}
+      <div className={styles.usersGrid}>
         {users.map((user) => (
           <div key={user.id} className={styles.userCard}>
+            {/* User Header */}
             <div className={styles.userHeader}>
               <div className={styles.userAvatar}>
-                <div style={{width: 48, height: 48, background: '#f3f4f6', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700, fontSize: 22, color: '#64748b'}}>
+                <div className={styles.avatarContent}>
                   {user.email.charAt(0).toUpperCase()}
                 </div>
               </div>
-              <div>
-                <div className={styles.userName}>{user.firstName} {user.lastName}</div>
-                <div className={styles.userEmail}>{user.email}</div>
-                <div className={styles.badges}>
-                  <span className={`${styles.roleBadge} ${user.role === 'ADMIN' ? styles.roleAdmin : user.role === 'COUPLE' ? styles.roleCouple : styles.roleGuest}`}>{getRoleLabel(user.role)}</span>
-                  <span className={`${styles.statusBadge} ${user.isActive ? '' : styles.statusInactive}`}>{user.isActive ? 'Actif' : 'Inactif'}</span>
-                  <span className={`${styles.subscriptionBadge} ${styles[`tier${user.subscriptionTier}`]}`}>{getSubscriptionTierLabel(user.subscriptionTier)}</span>
-                  {user.emailVerified && (
-                    <span className={styles.verifiedBadge}>Email vérifié</span>
-                  )}
+              <div className={styles.userInfo}>
+                <h3 className={styles.userName}>{user.firstName} {user.lastName}</h3>
+                <div className={styles.userEmail}>
+                  <Mail style={{ width: '14px', height: '14px' }} />
+                  {user.email}
                 </div>
               </div>
             </div>
-            <div className={styles.userMeta}>
-              <span><strong>Créé le</strong> {new Date(user.createdAt).toLocaleDateString('fr-FR')}</span> &nbsp;|&nbsp; 
-              <span><strong>Modifié le</strong> {new Date(user.updatedAt).toLocaleDateString('fr-FR')}</span>
+
+            {/* User Badges */}
+            <div className={styles.userBadges}>
+              <span className={`${styles.roleBadge} ${user.role === 'ADMIN' ? styles.roleAdmin : user.role === 'HOST' ? styles.roleorganisateur : user.role === 'PROVIDER' ? styles.roleProvider : styles.roleGuest}`}>
+                {getRoleIcon(user.role)}
+                {getRoleLabel(user.role)}
+              </span>
+              <span className={`${styles.statusBadge} ${user.isActive ? styles.statusActive : styles.statusInactive}`}>
+                {user.isActive ? 'Actif' : 'Inactif'}
+              </span>
+              {user.emailVerified && (
+                <span className={styles.verifiedBadge}>
+                  <CheckCircle style={{ width: '12px', height: '12px' }} />
+                  Vérifié
+                </span>
+              )}
             </div>
-            <div className={styles.actions}>
+
+            {/* User Meta */}
+            <div className={styles.userMeta}>
+              <div className={styles.metaItem}>
+                <Calendar style={{ width: '14px', height: '14px' }} />
+                <span>Créé le {new Date(user.createdAt).toLocaleDateString('fr-FR')}</span>
+              </div>
+            </div>
+
+            {/* Actions */}
+            <div className={styles.actionsContainer}>
               {editingUser === user.id ? (
                 <>
-                  <div className={styles.editSection}>
-                    <label className={styles.editLabel}>Rôle:</label>
-                    <select 
-                      className={styles.filterInput}
-                      value={user.role}
-                      onChange={(e) => handleRoleChange(user.id, e.target.value as 'ADMIN' | 'COUPLE' | 'GUEST')}
-                    >
-                      <option value="COUPLE">Couple</option>
-                      <option value="ADMIN">Admin</option>
-                      <option value="GUEST">Invité</option>
-                    </select>
-                  </div>
-                  <div className={styles.editSection}>
-                    <label className={styles.editLabel}>Forfait:</label>
-                    <select 
-                      className={styles.filterInput}
-                      value={user.subscriptionTier}
-                      onChange={(e) => handleSubscriptionTierChange(user.id, e.target.value as 'FREE' | 'ESSENTIAL' | 'ELEGANT' | 'PREMIUM' | 'LUXE')}
-                    >
-                      <option value="FREE">Découverte</option>
-                      <option value="ESSENTIAL">Essentiel</option>
-                      <option value="ELEGANT">Élégant</option>
-                      <option value="PREMIUM">Premium</option>
-                      <option value="LUXE">Luxe</option>
-                    </select>
-                  </div>
-                  <button className={`${styles.actionButton} ${styles.secondary}`} onClick={() => setEditingUser(null)}>Fermer</button>
+                  <select 
+                    className={styles.roleSelect}
+                    value={user.role}
+                    onChange={(e) => handleRoleChange(user.id, e.target.value as 'ADMIN' | 'HOST' | 'GUEST' | 'PROVIDER')}
+                  >
+                    <option value="HOST">Organisateur</option>
+                    <option value="PROVIDER">Prestataire</option>
+                    <option value="ADMIN">Admin</option>
+                    <option value="GUEST">Invité</option>
+                  </select>
+                  <button 
+                    className={styles.closeButton} 
+                    onClick={() => setEditingUser(null)}
+                  >
+                    Fermer
+                  </button>
                 </>
               ) : (
                 <>
-                  <button className={`${styles.actionButton} ${styles.secondary}`} onClick={() => setEditingUser(user.id)}>Éditer</button>
-                  <button className={`${styles.actionButton} ${user.isActive ? styles.secondary : ''}`} onClick={() => handleStatusToggle(user.id)}>
-                    {user.isActive ? 'Désactiver' : 'Activer'}
+                  <button 
+                    className={styles.editButton}
+                    onClick={() => setEditingUser(user.id)}
+                  >
+                    <Edit style={{ width: '14px', height: '14px' }} />
+                    Éditer
                   </button>
-                  <button className={`${styles.actionButton} ${styles.danger}`} onClick={() => handleDelete(user.id)}>Supprimer</button>
+                  
+                  <button 
+                    className={styles.toggleButton}
+                    onClick={() => handleStatusToggle(user.id)}
+                  >
+                    {user.isActive ? (
+                      <>
+                        <PowerOff style={{ width: '14px', height: '14px' }} />
+                        Désactiver
+                      </>
+                    ) : (
+                      <>
+                        <Power style={{ width: '14px', height: '14px' }} />
+                        Activer
+                      </>
+                    )}
+                  </button>
+                  
+                  <button 
+                    className={styles.deleteButton}
+                    onClick={() => handleDelete(user.id)}
+                  >
+                    <Trash2 style={{ width: '14px', height: '14px' }} />
+                    Supprimer
+                  </button>
                 </>
               )}
             </div>
@@ -239,9 +279,17 @@ export default function UsersPage() {
         ))}
       </div>
 
+      {/* Empty State */}
       {users.length === 0 && (
-        <div className={styles.error}>
-          <p>Aucun utilisateur trouvé</p>
+        <div className={styles.emptyState}>
+          <Users style={{ width: '64px', height: '64px', marginBottom: 'var(--space-md)' }} />
+          <h3>Aucun utilisateur trouvé</h3>
+          <p>
+            {filters.search || filters.role || filters.isActive !== undefined
+              ? 'Aucun utilisateur ne correspond à vos critères de recherche' 
+              : 'Aucun utilisateur enregistré pour le moment'
+            }
+          </p>
         </div>
       )}
     </div>

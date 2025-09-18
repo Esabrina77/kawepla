@@ -7,7 +7,7 @@ import { Mail, AlertCircle, CheckCircle, ArrowLeft } from 'lucide-react';
 import styles from '@/styles/site/auth.module.css';
 
 export default function ForgotPasswordPage() {
-  const { forgotPassword, loading } = useAuth();
+  const { forgotPassword, isLoading } = useAuth();
   const [email, setEmail] = useState('');
   const [error, setError] = useState('');
   const [success, setSuccess] = useState(false);
@@ -39,15 +39,15 @@ export default function ForgotPasswordPage() {
         <div className={styles.container}>
           <div className={styles.authCard}>
             <div className={styles.header}>
-              <CheckCircle size={48} color="var(--color-success)" />
+              <CheckCircle size={48} className={styles.iconSuccess} />
               <h1>Email envoyé</h1>
               <p>Si un compte existe avec l'adresse {email}, vous recevrez un email avec les instructions pour réinitialiser votre mot de passe.</p>
             </div>
-            <div className={styles.success}>
-              <AlertCircle size={20} /> N'oubliez pas de vérifier vos spams si vous ne trouvez pas l'email.
+            <div className={`${styles.messageBox} ${styles.success}`}>
+              <AlertCircle size={20} className={styles.iconSuccess} /> N'oubliez pas de vérifier vos spams si vous ne trouvez pas l'email.
             </div>
             <div className={styles.footer}>
-              <Link href="/auth/login" className={styles.forgotPassword}>
+              <Link href="/auth/login" className={styles.actionButton}>
                 <ArrowLeft size={16} /> Retour à la connexion
               </Link>
             </div>
@@ -62,7 +62,7 @@ export default function ForgotPasswordPage() {
       <div className={styles.container}>
         <div className={styles.authCard}>
           <div className={styles.header}>
-            <Mail size={48} color="var(--color-primary)" />
+            <Mail size={48} className={styles.icon} />
             <h1>Mot de passe oublié</h1>
             <p>Entrez votre adresse email pour recevoir un lien de réinitialisation.</p>
           </div>
@@ -70,7 +70,7 @@ export default function ForgotPasswordPage() {
           <form onSubmit={handleSubmit} className={styles.form}>
             {error && (
               <div className={styles.error}>
-                <AlertCircle size={20} /> {error}
+                <AlertCircle size={20} className={styles.iconError} /> {error}
               </div>
             )}
 
@@ -83,19 +83,20 @@ export default function ForgotPasswordPage() {
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="Votre adresse email"
                 required
+                className={styles.fullWidth}
               />
             </div>
 
             <button
               type="submit"
-              className={`${styles.submitButton} ${loading ? styles.loading : ''}`}
-              disabled={loading}
+              className={`${styles.submitButton} ${isLoading ? styles.loading : ''}`}
+              disabled={isLoading}
             >
-              {loading ? 'Envoi en cours...' : 'Envoyer le lien'}
+              {isLoading ? 'Envoi en cours...' : 'Envoyer le lien'}
             </button>
 
             <div className={styles.footer}>
-              <Link href="/auth/login" className={styles.forgotPassword}>
+              <Link href="/auth/login" className={styles.actionButton}>
                 <ArrowLeft size={16} /> Retour à la connexion
               </Link>
             </div>

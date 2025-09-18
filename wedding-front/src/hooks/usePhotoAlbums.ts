@@ -3,6 +3,7 @@
  */
 import { useState, useEffect } from 'react';
 import { apiClient } from '@/lib/api/apiClient';
+import { useBillingLimits } from './useBillingLimits';
 
 export interface Photo {
   id: string;
@@ -40,6 +41,7 @@ export function usePhotoAlbums(invitationId: string) {
   const [albums, setAlbums] = useState<PhotoAlbum[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const { limitsData } = useBillingLimits();
 
   // Récupérer les albums
   const fetchAlbums = async () => {
@@ -99,6 +101,16 @@ export function usePhotoAlbums(invitationId: string) {
   // Uploader une photo
   const uploadPhoto = async (albumId: string, file: File, caption?: string) => {
     try {
+      // Vérifier les limites de photos avant l'upload
+      if (limitsData) {
+        const currentPhotoCount = albums.reduce((total, album) => total + album.photos.length, 0);
+        const photoLimit = limitsData.limits.photos;
+        
+        if (photoLimit !== 999999 && currentPhotoCount >= photoLimit) {
+          throw new Error(`Limite atteinte: vous ne pouvez avoir que ${photoLimit} photo(s) avec votre forfait actuel. Passez à un forfait supérieur pour ajouter plus de photos.`);
+        }
+      }
+
       const formData = new FormData();
       formData.append('photo', file);
       if (caption) formData.append('caption', caption);
@@ -115,6 +127,13 @@ export function usePhotoAlbums(invitationId: string) {
       
       return newPhoto;
     } catch (err: any) {
+      console.error('Erreur upload photo:', err);
+      
+      // Si c'est une erreur Firebase, afficher un message informatif
+      if (err.message?.includes('Firebase') || err.message?.includes('storage')) {
+        throw new Error('Erreur de stockage temporaire. L\'upload a été sauvegardé avec une image placeholder.');
+      }
+      
       throw new Error(err.message || 'Erreur lors de l\'upload de la photo');
     }
   };

@@ -1,13 +1,15 @@
 import Stripe from 'stripe';
 import { prisma } from '../lib/prisma';
-import { SubscriptionTier, SubscriptionStatus } from '@prisma/client';
+import { ServiceTier, PurchaseStatus } from '@prisma/client';
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-  apiVersion: '2025-06-30.basil',
-});
+const stripe = process.env.STRIPE_SECRET_KEY 
+  ? new Stripe(process.env.STRIPE_SECRET_KEY, {
+      apiVersion: '2025-06-30.basil',
+    })
+  : null;
 
-export interface SubscriptionPlan {
-  id: SubscriptionTier;
+export interface ServicePurchasePlan {
+  id: ServiceTier;
   name: string;
   description: string;
   price: number;
@@ -61,17 +63,17 @@ export const ADDITIONAL_SERVICES: AdditionalService[] = [
     quantity: 50
   },
   {
-    id: 'DESIGN_PREMIUM',
+    id: 'DESIGN_ELEGANT',
     name: 'Design premium supplémentaire',
     description: 'Accédez à un design premium exclusif',
     price: 20,
-    paymentLink: process.env.STRIPE_PAYMENT_LINK_DESIGN_PREMIUM || 'https://buy.stripe.com/test_design_premium',
+    paymentLink: process.env.STRIPE_PAYMENT_LINK_DESIGN_ELEGANT || 'https://buy.stripe.com/test_design_premium',
     type: 'designs',
     quantity: 1
   }
 ];
 
-export const SUBSCRIPTION_PLANS: SubscriptionPlan[] = [
+export const SUBSCRIPTION_PLANS: ServicePurchasePlan[] = [
   {
     id: 'FREE',
     name: 'Découverte',
@@ -87,8 +89,8 @@ export const SUBSCRIPTION_PLANS: SubscriptionPlan[] = [
     ],
     limits: {
       invitations: 1,
-      guests: 10,
-      photos: 0,
+      guests: 30,
+      photos: 20,
       designs: 1
     }
   },
@@ -204,6 +206,11 @@ export class StripeService {
         };
       }
 
+      // Vérifier que Stripe est configuré
+      if (!stripe) {
+        throw new Error('Stripe n\'est pas configuré. Veuillez définir STRIPE_SECRET_KEY dans les variables d\'environnement.');
+      }
+
       // Créer une session de checkout Stripe
       const session = await stripe.checkout.sessions.create({
         payment_method_types: ['card'],
@@ -252,6 +259,11 @@ export class StripeService {
       const service = ADDITIONAL_SERVICES.find(s => s.id === serviceId);
       if (!service) {
         throw new Error('Service non trouvé');
+      }
+
+      // Vérifier que Stripe est configuré
+      if (!stripe) {
+        throw new Error('Stripe n\'est pas configuré. Veuillez définir STRIPE_SECRET_KEY dans les variables d\'environnement.');
       }
 
       const session = await stripe.checkout.sessions.create({
@@ -366,56 +378,103 @@ export class StripeService {
   }
 
   /**
-   * Calculer les limites totales d'un utilisateur (plan + services supplémentaires)
+   * Calculer les limites totales d'un utilisateur (tous les achats + services supplémentaires)
    */
-  static async getUserTotalLimits(userId: string, tier: string) {
+  static async getUserTotalLimits(userId: string) {
     try {
-      // Récupérer les limites de base du plan
-      const baseLimits = this.getPlanDetails(tier as any)?.limits || {
-        invitations: 1,
-        guests: 10,
-        photos: 0,
-        designs: 1
-      };
+      // Récupérer tous les achats de l'utilisateur
+      const userPurchases = await prisma.servicePurchase.findMany({
+        where: { 
+          userId: userId,
+          status: 'ACTIVE'
+        }
+      });
 
       // Récupérer les services supplémentaires
       const additionalServices = await this.getUserAdditionalServices(userId);
 
-      // Calculer les bonus
-      let bonusGuests = 0;
-      let bonusPhotos = 0;
-      let bonusDesigns = 0;
+      // TOUJOURS commencer avec les limites FREE de base
+      const freeLimits = this.getPlanDetails('FREE')?.limits || {
+        invitations: 1,
+        guests: 30,
+        photos: 20,
+        designs: 1
+      };
 
+      let totalLimits = {
+        invitations: freeLimits.invitations,
+        guests: freeLimits.guests,
+        photos: freeLimits.photos,
+        designs: freeLimits.designs
+      };
+
+      // AJOUTER les limites de chaque achat payant
+      for (const purchase of userPurchases) {
+        const planLimits = this.getPlanDetails(purchase.tier)?.limits;
+        if (planLimits) {
+          totalLimits.invitations += planLimits.invitations * purchase.quantity;
+          totalLimits.guests += planLimits.guests * purchase.quantity;
+          totalLimits.photos += planLimits.photos * purchase.quantity;
+          totalLimits.designs += planLimits.designs * purchase.quantity;
+        }
+      }
+
+      // Ajouter les services supplémentaires
       for (const service of additionalServices) {
         switch (service.type) {
           case 'guests':
-            bonusGuests += service.quantity;
+            totalLimits.guests += service.quantity;
             break;
           case 'photos':
-            bonusPhotos += service.quantity;
+            totalLimits.photos += service.quantity;
             break;
           case 'designs':
-            bonusDesigns += service.quantity;
+            totalLimits.designs += service.quantity;
             break;
         }
       }
 
-      // Retourner les limites totales
-      return {
-        invitations: baseLimits.invitations,
-        guests: baseLimits.guests + bonusGuests,
-        photos: baseLimits.photos + bonusPhotos,
-        designs: baseLimits.designs + bonusDesigns
-      };
+      return totalLimits;
     } catch (error) {
       console.error('Erreur lors du calcul des limites totales:', error);
-      // Retourner les limites de base en cas d'erreur
-      return this.getPlanDetails(tier as any)?.limits || {
+      // Retourner les limites gratuites en cas d'erreur
+      return this.getPlanDetails('FREE')?.limits || {
         invitations: 1,
-        guests: 10,
-        photos: 0,
+        guests: 30,
+        photos: 20,
         designs: 1
       };
+    }
+  }
+
+  /**
+   * Obtenir le tier actuel basé sur les achats
+   */
+  static async getUserCurrentTier(userId: string): Promise<ServiceTier> {
+    try {
+      const userPurchases = await prisma.servicePurchase.findMany({
+        where: { 
+          userId: userId,
+          status: 'ACTIVE'
+        },
+        orderBy: { purchasedAt: 'desc' }
+      });
+
+      if (userPurchases.length === 0) {
+        return 'FREE';
+      }
+
+      // Retourner le tier le plus élevé acheté
+      const tiers = userPurchases.map(p => p.tier);
+      if (tiers.includes('LUXE')) return 'LUXE';
+      if (tiers.includes('PREMIUM')) return 'PREMIUM';
+      if (tiers.includes('ELEGANT')) return 'ELEGANT';
+      if (tiers.includes('ESSENTIAL')) return 'ESSENTIAL';
+      
+      return 'FREE';
+    } catch (error) {
+      console.error('Erreur lors de la récupération du tier:', error);
+      return 'FREE';
     }
   }
 
@@ -444,7 +503,9 @@ export class StripeService {
       throw new Error('Utilisateur non trouvé');
     }
 
-    const plan = SUBSCRIPTION_PLANS.find(p => p.id === user.subscriptionTier);
+    // Utiliser le tier actuel basé sur les achats
+    const currentTier = await this.getUserCurrentTier(userId);
+    const plan = SUBSCRIPTION_PLANS.find(p => p.id === currentTier);
     if (!plan) {
       throw new Error('Plan non trouvé');
     }
@@ -469,7 +530,7 @@ export class StripeService {
   /**
    * Obtenir les détails d'un plan
    */
-  static getPlanDetails(tier: SubscriptionTier) {
+  static getPlanDetails(tier: ServiceTier) {
     return SUBSCRIPTION_PLANS.find(p => p.id === tier);
   }
 
@@ -483,10 +544,10 @@ export class StripeService {
           const session = event.data.object;
           const { userId, planId, serviceId, type } = session.metadata;
           
-          if (userId && planId) {
-            console.log(`✅ Paiement confirmé pour l'utilisateur ${userId}, plan ${planId}`);
-            await this.changePlanDirectly(userId, planId);
-          } else if (userId && serviceId && type === 'additional_service') {
+                     if (userId && planId) {
+             console.log(`✅ Paiement confirmé pour l'utilisateur ${userId}, pack ${planId}`);
+             await this.changePlanDirectly(userId, planId);
+           } else if (userId && serviceId && type === 'additional_service') {
             console.log(`✅ Paiement confirmé pour l'utilisateur ${userId}, service ${serviceId}`);
             await this.applyAdditionalService(userId, serviceId);
           }
@@ -509,7 +570,7 @@ export class StripeService {
   }
 
   /**
-   * Changer de forfait directement
+   * Acheter un pack directement
    */
   static async changePlanDirectly(userId: string, newTier: string) {
     try {
@@ -522,77 +583,44 @@ export class StripeService {
 
       console.log(`🔍 Plan trouvé:`, plan);
 
-      // Mettre à jour l'utilisateur avec toutes les informations nécessaires
-      const updatedUser = await prisma.user.update({
-        where: { id: userId },
+      // Créer un nouvel achat (pas de mise à jour de l'utilisateur)
+      // Générer un ID unique pour éviter les conflits de contrainte unique
+      const testPaymentId = `test_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+      
+      const newServicePurchase = await prisma.servicePurchase.create({
         data: {
-          subscriptionTier: plan.id,
-          subscriptionStatus: 'ACTIVE',
-          subscriptionEndDate: null, // Pas de date d'expiration pour les paiements uniques
-          updatedAt: new Date()
-        },
-        select: {
-          id: true,
-          email: true,
-          subscriptionTier: true,
-          subscriptionStatus: true,
-          subscriptionEndDate: true,
-          updatedAt: true
+          userId: userId,
+          tier: plan.id,
+          status: 'ACTIVE',
+          stripePaymentId: testPaymentId,
         }
       });
 
-      console.log(`✅ Utilisateur mis à jour:`, updatedUser);
+      console.log(`✅ Nouvel achat créé:`, newServicePurchase);
 
-      // Chercher la subscription existante
-      const existingSubscription = await prisma.subscription.findFirst({
-        where: { userId: userId }
-      });
-
-      if (existingSubscription) {
-        const updatedSubscription = await prisma.subscription.update({
-          where: { id: existingSubscription.id },
-          data: {
-            tier: plan.id,
-            status: 'ACTIVE',
-            updatedAt: new Date()
-          }
-        });
-        console.log(`✅ Subscription mise à jour:`, updatedSubscription);
-      } else {
-        const newSubscription = await prisma.subscription.create({
-          data: {
-            userId: userId,
-            tier: plan.id,
-            status: 'ACTIVE',
-            stripeCustomerId: '',
-          }
-        });
-        console.log(`✅ Nouvelle subscription créée:`, newSubscription);
-      }
-
-      // Vérifier que la mise à jour a bien eu lieu
-      const verificationUser = await prisma.user.findUnique({
-        where: { id: userId },
-        select: {
-          id: true,
-          email: true,
-          subscriptionTier: true,
-          subscriptionStatus: true,
-          subscriptionEndDate: true
+      // Créer une entrée dans l'historique des achats
+      const purchaseHistoryEntry = await prisma.purchaseHistory.create({
+        data: {
+          userId: userId,
+          tier: plan.id,
+          quantity: 1,
+          price: plan.price,
+          currency: 'EUR',
+          stripePaymentId: testPaymentId, // ID unique pour éviter les conflits
         }
       });
 
-      console.log(`🔍 Vérification finale - Utilisateur après mise à jour:`, verificationUser);
+      console.log(`✅ Entrée d'historique créée:`, purchaseHistoryEntry);
 
       return { 
         success: true, 
         plan,
-        user: verificationUser,
-        message: `Forfait changé avec succès vers ${plan.name}`
+        purchase: newServicePurchase,
+        message: `Pack ${plan.name} acheté avec succès`
       };
     } catch (error) {
-      console.error('❌ Erreur lors du changement de forfait:', error);
-      throw new Error('Erreur lors du changement de forfait');
+      console.error('❌ Erreur lors de l\'achat du pack:', error);
+      throw new Error('Erreur lors de l\'achat du pack');
     }
   }
 } 

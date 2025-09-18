@@ -97,6 +97,10 @@ export class SocketService {
    * Rejoindre les salles appropriées selon le rôle
    */
   private async joinUserRooms(socket: AuthenticatedSocket): Promise<void> {
+    // Tous les utilisateurs rejoignent leur salle personnelle pour les notifications
+    socket.join(`user_${socket.userId}`);
+    console.log(`🔔 Utilisateur ${socket.userId} a rejoint sa salle personnelle: user_${socket.userId}`);
+    
     if (socket.userRole === 'ADMIN') {
       // Les admins rejoignent une salle globale pour recevoir toutes les notifications
       socket.join('admin_notifications');
@@ -247,6 +251,13 @@ export class SocketService {
    */
   public isUserConnected(userId: string): boolean {
     return this.connectedUsers.has(userId);
+  }
+
+  /**
+   * Obtenir l'instance Socket.IO (pour les notifications)
+   */
+  public getIO(): SocketIOServer {
+    return this.io;
   }
 }
 

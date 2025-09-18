@@ -1,39 +1,81 @@
 'use client';
 
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { useDesigns } from '@/hooks/useDesigns';
 import { Design } from '@/types';
-import styles from './design.module.css';
 import { TemplateEngine } from '@/lib/templateEngine';
-import { getExampleTemplateData } from '@/lib/utils';
+import { getDefaultInvitationData } from '@/lib/templateEngine';
+import { 
+  Palette, 
+  Search, 
+  Filter, 
+  Eye, 
+  Edit,
+  Trash2,
+  Plus,
+  Crown,
+  Star,
+  Power,
+  PowerOff
+} from 'lucide-react';
+import styles from './design.module.css';
 
 export default function SuperAdminDesignPage() {
+  const router = useRouter();
   const { designs, loading, error, updateDesign, deleteDesign, toggleDesignStatus } = useDesigns();
   const [showPreviewModal, setShowPreviewModal] = useState(false);
   const [selectedDesign, setSelectedDesign] = useState<Design | null>(null);
   const [deletingDesignId, setDeletingDesignId] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState<string>('');
+  const [selectedFilter, setSelectedFilter] = useState<string>('all');
 
-  // Données d'exemple pour les prévisualisations
+  // Données d'exemple pour les prévisualisations (NOUVELLE architecture)
   const miniPreviewData = {
-    coupleName: "A & B",
-    day: "15",
-    month: "Juin",
-    year: "2024"
+    eventTitle: "Antoine & Marie",
+    eventDate: new Date('2024-06-15T15:00:00'),
+    eventTime: "15h00",
+    location: "Château de Versailles, Paris",
+    eventType: "event",
+    customText: "Ont le plaisir de vous inviter à célébrer leur événement",
+    moreInfo: "cérémonie suivie d'un cocktail et dîner"
   };
 
-  const fullPreviewData = getExampleTemplateData();
+  const fullPreviewData = getDefaultInvitationData();
 
-  // Filtrer les designs en fonction de la recherche
+  // Filtrer les designs en fonction de la recherche et du filtre
   const filteredDesigns = designs.filter(design => {
-    if (searchTerm === '') return true;
+    // Filtre par recherche
+    const searchMatch = searchTerm === '' || 
+      design.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      design.description?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      design.category?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      design.tags?.some(tag => tag.toLowerCase().includes(searchTerm.toLowerCase()));
     
-    const searchLower = searchTerm.toLowerCase();
-    return design.name.toLowerCase().includes(searchLower) ||
-           design.description?.toLowerCase().includes(searchLower) ||
-           design.category?.toLowerCase().includes(searchLower) ||
-           design.tags?.some(tag => tag.toLowerCase().includes(searchLower));
+    // Filtre par catégorie/type
+    const filterMatch = selectedFilter === 'all' || 
+      design.category === selectedFilter ||
+      (selectedFilter === 'premium' && design.isPremium) ||
+      (selectedFilter === 'active' && design.isActive) ||
+      (selectedFilter === 'inactive' && !design.isActive);
+    
+    return searchMatch && filterMatch;
   });
+
+  // Obtenir toutes les catégories uniques pour le select
+  const categories = ['all', ...new Set(designs.map(d => d.category).filter(Boolean) as string[])];
+  
+  // Options pour le filtre
+  const filterOptions = [
+    { value: 'all', label: 'Tous les designs' },
+    { value: 'premium', label: 'Designs Premium' },
+    { value: 'active', label: 'Designs Actifs' },
+    { value: 'inactive', label: 'Designs Inactifs' },
+    ...categories.filter(cat => cat !== 'all').map(cat => ({
+      value: cat,
+      label: cat.charAt(0).toUpperCase() + cat.slice(1)
+    }))
+  ];
 
   const handleDeleteDesign = async (designId: string) => {
     if (confirm('Êtes-vous sûr de vouloir supprimer ce design ?')) {
@@ -65,125 +107,205 @@ export default function SuperAdminDesignPage() {
     setShowPreviewModal(true);
   };
 
-  if (loading) return <div className={styles.loading}>Chargement des designs...</div>;
-  if (error) return <div className={styles.error}>Erreur: {error}</div>;
+
+  const handleEditDesign = (designId: string) => {
+    router.push(`/super-admin/design/create?id=${designId}`);
+  };
+
+  if (loading) {
+    return (
+      <div className={styles.loadingContainer}>
+        <div className={styles.loadingContent}>
+          <div className={styles.loadingSpinner}></div>
+          <p>Chargement des designs...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className={styles.errorContainer}>
+        <div className={styles.errorContent}>
+          <p>Erreur: {error}</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className={styles.designPage}>
-      <div className={styles.header}>
-        <h1>Gestion des Designs</h1>
-        <p>Gérez les designs d'invitations de mariage disponibles dans la base de données</p>
-        
-        <div className={styles.filters}>
-          <div className={styles.searchBar}>
-            <input
-              type="text"
-              placeholder="Rechercher par nom, description, catégorie ou tags..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-            />
-          </div>
+      {/* Header Section */}
+      <div className={styles.headerSection}>
+        <div className={styles.badge}>
+          <Palette style={{ width: '16px', height: '16px' }} />
+          Gestion des designs
         </div>
         
-        <div className={styles.headerActions}>
-          <span className={styles.designCount}>
-            {searchTerm ? 
-              `${filteredDesigns.length} design${filteredDesigns.length > 1 ? 's' : ''} trouvé${filteredDesigns.length > 1 ? 's' : ''} sur ${designs.length}` :
-              `${designs.length} design${designs.length > 1 ? 's' : ''} disponible${designs.length > 1 ? 's' : ''}`
-            }
-          </span>
+        <h1 className={styles.title}>
+          Vos <span className={styles.titleAccent}>designs</span>
+        </h1>
+        
+        <p className={styles.subtitle}>
+          Gérez les designs d'invitations d'événements disponibles dans votre collection
+        </p>
+
+        <button
+          onClick={() => router.push('/super-admin/design/create')}
+          className={styles.createButton}
+        >
+          <Plus style={{ width: '16px', height: '16px' }} />
+          Créer un design
+        </button>
+      </div>
+
+
+
+      {/* Filters */}
+      <div className={styles.filtersContainer}>
+        <div className={styles.searchContainer}>
+          <Search className={styles.searchIcon} />
+          <input
+            type="text"
+            placeholder="Rechercher un design..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className={styles.searchInput}
+          />
+        </div>
+
+        <div className={styles.filterContainer}>
+          <Filter className={styles.filterIcon} />
+          <select
+            value={selectedFilter}
+            onChange={(e) => setSelectedFilter(e.target.value)}
+            className={styles.filterSelect}
+          >
+            {filterOptions.map(option => (
+              <option key={option.value} value={option.value}>
+                {option.label}
+              </option>
+            ))}
+          </select>
         </div>
       </div>
 
-      {filteredDesigns.length === 0 ? (
-        <div className={styles.emptyState}>
-          {searchTerm ? (
-            <>
-              <h2>Aucun résultat trouvé</h2>
-              <p>Aucun design ne correspond à votre recherche "{searchTerm}". Essayez avec d'autres mots-clés.</p>
-            </>
-          ) : (
-            <>
-              <h2>Aucun design disponible</h2>
-              <p>Aucun design n'a encore été créé. Rendez-vous dans la section Templates pour créer vos premiers designs.</p>
-            </>
-          )}
-        </div>
-      ) : (
-        <div className={styles.designsList}>
-          <div className={styles.designsGrid}>
-            {filteredDesigns.map((design) => (
-              <div key={design.id} className={styles.designCard}>
-                <div className={styles.designPreview}>
-                  {design.template && design.styles && design.variables ? (
-                    <div 
-                      className={styles.miniPreview}
-                      dangerouslySetInnerHTML={{
-                        __html: new TemplateEngine().render(design, miniPreviewData)
-                      }}
-                    />
-                  ) : (
-                    <div className={styles.placeholderPreview}>
-                      <h3>{design.name}</h3>
-                      <p>Aperçu non disponible</p>
-                    </div>
-                  )}
-                </div>
-                
-                <div className={styles.designInfo}>
-                  <h3>{design.name}</h3>
-                  <p>{design.description}</p>
-                  
-                  <div className={styles.designMeta}>
-                    <div className={styles.statusRow}>
-                      <span className={`${styles.status} ${design.isActive ? styles.active : styles.inactive}`}>
-                        {design.isActive ? 'Actif' : 'Inactif'}
-                      </span>
-                      {design.isPremium && <span className={styles.premium}>Premium</span>}
-                    </div>
-                    
-                    {design.category && (
-                      <div className={styles.categoryRow}>
-                        <span className={styles.category}>{design.category}</span>
-                      </div>
-                    )}
-                    
-                    {design.tags && design.tags.length > 0 && (
-                      <div className={styles.tagsRow}>
-                        {design.tags.map((tag: string) => (
-                          <span key={tag} className={styles.tag}>{tag}</span>
-                        ))}
-                      </div>
-                    )}
-                  </div>
-                </div>
-                
-                <div className={styles.designActions}>
-                  <button 
-                    className={styles.previewButton}
-                    onClick={() => handlePreviewDesign(design)}
-                  >
-                    Aperçu
-                  </button>
-                  
-                  <button 
-                    className={styles.toggleButton}
-                    onClick={() => handleToggleStatus(design.id)}
-                  >
-                    {design.isActive ? 'Désactiver' : 'Activer'}
-                  </button>
-                  
-                  <button 
-                    className={styles.deleteButton}
-                    onClick={() => handleDeleteDesign(design.id)}
-                    disabled={deletingDesignId === design.id}
-                  >
-                    {deletingDesignId === design.id ? 'Suppression...' : 'Supprimer'}
-                  </button>
-                </div>
+      {/* Designs Grid */}
+      <div className={styles.designsGrid}>
+        {filteredDesigns.map((design) => (
+          <div key={design.id} className={styles.designCard}>
+            {/* Badge Premium */}
+            {design.isPremium && (
+              <div className={styles.premiumBadge}>
+                <Crown style={{ width: '12px', height: '12px' }} />
+                Premium
               </div>
-            ))}
+            )}
+
+            {/* Preview */}
+            <div className={styles.previewContainer}>
+              {design.template && design.styles && design.variables ? (
+                <div 
+                  className={styles.previewContent}
+                  dangerouslySetInnerHTML={{
+                    __html: new TemplateEngine().render(design, miniPreviewData)
+                  }}
+                />
+              ) : (
+                <div className={styles.previewPlaceholder}>
+                  <Palette style={{ width: '48px', height: '48px', marginBottom: 'var(--space-sm)' }} />
+                  <h3>{design.name}</h3>
+                  <p>Aperçu non disponible</p>
+                </div>
+              )}
+            </div>
+            
+            {/* Info */}
+            <div className={styles.designInfo}>
+              <h3 className={styles.designTitle}>
+                {design.name}
+              </h3>
+              
+              <p className={styles.designDescription}>
+                {design.description}
+              </p>
+              
+              {design.category && (
+                <span className={styles.categoryBadge}>
+                  {design.category}
+                </span>
+              )}
+              
+              {design.tags && design.tags.length > 0 && (
+                <div className={styles.tagsContainer}>
+                  {design.tags.map(tag => (
+                    <span key={tag} className={styles.tag}>
+                      {tag}
+                    </span>
+                  ))}
+                </div>
+              )}
+              
+              {/* Actions */}
+              <div className={styles.actionsContainer}>
+                <button
+                  onClick={() => handlePreviewDesign(design)}
+                  className={styles.previewButton}
+                >
+                  <Eye style={{ width: '14px', height: '14px' }} />
+                  Voir
+                </button>
+                
+                <button
+                  onClick={() => handleEditDesign(design.id)}
+                  className={styles.editButton}
+                >
+                  <Edit style={{ width: '14px', height: '14px' }} />
+                  Modif
+                </button>
+                
+                <button
+                  onClick={() => handleToggleStatus(design.id)}
+                  className={styles.toggleButton}
+                >
+                  {design.isActive ? (
+                    <>
+                      <PowerOff style={{ width: '14px', height: '14px' }} />
+                      OFF
+                    </>
+                  ) : (
+                    <>
+                      <Power style={{ width: '14px', height: '14px' }} />
+                      ON
+                    </>
+                  )}
+                </button>
+                
+                <button
+                  onClick={() => handleDeleteDesign(design.id)}
+                  disabled={deletingDesignId === design.id}
+                  className={styles.deleteButton}
+                >
+                  <Trash2 style={{ width: '14px', height: '14px' }} />
+                  {deletingDesignId === design.id ? 'Suppression...' : 'Supprimer'}
+                </button>
+              </div>
+            </div>
           </div>
+        ))}
+      </div>
+
+      {/* Empty State */}
+      {filteredDesigns.length === 0 && (
+        <div className={styles.emptyState}>
+          <Palette style={{ width: '64px', height: '64px', marginBottom: 'var(--space-md)' }} />
+          <h3>Aucun design trouvé</h3>
+          <p>
+            {searchTerm || selectedFilter !== 'all' 
+              ? 'Aucun design ne correspond à vos critères de recherche' 
+              : 'Commencez par créer votre premier design'
+            }
+          </p>
         </div>
       )}
 
@@ -201,18 +323,12 @@ export default function SuperAdminDesignPage() {
               </button>
             </div>
             <div className={styles.modalBody}>
-              <div className={styles.previewContainer}>
+              <div className={styles.modalPreviewContainer}>
                 {selectedDesign.template && selectedDesign.styles && selectedDesign.variables ? (
                   <div 
                     className={styles.fullPreview}
                     dangerouslySetInnerHTML={{
-                      __html: new TemplateEngine().render(selectedDesign, {
-                        coupleName: "Marie & Pierre",
-                        date: "15 Juin 2024",
-                        details: "Château de Versailles, 14h00",
-                        message: "Nous avons l'honneur de vous inviter à notre mariage",
-                        rsvpForm: "RSVP avant le 1er Mai"
-                      })
+                      __html: new TemplateEngine().render(selectedDesign, fullPreviewData)
                     }}
                   />
                 ) : (

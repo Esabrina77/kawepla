@@ -1,3 +1,28 @@
 User-agent: *
 Allow: /
+
+# Sitemap
 Sitemap: https://kawepla.kaporelo.com/sitemap.xml
+
+# Crawl-delay pour éviter de surcharger le serveur
+Crawl-delay: 1
+
+# Pages importantes à indexer en priorité
+Allow: /auth/login
+Allow: /auth/register
+Allow: /contact
+Allow: /help
+
+# Pages privées à ne pas indexer
+Disallow: /client/
+Disallow: /super-admin/
+Disallow: /api/
+Disallow: /_next/
+Disallow: /admin/
+Disallow: /provider/
+
+# Fichiers techniques à ignorer
+Disallow: /sw.js
+Disallow: /sw-custom.js
+Disallow: /sw-notifications.js
+Disallow: /workbox-*.js

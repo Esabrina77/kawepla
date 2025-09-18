@@ -1,186 +1,242 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
-import { authApi } from '@/lib/api/auth';
-import { User, LoginCredentials, RegisterData } from '@/types';
+import { authApi, RegisterProviderData } from '@/lib/api/auth';
+import { useNotifications } from './useNotifications';
+import { User, TokenResponse } from '@/types';
 
-export function useAuth() {
-  const [user, setUser] = useState<User | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+interface AuthState {
+  user: User | null;
+  token: string | null;
+  isLoading: boolean;
+  isAuthenticated: boolean;
+}
+
+export const useAuth = () => {
+  const [authState, setAuthState] = useState<AuthState>({
+    user: null,
+    token: null,
+    isLoading: true,
+    isAuthenticated: false
+  });
+
   const router = useRouter();
+  const { subscribeToPushNotifications, unsubscribeFromPushNotifications } = useNotifications();
 
+  // Fonction pour nettoyer l'authentification et rediriger
+  const clearAuthAndRedirect = useCallback(() => {
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
+    
+    setAuthState({
+      user: null,
+      token: null,
+      isLoading: false,
+      isAuthenticated: false
+    });
+
+    // Rediriger vers la page de login
+    router.push('/auth/login');
+  }, [router]);
+
+  // Fonction exposée pour gérer l'expiration de session depuis l'extérieur
+  const handleSessionExpired = useCallback(() => {
+    console.log('🔒 Session expirée détectée, redirection automatique');
+    clearAuthAndRedirect();
+  }, [clearAuthAndRedirect]);
+
+  // Initialiser l'état d'authentification
   useEffect(() => {
-    // Charger l'utilisateur depuis les cookies au montage
-    const loadUser = () => {
-      try {
-        const currentUser = authApi.getUser();
-        setUser(currentUser);
-      } catch (err) {
-        console.error('Erreur lors du chargement de l\'utilisateur:', err);
-      } finally {
-        setLoading(false);
+    const initAuth = async () => {
+      const token = localStorage.getItem('token');
+      const userStr = localStorage.getItem('user');
+
+      if (token && userStr) {
+        try {
+          const user = JSON.parse(userStr);
+          
+          // Vérifier si le token est encore valide
+          if (authApi.isAuthenticated()) {
+            setAuthState({
+              user,
+              token,
+              isLoading: false,
+              isAuthenticated: true
+            });
+          } else {
+            // Token expiré ou invalide
+            console.log('Token expiré, nettoyage automatique et redirection');
+            clearAuthAndRedirect();
+          }
+          
+        } catch (error) {
+          console.error('Erreur lors du parsing des données utilisateur:', error);
+          clearAuthAndRedirect();
+        }
+      } else {
+        setAuthState(prev => ({ ...prev, isLoading: false }));
       }
     };
 
-    loadUser();
+    initAuth();
+  }, [clearAuthAndRedirect]);
+
+  const login = useCallback(async (email: string, password: string) => {
+    try {
+      const response = await authApi.login({ email, password });
+
+      localStorage.setItem('token', response.accessToken);
+      localStorage.setItem('user', JSON.stringify(response.user));
+
+      setAuthState({
+        user: response.user,
+        token: response.accessToken,
+        isLoading: false,
+        isAuthenticated: true
+      });
+
+      // Rediriger selon le rôle de l'utilisateur (HOST remplace organisateur)
+      if (response.user.role === 'ADMIN') {
+        router.push('/super-admin/dashboard');
+      } else if (response.user.role === 'PROVIDER') {
+        router.push('/provider/dashboard');
+      } else {
+        router.push('/client/dashboard');
+      }
+      
+      return { success: true };
+    } catch (error: any) {
+      console.error('❌ Erreur de connexion:', error);
+      
+      // Retourner l'erreur exacte du serveur
+      let errorMessage = 'Email ou mot de passe incorrect';
+      
+      if (error.response?.data?.message) {
+        errorMessage = error.response.data.message;
+      } else if (error.message) {
+        errorMessage = error.message;
+      }
+      
+      return { 
+        success: false, 
+        error: errorMessage
+      };
+    }
+  }, [router]);
+
+  const register = useCallback(async (userData: RegisterProviderData) => {
+    try {
+      const response = await authApi.register(userData);
+
+      // Ne pas stocker le token ni rediriger automatiquement
+      // L'utilisateur doit d'abord vérifier son email
+      
+      return { 
+        success: true, 
+        isProvider: response.isProvider,
+        user: response.user,
+        email: userData.email,
+        message: response.message
+      };
+    } catch (error: any) {
+      console.error('Erreur d\'inscription:', error);
+      
+      // Retourner l'erreur exacte du serveur
+      let errorMessage = 'Erreur lors de l\'inscription';
+      
+      if (error.response?.data?.message) {
+        errorMessage = error.response.data.message;
+      } else if (error.message) {
+        errorMessage = error.message;
+      }
+      
+      return { 
+        success: false, 
+        error: errorMessage
+      };
+    }
   }, []);
 
-  const login = async (email: string, password: string) => {
+  const logout = useCallback(() => {
+    authApi.logout();
+    
+    setAuthState({
+      user: null,
+      token: null,
+      isLoading: false,
+      isAuthenticated: false
+    });
+
+    router.push('/');
+  }, [router]);
+
+  const forgotPassword = useCallback(async (email: string) => {
     try {
-      setError(null);
-      setLoading(true);
-      
-      const response = await authApi.login({ email, password });
-      
-      if (response.user) {
-        setUser(response.user);
-        
-        // Attendre que les cookies soient définis
-        await new Promise(resolve => setTimeout(resolve, 100));
-        
-        // Rediriger en fonction du rôle
-        const redirectPath = response.user.role === 'ADMIN' 
-          ? '/super-admin/dashboard'
-          : '/client/dashboard';
-          
-        router.push(redirectPath);
-        
-        return response;
-      } else {
-        throw new Error('Réponse de connexion invalide');
-      }
+      await authApi.forgotPassword({ email });
+      return { success: true };
     } catch (error: any) {
-      console.error('Erreur de connexion:', error);
-      
-      // Vérifier si c'est une erreur de vérification d'email
-      if (error.message && error.message.includes('vérifier votre email')) {
-        setError(error.message);
-        // Relancer l'erreur avec plus d'informations
-        const emailVerificationError = new Error(error.message);
-        (emailVerificationError as any).emailNotVerified = true;
-        throw emailVerificationError;
-      } else {
-        setError(error.message || 'Erreur lors de la connexion');
-        throw error;
-      }
-    } finally {
-      setLoading(false);
+      console.error('Erreur de mot de passe oublié:', error);
+      return { 
+        success: false, 
+        error: error.message || 'Erreur lors de l\'envoi de l\'email' 
+      };
     }
-  };
+  }, []);
 
-  const register = async (data: RegisterData) => {
+  const resetPassword = useCallback(async (token: string, password: string) => {
     try {
-      setError(null);
-      setLoading(true);
-      const response = await authApi.register(data);
-      
-      if (response.user) {
-        setUser(response.user);
-        window.location.href = '/client/dashboard';
-      }
-      
-      return response;
-    } catch (error) {
-      if (error instanceof Error) {
-        setError(error.message);
-      } else {
-        setError('Erreur lors de l\'inscription');
-      }
-      throw error;
-    } finally {
-      setLoading(false);
+      await authApi.resetPassword({ token, password });
+      return { success: true };
+    } catch (error: any) {
+      console.error('Erreur de réinitialisation du mot de passe:', error);
+      return { 
+        success: false, 
+        error: error.message || 'Erreur lors de la réinitialisation' 
+      };
     }
-  };
+  }, []);
 
-  const logout = async () => {
+  const verifyEmail = useCallback(async (email: string, code: string) => {
     try {
-      await authApi.logout();
-      setUser(null);
-      window.location.href = '/auth/login';
-    } catch (error) {
-      console.error('Erreur lors de la déconnexion:', error);
+      const response = await authApi.verifyEmail({ email, code });
+      return { success: true, data: response };
+    } catch (error: any) {
+      console.error('Erreur de vérification d\'email:', error);
+      return { 
+        success: false, 
+        error: error.message || 'Erreur lors de la vérification' 
+      };
     }
-  };
+  }, []);
 
-  const forgotPassword = async (email: string) => {
+  const sendVerificationCode = useCallback(async (email: string) => {
     try {
-      setError(null);
-      setLoading(true);
-      await authApi.forgotPassword(email);
-      return true;
-    } catch (error) {
-      if (error instanceof Error) {
-        setError(error.message);
-      } else {
-        setError('Erreur lors de l\'envoi du lien de réinitialisation');
-      }
-      throw error;
-    } finally {
-      setLoading(false);
+      const response = await authApi.sendVerificationCode(email);
+      return { success: true, message: response.message };
+    } catch (error: any) {
+      console.error('Erreur d\'envoi du code:', error);
+      return { 
+        success: false, 
+        error: error.message || 'Erreur lors de l\'envoi du code' 
+      };
     }
-  };
-
-  const verifyResetToken = async (token: string) => {
-    try {
-      setError(null);
-      setLoading(true);
-      await authApi.verifyResetToken(token);
-      return true;
-    } catch (error) {
-      if (error instanceof Error) {
-        setError(error.message);
-      } else {
-        setError('Token invalide ou expiré');
-      }
-      throw error;
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const resetPassword = async (token: string, newPassword: string) => {
-    try {
-      setError(null);
-      setLoading(true);
-      await authApi.resetPassword(token, newPassword);
-      router.push('/auth/login?message=password-reset-success');
-    } catch (error) {
-      if (error instanceof Error) {
-        setError(error.message);
-      } else {
-        setError('Erreur lors de la réinitialisation du mot de passe');
-      }
-      throw error;
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const refreshUser = async () => {
-    try {
-      const updatedUser = await authApi.fetchUser();
-      setUser(updatedUser);
-      return updatedUser;
-    } catch (error) {
-      console.error('Erreur lors du rafraîchissement de l\'utilisateur:', error);
-      return null;
-    }
-  };
+  }, []);
 
   return {
-    user,
-    loading,
-    error,
+    user: authState.user,
+    token: authState.token,
+    isLoading: authState.isLoading,
+    isAuthenticated: authState.isAuthenticated,
     login,
     register,
     logout,
     forgotPassword,
-    verifyResetToken,
     resetPassword,
-    refreshUser,
-    isAuthenticated: authApi.isAuthenticated(),
-    isAdmin: user?.role === 'ADMIN',
-    isCouple: user?.role === 'COUPLE',
-    token: authApi.getToken(),
+    verifyEmail,
+    sendVerificationCode,
+    handleSessionExpired,
+    // Utilitaires
+    isProvider: authApi.isProvider,
+    isHost: authApi.isHost,
+    isAdmin: authApi.isAdmin
   };
-} 
+}; 

@@ -7,7 +7,7 @@ interface AdminStats {
     active: number;
     inactive: number;
     byRole: {
-      COUPLE: number;
+      organisateur: number;
       ADMIN: number;
       GUEST: number;
     };
@@ -41,7 +41,7 @@ interface RawAdminStats {
     active: number;
     inactive: number;
     byRole: {
-      COUPLE: number;
+      organisateur: number;
       ADMIN: number;
       GUEST: number;
     };

@@ -1,112 +1,52 @@
-import { useState, useEffect } from 'react';
-import { apiClient } from '../lib/api/apiClient';
-import { renderTemplate, invitationToTemplateData, mergeTemplateData, DesignTemplate } from '../lib/templateEngine';
+import { useState, useEffect, useCallback } from 'react';
+import { invitationsApi, CreateInvitationDto } from '@/lib/api/invitations';
+import { renderTemplate, invitationToTemplateData, mergeInvitationData, DesignTemplate } from '../lib/templateEngine';
+import { useAuth } from './useAuth';
+import { Invitation, Statistics } from '@/types';
 
-export interface Invitation {
-  id: string;
-  
-  // Informations du couple
-  coupleName: string;
-  
-  // Date et heure
-  weddingDate: string;
-  ceremonyTime?: string;
-  receptionTime?: string;
-  
-  // Textes d'invitation
-  invitationText?: string;
-  
-  // Lieu et détails
-  venueName: string;
-  venueAddress: string;
-  venueCoordinates?: string;
-  moreInfo?: string;
-  
-  // RSVP
-  rsvpDetails?: string;
-  rsvpForm?: string;
-  rsvpDate?: string;
-  
-  // Messages personnalisés
-  message?: string;
-  blessingText?: string;
-  welcomeMessage?: string;
-  
-  // Informations supplémentaires
-  dressCode?: string;
-  contact?: string;
-  
-  // Champs existants
-  title?: string;
-  description?: string;
-  customDomain?: string;
-  status: string;
-  photos: Array<{
-    url: string;
-    caption?: string;
-  }>;
-  program?: {
-    dinner?: string;
-    ceremony?: string;
-    cocktail?: string;
-  };
-  restrictions?: string;
-  languages: string[];
-  maxGuests?: number;
-  createdAt: string;
-  updatedAt: string;
-  userId: string;
-  designId: string;
-}
-
-export interface CreateInvitationData {
-  coupleName: string;
-  weddingDate: string;
-  venueName: string;
-  venueAddress: string;
-  designId: string;
-  ceremonyTime?: string;
-  receptionTime?: string;
-  invitationText?: string;
-  moreInfo?: string;
-  rsvpDetails?: string;
-  rsvpForm?: string;
-  rsvpDate?: string;
-  message?: string;
-  blessingText?: string;
-  welcomeMessage?: string;
-  dressCode?: string;
-  contact?: string;
-  title?: string;
-  description?: string;
-}
-
-export function useInvitations() {
+export const useInvitations = () => {
   const [invitations, setInvitations] = useState<Invitation[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const { isAuthenticated, token } = useAuth();
 
-  const fetchInvitations = async () => {
+  const fetchInvitations = useCallback(async () => {
+    // Ne pas charger si pas authentifié
+    if (!isAuthenticated || !token) {
+      return;
+    }
+
     try {
       setLoading(true);
       setError(null);
       
-      const response = await apiClient.get<Invitation[]>('/invitations');
+      const response = await invitationsApi.getInvitations();
       setInvitations(response || []);
     } catch (err) {
-      console.error('Error fetching invitations:', err);
+      console.error('❌ Error fetching invitations:', err);
+      
+      // Si erreur 401, l'utilisateur n'est plus authentifié
+      if (err instanceof Error && err.message.includes('Session expirée')) {
+        console.log('🔒 Session expirée, déconnexion automatique');
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
+        setInvitations([]);
+        setError('Session expirée');
+        return;
+      }
+      
       setError(err instanceof Error ? err.message : 'Une erreur est survenue');
     } finally {
       setLoading(false);
     }
-  };
+  }, [isAuthenticated, token]);
 
   const getInvitationById = async (id: string): Promise<Invitation | null> => {
     try {
       setLoading(true);
       setError(null);
       
-      const response = await apiClient.get<Invitation>(`/invitations/${id}`);
+      const response = await invitationsApi.getInvitation(id);
       return response;
     } catch (err) {
       console.error(`Error fetching invitation ${id}:`, err);
@@ -117,12 +57,12 @@ export function useInvitations() {
     }
   };
 
-  const createInvitation = async (data: CreateInvitationData): Promise<Invitation | null> => {
+  const createInvitation = async (data: CreateInvitationDto): Promise<Invitation | null> => {
     try {
       setLoading(true);
       setError(null);
       
-      const response = await apiClient.post<Invitation>('/invitations', data);
+      const response = await invitationsApi.createInvitation(data);
       
       if (response) {
         setInvitations(prev => [...prev, response]);
@@ -138,12 +78,12 @@ export function useInvitations() {
     }
   };
 
-  const updateInvitation = async (id: string, data: Partial<CreateInvitationData>): Promise<Invitation | null> => {
+  const updateInvitation = async (id: string, data: Partial<CreateInvitationDto>): Promise<Invitation | null> => {
     try {
       setLoading(true);
       setError(null);
       
-      const response = await apiClient.put<Invitation>(`/invitations/${id}`, data);
+      const response = await invitationsApi.updateInvitation(id, data);
       
       if (response) {
         setInvitations(prev => prev.map(inv => inv.id === id ? response : inv));
@@ -159,13 +99,13 @@ export function useInvitations() {
     }
   };
 
-  const publishInvitation = async (id: string): Promise<any> => {
+  const publishInvitation = async (id: string): Promise<Invitation> => {
     try {
-      const response = await apiClient.post(`/invitations/${id}/publish`);
+      const response = await invitationsApi.publishInvitation(id);
       
       // Mettre à jour la liste des invitations
       setInvitations(prev => prev.map(inv => 
-        inv.id === id ? { ...inv, status: 'PUBLISHED' } : inv
+        inv.id === id ? response : inv
       ));
       
       return response;
@@ -175,43 +115,87 @@ export function useInvitations() {
     }
   };
 
-  const generateShareableLink = async (id: string, options: { maxUses?: number; expiresAt?: string } = {}): Promise<any> => {
+  const archiveInvitation = async (id: string): Promise<Invitation> => {
     try {
-      const response = await apiClient.post(`/invitations/${id}/generate-shareable-link`, {
-        maxUses: options.maxUses || 50,
-        ...(options.expiresAt && { expiresAt: options.expiresAt })
-      });
+      const response = await invitationsApi.archiveInvitation(id);
+      
+      // Mettre à jour la liste des invitations
+      setInvitations(prev => prev.map(inv => 
+        inv.id === id ? response : inv
+      ));
       
       return response;
     } catch (error) {
-      console.error('Erreur lors de la génération du lien partageable:', error);
+      console.error('Erreur lors de l\'archivage de l\'invitation:', error);
       throw error;
     }
   };
 
-  const getShareableStats = async (id: string): Promise<any> => {
+  const deleteInvitation = async (id: string): Promise<void> => {
     try {
-      const response = await apiClient.get(`/invitations/${id}/shareable-stats`);
-      return response;
+      await invitationsApi.deleteInvitation(id);
+      
+      // Supprimer de la liste
+      setInvitations(prev => prev.filter(inv => inv.id !== id));
+    } catch (error) {
+      console.error('Erreur lors de la suppression de l\'invitation:', error);
+      throw error;
+    }
+  };
+
+  const getInvitationStats = async (id: string): Promise<Statistics> => {
+    try {
+      const stats = await invitationsApi.getStats(id);
+      // S'assurer que toutes les propriétés requises sont présentes
+      return {
+        totalGuests: stats.totalGuests || 0,
+        confirmed: stats.confirmed || 0,
+        declined: stats.declined || 0,
+        pending: stats.pending || 0,
+        responseRate: stats.responseRate || 0,
+        dietaryRestrictionsCount: (stats as any).dietaryRestrictionsCount || 0
+      };
     } catch (error) {
       console.error('Erreur lors de la récupération des statistiques:', error);
       throw error;
     }
   };
 
-  const disableShareableLink = async (id: string): Promise<any> => {
+  const exportGuestsCSV = async (id: string): Promise<void> => {
     try {
-      const response = await apiClient.delete(`/invitations/${id}/shareable-link`);
-      return response;
+      const blob = await invitationsApi.exportGuestsCSV(id);
+      
+      // Télécharger le fichier
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.style.display = 'none';
+      a.href = url;
+      a.download = `invites-${id}.csv`;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
     } catch (error) {
-      console.error('Erreur lors de la désactivation du lien:', error);
+      console.error('Erreur lors de l\'export CSV:', error);
       throw error;
     }
   };
 
+  const getActiveInvitation = async (): Promise<Invitation | null> => {
+    try {
+      return await invitationsApi.getActiveInvitation();
+    } catch (error) {
+      console.error('Erreur lors de la récupération de l\'invitation active:', error);
+      return null;
+    }
+  };
+
   useEffect(() => {
-    fetchInvitations();
-  }, []);
+    // Ne charger que si authentifié
+    if (isAuthenticated && token) {
+      fetchInvitations();
+    }
+  }, [isAuthenticated, token, fetchInvitations]);
 
   return {
     invitations,
@@ -222,9 +206,11 @@ export function useInvitations() {
     createInvitation,
     updateInvitation,
     publishInvitation,
-    generateShareableLink,
-    getShareableStats,
-    disableShareableLink
+    archiveInvitation,
+    deleteInvitation,
+    getInvitationStats,
+    exportGuestsCSV,
+    getActiveInvitation
   };
 }
 
@@ -238,7 +224,7 @@ export function renderInvitationWithTemplate(
   const invitationData = invitationToTemplateData(invitation);
   
   // Fusionner avec les données personnalisées
-  const templateData = mergeTemplateData({ ...invitationData, ...customData });
+  const templateData = mergeInvitationData({ ...invitationData, ...customData });
   
   // Rendre le template
   return renderTemplate(template, templateData, invitation.id);

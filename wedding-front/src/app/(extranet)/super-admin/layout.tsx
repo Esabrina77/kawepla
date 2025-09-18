@@ -1,20 +1,20 @@
 'use client';
 
+import { ReactNode } from 'react';
 import { SuperAdminSidebar } from '@/components/Sidebar/SuperAdminSidebar';
-import styles from './superadminLayout.module.css';
-import { featherscriptFont, harringtonFont, openDyslexicFont } from '@/fonts/fonts';
+import styles from './adminLayout.module.css';
 
-export default function SuperAdminLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+interface AdminLayoutProps {
+  children: ReactNode;
+}
+
+export default function AdminLayout({ children }: AdminLayoutProps) {
   return (
-    <div className={`${styles.layout} ${featherscriptFont.variable} ${harringtonFont.variable} ${openDyslexicFont.variable}`}>
+    <div className={styles.adminLayout}>
       <SuperAdminSidebar />
-      <main className={styles.main}>
+      <main className={styles.mainContent}>
         {children}
       </main>
     </div>
   );
-} 
+}

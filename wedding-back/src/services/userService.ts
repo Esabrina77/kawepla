@@ -13,6 +13,7 @@ import { UserRole, User } from '@prisma/client';
 import { randomBytes } from 'crypto';
 import { EmailVerificationService } from '@/services/emailVerificationService';
 import { emailService } from '../utils/email';
+import { StripeService } from './stripeService';
 
 export class UserService {
   static async createUser(data: CreateUserDto & { emailVerified?: boolean }): Promise<TokenResponse> {
@@ -32,8 +33,7 @@ export class UserService {
         password: hashedPassword,
         firstName: data.firstName,
         lastName: data.lastName,
-        role: data.role || UserRole.COUPLE,
-        subscriptionTier: 'FREE',
+        role: data.role || UserRole.HOST,
         isActive: true,
         emailVerified: data.emailVerified ?? false
       }
@@ -45,8 +45,7 @@ export class UserService {
       firstName: user.firstName,
       lastName: user.lastName,
       role: user.role,
-      subscriptionTier: user.subscriptionTier,
-      subscriptionEndDate: user.subscriptionEndDate ?? undefined,
+
       isActive: user.isActive,
       emailVerified: user.emailVerified,
       createdAt: user.createdAt
@@ -61,6 +60,42 @@ export class UserService {
     return {
       ...tokenResponse,
       user: userResponse
+    };
+  }
+
+  // NOUVEAU: Créer un utilisateur sans générer de token (pour l'inscription)
+  static async createUserWithoutToken(data: CreateUserDto & { emailVerified?: boolean }): Promise<UserResponse> {
+    const existingUser = await prisma.user.findUnique({
+      where: { email: data.email }
+    });
+
+    if (existingUser) {
+      throw new Error('Un utilisateur avec cet email existe déjà');
+    }
+
+    const hashedPassword = await hashPassword(data.password);
+
+    const user = await prisma.user.create({
+      data: {
+        email: data.email,
+        password: hashedPassword,
+        firstName: data.firstName,
+        lastName: data.lastName,
+        role: data.role || UserRole.HOST,
+        isActive: true,
+        emailVerified: data.emailVerified ?? false
+      }
+    });
+
+    return {
+      id: user.id,
+      email: user.email,
+      firstName: user.firstName,
+      lastName: user.lastName,
+      role: user.role,
+      isActive: user.isActive,
+      emailVerified: user.emailVerified,
+      createdAt: user.createdAt
     };
   }
 
@@ -88,8 +123,7 @@ export class UserService {
       firstName: user.firstName,
       lastName: user.lastName,
       role: user.role,
-      subscriptionTier: user.subscriptionTier,
-      subscriptionEndDate: user.subscriptionEndDate ?? undefined,
+
       isActive: user.isActive,
       emailVerified: user.emailVerified,
       createdAt: user.createdAt
@@ -127,8 +161,7 @@ export class UserService {
       firstName: user.firstName,
       lastName: user.lastName,
       role: user.role,
-      subscriptionTier: user.subscriptionTier,
-      subscriptionEndDate: user.subscriptionEndDate ?? undefined,
+
       isActive: user.isActive,
       emailVerified: user.emailVerified,
       createdAt: user.createdAt
@@ -161,8 +194,8 @@ export class UserService {
         firstName: true,
         lastName: true,
         role: true,
-        subscriptionTier: true,
-        subscriptionEndDate: true,
+
+
         isActive: true,
         emailVerified: true,
         createdAt: true,
@@ -171,10 +204,7 @@ export class UserService {
 
     if (!user) return null;
 
-    return {
-      ...user,
-      subscriptionEndDate: user.subscriptionEndDate || undefined
-    };
+    return user;
   }
 
   static async updateUser(userId: string, updateData: UpdateUserInput): Promise<UserResponse> {
@@ -187,18 +217,15 @@ export class UserService {
         firstName: true,
         lastName: true,
         role: true,
-        subscriptionTier: true,
-        subscriptionEndDate: true,
+
+
         isActive: true,
         emailVerified: true,
         createdAt: true,
       }
     });
 
-    return {
-      ...user,
-      subscriptionEndDate: user.subscriptionEndDate || undefined
-    };
+    return user;
   }
 
   static async deleteUser(userId: string): Promise<void> {
@@ -208,24 +235,22 @@ export class UserService {
     });
   }
 
-  static async getSubscriptionFeatures(subscriptionTier: string): Promise<string[]> {
-    return SUBSCRIPTION_FEATURES[subscriptionTier as keyof typeof SUBSCRIPTION_FEATURES] || [];
+  static async getServicePurchaseFeatures(serviceTier: string): Promise<string[]> {
+    return SUBSCRIPTION_FEATURES[serviceTier as keyof typeof SUBSCRIPTION_FEATURES] || [];
   }
 
-  static async checkSubscriptionAccess(userId: string, requiredFeature: string): Promise<boolean> {
+  static async checkServicePurchaseAccess(userId: string, requiredFeature: string): Promise<boolean> {
     const user = await prisma.user.findUnique({
       where: { id: userId },
-      select: { subscriptionTier: true, subscriptionEndDate: true }
+      select: { id: true, email: true, role: true, isActive: true }
     });
 
     if (!user) return false;
 
-    // Vérifier si l'abonnement n'est pas expiré
-    if (user.subscriptionEndDate && user.subscriptionEndDate < new Date()) {
-      return false;
-    }
 
-    const features = await this.getSubscriptionFeatures(user.subscriptionTier);
+
+    const currentTier = await StripeService.getUserCurrentTier(userId);
+    const features = await this.getServicePurchaseFeatures(currentTier);
     return features.includes(requiredFeature);
   }
 
@@ -241,8 +266,8 @@ export class UserService {
           firstName: true,
           lastName: true,
           role: true,
-          subscriptionTier: true,
-          subscriptionEndDate: true,
+  
+  
           isActive: true,
           emailVerified: true,
           createdAt: true,
@@ -255,10 +280,7 @@ export class UserService {
     ]);
 
     return {
-      users: users.map(user => ({
-        ...user,
-        subscriptionEndDate: user.subscriptionEndDate || undefined
-      })),
+      users,
       total,
       page,
       totalPages: Math.ceil(total / limit)
@@ -355,10 +377,11 @@ export class UserService {
         userId: userId,
         status: 'PUBLISHED'
       },
-      select: {
-        id: true,
-        title: true,
-        createdAt: true,
+              select: {
+          id: true,
+          eventTitle: true,
+          eventType: true,
+          createdAt: true,
         rsvps: {
           where: {
             message: {
@@ -394,8 +417,8 @@ export class UserService {
     });
 
     // Transformer les données pour une meilleure structure
-    const messages = invitations.flatMap(invitation => 
-      invitation.rsvps.map(rsvp => ({
+    const messages = invitations.flatMap((invitation: any) => 
+      invitation.rsvps.map((rsvp: any) => ({
         id: rsvp.id,
         message: rsvp.message,
         status: rsvp.status,
@@ -407,7 +430,8 @@ export class UserService {
         guest: rsvp.guest,
         invitation: {
           id: invitation.id,
-          title: invitation.title,
+          eventTitle: invitation.eventTitle,
+          eventType: invitation.eventType,
           createdAt: invitation.createdAt
         }
       }))

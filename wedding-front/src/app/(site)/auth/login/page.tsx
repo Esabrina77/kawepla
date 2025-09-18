@@ -7,15 +7,17 @@ import { useAuth } from '@/hooks/useAuth';
 import styles from '@/styles/site/auth.module.css';
 
 export default function LoginPage() {
-  const { login, error: authError, loading: authLoading } = useAuth();
+  const { login, isLoading: authLoading } = useAuth();
   const router = useRouter();
   const [formError, setFormError] = useState<string>('');
   const [emailNotVerified, setEmailNotVerified] = useState<string>('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setFormError('');
     setEmailNotVerified('');
+    setIsSubmitting(true);
 
     const formData = new FormData(e.currentTarget);
     const email = formData.get('email') as string;
@@ -23,18 +25,25 @@ export default function LoginPage() {
 
     if (!email || !password) {
       setFormError('Veuillez remplir tous les champs');
+      setIsSubmitting(false);
       return;
     }
 
     try {
-      await login(email, password);
-    } catch (err: any) {
-      // Vérifier si l'erreur est liée à la vérification d'email
-      if (err.message && err.message.includes('vérifier votre email')) {
-        setEmailNotVerified(email);
-      } else {
-        console.error('Erreur de connexion:', err);
+      const result = await login(email, password);
+      
+      if (!result.success) {
+        // Vérifier si l'erreur est liée à la vérification d'email
+        if (result.error && (result.error.includes('vérifier votre email') || result.error.includes('email non vérifié'))) {
+          setEmailNotVerified(email);
+        } else {
+          setFormError(result.error || 'Erreur lors de la connexion');
+        }
       }
+    } catch (err: any) {
+      setFormError(err.message || 'Erreur lors de la connexion');
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -44,15 +53,15 @@ export default function LoginPage() {
     }
   };
 
-  const displayError = formError || authError;
+  const displayError = formError;
 
   return (
     <div className={styles.auth}>
       <div className={styles.container}>
         <div className={styles.authCard}>
           <div className={styles.header}>
-            <h1>Connexion à votre espace</h1>
-            <p>Gérez vos invitations de mariage en toute simplicité</p>
+            <h1>Connexion</h1>
+            <p>Accédez à votre espace personnel Kawepla</p>
           </div>
 
           <form className={styles.form} onSubmit={handleSubmit}>
@@ -69,7 +78,6 @@ export default function LoginPage() {
                   type="button"
                   onClick={handleResendVerification}
                   className={styles.resendButton}
-                  style={{ marginTop: '10px' }}
                 >
                   Vérifier mon email
                 </button>
@@ -84,9 +92,9 @@ export default function LoginPage() {
                 type="email"
                 autoComplete="email"
                 required
-                className="fullWidth"
+                className={styles.fullWidth}
                 placeholder="votre@email.com"
-                disabled={authLoading}
+                disabled={isSubmitting || authLoading}
               />
             </div>
 
@@ -98,9 +106,9 @@ export default function LoginPage() {
                 type="password"
                 autoComplete="current-password"
                 required
-                className="fullWidth"
+                className={styles.fullWidth}
                 placeholder="••••••••"
-                disabled={authLoading}
+                disabled={isSubmitting || authLoading}
               />
               <Link href="/auth/forgot-password" className={styles.forgotPassword}>
                 Mot de passe oublié ?
@@ -109,17 +117,17 @@ export default function LoginPage() {
 
             <div className={styles.rememberMe}>
               <label>
-                <input type="checkbox" name="remember" disabled={authLoading} />
+                <input type="checkbox" name="remember" disabled={isSubmitting || authLoading} />
                 <span>Se souvenir de moi</span>
               </label>
             </div>
 
             <button
               type="submit"
-              disabled={authLoading}
-              className={`${styles.submitButton} ${authLoading ? styles.loading : ''}`}
+              disabled={isSubmitting || authLoading}
+              className={`${styles.submitButton} ${isSubmitting ? styles.loading : ''}`}
             >
-              {authLoading ? 'Connexion...' : 'Se connecter'}
+              {isSubmitting ? 'Connexion...' : 'Se connecter'}
             </button>
 
             <div className={styles.footer}>

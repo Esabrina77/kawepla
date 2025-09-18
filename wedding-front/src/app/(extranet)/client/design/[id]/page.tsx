@@ -2,9 +2,11 @@
 
 import { useEffect, useState, use } from 'react';
 import { useRouter } from 'next/navigation';
-import { useDesigns, Design } from '@/hooks/useDesigns';
+import { useDesigns } from '@/hooks/useDesigns';
+import { Design } from '@/types';
 import { TemplateEngine } from '@/lib/templateEngine';
-import { getExampleTemplateData } from '@/lib/utils';
+import { getDefaultInvitationData } from '@/lib/templateEngine';
+import { Palette, ArrowLeft, Crown } from 'lucide-react';
 import styles from './design-detail.module.css';
 
 interface Props {
@@ -23,8 +25,8 @@ export default function DesignDetailPage({ params }: Props) {
   // Unwrap params avec React.use()
   const resolvedParams = use(params);
 
-  // Données d'exemple pour la prévisualisation
-  const previewData = getExampleTemplateData();
+  // Données d'exemple pour la prévisualisation avec le nouveau format
+  const previewData = getDefaultInvitationData();
 
   useEffect(() => {
     const fetchDesign = async () => {
@@ -48,8 +50,8 @@ export default function DesignDetailPage({ params }: Props) {
   }, [resolvedParams.id, getDesignById]);
 
   const handleSelectDesign = () => {
-    // TODO: Implémenter la sélection du design
-    alert('Fonctionnalité à venir : sélection du design');
+    // Rediriger vers la page de création d'invitation avec le design sélectionné
+    router.push(`/client/invitations?designId=${design?.id}`);
   };
 
   if (loading) {
@@ -77,10 +79,14 @@ export default function DesignDetailPage({ params }: Props) {
           onClick={() => router.back()}
           className={styles.backButton}
         >
-          ← Retour aux designs
+          <ArrowLeft style={{ width: '16px', height: '16px' }} />
+          Retour aux designs
         </button>
-        <h1>{design.name}</h1>
-
+        
+        <div className={styles.badge}>
+          <Palette style={{ width: '16px', height: '16px' }} />
+          {design.name}
+        </div>
       </div>
 
       <div className={styles.content}>
@@ -91,6 +97,7 @@ export default function DesignDetailPage({ params }: Props) {
               dangerouslySetInnerHTML={{
                 __html: new TemplateEngine().render(design, previewData)
               }}
+              key={`preview-${design.id}`}
             />
           </div>
         </div>
@@ -111,7 +118,7 @@ export default function DesignDetailPage({ params }: Props) {
               <div className={styles.metadata}>
                 <span className={styles.label}>Tags:</span>
                 <div className={styles.tags}>
-                  {design.tags.map(tag => (
+                  {design.tags.map((tag: string) => (
                     <span key={tag} className={styles.tag}>{tag}</span>
                   ))}
                 </div>
@@ -120,18 +127,28 @@ export default function DesignDetailPage({ params }: Props) {
             
             {design.isPremium && (
               <div className={styles.premium}>
-                <span>✨ Design Premium</span>
+                <Crown style={{ width: '14px', height: '14px' }} />
+                <span>Design Premium</span>
               </div>
             )}
           </div>
 
-          <div className={styles.customizationSection}>
-            <h2>Personnalisation</h2>
-            <p>
-              Cette section vous permettra bientôt de personnaliser votre invitation avec vos propres textes, 
-              couleurs et styles. Restez à l'écoute !
-            </p>
-            {/* TODO: Ajouter le formulaire de personnalisation */}
+          <div className={styles.actionSection}>
+            <button 
+              onClick={handleSelectDesign}
+              className={styles.selectButton}
+            >
+              <Palette style={{ width: '16px', height: '16px' }} />
+              Utiliser ce design
+            </button>
+            
+            <div className={styles.description}>
+              <p>
+                Cliquez sur "Utiliser ce design" pour créer votre invitation personnalisée 
+                avec ce template. Vous pourrez ensuite personnaliser tous les textes, 
+                dates et informations selon votre événement.
+              </p>
+            </div>
           </div>
         </div>
       </div>

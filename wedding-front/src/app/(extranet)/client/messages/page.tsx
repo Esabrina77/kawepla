@@ -1,15 +1,58 @@
 'use client';
 
-import { useState } from 'react';
-import styles from './messages.module.css';
-import Image from 'next/image';
+import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import { useRSVPMessages } from '@/hooks/useRSVPMessages';
+import { useInvitations } from '@/hooks/useInvitations';
+import { useNotifications } from '@/hooks/useNotifications';
 import { RSVPMessage } from '@/types';
+import styles from './messages.module.css';
+
+import { 
+  MessageSquare, 
+  Search, 
+  CheckCircle, 
+  XCircle, 
+  Clock, 
+  User,
+  Calendar,
+  Mail,
+  Eye,
+  Phone,
+  Users,
+  Heart,
+  Filter,
+  Bell
+} from 'lucide-react';
+
 
 export default function MessagesPage() {
-  const { messages, loading, error, refetch } = useRSVPMessages();
+  const router = useRouter();
+  const { invitations, loading: loadingInvitations } = useInvitations();
+  const [selectedInvitationId, setSelectedInvitationId] = useState<string>('');
+  const { messages, loading: loadingMessages, error, refetch } = useRSVPMessages();
+  const { notifyRSVPConfirmed, notifyRSVPDeclined } = useNotifications();
+  
+  const [searchQuery, setSearchQuery] = useState('');
   const [selectedMessage, setSelectedMessage] = useState<RSVPMessage | null>(null);
-  const [searchTerm, setSearchTerm] = useState('');
+  const [showModal, setShowModal] = useState(false);
+
+  // Sélectionner automatiquement la première invitation
+  useEffect(() => {
+    if (invitations.length > 0 && !selectedInvitationId) {
+      const publishedInvitation = invitations.find(inv => inv.status === 'PUBLISHED');
+      const defaultInvitation = publishedInvitation || invitations[0];
+      setSelectedInvitationId(defaultInvitation.id);
+    }
+  }, [invitations, selectedInvitationId]);
+
+  // Test des notifications
+  const testNotifications = () => {
+    notifyRSVPConfirmed('Marie Dupont', 'événement de Sophie & Thomas');
+    setTimeout(() => {
+      notifyRSVPDeclined('Jean Martin', 'événement de Sophie & Thomas');
+    }, 2000);
+  };
 
   // Fonction helper pour vérifier si une chaîne contient le terme de recherche
   const containsSearchTerm = (value: string | null | undefined, searchTerm: string): boolean => {
@@ -17,34 +60,47 @@ export default function MessagesPage() {
     return value.toLowerCase().includes(searchTerm.toLowerCase());
   };
 
-  // Filtrer les messages par terme de recherche et exclure les messages vides
+  // Filtrer les messages par terme de recherche et exclure ceux sans message
   const filteredMessages = messages.filter(message => {
-    // Exclure les messages vides ou contenant seulement des espaces
-    if (!message.message || !message.message.trim()) {
+    // Exclure les messages vides ou null
+    if (!message.message || message.message.trim() === '') {
       return false;
     }
     
-    if (!searchTerm.trim()) return true;
+    if (!searchQuery.trim()) return true;
     
     return (
-      containsSearchTerm(message.guest.firstName, searchTerm) ||
-      containsSearchTerm(message.guest.lastName, searchTerm) ||
-      containsSearchTerm(message.guest.email, searchTerm) ||
-      containsSearchTerm(message.invitation.title, searchTerm) ||
-      containsSearchTerm(message.message, searchTerm)
+      containsSearchTerm(message.guest.firstName, searchQuery) ||
+      containsSearchTerm(message.guest.lastName, searchQuery) ||
+      containsSearchTerm(message.guest.email, searchQuery) ||
+      containsSearchTerm(message.invitation.eventTitle, searchQuery) ||
+      containsSearchTerm(message.message, searchQuery)
     );
   });
 
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'CONFIRMED':
-        return styles.statusConfirmed;
+        return 'var(--alert-success)';
       case 'DECLINED':
-        return styles.statusDeclined;
+        return 'var(--alert-error)';
       case 'PENDING':
-        return styles.statusPending;
+        return 'var(--text-secondary)';
       default:
-        return styles.statusPending;
+        return 'var(--text-secondary)';
+    }
+  };
+
+  const getStatusIcon = (status: string) => {
+    switch (status) {
+      case 'CONFIRMED':
+        return <CheckCircle style={{ width: '16px', height: '16px' }} />;
+      case 'DECLINED':
+        return <XCircle style={{ width: '16px', height: '16px' }} />;
+      case 'PENDING':
+        return <Clock style={{ width: '16px', height: '16px' }} />;
+      default:
+        return <Clock style={{ width: '16px', height: '16px' }} />;
     }
   };
 
@@ -74,12 +130,17 @@ export default function MessagesPage() {
     return `${firstName.charAt(0)}${lastName.charAt(0)}`.toUpperCase();
   };
 
-  if (loading) {
+  const truncateText = (text: string, maxLength: number = 30) => {
+    if (text.length <= maxLength) return text;
+    return text.substring(0, maxLength) + '...';
+  };
+
+  if (loadingMessages) {
     return (
-      <div className={styles.messagesContainer}>
-        <div className={styles.loading}>
+      <div className={styles.loadingContainer}>
+        <div className={styles.loadingContent}>
           <div className={styles.loadingSpinner}></div>
-          <p>Chargement des messages...</p>
+          <p className={styles.loadingText}>Chargement des messages...</p>
         </div>
       </div>
     );
@@ -87,10 +148,13 @@ export default function MessagesPage() {
 
   if (error) {
     return (
-      <div className={styles.messagesContainer}>
-        <div className={styles.error}>
-          <p>{error}</p>
-          <button onClick={refetch} className={styles.retryButton}>
+      <div className={styles.errorContainer}>
+        <div className={styles.errorContent}>
+          <p className={styles.errorText}>{error}</p>
+          <button 
+            onClick={refetch}
+            className={styles.retryButton}
+          >
             Réessayer
           </button>
         </div>
@@ -99,158 +163,209 @@ export default function MessagesPage() {
   }
 
   return (
-    <div className={styles.messagesContainer}>
+    <div className={styles.pageContainer}>
+      {/* Header Section */}
       <div className={styles.header}>
-        <h1>Messages de vos invités</h1>
-        <p>Messages laissés par vos invités lors de leur réponse</p>
+        <div className={styles.headerLeft}>
+          <h1 className={styles.title}>
+            <MessageSquare className={styles.titleIcon} />
+            Messages RSVP
+          </h1>
+          <p className={styles.subtitle}>
+            Consultez les messages et réponses de vos invités
+          </p>
+        </div>
+        
+
       </div>
 
-      <div className={styles.content}>
-        {/* Liste des messages */}
-        <div className={styles.messagesList}>
-          <div className={styles.searchBar}>
-            <input 
-              type="search" 
-              placeholder="Rechercher un message..." 
-              className={styles.searchInput}
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-            />
-          </div>
+      {/* Search Bar */}
+      <div className={styles.searchContainer}>
+        <div className={styles.searchWrapper}>
+          <Search className={styles.searchIcon} />
+          <input
+            type="text"
+            placeholder="Rechercher par nom, email ou message..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className={styles.searchInput}
+          />
+        </div>
+      </div>
 
-          <div className={styles.messagesGrid}>
-            {filteredMessages.length === 0 ? (
-              <div className={styles.emptyState}>
-                <div className={styles.emptyIcon}>💌</div>
-                <h3>Aucun message</h3>
-                <p>Vos invités n'ont pas encore laissé de messages avec leurs réponses RSVP.</p>
+      {/* Messages Grid */}
+      <div className={styles.messagesGrid}>
+        {filteredMessages.map((message) => (
+          <div key={message.id} 
+            className={styles.messageCard}
+            onClick={() => setSelectedMessage(message)}
+          >
+            {/* Header */}
+            <div className={styles.messageCardHeader}>
+              <div className={styles.guestAvatar}>
+                {getInitials(message.guest.firstName, message.guest.lastName)}
               </div>
-            ) : (
-              filteredMessages.map((message) => (
-                <div 
-                  key={message.id} 
-                  className={`${styles.messageCard} ${selectedMessage?.id === message.id ? styles.selected : ''}`}
-                  onClick={() => setSelectedMessage(message)}
-                >
-                  <div className={styles.messageHeader}>
-                    <div className={styles.guestAvatar}>
-                      <span>{getInitials(message.guest.firstName, message.guest.lastName)}</span>
-                    </div>
-                    <div className={styles.guestInfo}>
-                      <h3>{message.guest.firstName} {message.guest.lastName}</h3>
-                      <p className={styles.guestEmail}>{message.guest.email}</p>
-                      <p className={styles.invitationTitle}>{message.invitation.title}</p>
-                    </div>
-                    <div className={styles.messageStatus}>
-                      <span className={`${styles.statusBadge} ${getStatusColor(message.status)}`}>
-                        {getStatusLabel(message.status)}
-                      </span>
-                      <span className={styles.messageDate}>
-                        {formatDate(message.respondedAt || message.createdAt)}
-                      </span>
-                    </div>
-                  </div>
-                  
-                  <div className={styles.messagePreview}>
-                    <p>{message.message}</p>
-                  </div>
-                  
-                  <div className={styles.messageDetails}>
-                    <div className={styles.detailItem}>
-                      <span className={styles.detailLabel}>Invités:</span>
-                      <span className={styles.detailValue}>{message.numberOfGuests}</span>
-                    </div>
-                    <div className={styles.detailItem}>
-                      <span className={styles.detailLabel}>Cérémonie:</span>
-                      <span className={styles.detailValue}>
-                        {message.attendingCeremony ? '✓ Oui' : '✗ Non'}
-                      </span>
-                    </div>
-                    <div className={styles.detailItem}>
-                      <span className={styles.detailLabel}>Réception:</span>
-                      <span className={styles.detailValue}>
-                        {message.attendingReception ? '✓ Oui' : '✗ Non'}
-                      </span>
-                    </div>
-                  </div>
+              
+              <div className={styles.guestInfo}>
+                <h3 className={styles.guestName}>
+                  {message.guest.firstName} {message.guest.lastName}
+                </h3>
+                
+                <div className={styles.guestEmail}>
+                  <Mail className={styles.emailIcon} />
+                  {message.guest.email}
                 </div>
-              ))
+              </div>
+              
+              <div className={`${styles.statusBadge} ${styles[message.status.toLowerCase()]}`}>
+                {getStatusIcon(message.status)}
+                {getStatusLabel(message.status)}
+              </div>
+            </div>
+
+            {/* Invitation Info */}
+            <div className={styles.invitationInfo}>
+              <div className={styles.invitationTitle}>
+                <Calendar className={styles.calendarIcon} />
+                {message.invitation.eventTitle}
+              </div>
+            </div>
+
+            {/* Message */}
+            <div className={styles.messageContent}>
+              <p className={styles.messageText}>
+                "{truncateText(message.message)}"
+              </p>
+              {message.message.length > 30 && (
+                <div className={styles.messageIndicator}>
+                  <span>Cliquez pour voir plus</span>
+                </div>
+              )}
+            </div>
+
+            {/* Footer */}
+            <div className={styles.messageFooter}>
+              <span className={styles.messageDate}>
+                {formatDate(message.createdAt)}
+              </span>
+              
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setSelectedMessage(message);
+                }}
+                className={styles.viewDetailsButton}
+              >
+                <Eye className={styles.viewDetailsIcon} />
+                Voir détails
+              </button>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* Empty State */}
+      {filteredMessages.length === 0 && (
+        <div className={styles.emptyStateContainer}>
+          <MessageSquare className={styles.emptyStateIcon} />
+          <h3 className={styles.emptyStateTitle}>
+            {searchQuery ? 'Aucun message trouvé' : 'Aucun message pour le moment'}
+          </h3>
+          <p className={styles.emptyStateText}>
+            {searchQuery 
+              ? 'Essayez de modifier vos critères de recherche' 
+              : 'Les messages de vos invités apparaîtront ici'
+            }
+          </p>
+        </div>
+      )}
+
+      {/* Modal pour les détails */}
+      {selectedMessage && (
+        <div className={styles.modalOverlay}
+        onClick={() => setSelectedMessage(null)}
+        >
+          <div className={styles.modalContent}
+          onClick={(e) => e.stopPropagation()}
+          >
+            <button
+              onClick={() => setSelectedMessage(null)}
+              className={styles.modalCloseButton}
+            >
+              ×
+            </button>
+
+            <div className={styles.modalHeader}>
+              <div className={styles.modalGuestAvatar}>
+                {getInitials(selectedMessage.guest.firstName, selectedMessage.guest.lastName)}
+              </div>
+              
+              <div className={styles.modalGuestInfo}>
+                <h2>
+                  {selectedMessage.guest.firstName} {selectedMessage.guest.lastName}
+                </h2>
+                
+                <div className={styles.modalGuestEmail}>
+                  <Mail style={{ width: '16px', height: '16px' }} />
+                  {selectedMessage.guest.email}
+                </div>
+                
+                {selectedMessage.guest.phone && (
+                  <div className={styles.modalGuestPhone}>
+                    <Phone style={{ width: '14px', height: '14px' }} />
+                    {selectedMessage.guest.phone}
+                  </div>
+                )}
+                
+                {selectedMessage.guest.plusOne && selectedMessage.guest.plusOneName && (
+                  <div className={styles.modalGuestPlusOne}>
+                    <Users style={{ width: '14px', height: '14px' }} />
+                    Accompagnant: {selectedMessage.guest.plusOneName}
+                  </div>
+                )}
+                
+                {selectedMessage.guest.dietaryRestrictions && (
+                  <div className={styles.modalGuestDietary}>
+                    <Heart style={{ width: '14px', height: '14px' }} />
+                    Restrictions: {selectedMessage.guest.dietaryRestrictions}
+                  </div>
+                )}
+              </div>
+            </div>
+
+            <div className={styles.modalInvitationInfo}>
+              <h3 className={styles.modalInvitationTitle}>
+                {selectedMessage.invitation.eventTitle}
+              </h3>
+              
+              <div className={styles.modalInvitationDate}>
+                <Calendar style={{ width: '14px', height: '14px' }} />
+                {formatDate(selectedMessage.createdAt)}
+              </div>
+            </div>
+
+            {selectedMessage.message && (
+              <div className={styles.modalSection}>
+                <h4 className={styles.modalSectionTitle}>
+                  Message de l'invité
+                </h4>
+                <div className={styles.modalMessageText}>
+                  "{selectedMessage.message}"
+                </div>
+              </div>
             )}
+
+            <div className={styles.modalStatusSection} style={{ color: getStatusColor(selectedMessage.status) }}>
+              {getStatusIcon(selectedMessage.status)}
+              <span className={styles.modalStatusText}>
+                Statut : {getStatusLabel(selectedMessage.status)}
+              </span>
+            </div>
           </div>
         </div>
+      )}
 
-        {/* Détail du message sélectionné */}
-        {selectedMessage && (
-          <>
-            <div className={styles.modalOverlay} onClick={() => setSelectedMessage(null)}>
-            </div>
-            <div className={styles.messageDetail}>
-              <div className={styles.detailHeader}>
-                <div className={styles.detailGuestInfo}>
-                  <div className={styles.detailAvatar}>
-                    <span>{getInitials(selectedMessage.guest.firstName, selectedMessage.guest.lastName)}</span>
-                  </div>
-                  <div>
-                    <h2>{selectedMessage.guest.firstName} {selectedMessage.guest.lastName}</h2>
-                    <p className={styles.detailEmail}>{selectedMessage.guest.email}</p>
-                  </div>
-                </div>
-                <button 
-                  className={styles.closeButton}
-                  onClick={() => setSelectedMessage(null)}
-                >
-                  ✕
-                </button>
-              </div>
 
-              <div className={styles.detailContent}>
-                <div className={styles.detailSection}>
-                  <h3>Message</h3>
-                  <div className={styles.messageText}>
-                    <p>{selectedMessage.message}</p>
-                  </div>
-                </div>
-
-                <div className={styles.detailSection}>
-                  <h3>Détails de la réponse</h3>
-                  <div className={styles.detailsGrid}>
-                    <div className={styles.detailCard}>
-                      <span className={styles.detailCardLabel}>Statut</span>
-                      <span className={`${styles.statusBadge} ${getStatusColor(selectedMessage.status)}`}>
-                        {getStatusLabel(selectedMessage.status)}
-                      </span>
-                    </div>
-                    <div className={styles.detailCard}>
-                      <span className={styles.detailCardLabel}>Nombre d'invités</span>
-                      <span className={styles.detailCardValue}>{selectedMessage.numberOfGuests}</span>
-                    </div>
-                    <div className={styles.detailCard}>
-                      <span className={styles.detailCardLabel}>Cérémonie</span>
-                      <span className={styles.detailCardValue}>
-                        {selectedMessage.attendingCeremony ? 'Oui' : 'Non'}
-                      </span>
-                    </div>
-                    <div className={styles.detailCard}>
-                      <span className={styles.detailCardLabel}>Réception</span>
-                      <span className={styles.detailCardValue}>
-                        {selectedMessage.attendingReception ? 'Oui' : 'Non'}
-                      </span>
-                    </div>
-                  </div>
-                </div>
-
-                <div className={styles.detailSection}>
-                  <h3>Invitation</h3>
-                  <div className={styles.invitationInfo}>
-                    <h4>Informations de l'invitation</h4>
-                    <p><strong>Répondu le:</strong> {formatDate(selectedMessage.respondedAt || selectedMessage.createdAt)}</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </>
-        )}
-      </div>
     </div>
   );
 } 

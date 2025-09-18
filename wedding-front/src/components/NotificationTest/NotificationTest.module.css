@@ -1,0 +1,183 @@
+/* Notification Test Component */
+.container {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  padding: var(--space-lg);
+  max-width: 500px;
+  margin: 0 auto;
+}
+
+.title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: var(--space-md);
+  text-align: center;
+}
+
+.status {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-sm);
+  margin-bottom: var(--space-lg);
+  padding: var(--space-sm);
+  background: var(--bg-secondary);
+  border-radius: var(--radius-md);
+}
+
+.statusLabel {
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+}
+
+.statusValue {
+  font-weight: 600;
+  font-size: 0.9rem;
+  padding: var(--space-xs) var(--space-sm);
+  border-radius: var(--radius-sm);
+}
+
+.statusValue.granted {
+  background: var(--alert-success);
+  color: var(--luxury-velvet-black);
+}
+
+.statusValue.denied {
+  background: var(--alert-error);
+  color: var(--luxury-velvet-black);
+}
+
+.statusValue.default {
+  background: var(--text-secondary);
+  color: var(--luxury-velvet-black);
+}
+
+.controls {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+  margin-bottom: var(--space-lg);
+}
+
+.permissionButton,
+.testButton,
+.soundButton,
+.toggleSoundButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-xs);
+  padding: var(--space-sm) var(--space-md);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  cursor: pointer;
+  transition: all var(--transition-normal);
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+.permissionButton:hover,
+.testButton:hover,
+.soundButton:hover,
+.toggleSoundButton:hover {
+  border-color: var(--luxury-champagne-gold);
+  background: var(--bg-secondary);
+}
+
+.testButton {
+  background: var(--luxury-champagne-gold);
+  color: var(--luxury-velvet-black);
+  border-color: var(--luxury-champagne-gold);
+}
+
+.testButton:hover {
+  background: #b89a6e;
+}
+
+.soundButton {
+  background: var(--gradient-primary);
+  color: var(--luxury-velvet-black);
+  border-color: transparent;
+}
+
+.soundButton:hover {
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-sm);
+}
+
+.buttonIcon {
+  width: 16px;
+  height: 16px;
+}
+
+.warning {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  padding: var(--space-md);
+  background: rgba(245, 158, 11, 0.1);
+  border: 1px solid rgba(245, 158, 11, 0.3);
+  border-radius: var(--radius-md);
+  color: var(--text-primary);
+  font-size: 0.9rem;
+}
+
+.warningIcon {
+  width: 20px;
+  height: 20px;
+  color: #f59e0b;
+  flex-shrink: 0;
+}
+
+.info {
+  background: var(--bg-secondary);
+  border-radius: var(--radius-md);
+  padding: var(--space-md);
+}
+
+.info p {
+  margin-bottom: var(--space-sm);
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+}
+
+.info ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.info li {
+  padding: var(--space-xs) 0;
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  border-bottom: 1px solid var(--border-color);
+}
+
+.info li:last-child {
+  border-bottom: none;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .container {
+    margin: var(--space-sm);
+    padding: var(--space-md);
+  }
+  
+  .controls {
+    gap: var(--space-xs);
+  }
+  
+  .permissionButton,
+  .testButton,
+  .soundButton,
+  .toggleSoundButton {
+    padding: var(--space-sm);
+    font-size: 0.85rem;
+  }
+}

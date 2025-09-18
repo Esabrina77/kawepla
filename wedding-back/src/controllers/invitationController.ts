@@ -4,15 +4,15 @@
  */
 import { Request, Response, NextFunction } from 'express';
 import { InvitationService } from '../services/invitationService';
-import { validateInvitationData } from '../middleware/validation';
+import { validateNewInvitationData } from '../middleware/newInvitationValidation';
 import { ZodError } from 'zod';
 
 export class InvitationController {
   /**
-   * Créer une nouvelle invitation de mariage.
-   * @route POST /api/invitations
+   * Créer une nouvelle invitation avec l'API simplifiée.
+   * @route POST /api/v2/invitations
    */
-  static async create(req: Request, res: Response, next: NextFunction): Promise<void> {
+  static async createSimplified(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
       const userId = (req as any).user?.id;
       
@@ -22,8 +22,82 @@ export class InvitationController {
       }
 
       try {
-        const validatedData = await validateInvitationData(req.body, false);
-        const invitation = await InvitationService.createInvitation(userId, validatedData);
+        // Validation stricte pour la nouvelle API (pas de compatibilité legacy)
+        const { eventTitle, eventDate, location, eventType, eventTime, customText, designId } = req.body;
+        
+        if (!eventTitle || !eventDate || !location || !designId) {
+          res.status(400).json({ 
+            message: 'Champs obligatoires manquants',
+            required: ['eventTitle', 'eventDate', 'location', 'designId']
+          });
+          return;
+        }
+
+        const invitationData: any = {
+          eventTitle,
+          eventDate: new Date(eventDate),
+          location,
+          eventType: eventType || 'WEDDING',
+          eventTime,
+          customText,
+          designId
+        };
+
+        const invitation = await InvitationService.createInvitation(userId, invitationData);
+        res.status(201).json({
+          ...invitation,
+          _apiVersion: 'v2',
+          _simplified: true
+        });
+      } catch (error) {
+        if (error instanceof Error) {
+          if (error.message === 'Design non trouvé') {
+            res.status(404).json({ message: error.message });
+          } else {
+            res.status(500).json({ message: 'Erreur interne du serveur' });
+          }
+        } else {
+          res.status(500).json({ message: 'Erreur interne du serveur' });
+        }
+      }
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  /**
+   * Créer une nouvelle invitation de mariage (legacy).
+   * @route POST /api/invitations
+   */
+  static async create(req: Request, res: Response, next: NextFunction): Promise<void> {
+    try {
+      const user = (req as any).user;
+      const userId = user?.id;
+      
+      console.log('🔍 Debug create invitation - User:', {
+        id: userId,
+        role: user?.role,
+        email: user?.email
+      });
+      
+      if (!userId) {
+        res.status(401).json({ message: 'Non authentifié' });
+        return;
+      }
+
+      try {
+        console.log('🔍 Debug create invitation - Body:', req.body);
+        
+        // Utiliser la nouvelle validation pure
+        const validatedData = await validateNewInvitationData(req.body, false);
+        
+        // Convertir la date si nécessaire
+        const processedData = {
+          ...validatedData,
+          eventDate: typeof validatedData.eventDate === 'string' ? new Date(validatedData.eventDate) : validatedData.eventDate
+        };
+        
+        const invitation = await InvitationService.createInvitation(userId, processedData as any);
         res.status(201).json(invitation);
       } catch (error) {
         if (error instanceof ZodError) {
@@ -108,8 +182,9 @@ export class InvitationController {
       }
 
       try {
-        const validatedData = await validateInvitationData(req.body, true);
-        const invitation = await InvitationService.updateInvitation(id, userId, validatedData);
+        // Utiliser la nouvelle validation pure pour les mises à jour
+        const validatedData = await validateNewInvitationData(req.body, true);
+        const invitation = await InvitationService.updateInvitation(id, userId, validatedData as any);
         
         if (!invitation) {
           res.status(404).json({ message: 'Invitation non trouvée' });

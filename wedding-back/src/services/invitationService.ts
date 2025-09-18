@@ -9,52 +9,24 @@ import { S3Service } from '../utils/s3';
 // Types d'invitation
 type InvitationStatus = PrismaInvitationStatus;
 
-// Types pour la création et mise à jour d'invitations
+// Types pour la création et mise à jour d'invitations - NOUVELLE ARCHITECTURE PURE
 type InvitationCreateInput = {
-  // Informations du couple
-  coupleName: string;
+  // CHAMPS OBLIGATOIRES
+  eventTitle: string;      // "Emma & Lucas" ou "Anniversaire de Marie"
+  eventDate: Date;         // Date de l'événement
+  location: string;        // "Château de la Roseraie, Paris"
+  designId: string;        // ID du design choisi
   
-  // Date et heure
-  weddingDate: Date;
-  ceremonyTime?: string;
-  receptionTime?: string;
+  // CHAMPS OPTIONNELS
+  eventType?: 'WEDDING' | 'BIRTHDAY' | 'BAPTISM' | 'ANNIVERSARY' | 'GRADUATION' | 'BABY_SHOWER' | 'ENGAGEMENT' | 'COMMUNION' | 'CONFIRMATION' | 'RETIREMENT' | 'HOUSEWARMING' | 'CORPORATE' | 'OTHER';
+  eventTime?: string;      // "15h00"
+  customText?: string;     // Texte libre personnalisable
+  moreInfo?: string;       // Informations supplémentaires
   
-  // Textes d'invitation
-  invitationText?: string;
-  saveDate?: string;
-  celebrationText?: string;
-  
-  // Lieu et détails
-  venueName: string;
-  venueAddress: string;
-  venueCoordinates?: string;
-  moreInfo?: string;
-  details?: string;
-  
-  // RSVP
-  rsvpDetails?: string;
-  rsvpForm?: string;
-  rsvpDate?: Date;
-  
-  // Messages personnalisés
-  message?: string;
-  blessingText?: string;
-  welcomeMessage?: string;
-  
-  // Informations supplémentaires
-  dressCode?: string;
-  contact?: string;
-  
-  // Champs existants (optionnels maintenant)
-  title?: string;
+  // Champs techniques conservés
   description?: string;
-  customDomain?: string;
   photos?: Prisma.InputJsonValue[];
-  program?: Prisma.InputJsonValue;
-  restrictions?: string;
   languages?: string[];
-  maxGuests?: number;
-  designId: string;
 };
 
 type InvitationUpdateInput = Partial<InvitationCreateInput>;
@@ -78,6 +50,38 @@ interface GuestWithRSVP {
   } | null;
 }
 
+// Fonction utilitaire pour obtenir le texte par défaut selon le type d'événement
+function getDefaultTextForEventType(eventType: string): string {
+  switch (eventType) {
+    case 'WEDDING':
+      return 'Ont le plaisir de vous inviter à célébrer leur mariage';
+    case 'BIRTHDAY':
+      return 'Vous invite à fêter son anniversaire';
+    case 'BAPTISM':
+      return 'Vous invitent au baptême de';
+    case 'ANNIVERSARY':
+      return 'Vous invitent à célébrer leur anniversaire de mariage';
+    case 'GRADUATION':
+      return 'Vous invite à sa remise de diplôme';
+    case 'BABY_SHOWER':
+      return 'Vous invite à sa baby shower';
+    case 'ENGAGEMENT':
+      return 'Ont le plaisir de vous annoncer leurs fiançailles';
+    case 'COMMUNION':
+      return 'Vous invitent à la communion de';
+    case 'CONFIRMATION':
+      return 'Vous invitent à la confirmation de';
+    case 'RETIREMENT':
+      return 'Vous invite à fêter son départ en retraite';
+    case 'HOUSEWARMING':
+      return 'Vous invitent à leur crémaillère';
+    case 'CORPORATE':
+      return 'Vous invite à cet événement d\'entreprise';
+    default:
+      return 'Vous invite à cet événement spécial';
+  }
+}
+
 export class InvitationService {
   /**
    * Créer une nouvelle invitation
@@ -92,34 +96,26 @@ export class InvitationService {
       throw new Error('Design non trouvé');
     }
 
+    // Créer l'invitation avec la nouvelle architecture pure
     const invitation = await prisma.invitation.create({
       data: {
-        coupleName: data.coupleName,
-        weddingDate: new Date(data.weddingDate),
-        venueName: data.venueName,
-        venueAddress: data.venueAddress,
+        // Champs obligatoires
+        eventTitle: data.eventTitle,
+        eventDate: new Date(data.eventDate),
+        location: data.location,
         designId: data.designId,
         userId: userId,
-        ceremonyTime: data.ceremonyTime,
-        receptionTime: data.receptionTime,
-        invitationText: data.invitationText,
+        
+        // Champs optionnels
+        eventType: data.eventType || 'WEDDING',
+        eventTime: data.eventTime,
+        customText: data.customText,
         moreInfo: data.moreInfo,
-        rsvpDetails: data.rsvpDetails,
-        rsvpForm: data.rsvpForm,
-        rsvpDate: data.rsvpDate ? new Date(data.rsvpDate) : null,
-        message: data.message,
-        blessingText: data.blessingText,
-        welcomeMessage: data.welcomeMessage,
-        dressCode: data.dressCode,
-        contact: data.contact,
-        title: data.title,
+        
+        // Champs techniques
         description: data.description,
-        customDomain: data.customDomain,
         photos: data.photos || [],
-        program: data.program || {},
-        restrictions: data.restrictions,
-        languages: data.languages || ['fr'],
-        maxGuests: data.maxGuests
+        languages: data.languages || ['fr']
       },
       include: {
         design: true,
@@ -192,30 +188,19 @@ export class InvitationService {
 
     const updateData: any = {};
     
-    if (data.coupleName !== undefined) updateData.coupleName = data.coupleName;
-    if (data.weddingDate !== undefined) updateData.weddingDate = new Date(data.weddingDate);
-    if (data.venueName !== undefined) updateData.venueName = data.venueName;
-    if (data.venueAddress !== undefined) updateData.venueAddress = data.venueAddress;
-    if (data.ceremonyTime !== undefined) updateData.ceremonyTime = data.ceremonyTime;
-    if (data.receptionTime !== undefined) updateData.receptionTime = data.receptionTime;
-    if (data.invitationText !== undefined) updateData.invitationText = data.invitationText;
+    // NOUVEAUX CHAMPS SIMPLIFIÉS
+    if (data.eventTitle !== undefined) updateData.eventTitle = data.eventTitle;
+    if (data.eventDate !== undefined) updateData.eventDate = new Date(data.eventDate);
+    if (data.location !== undefined) updateData.location = data.location;
+    if (data.eventType !== undefined) updateData.eventType = data.eventType;
+    if (data.eventTime !== undefined) updateData.eventTime = data.eventTime;
+    if (data.customText !== undefined) updateData.customText = data.customText;
     if (data.moreInfo !== undefined) updateData.moreInfo = data.moreInfo;
-    if (data.rsvpDetails !== undefined) updateData.rsvpDetails = data.rsvpDetails;
-    if (data.rsvpForm !== undefined) updateData.rsvpForm = data.rsvpForm;
-    if (data.rsvpDate !== undefined) updateData.rsvpDate = data.rsvpDate ? new Date(data.rsvpDate) : null;
-    if (data.message !== undefined) updateData.message = data.message;
-    if (data.blessingText !== undefined) updateData.blessingText = data.blessingText;
-    if (data.welcomeMessage !== undefined) updateData.welcomeMessage = data.welcomeMessage;
-    if (data.dressCode !== undefined) updateData.dressCode = data.dressCode;
-    if (data.contact !== undefined) updateData.contact = data.contact;
-    if (data.title !== undefined) updateData.title = data.title;
+
+    // Champs techniques
     if (data.description !== undefined) updateData.description = data.description;
-    if (data.customDomain !== undefined) updateData.customDomain = data.customDomain;
     if (data.photos !== undefined) updateData.photos = data.photos;
-    if (data.program !== undefined) updateData.program = data.program;
-    if (data.restrictions !== undefined) updateData.restrictions = data.restrictions;
     if (data.languages !== undefined) updateData.languages = data.languages;
-    if (data.maxGuests !== undefined) updateData.maxGuests = data.maxGuests;
     
     if (data.designId !== undefined) {
       // Vérifier si le design existe
@@ -338,7 +323,7 @@ export class InvitationService {
 
     return {
       data: csvHeader + csvRows,
-      filename: `invites-${invitation.title?.toLowerCase().replace(/\s+/g, '-') || 'invitation'}.csv`
+      filename: `invites-${invitation.eventTitle?.toLowerCase().replace(/\s+/g, '-') || 'invitation'}.csv`
     };
   }
 

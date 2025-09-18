@@ -1,7 +1,7 @@
 .container {
   display: flex;
   height: 100vh;
-  background: var(--color-background);
+  background: #f8f9fa;
 }
 
 .loading {
@@ -10,14 +10,14 @@
   align-items: center;
   justify-content: center;
   height: 100%;
-  gap: var(--spacing-md);
+  gap: 16px;
 }
 
 .spinner {
   width: 20px;
   height: 20px;
-  border: 2px solid var(--color-border);
-  border-top: 2px solid var(--color-primary);
+  border: 2px solid #e4e6ea;
+  border-top: 2px solid #25d366;
   border-radius: 50%;
   animation: spin 1s linear infinite;
 }
@@ -29,75 +29,64 @@
 
 .sidebar {
   width: 400px;
-  background: var(--background-light);
-  border-right: 1px solid var(--color-border);
+  background: white;
+  border-right: 1px solid #e4e6ea;
   display: flex;
   flex-direction: column;
   flex-shrink: 0;
 }
 
 .sidebarHeader {
-  padding: var(--spacing-lg);
-  border-bottom: 1px solid var(--color-border);
+  padding: 20px;
+  border-bottom: 1px solid #e4e6ea;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  background: var(--background-light);
 }
 
 .sidebarHeader h2 {
   margin: 0;
-  font-size: var(--font-size-xl);
-  color: var(--color-text);
-  background: linear-gradient(135deg, var(--color-primary), var(--color-secondary));
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+  font-size: 20px;
+  color: #1a1a1a;
 }
 
 .refreshButton {
   background: none;
   border: none;
-  font-size: var(--font-size-lg);
+  font-size: 18px;
   cursor: pointer;
-  padding: var(--spacing-sm);
+  padding: 8px;
   border-radius: 50%;
-  transition: all var(--transition-fast);
-  color: var(--color-primary);
+  transition: background 0.2s ease;
 }
 
 .refreshButton:hover {
-  background: rgba(var(--color-primary-rgb), 0.1);
-  transform: rotate(180deg);
+  background: #f0f2f5;
 }
 
 .searchContainer {
-  padding: var(--spacing-md) var(--spacing-lg);
-  border-bottom: 1px solid var(--color-border);
-  background: var(--background-light);
+  padding: 16px 20px;
+  border-bottom: 1px solid #e4e6ea;
 }
 
 .searchInput {
   width: 100%;
-  padding: var(--spacing-sm) var(--spacing-md);
-  border: 2px solid var(--color-border);
-  border-radius: var(--border-radius-lg);
-  font-size: var(--font-size-sm);
-  background: var(--color-background);
-  transition: all var(--transition-fast);
+  padding: 12px 16px;
+  border: 1px solid #e4e6ea;
+  border-radius: 20px;
+  font-size: 14px;
+  background: #f0f2f5;
 }
 
 .searchInput:focus {
   outline: none;
-  border-color: var(--color-primary);
-  background: var(--background-light);
-  box-shadow: 0 0 0 3px rgba(var(--color-primary-rgb), 0.1);
+  border-color: #25d366;
+  background: white;
 }
 
 .conversationsList {
   flex: 1;
   overflow-y: auto;
-  background: var(--background-light);
 }
 
 .conversationsList::-webkit-scrollbar {
@@ -109,7 +98,7 @@
 }
 
 .conversationsList::-webkit-scrollbar-thumb {
-  background: var(--color-border);
+  background: rgba(0, 0, 0, 0.2);
   border-radius: 3px;
 }
 
@@ -117,40 +106,39 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: var(--spacing-sm);
-  padding: var(--spacing-lg);
-  color: var(--color-text-light);
+  gap: 8px;
+  padding: 20px;
+  color: #8696a0;
 }
 
 .emptyConversations {
-  padding: var(--spacing-xxl) var(--spacing-lg);
+  padding: 40px 20px;
   text-align: center;
-  color: var(--color-text-light);
+  color: #8696a0;
 }
 
 .conversationItem {
-  padding: var(--spacing-md) var(--spacing-lg);
-  border-bottom: 1px solid var(--color-border);
+  padding: 16px 20px;
+  border-bottom: 1px solid #f0f2f5;
   cursor: pointer;
-  transition: all var(--transition-fast);
+  transition: background 0.2s ease;
   position: relative;
-  background: var(--background-light);
 }
 
 .conversationItem:hover {
-  background: var(--color-background);
+  background: #f8f9fa;
 }
 
 .conversationItem.selected {
-  background: rgba(var(--color-primary-rgb), 0.1);
-  border-right: 3px solid var(--color-primary);
+  background: #e3f2fd;
+  border-right: 3px solid #25d366;
 }
 
 .conversationHeader {
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
-  margin-bottom: var(--spacing-sm);
+  margin-bottom: 8px;
 }
 
 .userInfo {
@@ -161,55 +149,56 @@
 
 .userName {
   font-weight: 600;
-  color: var(--color-text);
-  font-size: var(--font-size-sm);
+  color: #1a1a1a;
+  font-size: 14px;
 }
 
 .userEmail {
-  font-size: var(--font-size-xs);
-  color: var(--color-text-light);
+  font-size: 12px;
+  color: #8696a0;
 }
 
 .conversationMeta {
   display: flex;
   flex-direction: column;
   align-items: flex-end;
-  gap: var(--spacing-xs);
+  gap: 4px;
 }
 
 .time {
-  font-size: var(--font-size-xs);
-  color: var(--color-text-light);
+  font-size: 12px;
+  color: #8696a0;
 }
 
 .unreadCount {
-  background: var(--color-primary);
+  background: #25d366;
   color: white;
-  padding: 2px var(--spacing-sm);
-  border-radius: var(--border-radius-sm);
-  font-size: var(--font-size-xs);
+  padding: 2px 6px;
+  border-radius: 10px;
+  font-size: 11px;
   font-weight: 600;
   min-width: 18px;
   text-align: center;
 }
 
 .conversationPreview {
-  margin-bottom: var(--spacing-sm);
+  margin-bottom: 8px;
 }
 
 .invitationInfo {
-  margin-bottom: var(--spacing-xs);
+  margin-bottom: 4px;
 }
 
 .invitationName {
-  font-size: var(--font-size-xs);
-  color: var(--color-primary);
+  font-size: 12px;
+  color: #25d366;
   font-weight: 500;
 }
 
 .lastMessage {
-  font-size: var(--font-size-sm);
-  color: var(--color-text-light);
+  font-size: 13px;
+  color: #6c757d;
+  line-height: 1.3;
 }
 
 .conversationActions {
@@ -448,19 +437,25 @@
   
   .sidebar {
     width: 100%;
-    max-height: 40vh;
+    height: 50%;
+    border-right: none;
+    border-bottom: 1px solid #e4e6ea;
+  }
+  
+  .chatArea {
+    height: 50%;
   }
   
   .sidebarHeader {
-    padding: var(--spacing-md);
+    padding: 16px;
   }
   
   .searchContainer {
-    padding: var(--spacing-sm);
+    padding: 12px 16px;
   }
   
   .conversationItem {
-    padding: var(--spacing-sm);
+    padding: 12px 16px;
   }
   
   .chatHeader {

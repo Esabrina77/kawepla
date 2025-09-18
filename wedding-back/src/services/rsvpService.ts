@@ -8,14 +8,25 @@ import { RSVPStatus } from '@prisma/client';
 // Types pour la création et mise à jour de RSVP
 type RSVPCreateInput = {
   status: RSVPStatus;
-  numberOfGuests: number;
   message?: string;
   attendingCeremony?: boolean;
   attendingReception?: boolean;
   profilePhotoUrl?: string;
+  plusOne?: boolean;
+  plusOneName?: string;
+  dietaryRestrictions?: string;
 };
 
-type RSVPUpdateInput = Partial<RSVPCreateInput>;
+type RSVPUpdateInput = {
+  status?: RSVPStatus;
+  message?: string;
+  attendingCeremony?: boolean;
+  attendingReception?: boolean;
+  profilePhotoUrl?: string;
+  plusOne?: boolean;
+  plusOneName?: string;
+  dietaryRestrictions?: string;
+};
 
 export class RSVPService {
   /**
@@ -44,7 +55,20 @@ export class RSVPService {
       throw new Error('Cette invitation n\'est pas encore publiée');
     }
 
-    return guest.invitation;
+    // Retourner la structure attendue par le frontend
+    return {
+      invitation: guest.invitation,
+      guest: {
+        id: guest.id,
+        firstName: guest.firstName,
+        lastName: guest.lastName,
+        email: guest.email,
+        phone: guest.phone,
+        plusOne: guest.plusOne,
+        plusOneName: guest.plusOneName,
+        dietaryRestrictions: guest.dietaryRestrictions
+      }
+    };
   }
 
   /**
@@ -78,16 +102,17 @@ export class RSVPService {
       throw new Error('Ce lien d\'invitation a déjà été utilisé');
     }
 
-    // Vérifier le nombre d'invités autorisé
-    if (guest.plusOne === false && data.numberOfGuests > 1) {
-      throw new Error('Nombre d\'invités non autorisé');
-    }
+    // Note: L'utilisateur peut changer sa décision concernant l'accompagnant
+    // La vérification se fait au niveau de l'interface utilisateur
+
+    // Calculer le nombre d'invités basé sur plusOne
+    const numberOfGuests = data.plusOne ? 2 : 1;
 
     // Créer la réponse RSVP
     const rsvp = await prisma.rSVP.create({
       data: {
         status: data.status,
-        numberOfGuests: data.numberOfGuests,
+        numberOfGuests: numberOfGuests,
         message: data.message,
         attendingCeremony: data.attendingCeremony ?? true,
         attendingReception: data.attendingReception ?? true,
@@ -98,13 +123,17 @@ export class RSVPService {
       }
     });
 
-    // Marquer le token comme utilisé
+    // Marquer le token comme utilisé ET mettre à jour les informations de l'invité
     await prisma.guest.update({
       where: {
         id: guest.id
       },
       data: {
-        usedAt: new Date()
+        usedAt: new Date(),
+        profilePhotoUrl: data.profilePhotoUrl || null,
+        plusOne: data.plusOne || false,
+        plusOneName: data.plusOneName || null,
+        dietaryRestrictions: data.dietaryRestrictions || null
       }
     });
 
@@ -128,7 +157,25 @@ export class RSVPService {
       throw new Error('Invité non trouvé');
     }
 
-    return guest.rsvp;
+    if (!guest.rsvp) {
+      // Pas d'erreur, c'est normal qu'il n'y ait pas encore de RSVP
+      return null;
+    }
+
+    // Retourner les données RSVP avec les informations de l'invité
+    return {
+      ...guest.rsvp,
+      plusOne: guest.plusOne,
+      plusOneName: guest.plusOneName,
+      dietaryRestrictions: guest.dietaryRestrictions,
+      profilePhotoUrl: guest.profilePhotoUrl,
+      guest: {
+        firstName: guest.firstName,
+        lastName: guest.lastName,
+        email: guest.email,
+        phone: guest.phone
+      }
+    };
   }
 
   /**
@@ -158,10 +205,8 @@ export class RSVPService {
       throw new Error('Cette invitation n\'est pas encore publiée');
     }
 
-    // Vérifier le nombre d'invités autorisé
-    if (guest.plusOne === false && data.numberOfGuests && data.numberOfGuests > 1) {
-      throw new Error('Nombre d\'invités non autorisé');
-    }
+    // Note: L'utilisateur peut changer sa décision concernant l'accompagnant
+    // La vérification se fait au niveau de l'interface utilisateur
 
     return prisma.rSVP.update({
       where: {
@@ -172,6 +217,78 @@ export class RSVPService {
         respondedAt: new Date()
       }
     });
+  }
+
+  /**
+   * Mettre à jour la photo de profil de l'invité quand le RSVP est mis à jour
+   */
+  static async updateRSVPWithPhotoUpdate(inviteToken: string, data: RSVPUpdateInput) {
+    const guest = await prisma.guest.findUnique({
+      where: {
+        inviteToken: inviteToken
+      },
+      include: {
+        rsvp: true,
+        invitation: true
+      }
+    });
+
+    if (!guest) {
+      throw new Error('Invité non trouvé');
+    }
+
+    if (!guest.rsvp) {
+      throw new Error('Aucune réponse RSVP trouvée');
+    }
+
+    // Vérifier si l'invitation est publiée
+    if (guest.invitation.status !== 'PUBLISHED') {
+      throw new Error('Cette invitation n\'est pas encore publiée');
+    }
+
+    // Note: L'utilisateur peut changer sa décision concernant l'accompagnant
+    // La vérification se fait au niveau de l'interface utilisateur
+
+    // Calculer le nombre d'invités basé sur plusOne si fourni
+    const numberOfGuests = data.plusOne !== undefined ? (data.plusOne ? 2 : 1) : undefined;
+
+    // Mettre à jour le RSVP
+    const updatedRSVP = await prisma.rSVP.update({
+      where: {
+        id: guest.rsvp.id
+      },
+      data: {
+        ...data,
+        numberOfGuests: numberOfGuests !== undefined ? numberOfGuests : guest.rsvp.numberOfGuests,
+        respondedAt: new Date()
+      }
+    });
+
+    // Mettre à jour les informations de l'invité si nécessaire
+    const guestUpdateData: any = {};
+    if (data.profilePhotoUrl !== undefined) {
+      guestUpdateData.profilePhotoUrl = data.profilePhotoUrl;
+    }
+    if (data.plusOne !== undefined) {
+      guestUpdateData.plusOne = data.plusOne;
+    }
+    if (data.plusOneName !== undefined) {
+      guestUpdateData.plusOneName = data.plusOneName;
+    }
+    if (data.dietaryRestrictions !== undefined) {
+      guestUpdateData.dietaryRestrictions = data.dietaryRestrictions;
+    }
+
+    if (Object.keys(guestUpdateData).length > 0) {
+      await prisma.guest.update({
+        where: {
+          id: guest.id
+        },
+        data: guestUpdateData
+      });
+    }
+
+    return updatedRSVP;
   }
 
   /**
@@ -267,10 +384,11 @@ export class RSVPService {
         invitationId: invitationId,
         userId: invitation.userId, // Lier au propriétaire de l'invitation
         inviteToken: inviteToken,
-        plusOne: data.numberOfGuests > 1,
-        plusOneName: data.numberOfGuests > 1 ? `${data.firstName} + ${data.numberOfGuests - 1} personne(s)` : null,
+        plusOne: data.plusOne || false,
+        plusOneName: data.plusOneName || null,
         invitationType: 'SHAREABLE',
-        sharedLinkUsed: true
+        sharedLinkUsed: true,
+        profilePhotoUrl: data.profilePhotoUrl || null // Ajouter la photo de profil
       }
     });
 

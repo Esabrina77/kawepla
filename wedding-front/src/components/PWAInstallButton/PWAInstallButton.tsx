@@ -1,24 +1,15 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { Button } from '@/components/Button/Button';
+import { Button } from '@/components/ui/button';
 
 export const PWAInstallButton = () => {
   const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
-  const [isInstallable, setIsInstallable] = useState(false);
 
   useEffect(() => {
-    // Vérifie si l'app est déjà installée
-    const isStandalone = window.matchMedia('(display-mode: standalone)').matches;
-    if (isStandalone) {
-      setIsInstallable(false);
-      return;
-    }
-
     const handleBeforeInstallPrompt = (e: Event) => {
       e.preventDefault();
       setDeferredPrompt(e);
-      setIsInstallable(true);
     };
 
     window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
@@ -29,7 +20,11 @@ export const PWAInstallButton = () => {
   }, []);
 
   const handleInstallClick = async () => {
-    if (!deferredPrompt) return;
+    if (!deferredPrompt) {
+      // Si pas de prompt disponible, rediriger vers la page d'accueil
+      window.location.href = '/';
+      return;
+    }
 
     try {
       await deferredPrompt.prompt();
@@ -37,7 +32,6 @@ export const PWAInstallButton = () => {
       
       if (choiceResult.outcome === 'accepted') {
         console.log('L\'utilisateur a accepté l\'installation');
-        setIsInstallable(false);
       }
       setDeferredPrompt(null);
     } catch (err) {
@@ -45,14 +39,11 @@ export const PWAInstallButton = () => {
     }
   };
 
-  if (!isInstallable) return null;
-
   return (
     <Button 
       onClick={handleInstallClick}
       variant="outline"
-      size="small"
-      title="Installer KaWePla"
+      title="Installer Kawepla"
     >
       Installer l'application
     </Button>

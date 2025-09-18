@@ -47,7 +47,7 @@ Les invités peuvent maintenant ajouter leur propre photo de profil directement 
 ### Firebase Storage
 
 #### Configuration
-- Stockage des photos dans le dossier `guest-photos/`
+- Stockage des photos dans le dossier `guest-photos/profile/`
 - Noms de fichiers uniques avec timestamp
 - Format JPEG pour optimisation
 

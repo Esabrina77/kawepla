@@ -1,6 +1,6 @@
 import { prisma } from '@/lib/prisma';
 import { CreateDesignDto, DesignResponse, DesignTemplate, DesignStyles, DesignVariables } from '@/types';
-import { SubscriptionTier } from '@prisma/client';
+import { ServiceTier } from '@prisma/client';
 
 export class DesignService {
   static async getAllDesigns(includeInactive = false): Promise<DesignResponse[]> {
@@ -44,25 +44,34 @@ export class DesignService {
     return this.formatDesignResponse(design);
   }
 
-  static async createDesign(data: CreateDesignDto, adminId: string): Promise<DesignResponse> {
+  static async createDesign(data: CreateDesignDto): Promise<DesignResponse> {
+    console.log('Creating design with data:', JSON.stringify(data, null, 2));
+    
     this.validateTemplateStructure(data.template);
     this.validateStyles(data.styles);
     this.validateVariables(data.variables);
 
+    const designData = {
+      name: data.name,
+      description: data.description,
+      category: data.category,
+      tags: data.tags || [],
+      isActive: data.isActive !== false,
+      priceType: data.priceType || 'FREE',
+      template: JSON.parse(JSON.stringify(data.template)),
+      styles: JSON.parse(JSON.stringify(data.styles)),
+      variables: JSON.parse(JSON.stringify(data.variables)),
+      customFonts: data.customFonts ? JSON.parse(JSON.stringify(data.customFonts)) : null,
+      backgroundImage: data.backgroundImage || null,
+    };
+
+    console.log('Saving to database:', JSON.stringify(designData, null, 2));
+
     const design = await prisma.design.create({
-      data: {
-        name: data.name,
-        description: data.description,
-        isPremium: data.isPremium || false,
-        price: data.price,
-        template: JSON.parse(JSON.stringify(data.template)),
-        styles: JSON.parse(JSON.stringify(data.styles)),
-        components: data.components ? JSON.parse(JSON.stringify(data.components)) : {},
-        variables: JSON.parse(JSON.stringify(data.variables)),
-        createdBy: adminId,
-      },
+      data: designData,
     });
 
+    console.log('Design created successfully:', design.id);
     return this.formatDesignResponse(design);
   }
 
@@ -74,7 +83,7 @@ export class DesignService {
     const updateData: any = { ...data };
     if (data.template) updateData.template = JSON.parse(JSON.stringify(data.template));
     if (data.styles) updateData.styles = JSON.parse(JSON.stringify(data.styles));
-    if (data.components) updateData.components = JSON.parse(JSON.stringify(data.components));
+
     if (data.variables) updateData.variables = JSON.parse(JSON.stringify(data.variables));
 
     const design = await prisma.design.update({
@@ -99,10 +108,7 @@ export class DesignService {
       template: design.template as DesignTemplate,
       styles: design.styles as DesignStyles,
       variables: design.variables as DesignVariables,
-      components: design.components || undefined,
       description: design.description || undefined,
-      price: design.price || undefined,
-      createdBy: design.createdBy || undefined,
     };
   }
 
@@ -154,15 +160,17 @@ export class DesignService {
   static async canUserAccessDesign(userId: string, designId: string): Promise<boolean> {
     const design = await prisma.design.findUnique({ where: { id: designId } });
     if (!design) return false;
-    if (!design.isPremium) return true;
+    if (design.priceType === 'FREE') return true;
     
-    const user = await prisma.user.findUnique({ 
-      where: { id: userId }, 
-      select: { subscriptionTier: true, subscriptionEndDate: true } 
-    });
+    // Utiliser StripeService pour vérifier l'accès basé sur les achats
+    const { StripeService } = await import('./stripeService');
+    const currentTier = await StripeService.getUserCurrentTier(userId);
     
-    if (!user) return false;
-    if (user.subscriptionEndDate && user.subscriptionEndDate < new Date()) return false;
-    return user.subscriptionTier === SubscriptionTier.PREMIUM;
+    // Vérifier si l'utilisateur a le tier requis ou supérieur
+    const tierOrder = ['FREE', 'ESSENTIAL', 'ELEGANT', 'PREMIUM', 'LUXE'];
+    const userTierIndex = tierOrder.indexOf(currentTier);
+    const requiredTierIndex = tierOrder.indexOf(design.priceType);
+    
+    return userTierIndex >= requiredTierIndex;
   }
 } 

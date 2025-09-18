@@ -267,7 +267,7 @@ export class MessageService {
           select: { id: true, firstName: true, lastName: true, email: true }
         },
         invitation: {
-          select: { id: true, title: true, coupleName: true }
+          select: { id: true, eventTitle: true }
         },
         messages: {
           orderBy: { createdAt: 'desc' },

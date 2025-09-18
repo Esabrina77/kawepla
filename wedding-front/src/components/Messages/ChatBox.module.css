@@ -2,28 +2,30 @@
   display: flex;
   flex-direction: column;
   height: 100%;
-  background: #efeae2;
+  background: var(--bg-primary);
   position: relative;
+  min-height: 70vh;/* Important pour que flex: 1 fonctionne */
 }
 
 .connectionStatus {
-  padding: 8px 16px;
+  padding: var(--space-sm) var(--space-md);
   display: flex;
   align-items: center;
-  gap: 8px;
-  font-size: 12px;
+  gap: var(--space-xs);
+  font-size: 0.75rem;
   font-weight: 500;
-  transition: all 0.3s ease;
+  transition: all var(--transition-normal);
+  flex-shrink: 0; /* Empêche le header de se rétrécir */
 }
 
 .connectionStatus.connected {
-  background: #d4edda;
-  color: #155724;
+  background: var(--alert-success);
+  color: var(--luxury-velvet-black);
 }
 
 .connectionStatus.disconnected {
-  background: #f8d7da;
-  color: #721c24;
+  background: var(--alert-error);
+  color: var(--luxury-velvet-black);
 }
 
 .statusIndicator {
@@ -36,11 +38,13 @@
 .messagesContainer {
   flex: 1;
   overflow-y: auto;
-  padding: 16px;
+  padding: var(--space-md);
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: var(--space-xs);
   scroll-behavior: smooth;
+  background: var(--bg-primary);
+  min-height: 0; /* Important pour que flex: 1 fonctionne */
 }
 
 .messagesContainer::-webkit-scrollbar {
@@ -52,29 +56,29 @@
 }
 
 .messagesContainer::-webkit-scrollbar-thumb {
-  background: rgba(0, 0, 0, 0.2);
+  background: var(--border-color);
   border-radius: 3px;
 }
 
 .messagesContainer::-webkit-scrollbar-thumb:hover {
-  background: rgba(0, 0, 0, 0.3);
+  background: var(--text-secondary);
 }
 
 .loadingMore {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 8px;
-  padding: 16px;
-  color: #8696a0;
-  font-size: 14px;
+  gap: var(--space-xs);
+  padding: var(--space-md);
+  color: var(--text-secondary);
+  font-size: 0.875rem;
 }
 
 .spinner {
   width: 20px;
   height: 20px;
-  border: 2px solid #e4e6ea;
-  border-top: 2px solid #8696a0;
+  border: 2px solid var(--border-color);
+  border-top: 2px solid var(--luxury-champagne-gold);
   border-radius: 50%;
   animation: spin 1s linear infinite;
 }
@@ -87,50 +91,50 @@
 .messageGroup {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: var(--space-xs);
 }
 
 .dateHeader {
   display: flex;
   justify-content: center;
-  margin: 16px 0 8px 0;
+  margin: var(--space-md) 0 var(--space-xs) 0;
 }
 
 .dateLabel {
-  background: rgba(0, 0, 0, 0.1);
-  color: #8696a0;
-  padding: 4px 12px;
-  border-radius: 12px;
-  font-size: 12px;
+  background: var(--bg-secondary);
+  color: var(--text-secondary);
+  padding: var(--space-xs) var(--space-sm);
+  border-radius: var(--radius-md);
+  font-size: 0.75rem;
   font-weight: 500;
 }
 
 .typingIndicator {
   display: flex;
   align-items: flex-end;
-  gap: 8px;
-  margin-bottom: 12px;
+  gap: var(--space-xs);
+  margin-bottom: var(--space-sm);
   animation: fadeIn 0.3s ease-in;
 }
 
 .typingBubble {
-  background: #ffffff;
-  border-radius: 18px;
-  border-bottom-left-radius: 4px;
-  padding: 12px 16px;
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+  background: var(--bg-card);
+  border-radius: var(--radius-lg);
+  border-bottom-left-radius: var(--radius-xs);
+  padding: var(--space-sm) var(--space-md);
+  box-shadow: var(--shadow-sm);
 }
 
 .typingDots {
   display: flex;
-  gap: 4px;
+  gap: var(--space-xs);
 }
 
 .typingDots span {
   width: 8px;
   height: 8px;
   border-radius: 50%;
-  background: #8696a0;
+  background: var(--luxury-champagne-gold);
   animation: typingPulse 1.4s ease-in-out infinite both;
 }
 
@@ -150,10 +154,10 @@
 }
 
 .typingText {
-  font-size: 11px;
-  color: #8696a0;
+  font-size: 0.7rem;
+  color: var(--text-secondary);
   align-self: flex-end;
-  margin-bottom: 4px;
+  margin-bottom: var(--space-xs);
 }
 
 @keyframes fadeIn {
@@ -170,16 +174,16 @@
 /* Responsive */
 @media (max-width: 768px) {
   .messagesContainer {
-    padding: 12px;
+    padding: var(--space-sm);
   }
   
   .connectionStatus {
-    padding: 6px 12px;
-    font-size: 11px;
+    padding: var(--space-xs) var(--space-sm);
+    font-size: 0.7rem;
   }
   
   .loadingMore {
-    padding: 12px;
-    font-size: 13px;
+    padding: var(--space-sm);
+    font-size: 0.8rem;
   }
 } 

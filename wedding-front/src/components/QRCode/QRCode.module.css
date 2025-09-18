@@ -6,24 +6,29 @@
   font-size: 12px;
 }
 
+/* ===== QR CODE - LUXURY DESIGN SYSTEM ===== */
+
 .container {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 16px;
-  padding: 20px;
-  background: white;
-  border-radius: 12px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-  border: 1px solid #e8e2d4;
+  gap: var(--space-md);
+  padding: var(--space-md);
+  background: var(--bg-card);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border-color);
+  box-shadow: var(--shadow-sm);
 }
 
 .qrWrapper {
   display: flex;
   align-items: center;
   justify-content: center;
-  min-height: 200px;
-  position: relative;
+  padding: var(--space-md);
+  background: white;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-color);
+  box-shadow: var(--shadow-sm);
 }
 
 .qrCanvas {
@@ -33,10 +38,15 @@
 
 .loading {
   display: flex;
-  flex-direction: column;
   align-items: center;
-  gap: 12px;
-  color: #666;
+  justify-content: center;
+  width: 200px;
+  height: 200px;
+  background: var(--bg-secondary);
+  border-radius: var(--radius-md);
+  color: var(--text-secondary);
+  font-size: 0.875rem;
+  font-family: var(--font-sans);
 }
 
 .spinner {
@@ -55,7 +65,7 @@
 
 .actions {
   display: flex;
-  gap: 8px;
+  gap: var(--space-sm);
   flex-wrap: wrap;
   justify-content: center;
 }
@@ -63,7 +73,7 @@
 .actionIcon {
   width: 16px;
   height: 16px;
-  margin-right: 6px;
+  margin-right: var(--space-xs);
 }
 
 .info {
@@ -119,17 +129,28 @@
   min-height: 300px;
 }
 
-/* Responsive */
+/* ===== RESPONSIVE DESIGN ===== */
 @media (max-width: 768px) {
   .container {
-    padding: 16px;
+    padding: var(--space-sm);
+    gap: var(--space-sm);
   }
-  
+
+  .qrWrapper {
+    padding: var(--space-sm);
+  }
+
   .actions {
     flex-direction: column;
     width: 100%;
   }
-  
+
+  .loading {
+    width: 150px;
+    height: 150px;
+    font-size: 0.8rem;
+  }
+
   .actions button {
     width: 100%;
   }
@@ -141,10 +162,16 @@
 
 @media (max-width: 480px) {
   .container {
-    padding: 12px;
+    padding: var(--space-xs);
   }
-  
+
   .qrWrapper {
-    min-height: 150px;
+    padding: var(--space-xs);
+  }
+
+  .loading {
+    width: 120px;
+    height: 120px;
+    font-size: 0.75rem;
   }
 } 

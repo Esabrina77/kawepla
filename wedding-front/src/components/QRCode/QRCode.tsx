@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import dynamic from 'next/dynamic';
 import { Download, Copy, Share2 } from 'lucide-react';
-import { Button } from '@/components/Button/Button';
+import { Button } from '@/components/ui/button';
 import styles from './QRCode.module.css';
 
 // Import dynamique pour éviter les problèmes SSR
@@ -95,17 +95,17 @@ export function QRCodeComponent({
 
       {showActions && (
         <div className={styles.actions}>
-          <Button onClick={downloadQRCode} size="small" variant="outline">
+          <Button onClick={downloadQRCode} size="sm" variant="outline">
             <Download className={styles.actionIcon} />
             Télécharger
           </Button>
 
-          <Button onClick={copyLink} size="small" variant="outline">
+          <Button onClick={copyLink} size="sm" variant="outline">
             <Copy className={styles.actionIcon} />
             {copied ? 'Copié !' : 'Copier le lien'}
           </Button>
 
-          <Button onClick={shareLink} size="small" variant="outline">
+          <Button onClick={shareLink} size="sm" variant="outline">
             <Share2 className={styles.actionIcon} />
             Partager
           </Button>

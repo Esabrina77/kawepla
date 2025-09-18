@@ -42,9 +42,8 @@ export class DesignController {
 
   static async create(req: Request, res: Response) {
     try {
-      const adminId = (req as any).user?.userId;
       const data = req.body;
-      const design = await DesignService.createDesign(data, adminId);
+      const design = await DesignService.createDesign(data);
       res.status(201).json({ design });
     } catch (error) {
       res.status(400).json({ message: 'Erreur lors de la création du design' });

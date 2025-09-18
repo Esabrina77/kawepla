@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Card } from '@/components/Card/Card';
+import { Card } from '@/components/ui/card';
 import { Button } from '@/components/Button/Button';
 
 interface AdminGuide {
@@ -253,7 +253,7 @@ export default function SuperAdminHelpPage() {
       `}</style>
 
       <div className="admin-header">
-        <h1 className="text-4xl font-serif mb-4">🔧 Guide d'administration</h1>
+        <h1 className="text-4xl font-sans mb-4">🔧 Guide d'administration</h1>
         <p className="text-xl opacity-90">
           Documentation complète pour les super-administrateurs
         </p>
@@ -267,25 +267,25 @@ export default function SuperAdminHelpPage() {
             <div className="text-3xl mb-2">👥</div>
             <h3 className="font-semibold mb-2">Gestion utilisateurs</h3>
             <p className="text-sm text-gray-600 mb-3">Créer, modifier, désactiver des comptes</p>
-            <Button variant="outline" size="small">Accéder</Button>
+            <Button variant="outline">Accéder</Button>
           </div>
           <div className="action-card">
             <div className="text-3xl mb-2">📊</div>
             <h3 className="font-semibold mb-2">Statistiques</h3>
             <p className="text-sm text-gray-600 mb-3">Voir les métriques de la plateforme</p>
-            <Button variant="outline" size="small">Voir les stats</Button>
+            <Button variant="outline" >Voir les stats</Button>
           </div>
           <div className="action-card">
             <div className="text-3xl mb-2">🚨</div>
             <h3 className="font-semibold mb-2">Alertes système</h3>
             <p className="text-sm text-gray-600 mb-3">Surveiller les incidents</p>
-            <Button variant="outline" size="small">Voir les alertes</Button>
+            <Button variant="outline" >Voir les alertes</Button>
           </div>
           <div className="action-card">
             <div className="text-3xl mb-2">⚙️</div>
             <h3 className="font-semibold mb-2">Configuration</h3>
             <p className="text-sm text-gray-600 mb-3">Paramètres globaux</p>
-            <Button variant="outline" size="small">Configurer</Button>
+            <Button variant="outline" >Configurer</Button>
           </div>
         </div>
       </div>

@@ -1,147 +1,100 @@
 import { type ClassValue, clsx } from "clsx"
 import { twMerge } from "tailwind-merge"
-import { getDefaultTemplateData, mergeTemplateData, invitationToTemplateData, TemplateData } from './templateEngine';
+import { getDefaultInvitationData, mergeInvitationData, invitationToTemplateData, InvitationData } from './templateEngine';
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
 }
 
-// Simple event emitter pour les événements globaux
-class EventEmitter {
-  private events: { [key: string]: Function[] } = {};
-
-  on(event: string, callback: Function) {
-    if (!this.events[event]) {
-      this.events[event] = [];
-    }
-    this.events[event].push(callback);
-  }
-
-  off(event: string, callback: Function) {
-    if (this.events[event]) {
-      this.events[event] = this.events[event].filter(cb => cb !== callback);
-    }
-  }
-
-  emit(event: string, ...args: any[]) {
-    if (this.events[event]) {
-      this.events[event].forEach(callback => callback(...args));
-    }
-  }
-}
-
-export const globalEvents = new EventEmitter();
-
-// Exemple d'utilisation du système de templates
-export function getExampleTemplateData(): TemplateData {
+// Exemple d'utilisation du système de templates (NOUVELLE architecture)
+export function getExampleTemplateData(): InvitationData {
   return {
-    coupleName: "Marie & Pierre",
-    day: "15",
-    month: "Juin",
-    year: "2024",
-    date: "15 Juin 2024",
-    time: "15h00",
-    invitationText: "Vous êtes cordialement invités à célébrer notre union",
-    venue: "Château de Versailles",
-    address: "Place d'Armes, 78000 Versailles",
-    details: "Cérémonie suivie d'un cocktail et d'un dîner dansant",
-    message: "Votre présence sera notre plus beau cadeau",
-    blessingText: "Avec leurs familles",
-    welcomeMessage: "Bienvenue à notre mariage",
-    rsvpDetails: "Merci de confirmer votre présence avant le 1er mai",
-    rsvpForm: "RSVP requis",
-    rsvpDate: "1er Mai 2024",
-    dressCode: "Tenue de soirée souhaitée",
-    contact: "marie.pierre@email.com",
-    moreInfo: "Hébergement disponible sur demande",
-    ceremony: "Cérémonie à 15h00",
-    reception: "Réception à 18h00"
+    eventTitle: "Marie & Pierre",
+    eventDate: new Date('2024-06-15T15:00:00'),
+    eventTime: "15h00",
+    location: "Château de Versailles, Place d'Armes, 78000 Versailles",
+    eventType: "event",
+    customText: "Vous êtes cordialement invités à célébrer notre union",
+    moreInfo: "cérémonie suivie d'un cocktail et d'un dîner dansant. Tenue de soirée souhaitée."
   };
 }
 
-// Données d'exemple pour différents styles
+// Données d'exemple pour différents styles (NOUVELLE architecture)
 export const exampleTemplateDataVariations = {
   classic: {
     ...getExampleTemplateData(),
-    invitationText: "Ont l'honneur de vous inviter",
-    message: "Votre présence sera notre plus beau cadeau",
-    blessingText: "Avec leurs familles"
+    customText: "Ont l'honneur de vous inviter à célébrer leur union",
+    moreInfo: "Votre présence sera notre plus beau cadeau. cérémonie suivie d'une réception."
   },
   modern: {
     ...getExampleTemplateData(),
-    invitationText: "Vous invitent à célébrer leur union",
-    message: "Partagez notre bonheur"
+    customText: "Vous invitent à célébrer leur union",
+    moreInfo: "Partagez notre bonheur dans une ambiance moderne et décontractée."
   },
-  english: {
-    ...getExampleTemplateData(),
-    invitationText: "Request the pleasure of your company",
-    message: "Your presence is our greatest gift"
+  birthday: {
+    eventTitle: "Anniversaire de Marie",
+    eventDate: new Date('2024-08-20T14:00:00'),
+    eventTime: "14h00",
+    location: "Jardin des Tuileries, Paris",
+    eventType: "BIRTHDAY",
+    customText: "Venez célébrer mes 30 ans !",
+    moreInfo: "Après-midi festif avec gâteau et surprises. Tenue décontractée."
   },
-  vintage: {
-    ...getExampleTemplateData(),
-    invitationText: "Vous convient à leurs noces",
-    message: "Une soirée d'antan vous attend"
-  },
-  bohemian: {
-    ...getExampleTemplateData(),
-    invitationText: "Joignez-vous à nous pour célébrer l'amour",
-    message: "Célébrons l'amour qui fleurit"
-  },
-  indian: {
-    ...getExampleTemplateData(),
-    invitationText: "आपको हमारे विवाह समारोह में आमंत्रित करते हैं",
-    message: "हमारे साथ खुशियाँ मनाएं"
+  baptism: {
+    eventTitle: "Baptême de Lucas",
+    eventDate: new Date('2024-09-15T10:00:00'),
+    eventTime: "10h00",
+    location: "Église Saint-Sulpice, Paris",
+    eventType: "BAPTISM",
+    customText: "Marie & Pierre vous invitent au baptême de leur fils",
+    moreInfo: "cérémonie suivie d'un déjeuner en famille. Tenue sobre souhaitée."
   }
 };
 
-// Fonction pour créer des données de test pour différents styles
-export function getTemplateDataByStyle(style: 'elegant' | 'modern' | 'vintage' | 'floral' | 'indian') {
-  const baseData = getDefaultTemplateData();
+// Fonction pour créer des données de test pour différents événements (NOUVELLE architecture)
+export function getTemplateDataByEventType(eventType: 'event' | 'BIRTHDAY' | 'BAPTISM' | 'ANNIVERSARY' | 'OTHER') {
+  const baseData = getDefaultInvitationData();
   
-  switch (style) {
-    case 'elegant':
-      return mergeTemplateData({
+  switch (eventType) {
+    case 'event':
+      return mergeInvitationData({
         ...baseData,
-        invitationText: "Nous avons l'honneur de vous inviter",
-        celebrationText: "Partagez notre bonheur",
-        venue: "Château de Malmaison",
-        dressCode: "Tenue de soirée exigée"
+        eventType: 'event',
+        customText: "Ont l'honneur de vous inviter à célébrer leur événement",
+        moreInfo: "cérémonie suivie d'une réception. Tenue élégante souhaitée."
       });
       
-    case 'modern':
-      return mergeTemplateData({
-        ...baseData,
-        invitationText: "Join us for our wedding celebration",
-        celebrationText: "Let's party together",
-        venue: "The Modern Loft",
-        dressCode: "Smart casual"
+    case 'BIRTHDAY':
+      return mergeInvitationData({
+        eventTitle: "Anniversaire de Marie",
+        eventDate: new Date('2024-08-20T14:00:00'),
+        eventTime: "14h00",
+        location: "Jardin des Tuileries, Paris",
+        eventType: 'BIRTHDAY',
+        customText: "Venez célébrer cette journée spéciale !",
+        moreInfo: "Après-midi festif avec gâteau et surprises. Tenue décontractée."
       });
       
-    case 'vintage':
-      return mergeTemplateData({
-        ...baseData,
-        invitationText: "Nous vous prions de bien vouloir honorer",
-        celebrationText: "Une soirée d'antan vous attend",
-        venue: "Manoir des Glycines",
-        dressCode: "Tenue vintage appréciée"
+    case 'BAPTISM':
+      return mergeInvitationData({
+        eventTitle: "Baptême de Lucas",
+        eventDate: new Date('2024-09-15T10:00:00'),
+        eventTime: "10h00",
+        location: "Église Saint-Sulpice, Paris",
+        eventType: 'BAPTISM',
+        customText: "Marie & Pierre vous invitent au baptême de leur fils",
+        moreInfo: "cérémonie suivie d'un déjeuner en famille. Tenue sobre souhaitée."
       });
       
-    case 'floral':
-      return mergeTemplateData({
-        ...baseData,
-        invitationText: "Comme deux fleurs qui s'épanouissent",
-        celebrationText: "Célébrons l'amour qui fleurit",
-        venue: "Jardin Botanique de Paris",
-        dressCode: "Couleurs printanières bienvenues"
-      });
-      
-    case 'indian':
-      return mergeTemplateData({
-        ...baseData,
-        invitationText: "आपको सादर आमंत्रित करते हैं",
-        celebrationText: "हमारे साथ खुशियाँ मनाएं",
-        venue: "Palais Royal Indien",
-        dressCode: "Tenue traditionnelle souhaitée"
+    case 'ANNIVERSARY':
+      return mergeInvitationData({
+        eventTitle: "Marie & Pierre",
+        eventDate: new Date('2024-10-12T19:00:00'),
+        eventTime: "19h00",
+        location: "Restaurant Le Grand Véfour, Paris",
+        eventType: 'ANNIVERSARY',
+        customText: "Célèbrent leurs 10 ans de événement",
+        moreInfo: "Soirée intime entre amis. Tenue chic de mise."
       });
       
     default:

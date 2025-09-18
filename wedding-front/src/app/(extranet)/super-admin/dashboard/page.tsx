@@ -1,9 +1,20 @@
 'use client';
 
 import styles from './dashboard.module.css';
-import Image from 'next/image';
 import { useAdminStats } from '@/hooks/useAdminStats';
 import { useAdminUsers } from '@/hooks/useAdminUsers';
+import { 
+  Users, 
+  BarChart3, 
+  TrendingUp, 
+  Activity, 
+  Crown, 
+  FileText, 
+  Archive,
+  UserCheck,
+  Calendar,
+  Target
+} from 'lucide-react';
 
 export default function SuperAdminDashboard() {
   const { stats, loading: statsLoading, error: statsError } = useAdminStats();
@@ -12,16 +23,8 @@ export default function SuperAdminDashboard() {
   if (statsLoading || usersLoading) {
     return (
       <div className={styles.dashboardContainer}>
-        <h1>
-          <Image
-            src="/icons/stats.svg"
-            alt=""
-            width={32}
-            height={32}
-          />
-          Tableau de bord
-        </h1>
-        <div className="text-center py-8">
+        <div className={styles.loadingContainer}>
+          <div className={styles.loadingSpinner}></div>
           <p>Chargement du tableau de bord...</p>
         </div>
       </div>
@@ -31,17 +34,8 @@ export default function SuperAdminDashboard() {
   if (statsError) {
     return (
       <div className={styles.dashboardContainer}>
-        <h1>
-          <Image
-            src="/icons/stats.svg"
-            alt=""
-            width={32}
-            height={32}
-          />
-          Tableau de bord
-        </h1>
-        <div className="text-center py-8 text-red-600">
-          <p>{statsError}</p>
+        <div className={styles.errorContainer}>
+          <p>Erreur: {statsError}</p>
         </div>
       </div>
     );
@@ -59,142 +53,134 @@ export default function SuperAdminDashboard() {
 
   return (
     <div className={styles.dashboardContainer}>
-      <h1>
-        <Image
-          src="/icons/stats.svg"
-          alt=""
-          width={32}
-          height={32}
-        />
-        Tableau de bord
-      </h1>
-      
+      {/* Header Section */}
+      <div className={styles.headerSection}>
+        <div className={styles.badge}>
+          <BarChart3 style={{ width: '16px', height: '16px' }} />
+          Tableau de bord
+        </div>
+        
+        <h1 className={styles.title}>
+          Vue d'<span className={styles.titleAccent}>ensemble</span>
+        </h1>
+        
+        <p className={styles.subtitle}>
+          Surveillez les performances et l'activité de votre plateforme Kawepla
+        </p>
+      </div>
+
+      {/* Stats Grid */}
       <div className={styles.statsGrid}>
         <div className={styles.statCard}>
-          <h3>Utilisateurs</h3>
-          <div className={styles.statValue}>{stats.users.total}</div>
-          <div className={styles.statChange}>
-            <Image
-              src="/icons/stats.svg"
-              alt=""
-              width={16}
-              height={16}
-            />
-            +{recentUsers.length} cette semaine
+          <div className={styles.statIcon}>
+            <Users style={{ width: '24px', height: '24px' }} />
+          </div>
+          <div className={styles.statContent}>
+            <h3>Utilisateurs</h3>
+            <div className={styles.statValue}>{stats.users.total}</div>
+            <div className={styles.statChange}>
+              <TrendingUp style={{ width: '14px', height: '14px' }} />
+              +{recentUsers.length} cette semaine
+            </div>
           </div>
         </div>
 
         <div className={styles.statCard}>
-          <h3>Invitations publiées</h3>
-          <div className={styles.statValue}>{stats.invitations.published}</div>
-          <div className={styles.statChange}>
-            <Image
-              src="/icons/stats.svg"
-              alt=""
-              width={16}
-              height={16}
-            />
-            {stats.invitations.total} au total
+          <div className={styles.statIcon}>
+            <FileText style={{ width: '24px', height: '24px' }} />
+          </div>
+          <div className={styles.statContent}>
+            <h3>Invitations publiées</h3>
+            <div className={styles.statValue}>{stats.invitations.published}</div>
+            <div className={styles.statChange}>
+              <Activity style={{ width: '14px', height: '14px' }} />
+              {stats.invitations.total} au total
+            </div>
           </div>
         </div>
 
-        <div className={styles.statCard}>
-          <h3>Emails envoyés</h3>
-          <div className={styles.statValue}>{stats.activity.emailsSent}</div>
-          <div className={styles.statChange}>
-            <Image
-              src="/icons/stats.svg"
-              alt=""
-              width={16}
-              height={16}
-            />
-            Invitations distribuées
-          </div>
-        </div>
+
 
         <div className={styles.statCard}>
-          <h3>Taux de réponse</h3>
-          <div className={styles.statValue}>{stats.activity.conversionRate}%</div>
-          <div className={styles.statChange}>
-            <Image
-              src="/icons/stats.svg"
-              alt=""
-              width={16}
-              height={16}
-            />
-            {stats.activity.totalRSVPs} réponses
+          <div className={styles.statIcon}>
+            <Target style={{ width: '24px', height: '24px' }} />
+          </div>
+          <div className={styles.statContent}>
+            <h3>Taux de réponse</h3>
+            <div className={styles.statValue}>{stats.activity.conversionRate}%</div>
+            <div className={styles.statChange}>
+              <UserCheck style={{ width: '14px', height: '14px' }} />
+              {stats.activity.totalRSVPs} réponses
+            </div>
           </div>
         </div>
       </div>
 
-      <div className={styles.recentActivity}>
-        <h2>Activité récente</h2>
-        <div className={styles.activityList}>
-          <div className={styles.activityItem}>
+      {/* Activity Section */}
+      <div className={styles.activitySection}>
+        <h2 className={styles.sectionTitle}>
+          <Activity style={{ width: '20px', height: '20px' }} />
+          Activité récente
+        </h2>
+        
+        <div className={styles.activityGrid}>
+          <div className={styles.activityCard}>
             <div className={styles.activityIcon}>
-              <Image
-                src="/icons/guests.svg"
-                alt=""
-                width={20}
-                height={20}
-              />
+              <Users style={{ width: '20px', height: '20px' }} />
             </div>
             <div className={styles.activityContent}>
               <div className={styles.activityTitle}>Utilisateurs actifs</div>
+              <div className={styles.activityValue}>
+                {stats.users.active} / {stats.users.total}
+              </div>
               <div className={styles.activityMeta}>
-                {stats.users.active} utilisateurs actifs sur {stats.users.total}
+                Utilisateurs connectés récemment
               </div>
             </div>
           </div>
 
-          <div className={styles.activityItem}>
+          <div className={styles.activityCard}>
             <div className={styles.activityIcon}>
-              <Image
-                src="/icons/rsvp.svg"
-                alt=""
-                width={20}
-                height={20}
-              />
+              <UserCheck style={{ width: '20px', height: '20px' }} />
             </div>
             <div className={styles.activityContent}>
               <div className={styles.activityTitle}>Réponses RSVP</div>
+              <div className={styles.activityValue}>
+                {stats.guests.confirmed} confirmées
+              </div>
               <div className={styles.activityMeta}>
-                {stats.guests.confirmed} confirmées, {stats.guests.declined} déclinées
+                {stats.guests.declined} déclinées
               </div>
             </div>
           </div>
 
-          <div className={styles.activityItem}>
+          <div className={styles.activityCard}>
             <div className={styles.activityIcon}>
-              <Image
-                src="/icons/design.svg"
-                alt=""
-                width={20}
-                height={20}
-              />
+              <FileText style={{ width: '20px', height: '20px' }} />
             </div>
             <div className={styles.activityContent}>
               <div className={styles.activityTitle}>Invitations ce mois</div>
+              <div className={styles.activityValue}>
+                {stats.invitations.thisMonth}
+              </div>
               <div className={styles.activityMeta}>
-                {stats.invitations.thisMonth} nouvelles invitations créées
+                Nouvelles invitations créées
               </div>
             </div>
           </div>
 
           {recentUsers.length > 0 && (
-            <div className={styles.activityItem}>
+            <div className={styles.activityCard}>
               <div className={styles.activityIcon}>
-                <Image
-                  src="/icons/guests.svg"
-                  alt=""
-                  width={20}
-                  height={20}
-                />
+                <Users style={{ width: '20px', height: '20px' }} />
               </div>
               <div className={styles.activityContent}>
                 <div className={styles.activityTitle}>Nouveaux utilisateurs</div>
+                <div className={styles.activityValue}>
+                  {recentUsers.length}
+                </div>
                 <div className={styles.activityMeta}>
-                  {recentUsers.length} inscription{recentUsers.length > 1 ? 's' : ''} cette semaine
+                  Inscription{recentUsers.length > 1 ? 's' : ''} cette semaine
                 </div>
               </div>
             </div>
@@ -202,57 +188,64 @@ export default function SuperAdminDashboard() {
         </div>
       </div>
 
+      {/* Detailed Stats */}
       <div className={styles.detailedStats}>
-        <div className={styles.rolesSection}>
-          <h3>Répartition des rôles</h3>
-          <div className={styles.roleList}>
-            <div className={styles.roleItem}>
-              <span className={styles.roleLabel}>
-                <div className={`${styles.roleIndicator} ${styles.roleCouple}`}></div>
-                Couples
+        <div className={styles.statsCard}>
+          <h3 className={styles.cardTitle}>
+            <Crown style={{ width: '18px', height: '18px' }} />
+            Répartition des rôles
+          </h3>
+          <div className={styles.statsList}>
+            <div className={styles.statItem}>
+              <span className={styles.statLabel}>
+                <div className={`${styles.statIndicator} ${styles.roleorganisateur}`}></div>
+                organisateurs
               </span>
-              <span className={styles.roleCount}>{stats.users.byRole.COUPLE}</span>
+              <span className={styles.statCount}>{stats.users.byRole.organisateur}</span>
             </div>
-            <div className={styles.roleItem}>
-              <span className={styles.roleLabel}>
-                <div className={`${styles.roleIndicator} ${styles.roleAdmin}`}></div>
+            <div className={styles.statItem}>
+              <span className={styles.statLabel}>
+                <div className={`${styles.statIndicator} ${styles.roleAdmin}`}></div>
                 Admins
               </span>
-              <span className={styles.roleCount}>{stats.users.byRole.ADMIN}</span>
+              <span className={styles.statCount}>{stats.users.byRole.ADMIN}</span>
             </div>
-            <div className={styles.roleItem}>
-              <span className={styles.roleLabel}>
-                <div className={`${styles.roleIndicator} ${styles.roleGuest}`}></div>
+            <div className={styles.statItem}>
+              <span className={styles.statLabel}>
+                <div className={`${styles.statIndicator} ${styles.roleGuest}`}></div>
                 Invités
               </span>
-              <span className={styles.roleCount}>{stats.users.byRole.GUEST}</span>
+              <span className={styles.statCount}>{stats.users.byRole.GUEST}</span>
             </div>
           </div>
         </div>
 
-        <div className={styles.invitationsSection}>
-          <h3>État des invitations</h3>
-          <div className={styles.invitationList}>
-            <div className={styles.invitationItem}>
-              <span className={styles.invitationLabel}>
-                <div className={`${styles.invitationIndicator} ${styles.invitationDraft}`}></div>
+        <div className={styles.statsCard}>
+          <h3 className={styles.cardTitle}>
+            <Calendar style={{ width: '18px', height: '18px' }} />
+            État des invitations
+          </h3>
+          <div className={styles.statsList}>
+            <div className={styles.statItem}>
+              <span className={styles.statLabel}>
+                <div className={`${styles.statIndicator} ${styles.invitationDraft}`}></div>
                 Brouillons
               </span>
-              <span className={styles.invitationCount}>{stats.invitations.draft}</span>
+              <span className={styles.statCount}>{stats.invitations.draft}</span>
             </div>
-            <div className={styles.invitationItem}>
-              <span className={styles.invitationLabel}>
-                <div className={`${styles.invitationIndicator} ${styles.invitationPublished}`}></div>
+            <div className={styles.statItem}>
+              <span className={styles.statLabel}>
+                <div className={`${styles.statIndicator} ${styles.invitationPublished}`}></div>
                 Publiées
               </span>
-              <span className={styles.invitationCount}>{stats.invitations.published}</span>
+              <span className={styles.statCount}>{stats.invitations.published}</span>
             </div>
-            <div className={styles.invitationItem}>
-              <span className={styles.invitationLabel}>
-                <div className={`${styles.invitationIndicator} ${styles.invitationArchived}`}></div>
+            <div className={styles.statItem}>
+              <span className={styles.statLabel}>
+                <div className={`${styles.statIndicator} ${styles.invitationArchived}`}></div>
                 Archivées
               </span>
-              <span className={styles.invitationCount}>{stats.invitations.archived}</span>
+              <span className={styles.statCount}>{stats.invitations.archived}</span>
             </div>
           </div>
         </div>

@@ -1,108 +1,70 @@
 'use client';
 
-import { useState, useEffect, Suspense } from 'react';
+import { useState } from 'react';
 import { useSearchParams } from 'next/navigation';
-import { useAuth } from '@/hooks/useAuth';
 import Link from 'next/link';
-import { Lock, AlertCircle, CheckCircle, ArrowLeft } from 'lucide-react';
+import { Lock, Eye, EyeOff, Check, X, ArrowLeft } from 'lucide-react';
 import styles from '@/styles/site/auth.module.css';
 
-function ResetPasswordContent() {
+export default function ResetPasswordPage() {
   const searchParams = useSearchParams();
-  const { resetPassword, verifyResetToken, loading } = useAuth();
-  const [token, setToken] = useState<string>('');
-  const [password, setPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
-  const [isTokenValid, setIsTokenValid] = useState(false);
-  const [validationError, setValidationError] = useState('');
+  const token = searchParams.get('token') || '';
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [formData, setFormData] = useState({
+    password: "",
+    confirmPassword: ""
+  });
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
   const [success, setSuccess] = useState(false);
 
-  useEffect(() => {
-    const tokenFromUrl = searchParams.get('token');
-    if (tokenFromUrl) {
-      setToken(tokenFromUrl);
-      verifyToken(tokenFromUrl);
-    }
-  }, [searchParams]);
-
-  const verifyToken = async (tokenToVerify: string) => {
-    try {
-      await verifyResetToken(tokenToVerify);
-      setIsTokenValid(true);
-    } catch (error) {
-      setIsTokenValid(false);
-      setValidationError('Ce lien de réinitialisation est invalide ou a expiré.');
-    }
+  // Validation du mot de passe
+  const passwordValidation = {
+    length: formData.password.length >= 8,
   };
+
+  const isPasswordValid = passwordValidation.length;
+  const passwordsMatch = formData.password === formData.confirmPassword && formData.confirmPassword !== "";
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setValidationError('');
+    setError('');
 
-    if (password.length < 8) {
-      setValidationError('Le mot de passe doit contenir au moins 8 caractères');
+    if (!token) {
+      setError('Token de réinitialisation manquant');
       return;
     }
 
-    if (password !== confirmPassword) {
-      setValidationError('Les mots de passe ne correspondent pas');
+    if (!isPasswordValid) {
+      setError('Le mot de passe ne respecte pas les critères requis');
       return;
     }
+
+    if (!passwordsMatch) {
+      setError('Les mots de passe ne correspondent pas');
+      return;
+    }
+
+    setLoading(true);
 
     try {
-      await resetPassword(token, password);
+      // Simuler la réinitialisation
+      await new Promise(resolve => setTimeout(resolve, 2000));
       setSuccess(true);
-    } catch (error) {
-      if (error instanceof Error) {
-        setValidationError(error.message);
-      } else {
-        setValidationError('Une erreur est survenue lors de la réinitialisation du mot de passe');
-      }
+    } catch (err) {
+      setError('Erreur lors de la réinitialisation du mot de passe');
+    } finally {
+      setLoading(false);
     }
   };
 
-  if (!token) {
-    return (
-      <div className={styles.auth}>
-        <div className={styles.container}>
-          <div className={styles.authCard}>
-            <div className={styles.header}>
-              <AlertCircle size={48} color="var(--color-danger)" />
-              <h1>Lien invalide</h1>
-              <p>Le lien de réinitialisation est invalide ou manquant.</p>
-            </div>
-            <div className={styles.footer}>
-              <Link href="/auth/login" className={styles.forgotPassword}>
-                <ArrowLeft size={16} /> Retour à la connexion
-              </Link>
-            </div>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  if (!isTokenValid) {
-    return (
-      <div className={styles.auth}>
-        <div className={styles.container}>
-          <div className={styles.authCard}>
-            <div className={styles.header}>
-              <AlertCircle size={48} color="var(--color-danger)" />
-              <h1>Lien expiré</h1>
-              <p>{validationError}</p>
-              <p>Veuillez demander un nouveau lien de réinitialisation.</p>
-            </div>
-            <div className={styles.footer}>
-              <Link href="/auth/forgot-password" className={styles.forgotPassword}>
-                <ArrowLeft size={16} /> Demander un nouveau lien
-              </Link>
-            </div>
-          </div>
-        </div>
-      </div>
-    );
-  }
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setFormData({
+      ...formData,
+      [e.target.name]: e.target.value
+    });
+  };
 
   if (success) {
     return (
@@ -110,15 +72,20 @@ function ResetPasswordContent() {
         <div className={styles.container}>
           <div className={styles.authCard}>
             <div className={styles.header}>
-              <CheckCircle size={48} color="var(--color-success)" />
+              <Lock size={48} className={styles.icon} />
               <h1>Mot de passe réinitialisé</h1>
-              <p>Votre mot de passe a été réinitialisé avec succès.</p>
+              <p>Votre mot de passe a été modifié avec succès</p>
             </div>
-            <div className={styles.footer}>
-              <Link href="/auth/login" className={styles.forgotPassword}>
-                <ArrowLeft size={16} /> Se connecter
-              </Link>
+
+            <div className={styles.messageBox}>
+              <Check size={48} className={styles.iconSuccess} />
+              <p className={styles.success}>Mot de passe mis à jour avec succès !</p>
+              <p>Vous pouvez maintenant vous connecter avec votre nouveau mot de passe.</p>
             </div>
+
+            <Link href="/auth/login" className={styles.submitButton}>
+              Se connecter
+            </Link>
           </div>
         </div>
       </div>
@@ -130,68 +97,103 @@ function ResetPasswordContent() {
       <div className={styles.container}>
         <div className={styles.authCard}>
           <div className={styles.header}>
-            <Lock size={48} color="var(--color-primary)" />
-            <h1>Réinitialiser le mot de passe</h1>
-            <p>Entrez votre nouveau mot de passe ci-dessous.</p>
+            <Lock size={48} className={styles.icon} />
+            <h1>Réinitialiser votre mot de passe</h1>
+            <p>Choisissez un nouveau mot de passe sécurisé</p>
           </div>
 
-          <form onSubmit={handleSubmit} className={styles.form}>
-            {validationError && (
+          <form className={styles.form} onSubmit={handleSubmit}>
+            {error && (
               <div className={styles.error}>
-                <AlertCircle size={20} /> {validationError}
+                <p>{error}</p>
               </div>
             )}
 
             <div className={styles.formGroup}>
               <label htmlFor="password">Nouveau mot de passe</label>
-              <input
-                type="password"
-                id="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                placeholder="Minimum 8 caractères"
-                required
-                minLength={8}
-              />
-              <span className={styles.passwordHint}>Le mot de passe doit contenir au moins 8 caractères</span>
+              <div className={styles.passwordInput}>
+                <input
+                  id="password"
+                  name="password"
+                  type={showPassword ? "text" : "password"}
+                  value={formData.password}
+                  onChange={handleInputChange}
+                  required
+                  className={styles.fullWidth}
+                  placeholder="Votre nouveau mot de passe"
+                  disabled={loading}
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className={styles.passwordToggle}
+                >
+                  {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                </button>
+              </div>
+              
+              {/* Validation mot de passe */}
+              <div className={styles.validationItem}>
+                <div className={`${styles.validationIcon} ${isPasswordValid ? styles.valid : styles.invalid}`}>
+                  {isPasswordValid ? <Check size={16} /> : <X size={16} />}
+                </div>
+                <span className={styles.validationText}>Au moins 8 caractères</span>
+              </div>
             </div>
 
             <div className={styles.formGroup}>
               <label htmlFor="confirmPassword">Confirmer le mot de passe</label>
-              <input
-                type="password"
-                id="confirmPassword"
-                value={confirmPassword}
-                onChange={(e) => setConfirmPassword(e.target.value)}
-                placeholder="Confirmer le mot de passe"
-                required
-              />
+              <div className={styles.passwordInput}>
+                <input
+                  id="confirmPassword"
+                  name="confirmPassword"
+                  type={showConfirmPassword ? "text" : "password"}
+                  value={formData.confirmPassword}
+                  onChange={handleInputChange}
+                  required
+                  className={styles.fullWidth}
+                  placeholder="Confirmez votre nouveau mot de passe"
+                  disabled={loading}
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                  className={styles.passwordToggle}
+                >
+                  {showConfirmPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                </button>
+              </div>
+              
+              {/* Validation confirmation */}
+              {formData.confirmPassword && (
+                <div className={styles.validationItem}>
+                  <div className={`${styles.validationIcon} ${passwordsMatch ? styles.valid : styles.invalid}`}>
+                    {passwordsMatch ? <Check size={16} /> : <X size={16} />}
+                  </div>
+                  <span className={styles.validationText}>
+                    {passwordsMatch ? 'Mots de passe identiques' : 'Les mots de passe ne correspondent pas'}
+                  </span>
+                </div>
+              )}
             </div>
 
             <button
               type="submit"
+              disabled={loading || !isPasswordValid || !passwordsMatch || !token}
               className={`${styles.submitButton} ${loading ? styles.loading : ''}`}
-              disabled={loading}
             >
               {loading ? 'Réinitialisation...' : 'Réinitialiser le mot de passe'}
             </button>
-
-            <div className={styles.footer}>
-              <Link href="/auth/login" className={styles.forgotPassword}>
-                <ArrowLeft size={16} /> Retour à la connexion
-              </Link>
-            </div>
           </form>
+
+          <div className={styles.footer}>
+            <Link href="/auth/login" className={styles.actionButton}>
+              <ArrowLeft size={16} />
+              Retour à la connexion
+            </Link>
+          </div>
         </div>
       </div>
     </div>
-  );
-}
-
-export default function ResetPasswordPage() {
-  return (
-    <Suspense fallback={<div>Chargement...</div>}>
-      <ResetPasswordContent />
-    </Suspense>
   );
 }

@@ -8,6 +8,19 @@ import { emailService } from '../utils/email';
 import csv from 'csv-parser';
 import { Readable } from 'stream';
 
+// Fonction utilitaire pour extraire les données d'invitation avec la nouvelle structure
+function getInvitationData(invitation: any) {
+  return {
+    eventTitle: invitation.eventTitle || 'Événement',
+    eventDate: invitation.eventDate,
+    eventTime: invitation.eventTime,
+    location: invitation.location || 'Lieu à définir',
+    eventType: invitation.eventType || 'WEDDING',
+    customText: invitation.customText,
+    moreInfo: invitation.moreInfo
+  };
+}
+
 type GuestCreateInput = {
   firstName: string;
   lastName: string;
@@ -197,14 +210,12 @@ export class GuestService {
    * Statistiques des invités d'une invitation
    */
   static async getGuestStatistics(invitationId: string, userId: string): Promise<{
-    total: number;
-    withEmail: number;
-    invitationsSent: number;
+    totalGuests: number;
     confirmed: number;
     declined: number;
     pending: number;
-    vip: number;
-    withPlusOne: number;
+    responseRate: number;
+    dietaryRestrictionsCount: number;
   }> {
     const invitation = await prisma.invitation.findFirst({
       where: {
@@ -226,15 +237,19 @@ export class GuestService {
       }
     });
 
+    const confirmed = guests.filter(g => g.rsvp?.status === 'CONFIRMED').length;
+    const declined = guests.filter(g => g.rsvp?.status === 'DECLINED').length;
+    const pending = guests.filter(g => !g.rsvp || g.rsvp?.status === 'PENDING').length;
+    const totalResponses = confirmed + declined;
+    const responseRate = guests.length > 0 ? (totalResponses / guests.length) * 100 : 0;
+
     const stats = {
-      total: guests.length,
-      withEmail: guests.filter(g => g.email).length,
-      invitationsSent: guests.filter(g => g.invitationSentAt).length,
-      confirmed: guests.filter(g => g.rsvp?.status === 'CONFIRMED').length,
-      declined: guests.filter(g => g.rsvp?.status === 'DECLINED').length,
-      pending: guests.filter(g => !g.rsvp || g.rsvp?.status === 'PENDING').length,
-      vip: guests.filter(g => g.isVIP).length,
-      withPlusOne: guests.filter(g => g.plusOne).length
+      totalGuests: guests.length,
+      confirmed,
+      declined,
+      pending,
+      responseRate: Math.round(responseRate * 100) / 100, // Arrondir à 2 décimales
+      dietaryRestrictionsCount: guests.filter(g => g.dietaryRestrictions && g.dietaryRestrictions.trim() !== '').length
     };
 
     return stats;
@@ -277,23 +292,23 @@ export class GuestService {
 
     // Préparer les données pour l'email
     const guestName = `${guest.firstName} ${guest.lastName}`;
-    const coupleNames = guest.invitation.coupleName || `${guest.invitation.user.firstName} ${guest.invitation.user.lastName}`;
-    const weddingDate = guest.invitation.weddingDate.toLocaleDateString('fr-FR', {
+    const invitationData = getInvitationData(guest.invitation);
+    const eventDate = invitationData.eventDate ? invitationData.eventDate.toLocaleDateString('fr-FR', {
       weekday: 'long',
       year: 'numeric',
       month: 'long',
       day: 'numeric'
-    });
+    }) : 'Date à définir';
 
     // Envoyer l'email
     await emailService.sendInvitation(
       guest.email,
       guestName,
-      guest.invitation.title || 'Invitation de mariage',
+      invitationData.eventTitle || 'Invitation',
       guest.inviteToken,
-      weddingDate,
-      guest.invitation.venueName,
-      coupleNames
+      eventDate,
+      invitationData.location,
+      invitationData.eventTitle
     );
 
     // Mettre à jour la date d'envoi de l'invitation
@@ -338,7 +353,7 @@ export class GuestService {
       failed: [] as Array<{ guestId: string; guestName: string; error: string }>
     };
 
-    // Envoyer les invitations une par une
+    // Envoyer les invitations une par une - SEULEMENT aux invités en attente
     for (const guest of invitation.guests) {
       try {
         if (!guest.email) {
@@ -350,25 +365,31 @@ export class GuestService {
           continue;
         }
 
+        // Vérifier que l'invité est en attente (n'a pas encore reçu d'invitation)
+        if (guest.invitationSentAt) {
+          // L'invité a déjà reçu une invitation, on l'ignore
+          continue;
+        }
+
         // Préparer les données pour l'email
         const guestName = `${guest.firstName} ${guest.lastName}`;
-        const coupleNames = invitation.coupleName || `${invitation.user.firstName} ${invitation.user.lastName}`;
-        const weddingDate = invitation.weddingDate.toLocaleDateString('fr-FR', {
+        const invitationData = getInvitationData(invitation);
+        const eventDate = invitationData.eventDate ? invitationData.eventDate.toLocaleDateString('fr-FR', {
           weekday: 'long',
           year: 'numeric',
           month: 'long',
           day: 'numeric'
-        });
+        }) : 'Date à définir';
 
         // Envoyer l'email
         await emailService.sendInvitation(
           guest.email,
           guestName,
-          invitation.title || 'Invitation de mariage',
+          invitationData.eventTitle || 'Invitation',
           guest.inviteToken,
-          weddingDate,
-          invitation.venueName,
-          coupleNames
+          eventDate,
+          invitationData.location,
+          invitationData.eventTitle
         );
 
         // Mettre à jour la date d'envoi
@@ -430,22 +451,22 @@ export class GuestService {
 
     // Préparer les données pour l'email
     const guestName = `${guest.firstName} ${guest.lastName}`;
-    const coupleNames = guest.invitation.coupleName || `${guest.invitation.user.firstName} ${guest.invitation.user.lastName}`;
-    const weddingDate = guest.invitation.weddingDate.toLocaleDateString('fr-FR', {
+    const invitationData = getInvitationData(guest.invitation);
+    const eventDate = invitationData.eventDate ? invitationData.eventDate.toLocaleDateString('fr-FR', {
       weekday: 'long',
       year: 'numeric',
       month: 'long',
       day: 'numeric'
-    });
+    }) : 'Date à définir';
 
     // Envoyer l'email de rappel
     await emailService.sendInvitationReminder(
       guest.email,
       guestName,
-      guest.invitation.title || 'Invitation de mariage',
+      invitationData.eventTitle || 'Invitation',
       guest.inviteToken,
-      weddingDate,
-      coupleNames
+      eventDate,
+      invitationData.eventTitle
     );
   }
 
@@ -575,12 +596,10 @@ export class GuestService {
       switch (fileExtension) {
         case 'csv':
           return await this.parseCSV(fileBuffer);
-        case 'json':
-          return await this.parseJSON(fileBuffer);
         case 'txt':
           return await this.parseTXT(fileBuffer);
         default:
-          throw new Error('Format de fichier non supporté. Utilisez CSV, JSON ou TXT.');
+          throw new Error('Format de fichier non supporté. Utilisez CSV ou TXT uniquement.');
       }
     } catch (error) {
       results.errors.push({
@@ -607,7 +626,7 @@ export class GuestService {
       stream
         .pipe(csv({
           separator: ',',
-          headers: ['firstName', 'lastName', 'email', 'phone', 'isVIP', 'dietaryRestrictions', 'plusOne', 'plusOneName']
+          headers: ['firstName', 'lastName', 'email', 'phone', 'isVIP']
         }))
         .on('data', (data: any) => {
           lineNumber++;
@@ -647,50 +666,6 @@ export class GuestService {
     });
   }
 
-  /**
-   * Parser JSON
-   */
-  private static async parseJSON(fileBuffer: Buffer): Promise<{
-    guests: any[];
-    errors: Array<{ line: number; error: string; data?: any }>;
-  }> {
-    const results = { guests: [] as any[], errors: [] as any[] };
-    
-    try {
-      const jsonData = JSON.parse(fileBuffer.toString());
-      
-      if (!Array.isArray(jsonData)) {
-        results.errors.push({
-          line: 0,
-          error: 'Le fichier JSON doit contenir un tableau d\'invités'
-        });
-        return results;
-      }
-
-      jsonData.forEach((data, index) => {
-        try {
-          const guest = this.validateAndCleanGuestData(data, index + 1);
-          if (guest) {
-            results.guests.push(guest);
-          }
-        } catch (error) {
-          results.errors.push({
-            line: index + 1,
-            error: error instanceof Error ? error.message : 'Erreur de validation',
-            data
-          });
-        }
-      });
-
-      return results;
-    } catch (error) {
-      results.errors.push({
-        line: 0,
-        error: `Erreur JSON: ${error instanceof Error ? error.message : 'Format invalide'}`
-      });
-      return results;
-    }
-  }
 
   /**
    * Parser TXT (format: prénom,nom,email,téléphone par ligne)
@@ -730,10 +705,7 @@ export class GuestService {
           lastName: parts[1],
           email: parts[2] || '',
           phone: parts[3] || '',
-          isVIP: parts[4] === 'true' || parts[4] === '1',
-          dietaryRestrictions: parts[5] || '',
-          plusOne: parts[6] === 'true' || parts[6] === '1',
-          plusOneName: parts[7] || ''
+          isVIP: parts[4] === 'true' || parts[4] === '1'
         };
 
         const guest = this.validateAndCleanGuestData(data, lineNumber);
@@ -769,19 +741,17 @@ export class GuestService {
       throw new Error(`Ligne ${lineNumber}: Nom requis (minimum 2 caractères)`);
     }
 
-    // Validation email
-    if (email && !this.isValidEmail(email)) {
+    // Validation email - OBLIGATOIRE pour l'import en masse
+    if (!email) {
+      throw new Error(`Ligne ${lineNumber}: Email obligatoire pour l'import en masse`);
+    }
+    if (!this.isValidEmail(email)) {
       throw new Error(`Ligne ${lineNumber}: Email invalide "${email}"`);
     }
 
-    // Validation téléphone
+    // Validation téléphone (optionnel)
     if (phone && !this.isValidPhone(phone)) {
       throw new Error(`Ligne ${lineNumber}: Numéro de téléphone invalide "${phone}"`);
-    }
-
-    // Au moins un moyen de contact
-    if (!email && !phone) {
-      throw new Error(`Ligne ${lineNumber}: Email ou téléphone requis`);
     }
 
     return {
@@ -789,10 +759,7 @@ export class GuestService {
       lastName,
       email: email || null,
       phone: phone || null,
-      isVIP: data.isVIP === true || data.isVIP === 'true' || data.isVIP === '1',
-      dietaryRestrictions: data.dietaryRestrictions?.toString().trim() || null,
-      plusOne: data.plusOne === true || data.plusOne === 'true' || data.plusOne === '1',
-      plusOneName: data.plusOneName?.toString().trim() || null
+      isVIP: data.isVIP === true || data.isVIP === 'true' || data.isVIP === '1'
     };
   }
 
@@ -1000,23 +967,23 @@ export class GuestService {
         }
 
         // Préparer les données pour l'email
-        const coupleNames = invitation.coupleName || `${invitation.user.firstName} ${invitation.user.lastName}`;
-        const weddingDate = invitation.weddingDate.toLocaleDateString('fr-FR', {
+        const invitationData = getInvitationData(invitation);
+        const eventDate = invitationData.eventDate ? invitationData.eventDate.toLocaleDateString('fr-FR', {
           weekday: 'long',
           year: 'numeric',
           month: 'long',
           day: 'numeric'
-        });
+        }) : 'Date à définir';
 
         // Envoyer l'email
         await emailService.sendInvitation(
           guest.email,
           guestName,
-          invitation.title || 'Invitation de mariage',
+          invitationData.eventTitle || 'Invitation',
           guest.inviteToken,
-          weddingDate,
-          invitation.venueName,
-          coupleNames
+          eventDate,
+          invitationData.location,
+          invitationData.eventTitle
         );
 
         // Mettre à jour la date d'envoi

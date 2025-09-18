@@ -19,7 +19,7 @@ export class UserController {
           firstName: true,
           lastName: true,
           role: true,
-          subscriptionTier: true,
+
           isActive: true,
           emailVerified: true,
           createdAt: true,
@@ -53,7 +53,7 @@ export class UserController {
           firstName: true,
           lastName: true,
           role: true,
-          subscriptionTier: true,
+
           isActive: true,
           emailVerified: true,
           createdAt: true,
@@ -93,7 +93,7 @@ export class UserController {
           firstName: true,
           lastName: true,
           role: true,
-          subscriptionTier: true,
+
           isActive: true,
           emailVerified: true,
           createdAt: true,
@@ -119,7 +119,7 @@ export class UserController {
           firstName: true,
           lastName: true,
           role: true,
-          subscriptionTier: true,
+
           isActive: true,
           emailVerified: true,
           createdAt: true,
@@ -150,7 +150,7 @@ export class UserController {
           firstName: true,
           lastName: true,
           role: true,
-          subscriptionTier: true,
+
           isActive: true,
           emailVerified: true,
           createdAt: true,
@@ -231,9 +231,11 @@ export class UserController {
           active: users.filter((u: any) => u.isActive).length,
           inactive: users.filter((u: any) => !u.isActive).length,
           byRole: {
-            COUPLE: users.filter((u: any) => u.role === 'COUPLE').length,
+            HOST: users.filter((u: any) => u.role === 'HOST').length,
             ADMIN: users.filter((u: any) => u.role === 'ADMIN').length,
             GUEST: users.filter((u: any) => u.role === 'GUEST').length,
+            PROVIDER: users.filter((u: any) => u.role === 'PROVIDER').length,
+           
           },
           recentRegistrations: users.filter((u: any) => 
             new Date(u.createdAt) > thirtyDaysAgo
@@ -278,7 +280,6 @@ export class UserController {
       const invitations = await prisma.invitation.findMany({
         select: {
           id: true,
-          title: true,
           status: true,
           createdAt: true,
           updatedAt: true,
@@ -323,7 +324,6 @@ export class UserController {
         where: { id },
         select: {
           id: true,
-          title: true,
           description: true,
           status: true,
           createdAt: true,

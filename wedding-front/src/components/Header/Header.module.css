@@ -1,0 +1,206 @@
+.header {
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  width: 100%;
+  border-bottom: 1px solid var(--border-color);
+  background: var(--bg-card);
+  box-shadow: var(--shadow-sm);
+  transition: all var(--transition-normal);
+}
+
+.container {
+  display: flex;
+  height: 80px;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 var(--space-md);
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.logoSection {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  flex-shrink: 0;
+  margin-right: clamp(2rem, 4vw, 4rem);
+}
+
+.logoImage {
+  filter: brightness(0.9) contrast(1.1);
+  width: clamp(60px, 8vw, 80px);
+  height: auto;
+  transition: all var(--transition-normal);
+}
+
+.logoImage:hover {
+  filter: brightness(1.1) contrast(1.2) saturate(1.1);
+}
+
+.desktopNav {
+  display: none;
+  align-items: center;
+  gap: clamp(1rem, 2vw, 2rem);
+  flex: 1;
+  justify-content: center;
+}
+
+.navButton {
+  background: none;
+  border: none;
+  color: var(--text-primary);
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  padding: var(--space-sm) var(--space-md);
+  border-radius: var(--radius-md);
+  transition: all var(--transition-normal);
+  text-decoration: none;
+}
+
+.navButton:hover {
+  color: var(--color-primary);
+  background: var(--bg-secondary);
+}
+
+.ctaSection {
+  display: none;
+  align-items: center;
+  gap: var(--space-md);
+  flex-shrink: 0;
+}
+
+.loginButton {
+  background: transparent;
+  color: var(--text-primary);
+  border: 2px solid var(--border-color);
+  padding: var(--space-sm) var(--space-lg);
+  border-radius: var(--radius-md);
+  font-weight: 500;
+  cursor: pointer;
+  transition: all var(--transition-normal);
+  text-decoration: none;
+}
+
+.loginButton:hover {
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+}
+
+.signupButton {
+  background: var(--color-primary);
+  color: var(--color-dark);
+  border: none;
+  padding: var(--space-sm) var(--space-lg);
+  border-radius: var(--radius-md);
+  font-weight: 500;
+  cursor: pointer;
+  transition: all var(--transition-normal);
+  text-decoration: none;
+  box-shadow: var(--shadow-md);
+}
+
+.signupButton:hover {
+  background: #c19b2e;
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-lg);
+}
+
+.mobileMenuButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: none;
+  border: none;
+  color: var(--text-primary);
+  cursor: pointer;
+  padding: var(--space-sm);
+  border-radius: var(--radius-md);
+  transition: all var(--transition-normal);
+}
+
+.mobileMenuButton:hover {
+  background: var(--bg-secondary);
+}
+
+.mobileNav {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background: var(--bg-card);
+  border-top: 1px solid var(--border-color);
+  box-shadow: var(--shadow-lg);
+  padding: var(--space-lg);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+  transform: translateY(-100%);
+  opacity: 0;
+  visibility: hidden;
+  transition: all var(--transition-normal);
+}
+
+.mobileNav.open {
+  transform: translateY(0);
+  opacity: 1;
+  visibility: visible;
+}
+
+.mobileNavButton {
+  background: none;
+  border: none;
+  color: var(--text-primary);
+  font-size: 1.125rem;
+  font-weight: 500;
+  cursor: pointer;
+  padding: var(--space-md);
+  border-radius: var(--radius-md);
+  transition: all var(--transition-normal);
+  text-align: left;
+  width: 100%;
+}
+
+.mobileNavButton:hover {
+  color: var(--color-primary);
+  background: var(--bg-secondary);
+}
+
+.mobileCtaSection {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+  margin-top: var(--space-md);
+  padding-top: var(--space-md);
+  border-top: 1px solid var(--border-color);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .desktopNav {
+    display: none !important;
+  }
+
+  .ctaSection {
+    display: none !important;
+  }
+
+  .mobileMenuButton {
+    display: flex !important;
+  }
+}
+
+@media (min-width: 769px) {
+  .desktopNav {
+    display: flex !important;
+  }
+
+  .ctaSection {
+    display: flex !important;
+  }
+
+  .mobileMenuButton {
+    display: none !important;
+  }
+}

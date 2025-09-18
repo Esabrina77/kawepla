@@ -1,6 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -10,13 +7,504 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-enum UserRole {
-  ADMIN
-  COUPLE
-  GUEST
+model User {
+  id                 String                  @id @default(cuid())
+  email              String                  @unique
+  password           String
+  firstName          String
+  lastName           String
+  role               UserRole                @default(HOST)
+  isActive           Boolean                 @default(true)
+  emailVerified      Boolean                 @default(false)
+  createdAt          DateTime                @default(now())
+  updatedAt          DateTime                @updatedAt
+  stripeCustomerId   String?
+  clientBookings     Booking[]               @relation("ClientBookings")
+  adminConversations Conversation[]          @relation("AdminConversations")
+  userConversations  Conversation[]          @relation("UserConversations")
+  guests             Guest[]
+  invitations        Invitation[]
+  sentMessages       Message[]               @relation("SentMessages")
+  passwordResets     PasswordReset[]
+  providerProfile    ProviderProfile?
+  purchaseHistory    PurchaseHistory[]
+  pushSubscriptions  PushSubscription?
+  refreshTokens      RefreshToken[]
+  reviews            Review[]                @relation("ClientReviews")
+  servicePurchases   ServicePurchase[]
+  additionalServices UserAdditionalService[]
+  createdNewsletters Newsletter[]          @relation("NewsletterCreator")
+  newsletterRecipients NewsletterRecipient[] @relation("NewsletterRecipients")
+
+  @@map("users")
 }
 
-enum SubscriptionTier {
+model ProviderProfile {
+  id              String          @id @default(cuid())
+  userId          String          @unique
+  businessName    String
+  description     String
+  phone           String
+  status          ProviderStatus  @default(APPROVED)
+  verifiedAt      DateTime        @default(now())
+  profilePhoto    String?
+  portfolio       String[]
+  rating          Float           @default(0)
+  reviewCount     Int             @default(0)
+  bookingCount    Int             @default(0)
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+  categoryId      String
+  commissionRate  Float           @default(0.15)
+  displayCity     String
+  latitude        Float
+  longitude       Float
+  serviceRadius   Int             @default(25)
+  stripeAccountId String?
+  stripeOnboarded Boolean         @default(false)
+  totalEarnings   Float           @default(0)
+  bookings        Booking[]       @relation("ProviderBookings")
+  category        ServiceCategory @relation(fields: [categoryId], references: [id])
+  user            User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  reviews         Review[]        @relation("ProviderReviews")
+  services        Service[]
+
+  @@map("provider_profiles")
+}
+
+model ServiceCategory {
+  id          String            @id @default(cuid())
+  name        String            @unique
+  description String?
+  icon        String?
+  color       String?
+  isActive    Boolean           @default(true)
+  sortOrder   Int               @default(0)
+  createdAt   DateTime          @default(now())
+  updatedAt   DateTime          @updatedAt
+  providers   ProviderProfile[]
+  services    Service[]
+
+  @@map("service_categories")
+}
+
+model Service {
+  id               String          @id @default(cuid())
+  providerId       String
+  categoryId       String
+  name             String
+  description      String
+  shortDescription String?
+  price            Float
+  priceType        String
+  currency         String          @default("EUR")
+  minPrice         Float?
+  maxPrice         Float?
+  duration         Int?
+  capacity         Int?
+  includes         String[]
+  requirements     String[]
+  photos           String[]
+  videos           String[]
+  isActive         Boolean         @default(true)
+  availability     Json?
+  rating           Float           @default(0)
+  reviewCount      Int             @default(0)
+  bookingCount     Int             @default(0)
+  createdAt        DateTime        @default(now())
+  updatedAt        DateTime        @updatedAt
+  eventTypes       EventType[]
+  bookings         Booking[]
+  reviews          Review[]
+  category         ServiceCategory @relation(fields: [categoryId], references: [id])
+  provider         ProviderProfile @relation(fields: [providerId], references: [id], onDelete: Cascade)
+
+  @@map("services")
+}
+
+model Booking {
+  id                    String          @id @default(cuid())
+  clientId              String
+  providerId            String
+  serviceId             String
+  eventDate             DateTime
+  clientName            String
+  clientPhone           String
+  clientEmail           String
+  guestCount            Int?
+  status                BookingStatus   @default(PENDING)
+  totalPrice            Float
+  stripePaymentIntentId String?
+  confirmedAt           DateTime?
+  completedAt           DateTime?
+  createdAt             DateTime        @default(now())
+  updatedAt             DateTime        @updatedAt
+  eventTime             String?
+  eventType             EventType
+  message               String?
+  ourCommission         Float
+  paidAt                DateTime?
+  providerAmount        Float
+  stripeTransferId      String?
+  client                User            @relation("ClientBookings", fields: [clientId], references: [id], onDelete: Cascade)
+  provider              ProviderProfile @relation("ProviderBookings", fields: [providerId], references: [id], onDelete: Cascade)
+  service               Service         @relation(fields: [serviceId], references: [id], onDelete: Cascade)
+  reviews               Review[]
+
+  @@map("bookings")
+}
+
+model Review {
+  id                  String          @id @default(cuid())
+  clientId            String
+  providerId          String
+  serviceId           String
+  bookingId           String
+  rating              Int
+  comment             String?
+  qualityRating       Int?
+  communicationRating Int?
+  valueRating         Int?
+  punctualityRating   Int?
+  isVerified          Boolean         @default(false)
+  isPublic            Boolean         @default(true)
+  moderatedAt         DateTime?
+  createdAt           DateTime        @default(now())
+  updatedAt           DateTime        @updatedAt
+  booking             Booking         @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  client              User            @relation("ClientReviews", fields: [clientId], references: [id], onDelete: Cascade)
+  provider            ProviderProfile @relation("ProviderReviews", fields: [providerId], references: [id], onDelete: Cascade)
+  service             Service         @relation(fields: [serviceId], references: [id], onDelete: Cascade)
+
+  @@map("reviews")
+}
+
+model UserAdditionalService {
+  id        String   @id @default(cuid())
+  userId    String
+  serviceId String
+  quantity  Int
+  type      String
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("user_additional_services")
+}
+
+model RefreshToken {
+  id        String   @id @default(cuid())
+  token     String   @unique
+  userId    String
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("refresh_tokens")
+}
+
+model EmailVerification {
+  id        String   @id @default(cuid())
+  email     String
+  code      String
+  expiresAt DateTime
+  verified  Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  @@map("email_verifications")
+}
+
+model ServicePurchase {
+  id               String         @id @default(cuid())
+  userId           String
+  tier             ServiceTier
+  status           PurchaseStatus @default(ACTIVE)
+  stripePaymentId  String?        @unique
+  stripePriceId    String?
+  stripeCustomerId String?
+  quantity         Int            @default(1)
+  purchasedAt      DateTime       @default(now())
+  updatedAt        DateTime       @updatedAt
+  user             User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("service_purchases")
+}
+
+model PurchaseHistory {
+  id              String      @id @default(cuid())
+  userId          String
+  tier            ServiceTier
+  quantity        Int         @default(1)
+  price           Float
+  currency        String      @default("EUR")
+  stripePaymentId String?
+  purchasedAt     DateTime    @default(now())
+  user            User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("purchase_history")
+}
+
+model Design {
+  id              String       @id @default(cuid())
+  name            String
+  description     String?
+  category        String?
+  tags            String[]
+  isActive        Boolean      @default(true)
+  createdAt       DateTime     @default(now())
+  updatedAt       DateTime     @updatedAt
+  template        Json
+  styles          Json
+  variables       Json?
+  version         String       @default("1.0.0")
+  customFonts     Json?
+  backgroundImage String?
+  priceType       ServiceTier  @default(FREE)
+  invitations     Invitation[]
+
+  @@map("designs")
+}
+
+model Invitation {
+  id                 String           @id @default(cuid())
+  description        String?
+  status             InvitationStatus @default(DRAFT)
+  photos             Json[]           @default([])
+  languages          String[]         @default(["fr"])
+  createdAt          DateTime         @default(now())
+  updatedAt          DateTime         @updatedAt
+  userId             String
+  designId           String
+  moreInfo           String?
+  shareableEnabled   Boolean          @default(false)
+  shareableMaxUses   Int?             @default(50)
+  shareableToken     String?          @unique
+  shareableUsedCount Int              @default(0)
+  customText         String?
+  eventDate          DateTime
+  eventTime          String?
+  eventTitle         String
+  eventType          EventType        @default(WEDDING)
+  location           String
+  conversations      Conversation[]
+  guests             Guest[]
+  design             Design           @relation(fields: [designId], references: [id])
+  user               User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  photoAlbums        PhotoAlbum[]
+  rsvps              RSVP[]
+  shareableLinks     ShareableLink[]
+
+  @@map("invitations")
+}
+
+model ShareableLink {
+  id           String              @id @default(cuid())
+  token        String              @unique
+  isActive     Boolean             @default(true)
+  maxUses      Int                 @default(50)
+  usedCount    Int                 @default(0)
+  expiresAt    DateTime?
+  createdAt    DateTime            @default(now())
+  updatedAt    DateTime            @updatedAt
+  invitationId String
+  guestId      String?             @unique
+  status       ShareableLinkStatus @default(SHARED)
+  guest        Guest?              @relation(fields: [guestId], references: [id])
+  invitation   Invitation          @relation(fields: [invitationId], references: [id], onDelete: Cascade)
+
+  @@map("shareable_links")
+}
+
+model Guest {
+  id                  String         @id @default(cuid())
+  firstName           String
+  lastName            String
+  email               String?
+  phone               String?
+  isVIP               Boolean        @default(false)
+  dietaryRestrictions String?
+  plusOne             Boolean        @default(false)
+  plusOneName         String?
+  inviteToken         String         @unique
+  usedAt              DateTime?
+  createdAt           DateTime       @default(now())
+  updatedAt           DateTime       @updatedAt
+  userId              String
+  invitationId        String
+  invitationSentAt    DateTime?
+  invitationType      InvitationType @default(PERSONAL)
+  sharedLinkUsed      Boolean        @default(false)
+  profilePhotoUrl     String?
+  invitation          Invitation     @relation(fields: [invitationId], references: [id], onDelete: Cascade)
+  user                User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  photos              Photo[]
+  rsvp                RSVP?
+  shareableLink       ShareableLink?
+
+  @@unique([invitationId, email], name: "unique_email_per_invitation")
+  @@map("guests")
+}
+
+model RSVP {
+  id                 String     @id @default(cuid())
+  status             RSVPStatus @default(PENDING)
+  message            String?
+  attendingCeremony  Boolean    @default(true)
+  attendingReception Boolean    @default(true)
+  numberOfGuests     Int        @default(1)
+  respondedAt        DateTime?
+  createdAt          DateTime   @default(now())
+  updatedAt          DateTime   @updatedAt
+  invitationId       String
+  guestId            String     @unique
+  profilePhotoUrl    String?
+  guest              Guest      @relation(fields: [guestId], references: [id], onDelete: Cascade)
+  invitation         Invitation @relation(fields: [invitationId], references: [id], onDelete: Cascade)
+
+  @@map("rsvps")
+}
+
+model Conversation {
+  id            String             @id @default(cuid())
+  userId        String
+  invitationId  String
+  adminId       String?
+  status        ConversationStatus @default(ACTIVE)
+  lastMessageAt DateTime           @default(now())
+  createdAt     DateTime           @default(now())
+  updatedAt     DateTime           @updatedAt
+  admin         User?              @relation("AdminConversations", fields: [adminId], references: [id])
+  invitation    Invitation         @relation(fields: [invitationId], references: [id], onDelete: Cascade)
+  user          User               @relation("UserConversations", fields: [userId], references: [id], onDelete: Cascade)
+  messages      Message[]
+
+  @@map("conversations")
+}
+
+model Message {
+  id             String       @id @default(cuid())
+  conversationId String
+  senderId       String
+  content        String
+  messageType    MessageType  @default(TEXT)
+  isRead         Boolean      @default(false)
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+  conversation   Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  sender         User         @relation("SentMessages", fields: [senderId], references: [id], onDelete: Cascade)
+
+  @@map("messages")
+}
+
+model PasswordReset {
+  id        String   @id @default(cuid())
+  email     String
+  token     String   @unique
+  expiresAt DateTime
+  used      Boolean  @default(false)
+  createdAt DateTime @default(now())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("password_resets")
+}
+
+model PhotoAlbum {
+  id            String     @id @default(cuid())
+  title         String
+  description   String?
+  isPublic      Boolean    @default(false)
+  coverPhotoUrl String?
+  createdAt     DateTime   @default(now())
+  updatedAt     DateTime   @updatedAt
+  invitationId  String
+  invitation    Invitation @relation(fields: [invitationId], references: [id], onDelete: Cascade)
+  photos        Photo[]
+
+  @@map("photo_albums")
+}
+
+model Photo {
+  id            String      @id @default(cuid())
+  originalUrl   String
+  compressedUrl String?
+  thumbnailUrl  String?
+  filename      String
+  size          Int
+  width         Int?
+  height        Int?
+  mimeType      String
+  status        PhotoStatus @default(PENDING)
+  caption       String?
+  uploadedAt    DateTime    @default(now())
+  approvedAt    DateTime?
+  publishedAt   DateTime?
+  albumId       String
+  uploadedById  String?
+  album         PhotoAlbum  @relation(fields: [albumId], references: [id], onDelete: Cascade)
+  uploadedBy    Guest?      @relation(fields: [uploadedById], references: [id])
+
+  @@map("photos")
+}
+
+model PushSubscription {
+  id        String   @id @default(cuid())
+  userId    String   @unique
+  endpoint  String
+  p256dh    String
+  auth      String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("push_subscriptions")
+}
+
+model Newsletter {
+  id                String             @id @default(cuid())
+  title             String
+  subject           String
+  content           String
+  htmlContent       String?
+  status            NewsletterStatus   @default(DRAFT)
+  targetAudience    NewsletterAudience @default(ALL_USERS)
+  specificUserIds   String[]           @default([])
+  scheduledAt       DateTime?
+  sentAt            DateTime?
+  sentCount         Int                @default(0)
+  openCount         Int                @default(0)
+  clickCount        Int                @default(0)
+  createdBy         String
+  createdAt         DateTime           @default(now())
+  updatedAt         DateTime           @updatedAt
+  creator           User               @relation("NewsletterCreator", fields: [createdBy], references: [id])
+  recipients        NewsletterRecipient[]
+
+  @@map("newsletters")
+}
+
+model NewsletterRecipient {
+  id           String    @id @default(cuid())
+  newsletterId String
+  userId       String
+  sentAt       DateTime?
+  openedAt     DateTime?
+  clickedAt    DateTime?
+  status       String    @default("PENDING") // PENDING, SENT, FAILED, OPENED, CLICKED
+  newsletter   Newsletter @relation(fields: [newsletterId], references: [id], onDelete: Cascade)
+  user         User      @relation("NewsletterRecipients", fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([newsletterId, userId])
+  @@map("newsletter_recipients")
+}
+
+enum UserRole {
+  ADMIN
+  HOST
+  GUEST
+  PROVIDER
+}
+
+enum ServiceTier {
   FREE
   ESSENTIAL
   ELEGANT
@@ -24,11 +512,10 @@ enum SubscriptionTier {
   LUXE
 }
 
-enum SubscriptionStatus {
+enum PurchaseStatus {
   ACTIVE
-  CANCELED
-  EXPIRED
-  PAST_DUE
+  COMPLETED
+  REFUNDED
 }
 
 enum RSVPStatus {
@@ -44,322 +531,56 @@ enum InvitationStatus {
 }
 
 enum InvitationType {
-  PERSONAL    // Invité pré-créé (mode actuel)
-  SHAREABLE   // Via lien partageable (nouveau)
+  PERSONAL
+  SHAREABLE
+}
+
+enum EventType {
+  WEDDING
+  BIRTHDAY
+  BAPTISM
+  ANNIVERSARY
+  GRADUATION
+  BABY_SHOWER
+  ENGAGEMENT
+  COMMUNION
+  CONFIRMATION
+  RETIREMENT
+  HOUSEWARMING
+  CORPORATE
+  OTHER
 }
 
 enum ShareableLinkStatus {
-  SHARED      // Lien partagé mais pas encore utilisé
-  USED        // Lien utilisé par un invité
+  SHARED
+  USED
+  CONFIRMED
 }
 
-model User {
-  id                String            @id @default(cuid())
-  email             String            @unique
-  password          String
-  firstName         String
-  lastName          String
-  role              UserRole          @default(COUPLE)
-  subscriptionTier  SubscriptionTier  @default(FREE)
-  subscriptionStatus SubscriptionStatus @default(ACTIVE)
-  subscriptionEndDate DateTime?
-  isActive          Boolean           @default(true)
-  emailVerified     Boolean           @default(false)
-  createdAt         DateTime          @default(now())
-  updatedAt         DateTime          @updatedAt
-
-  // Stripe fields
-  stripeCustomerId    String?
-  stripeSubscriptionId String?
-  stripePriceId       String?
-  
-  // Relations
-  invitations       Invitation[]
-  guests            Guest[]
-  refreshTokens     RefreshToken[]
-  adminDesigns      Design[]          @relation("AdminDesigns")
-  passwordResets    PasswordReset[]
-  subscriptions     Subscription[]
-  
-  // Relations pour la messagerie
-  userConversations Conversation[]    @relation("UserConversations")
-  adminConversations Conversation[]   @relation("AdminConversations")
-  sentMessages      Message[]         @relation("SentMessages")
-
-  // Services supplémentaires achetés
-  additionalServices UserAdditionalService[]
-
-  @@map("users")
+enum ProviderStatus {
+  PENDING
+  APPROVED
+  SUSPENDED
+  REJECTED
 }
 
-model UserAdditionalService {
-  id        String   @id @default(cuid())
-  userId    String
-  serviceId String   // ID du service (GUESTS_30, GUESTS_50, etc.)
-  quantity  Int      // Quantité achetée
-  type      String   // Type de service (guests, photos, designs)
-  createdAt DateTime @default(now())
-
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@map("user_additional_services")
+enum BookingStatus {
+  PENDING
+  CONFIRMED
+  CANCELLED
+  COMPLETED
+  DISPUTED
 }
 
-model RefreshToken {
-  id        String   @id @default(cuid())
-  token     String   @unique
-  userId    String
-  expiresAt DateTime
-  createdAt DateTime @default(now())
-
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@map("refresh_tokens")
-}
-
-model EmailVerification {
-  id        String   @id @default(cuid())
-  email     String
-  code      String   // Code de vérification (6 chiffres)
-  expiresAt DateTime
-  verified  Boolean  @default(false)
-  createdAt DateTime @default(now())
-
-  @@map("email_verifications")
-}
-
-model Subscription {
-  id                String             @id @default(cuid())
-  userId            String
-  tier              SubscriptionTier
-  status            SubscriptionStatus @default(ACTIVE)
-  stripeSubscriptionId String?         @unique
-  stripePriceId     String?
-  stripeCustomerId  String?
-  currentPeriodStart DateTime?
-  currentPeriodEnd  DateTime?
-  cancelAtPeriodEnd Boolean           @default(false)
-  createdAt         DateTime          @default(now())
-  updatedAt         DateTime          @updatedAt
-
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@map("subscriptions")
-}
-
-model Design {
-  id          String   @id @default(cuid())
-  name        String
-  description String?
-  category    String?  // Catégorie du design (boho, moderne, traditionnel, etc.)
-  tags        String[] // Tags pour filtrer les designs
-  isActive    Boolean  @default(true)
-  isPremium   Boolean  @default(false)
-  price       Float?
-  createdBy   String?  // Admin ID
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-
-  // Template Structure
-  template    Json     // Stockage du HTML de base
-  styles      Json     // Stockage des styles en JSON
-  components  Json?    // Composants réutilisables
-  variables   Json?    // Variables personnalisables (couleurs, fonts, etc.)
-  version     String   @default("1.0.0") // Pour la gestion des versions
-
-  // Nouvelles fonctionnalités
-  customFonts Json?    // Polices personnalisées { "name": "font-url", ... }
-  backgroundImage String? // URL de l'image de fond par défaut
-  backgroundImageRequired Boolean @default(false) // Si le design nécessite une image de fond
-  previewImages Json?   // Images de prévisualisation du design
-
-  // Relations
-  admin       User?    @relation("AdminDesigns", fields: [createdBy], references: [id])
-  invitations Invitation[]
-
-  @@map("designs")
-}
-
-model Invitation {
-  id              String            @id @default(cuid())
-  
-  // Informations du couple
-  coupleName      String
-  
-  // Date et heure
-  weddingDate     DateTime
-  ceremonyTime    String?
-  receptionTime   String?
-  
-  // Textes d'invitation
-  invitationText  String?           @default("Vous êtes cordialement invités")
-  
-  // Lieu et détails
-  venueName       String
-  venueAddress    String
-  venueCoordinates String?          // "lat,lng" format
-  moreInfo        String?           // Description/détails supplémentaires
-  
-  // RSVP
-  rsvpDetails     String?           @default("Merci de confirmer votre présence")
-  rsvpForm        String?           @default("RSVP requis")
-  rsvpDate        DateTime?         // Date limite RSVP
-  
-  // Messages personnalisés
-  message         String?           @default("Votre présence sera notre plus beau cadeau")
-  blessingText    String?           @default("Avec leurs familles")
-  welcomeMessage  String?           @default("Bienvenue à notre mariage")
-  
-  // Informations supplémentaires
-  dressCode       String?           @default("Tenue de soirée souhaitée")
-  contact         String?           // Informations de contact
-  
-  // Champs existants conservés
-  title           String?           // Titre de l'invitation (optionnel maintenant)
-  description     String?
-  customDomain    String?           @unique
-  status          InvitationStatus  @default(DRAFT)
-  photos          Json[]            @default([])
-  program         Json?             // Programme détaillé structuré
-  restrictions    String?           // Restrictions alimentaires
-  languages       String[]          @default(["fr"])
-  maxGuests       Int?
-  createdAt       DateTime          @default(now())
-  updatedAt       DateTime          @updatedAt
-
-  // NOUVEAU: Lien partageable
-  shareableToken    String?  @unique
-  shareableEnabled  Boolean  @default(false)
-  shareableMaxUses  Int?     @default(50)
-  shareableUsedCount Int     @default(0)
-  shareableExpiresAt DateTime?
-
-  // Relations
-  userId          String
-  user            User              @relation(fields: [userId], references: [id], onDelete: Cascade)
-  designId        String
-  design          Design            @relation(fields: [designId], references: [id])
-  guests          Guest[]
-  rsvps           RSVP[]
-  conversations   Conversation[]
-  shareableLinks  ShareableLink[]   // Nouvelle relation pour les liens partageables
-  photoAlbums     PhotoAlbum[]
-
-  @@map("invitations")
-}
-
-// NOUVEAU: Table pour les liens partageables (tous restent valides)
-model ShareableLink {
-  id              String   @id @default(cuid())
-  token           String   @unique
-  status          ShareableLinkStatus @default(SHARED)
-  isActive        Boolean  @default(true)
-  maxUses         Int      @default(50)
-  usedCount       Int      @default(0)
-  expiresAt       DateTime?
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
-
-  // Relations
-  invitationId    String
-  invitation      Invitation @relation(fields: [invitationId], references: [id], onDelete: Cascade)
-  guestId         String?    @unique // Guest associé quand le lien est utilisé
-  guest           Guest?     @relation(fields: [guestId], references: [id], onDelete: SetNull)
-
-  @@map("shareable_links")
-}
-
-model Guest {
-  id            String   @id @default(cuid())
-  firstName     String
-  lastName      String
-  email         String?
-  phone         String?
-  profilePhotoUrl String? // URL de la photo de profil Firebase Storage
-  isVIP         Boolean  @default(false)
-  dietaryRestrictions String?
-  plusOne       Boolean  @default(false)
-  plusOneName   String?
-  inviteToken   String   @unique
-  usedAt        DateTime?
-  invitationSentAt DateTime? // Date d'envoi de l'invitation par email
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
-
-  // NOUVEAU: Type d'invitation
-  invitationType    InvitationType @default(PERSONAL)
-  sharedLinkUsed    Boolean        @default(false)
-
-  // Relations
-  userId        String
-  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  invitationId  String
-  invitation    Invitation @relation(fields: [invitationId], references: [id], onDelete: Cascade)
-  rsvp          RSVP?
-  shareableLink ShareableLink? // Lien partageable utilisé par cet invité
-  photos        Photo[]
-
-  // Contrainte d'unicité : un email ne peut être utilisé qu'une seule fois par invitation
-  @@unique([invitationId, email], name: "unique_email_per_invitation")
-  @@map("guests")
-}
-
-model RSVP {
-  id            String      @id @default(cuid())
-  status        RSVPStatus  @default(PENDING)
-  message       String?
-  attendingCeremony Boolean  @default(true)
-  attendingReception Boolean @default(true)
-  numberOfGuests Int        @default(1)
-  profilePhotoUrl String?   // URL de la photo de profil ajoutée par l'invité
-  respondedAt   DateTime?
-  createdAt     DateTime    @default(now())
-  updatedAt     DateTime    @updatedAt
-
-  // Relations
-  invitationId  String
-  invitation    Invitation  @relation(fields: [invitationId], references: [id], onDelete: Cascade)
-  guestId       String      @unique
-  guest         Guest       @relation(fields: [guestId], references: [id], onDelete: Cascade)
-
-  @@map("rsvps")
-}
-
-// Modèles pour la messagerie
-model Conversation {
-  id            String   @id @default(cuid())
-  userId        String   // ID du client
-  invitationId  String   // ID de l'invitation
-  adminId       String?  // ID de l'admin assigné (optionnel)
-  status        ConversationStatus @default(ACTIVE)
-  lastMessageAt DateTime @default(now())
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
-
-  // Relations
-  user          User     @relation("UserConversations", fields: [userId], references: [id], onDelete: Cascade)
-  invitation    Invitation @relation(fields: [invitationId], references: [id], onDelete: Cascade)
-  admin         User?    @relation("AdminConversations", fields: [adminId], references: [id], onDelete: SetNull)
-  messages      Message[]
-
-  @@map("conversations")
-}
-
-model Message {
-  id             String      @id @default(cuid())
-  conversationId String
-  senderId       String
-  content        String
-  messageType    MessageType @default(TEXT)
-  isRead         Boolean     @default(false)
-  createdAt      DateTime    @default(now())
-  updatedAt      DateTime    @updatedAt
-
-  // Relations
-  conversation   Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
-  sender         User         @relation("SentMessages", fields: [senderId], references: [id], onDelete: Cascade)
-
-  @@map("messages")
+enum ServiceType {
+  BEAUTY
+  VENUE
+  PHOTOGRAPHY
+  MUSIC
+  TRANSPORT
+  DECORATION
+  CATERING
+  OTHER
 }
 
 enum ConversationStatus {
@@ -375,67 +596,24 @@ enum MessageType {
 }
 
 enum PhotoStatus {
-  PENDING     // Photo en attente de validation
-  APPROVED    // Photo approuvée par les mariés
-  REJECTED    // Photo rejetée
-  PUBLIC      // Photo publiée publiquement
+  PENDING
+  APPROVED
+  REJECTED
+  PUBLIC
 }
 
-model PasswordReset {
-  id        String   @id @default(cuid())
-  email     String
-  token     String   @unique
-  expiresAt DateTime
-  used      Boolean  @default(false)
-  createdAt DateTime @default(now())
-
-  // Relations
-  userId    String
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@map("password_resets")
+enum NewsletterStatus {
+  DRAFT
+  SCHEDULED
+  SENDING
+  SENT
+  CANCELLED
 }
 
-// Modèle pour les albums photos
-model PhotoAlbum {
-  id            String   @id @default(cuid())
-  title         String
-  description   String?
-  isPublic      Boolean  @default(false)
-  coverPhotoUrl String?  // Photo de couverture de l'album
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
-
-  // Relations
-  invitationId  String
-  invitation    Invitation @relation(fields: [invitationId], references: [id], onDelete: Cascade)
-  photos        Photo[]
-
-  @@map("photo_albums")
+enum NewsletterAudience {
+  ALL_USERS
+  HOSTS_ONLY
+  PROVIDERS_ONLY
+  ADMINS_ONLY
+  SPECIFIC_USERS
 }
-
-// Modèle pour les photos individuelles
-model Photo {
-  id            String      @id @default(cuid())
-  originalUrl   String      // URL originale sur Firebase Storage
-  compressedUrl String?     // URL de la version compressée
-  thumbnailUrl  String?     // URL de la miniature
-  filename      String      // Nom original du fichier
-  size          Int         // Taille en bytes
-  width         Int?        // Largeur en pixels
-  height        Int?        // Hauteur en pixels
-  mimeType      String      // Type MIME (image/jpeg, image/png, etc.)
-  status        PhotoStatus @default(PENDING)
-  caption       String?     // Légende de la photo
-  uploadedAt    DateTime    @default(now())
-  approvedAt    DateTime?   // Date d'approbation par les mariés
-  publishedAt   DateTime?   // Date de publication publique
-
-  // Relations
-  albumId       String
-  album         PhotoAlbum  @relation(fields: [albumId], references: [id], onDelete: Cascade)
-  uploadedById  String?     // Guest qui a uploadé la photo
-  uploadedBy    Guest?      @relation(fields: [uploadedById], references: [id], onDelete: SetNull)
-
-  @@map("photos")
-} 

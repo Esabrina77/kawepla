@@ -5,7 +5,9 @@
 import { Request, Response, NextFunction } from 'express';
 import { RSVPService } from '../services/rsvpService';
 import { ShareableInvitationService } from '../services/shareableInvitationService';
-import { RSVPStatus } from '@prisma/client';
+import { NotificationService } from '../services/notificationService';
+import { rsvpSchema, rsvpUpdateSchema, shareableRSVPSchema } from '../middleware/rsvpValidation';
+import { ZodError } from 'zod';
 
 export class RSVPController {
   /**
@@ -53,14 +55,37 @@ export class RSVPController {
         return;
       }
 
+      // Validation des données RSVP
+      try {
+        const validatedData = await rsvpSchema.parseAsync(req.body);
+        req.body = validatedData;
+      } catch (error) {
+        if (error instanceof ZodError) {
+          res.status(400).json({
+            message: 'Données RSVP invalides',
+            errors: error.errors.map(e => ({
+              field: e.path.join('.'),
+              message: e.message
+            }))
+          });
+          return;
+        }
+        throw error;
+      }
+
       try {
         const rsvp = await RSVPService.createRSVP(token, req.body);
+        
+        // Envoyer une notification via le service de notifications
+        if (rsvp) {
+          await NotificationService.sendRSVPNotification(rsvp);
+        }
+        
         res.status(201).json(rsvp);
       } catch (error) {
         if (error instanceof Error) {
           if (error.message === 'Cette invitation n\'est pas encore publiée' ||
-              error.message === 'Ce lien d\'invitation a déjà été utilisé' ||
-              error.message === 'Nombre d\'invités non autorisé') {
+              error.message === 'Ce lien d\'invitation a déjà été utilisé') {
             res.status(400).json({ message: error.message });
           } else if (error.message === 'Invité non trouvé') {
             res.status(404).json({ message: error.message });
@@ -92,7 +117,8 @@ export class RSVPController {
         const rsvp = await RSVPService.getRSVPByToken(token);
         
         if (!rsvp) {
-          res.status(404).json({ message: 'RSVP non trouvé' });
+          // Pas de RSVP, c'est normal pour un invité qui n'a pas encore répondu
+          res.status(404).json({ message: 'Aucune réponse RSVP trouvée pour cet invité' });
           return;
         }
         
@@ -102,9 +128,11 @@ export class RSVPController {
           if (error.message === 'Invité non trouvé') {
             res.status(404).json({ message: error.message });
           } else {
+            console.error('Erreur RSVP getStatus:', error);
             res.status(500).json({ message: 'Erreur interne du serveur' });
           }
         } else {
+          console.error('Erreur RSVP getStatus (non-Error):', error);
           res.status(500).json({ message: 'Erreur interne du serveur' });
         }
       }
@@ -125,8 +153,27 @@ export class RSVPController {
         return;
       }
 
+      // Validation des données RSVP
       try {
-        const rsvp = await RSVPService.updateRSVP(token, req.body);
+        const validatedData = await rsvpUpdateSchema.parseAsync(req.body);
+        req.body = validatedData;
+      } catch (error) {
+        if (error instanceof ZodError) {
+          res.status(400).json({
+            message: 'Données RSVP invalides',
+            errors: error.errors.map(e => ({
+              field: e.path.join('.'),
+              message: e.message
+            }))
+          });
+          return;
+        }
+        throw error;
+      }
+
+      try {
+        // Utiliser la nouvelle méthode qui gère aussi la photo de profil
+        const rsvp = await RSVPService.updateRSVPWithPhotoUpdate(token, req.body);
         
         if (!rsvp) {
           res.status(404).json({ message: 'RSVP non trouvé' });
@@ -136,8 +183,7 @@ export class RSVPController {
         res.status(200).json(rsvp);
       } catch (error) {
         if (error instanceof Error) {
-          if (error.message === 'Cette invitation n\'est pas encore publiée' ||
-              error.message === 'Nombre d\'invités non autorisé') {
+          if (error.message === 'Cette invitation n\'est pas encore publiée') {
             res.status(400).json({ message: error.message });
           } else if (error.message === 'Invité non trouvé' ||
                      error.message === 'Aucune réponse RSVP trouvée') {
@@ -196,21 +242,37 @@ export class RSVPController {
    */
   static async createRSVPFromShareableLink(shareableToken: string, data: any) {
     try {
+      // Validation des données RSVP partageable
+      const validatedData = await shareableRSVPSchema.parseAsync(data);
+      
       // Récupérer l'invitation via le token partageable
       const invitation = await ShareableInvitationService.getInvitationByShareableToken(shareableToken, true);
       
       // Créer l'invité avec les infos personnelles et associer le lien
-      const guest = await RSVPService.createGuestFromShareableLink(invitation.id, data, shareableToken);
+      const guest = await RSVPService.createGuestFromShareableLink(invitation.id, validatedData, shareableToken);
+      
+      // Marquer le lien comme USED (annule la suppression automatique)
+      await ShareableInvitationService.associateGuestToLink(shareableToken, guest.id);
       
       // Créer la réponse RSVP
       const rsvp = await RSVPService.createRSVP(guest.inviteToken, {
-        status: data.status,
-        numberOfGuests: data.numberOfGuests,
-        message: data.message,
-        attendingCeremony: data.attendingCeremony,
-        attendingReception: data.attendingReception,
-        profilePhotoUrl: data.profilePhotoUrl
+        status: validatedData.status,
+        message: validatedData.message,
+        attendingCeremony: validatedData.attendingCeremony,
+        attendingReception: validatedData.attendingReception,
+        profilePhotoUrl: validatedData.profilePhotoUrl,
+        plusOne: validatedData.plusOne,
+        plusOneName: validatedData.plusOneName,
+        dietaryRestrictions: validatedData.dietaryRestrictions
       });
+
+      // Marquer le lien comme CONFIRMED après RSVP réussi
+      await ShareableInvitationService.confirmShareableLink(shareableToken);
+
+      // Envoyer une notification via le service de notifications
+      if (rsvp) {
+        await NotificationService.sendRSVPNotification(rsvp);
+      }
 
       return {
         guest: {
@@ -227,10 +289,10 @@ export class RSVPController {
           attendingReception: rsvp.attendingReception
         },
         invitation: {
-          coupleName: invitation.coupleName,
-          weddingDate: invitation.weddingDate,
-          venueName: invitation.venueName,
-          venueAddress: invitation.venueAddress
+          eventTitle: invitation.eventTitle,
+          eventDate: invitation.eventDate,
+          eventTime: invitation.eventTime,
+          location: invitation.location
         },
         message: 'Votre réponse a été enregistrée avec succès !'
       };
@@ -251,10 +313,10 @@ export class RSVPController {
       return {
         invitationId: invitation.id,
         shareableToken,
-        coupleName: invitation.coupleName,
-        weddingDate: invitation.weddingDate,
-        venueName: invitation.venueName,
-        venueAddress: invitation.venueAddress,
+        eventTitle: invitation.eventTitle,
+        eventDate: invitation.eventDate,
+        eventTime: invitation.eventTime,
+        location: invitation.location,
         message: 'Ce lien partageable permet de répondre à l\'invitation'
       };
     } catch (error) {

@@ -1,38 +1,38 @@
 import { useState, useEffect, useCallback } from 'react';
 import { apiClient } from '@/lib/api/apiClient';
 
-interface SubscriptionLimits {
+interface ServicePurchaseLimits {
   invitations: number;
   guests: number;
   photos: number;
   designs: number;
 }
 
-interface SubscriptionUsage {
+interface ServicePurchaseUsage {
   invitations: number;
   guests: number;
   photos: number;
   designs: number;
 }
 
-interface SubscriptionRemaining {
+interface ServicePurchaseRemaining {
   invitations: number;
   guests: number;
   photos: number;
   designs: number;
 }
 
-interface SubscriptionLimitsResponse {
+interface ServicePurchaseLimitsResponse {
   tier: string;
-  limits: SubscriptionLimits;
-  usage: SubscriptionUsage;
-  remaining: SubscriptionRemaining;
+  limits: ServicePurchaseLimits;
+  usage: ServicePurchaseUsage;
+  remaining: ServicePurchaseRemaining;
 }
 
-export function useSubscriptionLimits() {
-  const [limits, setLimits] = useState<SubscriptionLimits | null>(null);
-  const [usage, setUsage] = useState<SubscriptionUsage | null>(null);
-  const [remaining, setRemaining] = useState<SubscriptionRemaining | null>(null);
+export function useServicePurchaseLimits() {
+  const [limits, setLimits] = useState<ServicePurchaseLimits | null>(null);
+  const [usage, setUsage] = useState<ServicePurchaseUsage | null>(null);
+  const [remaining, setRemaining] = useState<ServicePurchaseRemaining | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [refreshCounter, setRefreshCounter] = useState(0);
@@ -40,8 +40,8 @@ export function useSubscriptionLimits() {
   const fetchLimits = useCallback(async () => {
     try {
       setLoading(true);
-      const response = await apiClient.get('/subscriptions/limits');
-      const data = response as SubscriptionLimitsResponse;
+      const response = await apiClient.get('/servicePurchases/limits');
+      const data = response as ServicePurchaseLimitsResponse;
       
       setLimits(data.limits);
       setUsage(data.usage);

@@ -6,20 +6,20 @@ import { prisma } from '../lib/prisma';
 import { StripeService } from '../services/stripeService';
 
 /**
- * Obtenir les limites d'un utilisateur selon son tier et ses services supplémentaires
+ * Obtenir les limites d'un utilisateur selon ses achats et services supplémentaires
  */
 export const getUserLimits = async (tier: string, userId?: string) => {
   if (userId) {
-    // Utiliser les limites totales incluant les services supplémentaires
-    return await StripeService.getUserTotalLimits(userId, tier);
+    // Utiliser les limites totales incluant tous les achats et services supplémentaires
+    return await StripeService.getUserTotalLimits(userId);
   }
   
   // Fallback vers les limites de base
   const plan = StripeService.getPlanDetails(tier as any);
   return plan ? plan.limits : {
     invitations: 1,
-    guests: 10,
-    photos: 0,
+    guests: 30,
+    photos: 20,
     designs: 1
   };
 };
@@ -31,7 +31,6 @@ export const checkInvitationLimit = async (req: Request, res: Response, next: Ne
   try {
     const userId = (req as any).user?.id;
     const userRole = (req as any).user?.role;
-    const userTier = (req as any).user?.subscriptionTier || 'FREE';
 
     if (!userId) {
       res.status(401).json({ message: 'Non authentifié' });
@@ -44,7 +43,7 @@ export const checkInvitationLimit = async (req: Request, res: Response, next: Ne
       return;
     }
 
-    const limits = await getUserLimits(userTier, userId);
+    const limits = await getUserLimits('FREE', userId);
 
     // Compter les invitations existantes
     const invitationCount = await prisma.invitation.count({
@@ -77,7 +76,6 @@ export const checkGuestLimit = async (req: Request, res: Response, next: NextFun
   try {
     const userId = (req as any).user?.id;
     const userRole = (req as any).user?.role;
-    const userTier = (req as any).user?.subscriptionTier || 'FREE';
 
     if (!userId) {
       res.status(401).json({ message: 'Non authentifié' });
@@ -90,7 +88,7 @@ export const checkGuestLimit = async (req: Request, res: Response, next: NextFun
       return;
     }
 
-    const limits = await getUserLimits(userTier, userId);
+    const limits = await getUserLimits('FREE', userId);
 
     // Compter les invités existants
     const guestCount = await prisma.guest.count({
@@ -128,7 +126,6 @@ export const checkPhotoLimit = async (req: Request, res: Response, next: NextFun
   try {
     const userId = (req as any).user?.id;
     const userRole = (req as any).user?.role;
-    const userTier = (req as any).user?.subscriptionTier || 'FREE';
 
     if (!userId) {
       res.status(401).json({ message: 'Non authentifié' });
@@ -141,7 +138,7 @@ export const checkPhotoLimit = async (req: Request, res: Response, next: NextFun
       return;
     }
 
-    const limits = await getUserLimits(userTier, userId);
+    const limits = await getUserLimits('FREE', userId);
 
     // Si photos illimitées
     if (limits.photos === 999999) {
@@ -183,14 +180,16 @@ export const checkPhotoLimit = async (req: Request, res: Response, next: NextFun
 export const getUserLimitsAndUsage = async (req: Request, res: Response): Promise<void> => {
   try {
     const userId = (req as any).user?.id;
-    const userTier = (req as any).user?.subscriptionTier || 'FREE';
 
     if (!userId) {
       res.status(401).json({ message: 'Non authentifié' });
       return;
     }
 
-    // Récupérer les limites totales (plan + services supplémentaires)
+    // Récupérer le tier actuel basé sur les achats
+    const userTier = await StripeService.getUserCurrentTier(userId);
+    
+    // Récupérer les limites totales (tous les achats + services supplémentaires)
     const limits = await getUserLimits(userTier, userId);
 
     // Compter l'utilisation actuelle

@@ -33,161 +33,221 @@ export interface DesignTemplate {
   version?: string;
 }
 
-export interface TemplateData {
-  // Informations du couple
-  coupleName: string;
-  
-  // Date et heure
-  day: string;
-  month: string;
-  year: string;
-  date: string; // Format complet de la date
-  time: string;
-  
-  // Textes d'invitation
-  invitationText: string;
-  
-  // Lieu et détails
-  venue: string;
-  address: string;
-  moreInfo: string;
-  details: string;
-  
-  // RSVP
-  rsvpDetails: string;
-  rsvpForm: string;
-  rsvpDate: string;
-  
-  // Messages personnalisés
-  message: string;
-  blessingText: string;
-  welcomeMessage: string;
-  
-  // Informations supplémentaires
-  dressCode: string;
-  reception: string;
-  ceremony: string;
-  contact: string;
-  
-  // Permettre des propriétés supplémentaires
-  [key: string]: string;
-}
-
-// Fonction pour fournir des valeurs par défaut
-export function getDefaultTemplateData(): TemplateData {
-  return {
-    // Informations du couple
-    coupleName: "Marie & Pierre",
-    
-    // Date et heure
-    day: "23",
-    month: "Novembre",
-    year: "2024",
-    date: "23 Novembre 2024",
-    time: "15h00",
-    
-    // Textes d'invitation
-    invitationText: "Vous êtes cordialement invités",
-    
-    // Lieu et détails
-    venue: "Château de Versailles",
-    address: "Place d'Armes, 78000 Versailles",
-    moreInfo: "Cérémonie suivie d'un cocktail et dîner",
-    details: "Nous avons hâte de partager ce moment magique avec vous",
-    
-    // RSVP
-    rsvpDetails: "Merci de confirmer votre présence avant le 1er novembre",
-    rsvpForm: "RSVP requis",
-    rsvpDate: "1er Novembre 2024",
-    
-    // Messages personnalisés
-    message: "Votre présence sera notre plus beau cadeau",
-    blessingText: "Avec leurs familles",
-    welcomeMessage: "Bienvenue à notre mariage",
-    
-    // Informations supplémentaires
-    dressCode: "Tenue de soirée souhaitée",
-    reception: "Réception à partir de 18h00",
-    ceremony: "Cérémonie à 15h00",
-    contact: "Pour toute question : marie.pierre@email.com"
+// Interface pour les éléments positionnables
+export interface PositionableElement {
+  id: string;
+  type: 'text' | 'image' | 'decoration';
+  content: string;
+  position: {
+    x: number;  // Position X en pourcentage (0-100)
+    y: number;  // Position Y en pourcentage (0-100)
+    width?: number;  // Largeur en pourcentage (optionnel)
+    height?: number; // Hauteur en pourcentage (optionnel)
+  };
+  styles: {
+    fontSize?: string;
+    fontFamily?: string;
+    color?: string;
+    textAlign?: 'left' | 'center' | 'right';
+    fontWeight?: string;
+    fontStyle?: string;
+    lineHeight?: string;
+    letterSpacing?: string;
+    textTransform?: string;
+    opacity?: number;
+    zIndex?: number;
+  };
+  responsive?: {
+    mobile?: Partial<PositionableElement['position']> & Partial<PositionableElement['styles']>;
+    tablet?: Partial<PositionableElement['position']> & Partial<PositionableElement['styles']>;
   };
 }
 
-// Fonction pour convertir les données d'invitation en données de template
-export function invitationToTemplateData(invitation: any): Partial<TemplateData> {
-  if (!invitation) return {};
-
-  // Assembler les détails complets à partir de moreInfo et des autres informations
-  const venueInfo = invitation.venueName ? `Lieu : ${invitation.venueName}` : '';
-  const addressInfo = invitation.venueAddress ? `Adresse : ${invitation.venueAddress}` : '';
-  const ceremonyInfo = invitation.ceremonyTime ? `Cérémonie : ${invitation.ceremonyTime}` : '';
-  const receptionInfo = invitation.receptionTime ? `Réception : ${invitation.receptionTime}` : '';
-  const moreInfoText = invitation.moreInfo || '';
+// Interface pour les données d'invitation selon la NOUVELLE architecture backend
+export interface InvitationData {
+  // NOUVELLE ARCHITECTURE SIMPLIFIÉE (alignée sur le backend)
+  eventTitle: string;       // "Emma & Lucas" ou "Anniversaire de Marie"
+  eventDate: Date;          // Date de l'événement
+  eventTime?: string;       // "15h00" (optionnel)
+  location: string;         // "Château de la Roseraie, Paris"
+  eventType?: string;       // event, BIRTHDAY, BAPTISM, etc.
+  customText?: string;      // Texte libre personnalisable
+  moreInfo?: string;        // Informations supplémentaires
   
-  // Assembler tous les détails - moreInfo contient maintenant tous les détails
-  const allDetails = [venueInfo, addressInfo, ceremonyInfo, receptionInfo, moreInfoText]
-    .filter(Boolean)
-    .join('\n');
+  
+  // Nouveaux éléments positionnables
+  elements?: PositionableElement[];
+}
+
+// Fonction pour créer des éléments par défaut selon le type d'événement
+export function getDefaultElements(eventType: string = 'event'): PositionableElement[] {
+  const baseElements: PositionableElement[] = [
+    {
+      id: 'title',
+      type: 'text',
+      content: '{eventTitle}',
+      position: { x: 50, y: 35, width: 80 },
+      styles: {
+        fontSize: '48px',
+        fontFamily: 'Great Vibes, cursive',
+        color: '#2c2c2c',
+        textAlign: 'center',
+        fontWeight: 'normal',
+        lineHeight: '1.2',
+        letterSpacing: '1px'
+      },
+      responsive: {
+        mobile: { fontSize: '36px', y: 30 },
+        tablet: { fontSize: '42px', y: 32 }
+      }
+    },
+    {
+      id: 'customText',
+      type: 'text',
+      content: '{customText}',
+      position: { x: 50, y: 50, width: 70 },
+      styles: {
+        fontSize: '18px',
+        fontFamily: 'Montserrat, sans-serif',
+        color: '#555555',
+        textAlign: 'center',
+        fontWeight: '300',
+        lineHeight: '1.4',
+        letterSpacing: '0.5px'
+      },
+      responsive: {
+        mobile: { fontSize: '16px', width: 85 },
+        tablet: { fontSize: '17px', width: 75 }
+      }
+    },
+    {
+      id: 'eventDate',
+      type: 'text',
+      content: '{eventDate}',
+      position: { x: 50, y: 65, width: 60 },
+      styles: {
+        fontSize: '22px',
+        fontFamily: 'Montserrat, sans-serif',
+        color: '#2c2c2c',
+        textAlign: 'center',
+        fontWeight: '400',
+        letterSpacing: '1px',
+        textTransform: 'uppercase'
+      },
+      responsive: {
+        mobile: { fontSize: '18px', width: 80 },
+        tablet: { fontSize: '20px', width: 70 }
+      }
+    },
+    {
+      id: 'eventTime',
+      type: 'text',
+      content: '{eventTime}',
+      position: { x: 50, y: 72, width: 40 },
+      styles: {
+        fontSize: '16px',
+        fontFamily: 'Montserrat, sans-serif',
+        color: '#666666',
+        textAlign: 'center',
+        fontWeight: '300',
+        letterSpacing: '0.5px'
+      },
+      responsive: {
+        mobile: { fontSize: '14px', width: 60 },
+        tablet: { fontSize: '15px', width: 50 }
+      }
+    },
+    {
+      id: 'location',
+      type: 'text',
+      content: '{location}',
+      position: { x: 50, y: 80, width: 75 },
+      styles: {
+        fontSize: '16px',
+        fontFamily: 'Montserrat, sans-serif',
+        color: '#444444',
+        textAlign: 'center',
+        fontWeight: '300',
+        lineHeight: '1.3',
+        letterSpacing: '0.3px'
+      },
+      responsive: {
+        mobile: { fontSize: '14px', width: 90, y: 82 },
+        tablet: { fontSize: '15px', width: 85, y: 81 }
+      }
+    },
+    {
+      id: 'moreInfo',
+      type: 'text',
+      content: '{moreInfo}',
+      position: { x: 50, y: 90, width: 80 },
+      styles: {
+        fontSize: '14px',
+        fontFamily: 'Montserrat, sans-serif',
+        color: '#666666',
+        textAlign: 'center',
+        fontWeight: '300',
+        lineHeight: '1.4',
+        letterSpacing: '0.2px',
+        fontStyle: 'italic'
+      },
+      responsive: {
+        mobile: { fontSize: '12px', width: 90, y: 92 },
+        tablet: { fontSize: '13px', width: 85, y: 91 }
+      }
+    }
+  ];
+
+  // Ajuster selon le type d'événement
+  if (eventType === 'BIRTHDAY') {
+    baseElements[1].styles.color = '#ff6b6b';
+    baseElements[2].styles.color = '#ff6b6b';
+  } else if (eventType === 'BAPTISM') {
+    baseElements[1].styles.color = '#4ecdc4';
+    baseElements[2].styles.color = '#4ecdc4';
+  }
+
+  return baseElements;
+}
+
+// Fonction pour fournir des valeurs par défaut selon la NOUVELLE architecture
+export function getDefaultInvitationData(): InvitationData {
+  const defaultElements = getDefaultElements('event');
+  
+  return {
+    eventTitle: "Emma & Lucas",
+    eventDate: new Date('2025-06-14'),
+    eventTime: "15:00",
+    location: "Château de la Roseraie, 12 avenue des Lavandes, 75000 Paris",
+    eventType: "event",
+    customText: "", // Pas de texte par défaut pour les champs optionnels
+    moreInfo: "", // Pas de texte par défaut pour les champs optionnels
+    elements: defaultElements
+  };
+}
+
+// Fonction pour convertir les données d'invitation en données de template (NOUVELLE architecture)
+export function invitationToTemplateData(invitation: any): InvitationData {
+  if (!invitation) return getDefaultInvitationData();
 
   return {
-    // Informations du couple
-    coupleName: invitation.coupleName || invitation.title || "Marie & Pierre",
-    
-    // Date et heure
-    day: invitation.weddingDate ? new Date(invitation.weddingDate).getDate().toString() : "23",
-    month: invitation.weddingDate ? new Date(invitation.weddingDate).toLocaleDateString('fr-FR', { month: 'long' }) : "Novembre",
-    year: invitation.weddingDate ? new Date(invitation.weddingDate).getFullYear().toString() : "2024",
-    date: invitation.weddingDate ? new Date(invitation.weddingDate).toLocaleDateString('fr-FR', { 
-      day: 'numeric', 
-      month: 'long', 
-      year: 'numeric' 
-    }) : "23 Novembre 2024",
-    time: invitation.ceremonyTime || "15h00",
-    
-    // Textes d'invitation
-    invitationText: invitation.invitationText || "Vous êtes cordialement invités",
-    
-    // Lieu et détails
-    venue: invitation.venueName || "Château de Versailles",
-    address: invitation.venueAddress || "Place d'Armes, 78000 Versailles",
-    details: allDetails || invitation.moreInfo || "Détails de la cérémonie",
-    moreInfo: invitation.moreInfo || "Cérémonie suivie d'un cocktail et dîner",
-    
-    // RSVP
-    rsvpDetails: invitation.rsvpDetails || "Merci de confirmer votre présence",
-    rsvpForm: invitation.rsvpForm || "RSVP requis",
-    rsvpDate: invitation.rsvpDate ? 
-      new Date(invitation.rsvpDate).toLocaleDateString('fr-FR') :
-      invitation.weddingDate ? 
-        new Date(new Date(invitation.weddingDate).getTime() - 30 * 24 * 60 * 60 * 1000).toLocaleDateString('fr-FR') :
-        "1er Novembre 2024",
-    
-    // Messages personnalisés
-    message: invitation.message || "Votre présence sera notre plus beau cadeau",
-    blessingText: invitation.blessingText || "Avec leurs familles",
-    welcomeMessage: invitation.welcomeMessage || "Bienvenue à notre mariage",
-    
-    // Informations supplémentaires
-    dressCode: invitation.dressCode || "Tenue de soirée souhaitée",
-    reception: invitation.receptionTime ? `Réception à partir de ${invitation.receptionTime}` : "Réception à partir de 18h00",
-    ceremony: invitation.ceremonyTime ? `Cérémonie à ${invitation.ceremonyTime}` : "Cérémonie à 15h00",
-    contact: invitation.contact || "Pour toute question, contactez-nous"
+    eventTitle: invitation.eventTitle || "",
+    eventDate: invitation.eventDate ? new Date(invitation.eventDate) : new Date('2025-06-14'),
+    eventTime: invitation.eventTime || "",
+    location: invitation.location || "",
+    eventType: invitation.eventType || "event",
+    customText: invitation.customText || "", // Pas de texte par défaut pour les champs optionnels
+    moreInfo: invitation.moreInfo || "" // Pas de texte par défaut pour les champs optionnels
   };
 }
 
 // Fonction pour fusionner les données utilisateur avec les valeurs par défaut
-export function mergeTemplateData(userData: Partial<TemplateData> = {}): TemplateData {
-  const defaultData = getDefaultTemplateData();
-  const merged = { ...defaultData, ...userData };
-  
-  // S'assurer que toutes les propriétés sont des chaînes non-undefined
-  Object.keys(merged).forEach(key => {
-    if (merged[key] === undefined) {
-      merged[key] = defaultData[key as keyof TemplateData] || '';
-    }
-  });
-  
-  return merged as TemplateData;
+export function mergeInvitationData(userData: Partial<InvitationData> = {}): InvitationData {
+  const defaultData = getDefaultInvitationData();
+  return { 
+    ...defaultData, 
+    ...userData
+  };
 }
 
 export function generateCSS(styles: TemplateStyles, variables: TemplateVariables, designId: string): string {
@@ -223,15 +283,47 @@ export function generateCSS(styles: TemplateStyles, variables: TemplateVariables
     });
   }
   
-  // Styles de base pour le container principal
-  css += `  font-family: var(--body-font, Arial, sans-serif) !important;\n`;
-  css += `  line-height: 1.6 !important;\n`;
-  css += `  color: var(--color-primary, #333) !important;\n`;
-  css += `  background: white !important;\n`;
-  css += `  padding: 2rem !important;\n`;
-  css += `  border-radius: 8px !important;\n`;
-  css += `  box-shadow: 0 2px 8px rgba(0,0,0,0.1) !important;\n`;
+  // Styles de base pour format A4 responsive
+  css += `  background-size: contain !important;\n`;
+  css += `  background-position: center !important;\n`;
+  css += `  background-repeat: no-repeat !important;\n`;
+  css += `  margin: 2% auto !important;\n`;
+  css += `  padding: 0 !important;\n`;
+  css += `  width: 100% !important;\n`;
+  css += `  max-width: 600px !important;\n`;
+  css += `  aspect-ratio: 21/29.7 !important;\n`; // Format A4
+  css += `  position: relative !important;\n`;
+  css += `  overflow: hidden !important;\n`;
+  css += `  border-radius: 12px !important;\n`;
+  css += `  box-shadow: 0 8px 32px rgba(0,0,0,0.12) !important;\n`;
+  
+  // Ajouter le background image depuis les variables si disponible
+  if (variables && variables.colors && variables.colors.background) {
+    css += `  background-image: url(${variables.colors.background}) !important;\n`;
+  }
+  
   css += `}\n\n`;
+
+  // Styles responsifs pour format A4
+  css += `@media (max-width: 768px) {\n`;
+  css += `  #design-${designId} {\n`;
+  css += `    max-width: 95vw !important;\n`;
+  css += `    margin: 1% auto !important;\n`;
+  css += `  }\n`;
+  css += `}\n\n`;
+
+  css += `@media (max-width: 480px) {\n`;
+  css += `  #design-${designId} {\n`;
+  css += `    max-width: 98vw !important;\n`;
+  css += `    margin: 0.5% auto !important;\n`;
+  css += `  }\n`;
+  css += `}\n\n`;
+
+  // Responsive styles seront gérés par les styles personnalisés
+
+
+
+
 
   // Créer un mapping des animations pour remplacer les noms
   const animationMapping: Record<string, string> = {};
@@ -246,6 +338,9 @@ export function generateCSS(styles: TemplateStyles, variables: TemplateVariables
     Object.entries(styles.base).forEach(([selector, rules]) => {
       css += `#design-${designId} ${selector} {\n`;
       Object.entries(rules).forEach(([prop, value]) => {
+        // Convertir camelCase vers kebab-case pour les propriétés CSS
+        const cssProperty = prop.replace(/[A-Z]/g, letter => `-${letter.toLowerCase()}`);
+        
         // Remplacer les noms d'animations dans les propriétés CSS
         let processedValue = value;
         if (prop === 'animation' || prop === 'animation-name') {
@@ -253,7 +348,7 @@ export function generateCSS(styles: TemplateStyles, variables: TemplateVariables
             processedValue = processedValue.replace(new RegExp(`\\b${oldName}\\b`, 'g'), newName);
           });
         }
-        css += `  ${prop}: ${processedValue} !important;\n`;
+        css += `  ${cssProperty}: ${processedValue} !important;\n`;
       });
       css += `}\n`;
     });
@@ -262,22 +357,56 @@ export function generateCSS(styles: TemplateStyles, variables: TemplateVariables
   // Component styles avec vérifications et spécificité augmentée
   if (styles && styles.components) {
     Object.entries(styles.components).forEach(([component, selectors]) => {
-      Object.entries(selectors).forEach(([selector, rules]) => {
-        css += `#design-${designId} ${selector} {\n`;
-        Object.entries(rules).forEach(([prop, value]) => {
-          // Remplacer les noms d'animations dans les propriétés CSS
-          let processedValue = value;
-          if (prop === 'animation' || prop === 'animation-name') {
-            Object.entries(animationMapping).forEach(([oldName, newName]) => {
-              processedValue = processedValue.replace(new RegExp(`\\b${oldName}\\b`, 'g'), newName);
-            });
-          }
-          css += `  ${prop}: ${processedValue} !important;\n`;
+      // Pour 'positionable-elements', les selectors sont directement les styles par classe
+      if (component === 'positionable-elements' || component === 'text-elements') {
+        Object.entries(selectors).forEach(([selector, rules]) => {
+          css += `#design-${designId} ${selector} {\n`;
+          Object.entries(rules).forEach(([prop, value]) => {
+            // Convertir camelCase vers kebab-case pour les propriétés CSS
+            const cssProperty = prop.replace(/[A-Z]/g, letter => `-${letter.toLowerCase()}`);
+            
+            // Les polices sont maintenant directement utilisables
+            let processedValue = value;
+            css += `  ${cssProperty}: ${processedValue} !important;\n`;
+          });
+          css += `}\n`;
         });
-        css += `}\n`;
-      });
+      } else {
+        // Pour les autres composants, structure normale
+        Object.entries(selectors).forEach(([selector, rules]) => {
+          css += `#design-${designId} ${selector} {\n`;
+          Object.entries(rules).forEach(([prop, value]) => {
+            const cssProperty = prop.replace(/[A-Z]/g, letter => `-${letter.toLowerCase()}`);
+            let processedValue = value;
+            if (prop === 'animation' || prop === 'animation-name') {
+              Object.entries(animationMapping).forEach(([oldName, newName]) => {
+                processedValue = processedValue.replace(new RegExp(`\\b${oldName}\\b`, 'g'), newName);
+              });
+            }
+            // Les polices sont maintenant directement utilisables
+            css += `  ${cssProperty}: ${processedValue} !important;\n`;
+          });
+          css += `}\n`;
+        });
+      }
     });
   }
+
+  // Les styles personnalisés sont maintenant gérés dans la section component ci-dessus
+
+  // Styles de base pour les éléments positionnables
+  css += `#design-${designId} .invitation-container {\n`;
+  css += `  width: 100%;\n`;
+  css += `  height: 100%;\n`;
+  css += `  position: relative;\n`;
+  css += `}\n\n`;
+
+  css += `#design-${designId} .positionable-element {\n`;
+  css += `  position: absolute;\n`;
+  css += `  word-wrap: break-word;\n`;
+  css += `  hyphens: auto;\n`;
+  css += `  user-select: none;\n`;
+  css += `}\n\n`;
 
   // Animations avec vérifications
   if (styles && styles.animations) {
@@ -299,9 +428,162 @@ export function generateCSS(styles: TemplateStyles, variables: TemplateVariables
   return css;
 }
 
+// Fonction pour générer les styles d'un élément positionnable
+export function generateElementCSS(element: PositionableElement, designId: string): string {
+  let css = '';
+  const elementId = `element-${element.id}`;
+  
+  css += `#design-${designId} .${elementId} {\n`;
+  css += `  position: absolute;\n`;
+  css += `  left: ${element.position.x}%;\n`;
+  css += `  top: ${element.position.y}%;\n`;
+  css += `  transform: translate(-50%, -50%);\n`;
+  
+  if (element.position.width) {
+    css += `  width: ${element.position.width}%;\n`;
+  }
+  if (element.position.height) {
+    css += `  height: ${element.position.height}%;\n`;
+  }
+  
+  // Appliquer les styles
+  Object.entries(element.styles).forEach(([prop, value]) => {
+    if (value !== undefined) {
+      const cssProperty = prop.replace(/[A-Z]/g, letter => `-${letter.toLowerCase()}`);
+      css += `  ${cssProperty}: ${value};\n`;
+    }
+  });
+  
+  css += `  word-wrap: break-word;\n`;
+  css += `  hyphens: auto;\n`;
+  css += `}\n`;
+
+  // Styles responsifs
+  if (element.responsive?.tablet) {
+    css += `@media (max-width: 768px) {\n`;
+    css += `  #design-${designId} .${elementId} {\n`;
+    Object.entries(element.responsive.tablet).forEach(([prop, value]) => {
+      if (value !== undefined) {
+        if (prop === 'x') css += `    left: ${value}%;\n`;
+        else if (prop === 'y') css += `    top: ${value}%;\n`;
+        else if (prop === 'width') css += `    width: ${value}%;\n`;
+        else if (prop === 'height') css += `    height: ${value}%;\n`;
+        else if (prop === 'fontSize') css += `    font-size: ${value};\n`;
+      }
+    });
+    css += `  }\n`;
+    css += `}\n`;
+  }
+
+  if (element.responsive?.mobile) {
+    css += `@media (max-width: 480px) {\n`;
+    css += `  #design-${designId} .${elementId} {\n`;
+    Object.entries(element.responsive.mobile).forEach(([prop, value]) => {
+      if (value !== undefined) {
+        if (prop === 'x') css += `    left: ${value}%;\n`;
+        else if (prop === 'y') css += `    top: ${value}%;\n`;
+        else if (prop === 'width') css += `    width: ${value}%;\n`;
+        else if (prop === 'height') css += `    height: ${value}%;\n`;
+        else if (prop === 'fontSize') css += `    font-size: ${value};\n`;
+      }
+    });
+    css += `  }\n`;
+    css += `}\n`;
+  }
+
+  return css;
+}
+
+// Fonction pour générer le HTML avec éléments positionnables
+export function generateModernInvitationHTML(data: InvitationData): string {
+  const formatDate = (date: Date) => {
+    // Format fixe et élégant : "19 octobre 2025"
+    return date.toLocaleDateString('fr-FR', {
+      day: 'numeric',
+      month: 'long',
+      year: 'numeric'
+    });
+  };
+
+  const formatTime = (time: string) => {
+    if (!time) return '';
+    
+    // Convertir le format HH:MM vers HHhMM (ex: "15:30" -> "15h30")
+    const timeRegex = /^(\d{1,2}):(\d{2})$/;
+    const match = time.match(timeRegex);
+    
+    if (match) {
+      const [, hours, minutes] = match;
+      return `${hours}h${minutes}`;
+    }
+    
+    // Si ce n'est pas au format HH:MM, retourner tel quel
+    return time;
+  };
+
+
+  let html = '<div class="invitation-container">';
+  
+  // Générer chaque élément positionnable
+  if (data.elements && data.elements.length > 0) {
+    data.elements.forEach(element => {
+      let content = element.content;
+      
+      // Remplacer les variables par les vraies valeurs
+      content = content.replace('{eventTitle}', data.eventTitle || '');
+      
+      
+      // Formatage simple et direct
+      content = content.replace('{eventDate}', data.eventDate ? formatDate(data.eventDate) : '');
+      content = content.replace('{eventTime}', data.eventTime ? formatTime(data.eventTime) : '');
+      content = content.replace('{location}', data.location || '');
+      content = content.replace('{customText}', data.customText || '');
+      content = content.replace('{moreInfo}', data.moreInfo || '');
+      
+      
+      // Ne pas afficher l'élément si le contenu est vide après remplacement
+      const trimmedContent = content.trim();
+      if (trimmedContent && trimmedContent !== '' && trimmedContent !== '{customText}' && trimmedContent !== '{moreInfo}') {
+        html += `<div class="element-${element.id} positionable-element" data-element-id="${element.id}" data-draggable="true">`;
+        html += trimmedContent;
+        html += '</div>';
+      }
+    });
+  } else {
+    // Fallback vers l'ancien système si pas d'éléments définis
+    if (data.eventTitle) {
+      html += `<div class="element-title positionable-element">${data.eventTitle}</div>`;
+    }
+    if (data.customText && data.customText.trim()) {
+      html += `<div class="element-customText positionable-element">${data.customText}</div>`;
+    }
+    if (data.eventDate) {
+      html += `<div class="element-eventDate positionable-element">${formatDate(data.eventDate)}</div>`;
+    }
+    if (data.eventTime && data.eventTime.trim()) {
+      html += `<div class="element-eventTime positionable-element">${formatTime(data.eventTime)}</div>`;
+    }
+    if (data.location && data.location.trim()) {
+      html += `<div class="element-location positionable-element">${data.location}</div>`;
+    }
+    if (data.moreInfo && data.moreInfo.trim()) {
+      html += `<div class="element-moreInfo positionable-element">${data.moreInfo}</div>`;
+    }
+  }
+  
+  html += '</div>';
+  return html;
+}
+
+// Fonction pour générer le HTML selon la NOUVELLE architecture simplifiée (legacy)
+export function generateInvitationHTML(data: InvitationData): string {
+  // Utiliser la nouvelle fonction moderne
+  return generateModernInvitationHTML(data);
+}
+
 export function renderTemplate(
   template: DesignTemplate,
-  data: Partial<TemplateData>,
+  data: Partial<InvitationData>,
   designId: string
 ): { html: string; css: string } {
   // Vérifications de sécurité
@@ -314,14 +596,23 @@ export function renderTemplate(
   }
 
   // Fusionner avec les valeurs par défaut
-  const completeData = mergeTemplateData(data);
+  const completeData = mergeInvitationData(data);
+
+  // Générer le HTML moderne avec éléments positionnables
+  const invitationHTML = generateModernInvitationHTML(completeData);
 
   // Remplacer les variables dans chaque section
   const processedSections: Record<string, string> = {};
   Object.entries(template.sections).forEach(([key, section]) => {
     let html = section.html || '';
     Object.entries(completeData).forEach(([variable, value]) => {
-      html = html.replace(new RegExp(`{${variable}}`, 'g'), value);
+      if (typeof value === 'string') {
+        // Si la valeur est vide, remplacer par une chaîne vide
+        const replacementValue = value.trim() === '' ? '' : value;
+        html = html.replace(new RegExp(`{${variable}}`, 'g'), replacementValue);
+      } else if (value instanceof Date) {
+        html = html.replace(new RegExp(`{${variable}}`, 'g'), value.toLocaleDateString('fr-FR'));
+      }
     });
     processedSections[key] = html;
   });
@@ -332,25 +623,29 @@ export function renderTemplate(
     html = html.replace(`{${key}}`, content);
   });
 
+  // Remplacer le contenu principal par notre HTML d'invitation moderne
+  html = html.replace('{content}', invitationHTML);
+
   // Ajouter l'ID unique pour le design
-  if (html.includes('class="wedding-invitation"')) {
-    html = html.replace('class="wedding-invitation"', `id="design-${designId}" class="wedding-invitation"`);
+  if (html.includes('class="invitation"')) {
+    html = html.replace('class="invitation"', `id="design-${designId}" class="invitation"`);
   } else {
-    // Si pas de classe wedding-invitation, ajouter l'ID au premier div
+    // Si pas de classe invitation, ajouter l'ID au premier div
     html = html.replace('<div', `<div id="design-${designId}"`);
   }
 
-  // Générer le CSS avec vérifications
-  const css = generateCSS(template.styles || {}, template.variables || {}, designId);
+  // Générer le CSS de base avec vérifications
+  let css = generateCSS(template.styles || {}, template.variables || {}, designId);
 
-  //console.log('Template rendu:', { designId, html: html.substring(0, 100), css: css.substring(0, 200) });
+  // Les styles des éléments positionnables sont maintenant inclus dans template.styles.components
+  // Pas besoin de les ajouter dynamiquement
 
   return { html, css };
 }
 
 // Classe TemplateEngine pour compatibilité
 export class TemplateEngine {
-  render(design: any, data: Partial<TemplateData>): string {
+  render(design: any, data: Partial<InvitationData>): string {
     if (!design || !design.template || !design.styles || !design.variables) {
       return '<div>Erreur: Design invalide</div>';
     }
@@ -365,7 +660,140 @@ export class TemplateEngine {
 
     const { html, css } = renderTemplate(template, data, designId);
     
+    // Ajouter les polices CSS personnalisées
+    const fontCSS = `
+      @font-face {
+        font-family: 'Featherscript';
+        src: url('/fonts/featherscript.otf') format('opentype');
+        font-weight: normal;
+        font-style: normal;
+        font-display: swap;
+      }
+      @font-face {
+        font-family: 'Harrington';
+        src: url('/fonts/harrington.ttf') format('truetype');
+        font-weight: normal;
+        font-style: normal;
+        font-display: swap;
+      }
+      @font-face {
+        font-family: 'OpenDyslexic';
+        src: url('/fonts/opendyslexic.otf') format('opentype');
+        font-weight: normal;
+        font-style: normal;
+        font-display: swap;
+      }
+      @font-face {
+        font-family: 'Great Vibes';
+        src: url('/fonts/greatvibes.ttf') format('truetype');
+        font-weight: normal;
+        font-style: normal;
+        font-display: swap;
+      }
+      @font-face {
+        font-family: 'Montserrat';
+        src: url('/fonts/montserrat.otf') format('opentype');
+        font-weight: normal;
+        font-style: normal;
+        font-display: swap;
+      }
+      @font-face {
+        font-family: 'Poppins';
+        src: url('/fonts/poppins.ttf') format('truetype');
+        font-weight: normal;
+        font-style: normal;
+        font-display: swap;
+      }
+      @font-face {
+        font-family: 'Bride';
+        src: url('/fonts/Bride.otf') format('opentype');
+        font-weight: normal;
+        font-style: normal;
+        font-display: swap;
+      }
+      @font-face {
+        font-family: 'FFF Tusj';
+        src: url('/fonts/fff_tusj.ttf') format('truetype');
+        font-weight: normal;
+        font-style: normal;
+        font-display: swap;
+      }
+      @font-face {
+        font-family: 'Kalam';
+        src: url('/fonts/kalam.ttf') format('truetype');
+        font-weight: normal;
+        font-style: normal;
+        font-display: swap;
+      }
+      @font-face {
+        font-family: 'Windsong';
+        src: url('/fonts/windsong.ttf') format('truetype');
+        font-weight: normal;
+        font-style: normal;
+        font-display: swap;
+      }
+      @font-face {
+        font-family: 'Alex Brush';
+        src: url('/fonts/alexbrush.ttf') format('truetype');
+        font-weight: normal;
+        font-style: normal;
+        font-display: swap;
+      }
+      @font-face {
+        font-family: 'Miama';
+        src: url('/fonts/miama.otf') format('opentype');
+        font-weight: normal;
+        font-style: normal;
+        font-display: swap;
+      }
+      @font-face {
+        font-family: 'Blackjack';
+        src: url('/fonts/blackjack.otf') format('opentype');
+        font-weight: normal;
+        font-style: normal;
+        font-display: swap;
+      }
+      @font-face {
+        font-family: 'League Script';
+        src: url('/fonts/league-script.league-script.ttf') format('truetype');
+        font-weight: normal;
+        font-style: normal;
+        font-display: swap;
+      }
+      @font-face {
+        font-family: 'Daisy';
+        src: url('/fonts/daisy.ttf') format('truetype');
+        font-weight: normal;
+        font-style: normal;
+        font-display: swap;
+      }
+      
+      /* Animations */
+      @keyframes fadeIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
+      }
+      
+      @keyframes slideUp {
+        from { transform: translateY(20px); opacity: 0; }
+        to { transform: translateY(0); opacity: 1; }
+      }
+      
+      @keyframes bounce {
+        0%, 20%, 53%, 80%, 100% { transform: translateY(0); }
+        40%, 43% { transform: translateY(-15px); }
+        70% { transform: translateY(-7px); }
+        90% { transform: translateY(-3px); }
+      }
+      
+      @keyframes pulse {
+        0% { transform: scale(1); }
+        50% { transform: scale(1.05); }
+        100% { transform: scale(1); }
+      }
+    `;
+    
     // Combiner HTML et CSS
-    return `<style>${css}</style>${html}`;
+    return `<style>${fontCSS}${css}</style>${html}`;
   }
 }

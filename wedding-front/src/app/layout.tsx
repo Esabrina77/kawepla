@@ -1,12 +1,10 @@
 import '@/styles/globals.css';
-import { 
-  featherscriptFont, 
-  harringtonFont, 
-  openDyslexicFont, 
-  openSansFont, 
-  poppinsFont
-} from '@/fonts/fonts';
-import { ToastProvider } from '@/components/ui/toast';
+import { ServiceWorkerProvider } from '@/components/ServiceWorkerProvider';
+import { FloatingThemeToggle } from '@/components/FloatingThemeToggle/FloatingThemeToggle';
+import { WebSocketNotificationsProvider } from '@/components/WebSocketNotificationsProvider';
+import siteMetadata from './metadata';
+
+export const metadata = siteMetadata;
 
 export default function RootLayout({
   children,
@@ -14,21 +12,12 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="fr" className={`${featherscriptFont.variable} ${harringtonFont.variable} ${openDyslexicFont.variable} ${openSansFont.variable} ${poppinsFont.variable}`} suppressHydrationWarning>
-      <head>
-        <meta charSet="utf-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1" />
-        <meta name="theme-color" content="#D4B895" />
-        <link rel="manifest" href="/manifest.json" />
-        <link rel="icon" type="image/png" sizes="16x16" href="/icons/logo-16.png" />
-        <link rel="icon" type="image/png" sizes="32x32" href="/icons/logo-32.png" />
-        <link rel="icon" type="image/png" sizes="192x192" href="/icons/logo-192.png" />
-        <link rel="apple-touch-icon" href="/icons/apple-icon.png" />
-      </head>
+    <html lang="fr" suppressHydrationWarning>
       <body suppressHydrationWarning>
-        <ToastProvider>
-          {children}
-        </ToastProvider>
+        <ServiceWorkerProvider />
+        <WebSocketNotificationsProvider />
+        <FloatingThemeToggle />
+        {children}
       </body>
     </html>
   );

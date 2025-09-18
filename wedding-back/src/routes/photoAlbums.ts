@@ -4,6 +4,7 @@
 import { Router } from 'express';
 import { PhotoAlbumController } from '../controllers/photoAlbumController';
 import { authMiddleware, requireCouple } from '../middleware/auth';
+import { checkPhotoLimit } from '../middleware/subscriptionLimits';
 import { prisma } from '../lib/prisma';
 import JSZip from 'jszip';
 
@@ -16,7 +17,7 @@ router.put('/albums/:albumId', authMiddleware as any, requireCouple as any, Phot
 router.delete('/albums/:albumId', authMiddleware as any, requireCouple as any, PhotoAlbumController.deleteAlbum);
 
 // Routes pour la gestion des photos (couples)
-router.post('/albums/:albumId/photos', authMiddleware as any, requireCouple as any, ...PhotoAlbumController.uploadPhoto);
+router.post('/albums/:albumId/photos', authMiddleware as any, requireCouple as any, checkPhotoLimit, ...PhotoAlbumController.uploadPhoto);
 router.put('/photos/:photoId/approve', authMiddleware as any, requireCouple as any, PhotoAlbumController.approvePhoto);
 router.put('/photos/:photoId/publish', authMiddleware as any, requireCouple as any, PhotoAlbumController.publishPhoto);
 router.put('/photos/:photoId/reject', authMiddleware as any, requireCouple as any, PhotoAlbumController.rejectPhoto);
@@ -27,7 +28,7 @@ router.get('/albums/:albumId/photos', PhotoAlbumController.getAlbumPhotosForGues
 router.get('/invitations/:invitationId/photos/public', PhotoAlbumController.getPublicPhotos);
 
 // Route pour l'upload par les invités (via token partageable)
-router.post('/albums/:albumId/photos/guest', ...PhotoAlbumController.uploadGuestPhoto);
+router.post('/albums/:albumId/photos/guest', checkPhotoLimit, ...PhotoAlbumController.uploadGuestPhoto);
 
 // Télécharger un album complet en ZIP
 router.get('/albums/:albumId/download', authMiddleware as any, async (req, res) => {

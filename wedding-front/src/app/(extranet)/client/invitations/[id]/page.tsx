@@ -15,23 +15,15 @@ export default function InvitationDetailPage() {
   
   const [invitation, setInvitation] = useState<any>(null);
   const [isEditing, setIsEditing] = useState(false);
+  // NOUVELLE ARCHITECTURE SIMPLIFIÉE
   const [formData, setFormData] = useState({
-    coupleName: '',
-    weddingDate: '',
-    ceremonyTime: '',
-    receptionTime: '',
-    rsvpDate: '',
-    venueName: '',
-    venueAddress: '',
-    invitationText: '',
-    message: '',
-    blessingText: '',
-    welcomeMessage: '',
-    rsvpDetails: '',
-    rsvpForm: '',
-    dressCode: '',
-    moreInfo: '',
-    contact: ''
+    eventTitle: '',
+    eventDate: '',
+    eventTime: '',
+    location: '',
+    eventType: 'event' as any,
+    customText: '',
+    moreInfo: ''
   });
 
   useEffect(() => {
@@ -45,22 +37,13 @@ export default function InvitationDetailPage() {
     if (invitationData) {
       setInvitation(invitationData);
       setFormData({
-        coupleName: invitationData.coupleName || '',
-        weddingDate: invitationData.weddingDate || '',
-        ceremonyTime: invitationData.ceremonyTime || '',
-        receptionTime: invitationData.receptionTime || '',
-        rsvpDate: invitationData.rsvpDate || '',
-        venueName: invitationData.venueName || '',
-        venueAddress: invitationData.venueAddress || '',
-        invitationText: invitationData.invitationText || '',
-        message: invitationData.message || '',
-        blessingText: invitationData.blessingText || '',
-        welcomeMessage: invitationData.welcomeMessage || '',
-        rsvpDetails: invitationData.rsvpDetails || '',
-        rsvpForm: invitationData.rsvpForm || '',
-        dressCode: invitationData.dressCode || '',
-        moreInfo: invitationData.moreInfo || '',
-        contact: invitationData.contact || ''
+        eventTitle: invitationData.eventTitle || '',
+        eventDate: invitationData.eventDate || '',
+        eventTime: invitationData.eventTime || '',
+        location: invitationData.location || '',
+        eventType: invitationData.eventType || 'event',
+        customText: invitationData.customText || '',
+        moreInfo: invitationData.moreInfo || ''
       });
     }
   };
@@ -72,7 +55,7 @@ export default function InvitationDetailPage() {
     if (result) {
       setInvitation(result);
       setIsEditing(false);
-      alert('Invitation mise à jour avec succès !');
+      // Suppression de l'alert pour éviter les problèmes avec les navigateurs
     }
   };
 
@@ -82,13 +65,42 @@ export default function InvitationDetailPage() {
     const result = await publishInvitation(invitation.id);
     if (result) {
       setInvitation((prev: any) => prev ? { ...prev, status: 'PUBLISHED' } : null);
-      alert('Invitation publiée avec succès !');
+      // Suppression de l'alert pour éviter les problèmes avec les navigateurs
     }
   };
 
   const getDesignName = (designId: string) => {
     const design = designs.find(d => d.id === designId);
     return design ? design.name : 'Design inconnu';
+  };
+
+  const getSelectedDesign = () => {
+    if (!invitation) return null;
+    return designs.find(d => d.id === invitation.designId);
+  };
+
+  const getPreviewHtml = () => {
+    const selectedDesign = getSelectedDesign();
+    if (!selectedDesign) return '';
+    
+    try {
+      const templateEngine = new TemplateEngine();
+      // Utiliser la NOUVELLE architecture avec les vraies données de l'invitation
+      const invitationData = {
+        eventTitle: invitation.eventTitle || '',
+        eventDate: invitation.eventDate ? new Date(invitation.eventDate) : new Date(),
+        eventTime: invitation.eventTime || '',
+        location: invitation.location || '',
+        eventType: invitation.eventType || 'event',
+        customText: invitation.customText || '', // Pas de texte par défaut
+        moreInfo: invitation.moreInfo || '' // Pas de texte par défaut
+      };
+
+      return templateEngine.render(selectedDesign, invitationData);
+    } catch (error) {
+      console.error('Erreur lors de la génération de la prévisualisation:', error);
+      return '<div>Erreur de prévisualisation</div>';
+    }
   };
 
   if (loading) {
@@ -117,21 +129,14 @@ export default function InvitationDetailPage() {
             ← Retour
           </button>
           <div className={styles.titleSection}>
-            <h1>{invitation.coupleName}</h1>
-            <span className={`${styles.status} ${styles[invitation.status.toLowerCase()]}`}>
-              {invitation.status}
+            <h1>{invitation.eventTitle || 'Invitation sans titre'}</h1>
+            <span className={`${styles.status} ${styles[invitation.status?.toLowerCase()]}`}>
+              {invitation.status === 'PUBLISHED' ? 'Publiée' : 'Brouillon'}
             </span>
           </div>
         </div>
         
         <div className={styles.headerActions}>
-          <button 
-            className={styles.previewButton}
-            onClick={() => router.push(`/client/invitations/${invitation.id}/preview`)}
-          >
-            Aperçu
-          </button>
-          
           {!isEditing && invitation.status === 'DRAFT' && (
             <button 
               className={styles.editButton}
@@ -173,259 +178,23 @@ export default function InvitationDetailPage() {
       </div>
 
       <div className={styles.content}>
-          <div className={styles.detailsSection}>
-            <div className={styles.infoCard}>
-              <h3>Informations générales</h3>
-              <div className={styles.infoGrid}>
-                <div className={styles.infoItem}>
-                  <label>Couple</label>
-                  {isEditing ? (
-                    <input
-                      type="text"
-                      value={formData.coupleName}
-                      onChange={(e) => setFormData(prev => ({ ...prev, coupleName: e.target.value }))}
-                    />
-                  ) : (
-                    <span>{invitation.coupleName}</span>
-                  )}
-                </div>
-              
-              <div className={styles.infoItem}>
-                <label>Date du mariage</label>
-                {isEditing ? (
-                  <input
-                    type="date"
-                    value={formData.weddingDate}
-                    onChange={(e) => setFormData(prev => ({ ...prev, weddingDate: e.target.value }))}
-                  />
-                ) : (
-                  <span>{new Date(invitation.weddingDate).toLocaleDateString('fr-FR')}</span>
-                )}
-              </div>
-              
-              <div className={styles.infoItem}>
-                <label>Heure de cérémonie</label>
-                {isEditing ? (
-                  <input
-                    type="time"
-                    value={formData.ceremonyTime}
-                    onChange={(e) => setFormData(prev => ({ ...prev, ceremonyTime: e.target.value }))}
-                  />
-                ) : (
-                  <span>{invitation.ceremonyTime || 'Non spécifiée'}</span>
-                )}
-              </div>
-              
-              <div className={styles.infoItem}>
-                <label>Heure de réception</label>
-                {isEditing ? (
-                  <input
-                    type="time"
-                    value={formData.receptionTime}
-                    onChange={(e) => setFormData(prev => ({ ...prev, receptionTime: e.target.value }))}
-                  />
-                ) : (
-                  <span>{invitation.receptionTime || 'Non spécifiée'}</span>
-                )}
-              </div>
-            </div>
+        {/* Prévisualisation de l'invitation */}
+        <div className={styles.previewSection}>
+          <div className={styles.previewContainer}>
+            <div 
+              className={styles.invitationPreview}
+              dangerouslySetInnerHTML={{ __html: getPreviewHtml() }}
+              key={`preview-${invitation.id}-${invitation.eventTitle}-${invitation.eventDate}`}
+            />
           </div>
+        </div>
 
-          <div className={styles.infoCard}>
-            <h3>Lieu</h3>
-            <div className={styles.infoGrid}>
-              <div className={styles.infoItem}>
-                <label>Nom du lieu</label>
-                {isEditing ? (
-                  <input
-                    type="text"
-                    value={formData.venueName}
-                    onChange={(e) => setFormData(prev => ({ ...prev, venueName: e.target.value }))}
-                  />
-                ) : (
-                  <span>{invitation.venueName}</span>
-                )}
-              </div>
-              
-              <div className={styles.infoItem}>
-                <label>Adresse</label>
-                {isEditing ? (
-                  <input
-                    type="text"
-                    value={formData.venueAddress}
-                    onChange={(e) => setFormData(prev => ({ ...prev, venueAddress: e.target.value }))}
-                  />
-                ) : (
-                  <span>{invitation.venueAddress}</span>
-                )}
-              </div>
-            </div>
-          </div>
-
-          <div className={styles.infoCard}>
-            <h3>Textes d'invitation</h3>
-            <div className={styles.infoGrid}>
-              <div className={styles.infoItem}>
-                <label>Texte d'invitation</label>
-                {isEditing ? (
-                  <input
-                    type="text"
-                    value={formData.invitationText}
-                    onChange={(e) => setFormData(prev => ({ ...prev, invitationText: e.target.value }))}
-                    placeholder="Vous êtes cordialement invités"
-                  />
-                ) : (
-                  <span>{invitation.invitationText || 'Non spécifié'}</span>
-                )}
-              </div>
-            </div>
-          </div>
-
-          <div className={styles.infoCard}>
-            <h3>Messages personnalisés</h3>
-            <div className={styles.infoGrid}>
-              <div className={styles.infoItem}>
-                <label>Message principal</label>
-                {isEditing ? (
-                  <textarea
-                    value={formData.message}
-                    onChange={(e) => setFormData(prev => ({ ...prev, message: e.target.value }))}
-                    rows={3}
-                    placeholder="Votre présence sera notre plus beau cadeau"
-                  />
-                ) : (
-                  <span>{invitation.message || 'Non spécifié'}</span>
-                )}
-              </div>
-              
-              <div className={styles.infoItem}>
-                <label>Texte de bénédiction</label>
-                {isEditing ? (
-                  <input
-                    type="text"
-                    value={formData.blessingText}
-                    onChange={(e) => setFormData(prev => ({ ...prev, blessingText: e.target.value }))}
-                    placeholder="Avec leurs familles"
-                  />
-                ) : (
-                  <span>{invitation.blessingText || 'Non spécifié'}</span>
-                )}
-              </div>
-              
-              <div className={styles.infoItem}>
-                <label>Message de bienvenue</label>
-                {isEditing ? (
-                  <input
-                    type="text"
-                    value={formData.welcomeMessage}
-                    onChange={(e) => setFormData(prev => ({ ...prev, welcomeMessage: e.target.value }))}
-                    placeholder="Bienvenue à notre mariage"
-                  />
-                ) : (
-                  <span>{invitation.welcomeMessage || 'Non spécifié'}</span>
-                )}
-              </div>
-            </div>
-          </div>
-
-          <div className={styles.infoCard}>
-            <h3>RSVP et détails</h3>
-            <div className={styles.infoGrid}>
-              <div className={styles.infoItem}>
-                <label>Date limite RSVP</label>
-                {isEditing ? (
-                  <input
-                    type="date"
-                    value={formData.rsvpDate}
-                    onChange={(e) => setFormData(prev => ({ ...prev, rsvpDate: e.target.value }))}
-                  />
-                ) : (
-                  <span>{invitation.rsvpDate ? new Date(invitation.rsvpDate).toLocaleDateString('fr-FR') : 'Non spécifiée'}</span>
-                )}
-              </div>
-              
-              <div className={styles.infoItem}>
-                <label>Instructions RSVP</label>
-                {isEditing ? (
-                  <textarea
-                    value={formData.rsvpDetails}
-                    onChange={(e) => setFormData(prev => ({ ...prev, rsvpDetails: e.target.value }))}
-                    rows={2}
-                    placeholder="Merci de confirmer votre présence"
-                  />
-                ) : (
-                  <span>{invitation.rsvpDetails || 'Non spécifié'}</span>
-                )}
-              </div>
-              
-              <div className={styles.infoItem}>
-                <label>Texte formulaire RSVP</label>
-                {isEditing ? (
-                  <input
-                    type="text"
-                    value={formData.rsvpForm}
-                    onChange={(e) => setFormData(prev => ({ ...prev, rsvpForm: e.target.value }))}
-                    placeholder="RSVP requis"
-                  />
-                ) : (
-                  <span>{invitation.rsvpForm || 'Non spécifié'}</span>
-                )}
-              </div>
-              
-              <div className={styles.infoItem}>
-                <label>Code vestimentaire</label>
-                {isEditing ? (
-                  <input
-                    type="text"
-                    value={formData.dressCode}
-                    onChange={(e) => setFormData(prev => ({ ...prev, dressCode: e.target.value }))}
-                    placeholder="Tenue de soirée souhaitée"
-                  />
-                ) : (
-                  <span>{invitation.dressCode || 'Non spécifié'}</span>
-                )}
-              </div>
-            </div>
-          </div>
-
-          <div className={styles.infoCard}>
-            <h3>Informations complémentaires</h3>
-            <div className={styles.infoGrid}>
-              <div className={styles.infoItem}>
-                <label>Informations supplémentaires</label>
-                {isEditing ? (
-                  <textarea
-                    value={formData.moreInfo}
-                    onChange={(e) => setFormData(prev => ({ ...prev, moreInfo: e.target.value }))}
-                    rows={3}
-                    placeholder="Détails sur la cérémonie, le transport, l'hébergement..."
-                  />
-                ) : (
-                  <span>{invitation.moreInfo || 'Aucune'}</span>
-                )}
-              </div>
-              
-              <div className={styles.infoItem}>
-                <label>Informations de contact</label>
-                {isEditing ? (
-                  <input
-                    type="text"
-                    value={formData.contact}
-                    onChange={(e) => setFormData(prev => ({ ...prev, contact: e.target.value }))}
-                    placeholder="marie.pierre@email.com ou 06 12 34 56 78"
-                  />
-                ) : (
-                  <span>{invitation.contact || 'Non spécifié'}</span>
-                )}
-              </div>
-            </div>
-          </div>
-
+        {/* Section des détails (optionnelle) */}
+        <div className={styles.detailsSection}>
           <div className={styles.infoCard}>
             <h3>Design</h3>
             <div className={styles.designInfo}>
               <span className={styles.designName}>{getDesignName(invitation.designId)}</span>
-
             </div>
           </div>
         </div>

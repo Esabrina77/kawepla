@@ -15,9 +15,20 @@ const app = initializeApp(firebaseConfig);
 export const storage = getStorage(app);
 
 // Fonction pour uploader un fichier vers Firebase Storage
-export async function uploadToFirebase(file: File, fileName: string): Promise<string> {
+export async function uploadToFirebase(file: File, fileName: string, type?: 'provider-profile' | 'provider-portfolio' | 'provider-services'): Promise<string> {
   try {
-    const storageRef = ref(storage, fileName);
+    let path = fileName;
+    
+    // Déterminer le chemin selon le type
+    if (type === 'provider-profile') {
+      path = `provider-profile/${fileName}`;
+    } else if (type === 'provider-portfolio') {
+      path = `provider-portfolio/${fileName}`;
+    } else if (type === 'provider-services') {
+      path = `provider-services/${fileName}`;
+    }
+    
+    const storageRef = ref(storage, path);
     const snapshot = await uploadBytes(storageRef, file);
     const downloadURL = await getDownloadURL(snapshot.ref);
     return downloadURL;

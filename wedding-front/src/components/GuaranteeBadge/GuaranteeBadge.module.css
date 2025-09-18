@@ -1,0 +1,69 @@
+.guaranteeBadge {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  padding: var(--space-sm) var(--space-md);
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: var(--radius-lg);
+  backdrop-filter: blur(10px);
+  transition: all var(--transition-normal);
+}
+
+.guaranteeBadge:hover {
+  background: rgba(255, 255, 255, 0.15);
+  transform: translateY(-1px);
+}
+
+.guaranteeIcon {
+  color: var(--luxury-champagne-gold);
+  flex-shrink: 0;
+}
+
+.guaranteeContent {
+  flex: 1;
+}
+
+.guaranteeTitle {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--luxury-velvet-black);
+  line-height: 1.2;
+}
+
+.guaranteeDescription {
+  font-size: 0.75rem;
+  color: var(--luxury-pearl-gray);
+  line-height: 1.2;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .guaranteeBadge {
+    padding: var(--space-xs) var(--space-sm);
+  }
+
+  .guaranteeTitle {
+    font-size: 0.8rem;
+  }
+
+  .guaranteeDescription {
+    font-size: 0.7rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .guaranteeBadge {
+    flex-direction: column;
+    text-align: center;
+    gap: var(--space-xs);
+  }
+
+  .guaranteeTitle {
+    font-size: 0.75rem;
+  }
+
+  .guaranteeDescription {
+    font-size: 0.65rem;
+  }
+}

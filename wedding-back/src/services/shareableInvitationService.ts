@@ -24,7 +24,7 @@ export class ShareableInvitationService {
         include: {
           user: {
             select: {
-              subscriptionTier: true
+              id: true
             }
           },
           guests: {
@@ -40,7 +40,7 @@ export class ShareableInvitationService {
       }
 
       // Obtenir les limites totales du forfait (incluant les services supplémentaires)
-      const userLimits = await StripeService.getUserTotalLimits(userId, invitation.user.subscriptionTier);
+      const userLimits = await StripeService.getUserTotalLimits(userId);
       if (!userLimits) {
         throw new Error('Limites de forfait non trouvées');
       }
@@ -57,6 +57,9 @@ export class ShareableInvitationService {
       // Générer un token unique
       const shareableToken = `share-${Date.now()}-${crypto.randomUUID()}`;
       
+      // Calculer l'expiration automatique (20 minutes)
+      const expiresAt = options.expiresAt || new Date(Date.now() + 20 * 60 * 1000);
+      
       // Créer un nouveau lien dans la table ShareableLink avec la limite basée sur les invités restants
       const shareableLink = await tx.shareableLink.create({
         data: {
@@ -65,7 +68,7 @@ export class ShareableInvitationService {
           isActive: true,
           maxUses: remainingGuests,
           usedCount: 0,
-          expiresAt: options.expiresAt,
+          expiresAt: expiresAt,
           invitationId: invitationId
         }
       });
@@ -76,7 +79,7 @@ export class ShareableInvitationService {
         shareableEnabled: shareableLink.isActive,
         shareableMaxUses: shareableLink.maxUses,
         shareableUsedCount: shareableLink.usedCount,
-        shareableExpiresAt: shareableLink.expiresAt,
+        shareableExpiresAt: shareableLink.expiresAt || null,
         remainingGuests
       };
     });
@@ -84,9 +87,10 @@ export class ShareableInvitationService {
 
   /**
    * Associer un lien partageable à un guest et marquer comme utilisé
+   * Annule la suppression automatique car le lien est maintenant utilisé
    */
   static async associateGuestToLink(shareableToken: string, guestId: string) {
-    return await prisma.shareableLink.update({
+    const updatedLink = await prisma.shareableLink.update({
       where: { token: shareableToken },
       data: {
         status: 'USED',
@@ -96,6 +100,27 @@ export class ShareableInvitationService {
         }
       }
     });
+
+    console.log(`🔗 Lien partageable ${shareableToken} marqué comme USED, suppression automatique annulée`);
+    return updatedLink;
+  }
+
+  /**
+   * Marquer un lien partageable comme CONFIRMED après RSVP réussi
+   * Le lien est définitivement fermé et ne sera jamais supprimé
+   * On supprime expiresAt pour indiquer qu'il n'expire jamais
+   */
+  static async confirmShareableLink(shareableToken: string) {
+    const updatedLink = await prisma.shareableLink.update({
+      where: { token: shareableToken },
+      data: {
+        status: 'CONFIRMED',
+        expiresAt: null // Supprimer l'expiration = lien permanent
+      }
+    });
+
+    console.log(`✅ Lien partageable ${shareableToken} marqué comme CONFIRMED et rendu permanent (expiresAt supprimé)`);
+    return updatedLink;
   }
 
   /**
@@ -152,20 +177,22 @@ export class ShareableInvitationService {
   }
 
   /**
-   * Nettoyer les liens non utilisés après 10 minutes
+   * Nettoyer les liens expirés
+   * Supprime seulement les liens avec expiresAt défini et expiré
+   * Les liens CONFIRMED ont expiresAt = null donc ne sont jamais supprimés
    */
   static async cleanupUnusedLinks() {
-    const tenMinutesAgo = new Date(Date.now() - 10 * 60 * 1000);
+    const now = new Date();
     
     const deletedLinks = await prisma.shareableLink.deleteMany({
       where: {
-        status: 'SHARED',
-        createdAt: {
-          lt: tenMinutesAgo
+        expiresAt: {
+          lt: now // Seulement les liens avec expiresAt défini et expiré
         }
       }
     });
 
+    console.log(`🧹 Cleanup: ${deletedLinks.count} liens partageables expirés supprimés`);
     return deletedLinks.count;
   }
 
@@ -241,10 +268,18 @@ export class ShareableInvitationService {
       throw new Error('Lien d\'invitation désactivé');
     }
 
-    // Vérifier l'expiration si définie
-    if (shareableLink.expiresAt && shareableLink.expiresAt < new Date()) {
-      throw new Error('Lien d\'invitation expiré');
+    // Vérifier l'expiration (expiresAt = null = permanent)
+    if (shareableLink.expiresAt) {
+      const now = new Date();
+      if (shareableLink.expiresAt < now) {
+        // Supprimer automatiquement le lien expiré
+        await prisma.shareableLink.delete({
+          where: { token: shareableToken }
+        });
+        throw new Error('Lien d\'invitation expiré (20 minutes). Veuillez demander un nouveau lien.');
+      }
     }
+    // Si expiresAt est null, le lien est permanent (CONFIRMED)
 
     return shareableLink.invitation;
   }
@@ -295,13 +330,20 @@ export class ShareableInvitationService {
           message: guest.rsvp.message,
           attendingCeremony: guest.rsvp.attendingCeremony,
           attendingReception: guest.rsvp.attendingReception,
-          respondedAt: guest.rsvp.respondedAt
+          respondedAt: guest.rsvp.respondedAt,
+          plusOne: guest.plusOne,
+          plusOneName: guest.plusOneName,
+          dietaryRestrictions: guest.dietaryRestrictions,
+          profilePhotoUrl: guest.profilePhotoUrl
         } : null,
         invitation: {
-          coupleName: invitation.coupleName,
-          weddingDate: invitation.weddingDate,
-          venueName: invitation.venueName,
-          venueAddress: invitation.venueAddress
+          eventTitle: invitation.eventTitle,
+          eventDate: invitation.eventDate,
+          eventTime: invitation.eventTime,
+          location: invitation.location,
+          eventType: invitation.eventType,
+          customText: invitation.customText,
+          moreInfo: invitation.moreInfo
         }
       };
     }
@@ -309,10 +351,13 @@ export class ShareableInvitationService {
     // Retourner les informations générales de l'invitation
     return {
       invitation: {
-        coupleName: invitation.coupleName,
-        weddingDate: invitation.weddingDate,
-        venueName: invitation.venueName,
-        venueAddress: invitation.venueAddress
+        eventTitle: invitation.eventTitle,
+        eventDate: invitation.eventDate,
+        eventTime: invitation.eventTime,
+        location: invitation.location,
+        eventType: invitation.eventType,
+        customText: invitation.customText,
+        moreInfo: invitation.moreInfo
       },
       shareableToken
     };
@@ -327,6 +372,13 @@ export class ShareableInvitationService {
       where: { 
         id: invitationId, 
         userId 
+      },
+      include: {
+        user: {
+          select: {
+            id: true
+          }
+        }
       }
     });
 
@@ -353,6 +405,11 @@ export class ShareableInvitationService {
       }
     });
 
+    // Calculer les invités restants
+    const userLimits = await StripeService.getUserTotalLimits(userId);
+    const maxGuests = userLimits?.guests || 0;
+    const remainingGuests = maxGuests - shareableGuests;
+
     return {
       shareableEnabled: latestShareableLink ? latestShareableLink.isActive : false,
       shareableToken: latestShareableLink ? latestShareableLink.token : null,
@@ -360,6 +417,7 @@ export class ShareableInvitationService {
       shareableUsedCount: latestShareableLink ? latestShareableLink.usedCount : 0,
       shareableExpiresAt: latestShareableLink ? latestShareableLink.expiresAt : null,
       guestsCount: shareableGuests,
+      remainingGuests: remainingGuests,
       shareableUrl: latestShareableLink ? 
         `${process.env.FRONTEND_URL || 'http://localhost:3012'}/rsvp/shared/${latestShareableLink.token}` : 
         null

@@ -1,195 +1,219 @@
+/* ===== QR CODE MODAL - LUXURY DESIGN SYSTEM ===== */
+
 .overlay {
   position: fixed;
   top: 0;
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(0, 0, 0, 0.5);
+  background: rgba(0, 0, 0, 0.8);
   display: flex;
   align-items: center;
   justify-content: center;
   z-index: 1000;
-  padding: 20px;
+  padding: var(--space-sm);
+  backdrop-filter: blur(4px);
 }
 
 .modal {
-  background: white;
-  border-radius: 16px;
-  max-width: 600px;
+  background: var(--bg-card);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-2xl);
+  max-width: 500px;
   width: 100%;
   max-height: 90vh;
   overflow-y: auto;
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+  border: 1px solid var(--border-color);
   animation: modalSlideIn 0.3s ease-out;
 }
 
 @keyframes modalSlideIn {
   from {
     opacity: 0;
-    transform: translateY(-20px) scale(0.95);
+    transform: scale(0.95) translateY(-20px);
   }
   to {
     opacity: 1;
-    transform: translateY(0) scale(1);
+    transform: scale(1) translateY(0);
   }
 }
 
 .header {
   display: flex;
-  align-items: center;
   justify-content: space-between;
-  padding: 24px 24px 16px;
-  border-bottom: 1px solid #e8e2d4;
+  align-items: center;
+  padding: var(--space-md);
+  border-bottom: 1px solid var(--border-color);
 }
 
 .titleSection {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: var(--space-sm);
 }
 
 .titleIcon {
-  color: #c5a880;
-  width: 24px;
-  height: 24px;
+  width: 20px;
+  height: 20px;
+  color: var(--luxury-champagne-gold);
 }
 
 .titleSection h2 {
-  margin: 0;
-  color: #2c2c2c;
-  font-size: 1.4rem;
+  font-family: var(--font-sans);
+  font-size: 1.25rem;
   font-weight: 600;
+  color: var(--text-primary);
+  margin: 0;
 }
 
 .closeButton {
-  padding: 8px;
-  min-width: auto;
+  background: var(--bg-primary);
+  color: var(--text-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  padding: var(--space-xs);
+  cursor: pointer;
+  transition: all var(--transition-normal);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.closeButton:hover {
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+  border-color: var(--luxury-champagne-gold);
 }
 
 .closeIcon {
-  width: 18px;
-  height: 18px;
+  width: 16px;
+  height: 16px;
 }
 
 .content {
-  padding: 24px;
+  padding: var(--space-md);
 }
 
 .description {
-  text-align: center;
-  margin-bottom: 24px;
+  margin-bottom: var(--space-md);
 }
 
 .description p {
-  color: #666;
-  line-height: 1.6;
+  color: var(--text-secondary);
+  font-size: 0.875rem;
+  line-height: 1.5;
   margin: 0;
+  font-family: var(--font-sans);
 }
 
 .qrSection {
   display: flex;
   justify-content: center;
-  margin-bottom: 32px;
+  margin-bottom: var(--space-lg);
 }
 
 .instructions {
-  margin-bottom: 24px;
+  margin-bottom: var(--space-md);
 }
 
 .instructions h3 {
-  color: #2c2c2c;
-  margin-bottom: 16px;
-  font-size: 1.1rem;
+  font-family: var(--font-sans);
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: var(--space-sm);
 }
 
 .instructions ol {
-  padding-left: 20px;
+  color: var(--text-secondary);
+  font-size: 0.875rem;
+  line-height: 1.6;
   margin: 0;
+  padding-left: var(--space-md);
+  font-family: var(--font-sans);
 }
 
 .instructions li {
-  color: #666;
-  margin-bottom: 8px;
-  line-height: 1.5;
+  margin-bottom: var(--space-xs);
 }
 
 .tips {
-  background: #fefcf8;
-  border: 1px solid #e8e2d4;
-  border-radius: 8px;
-  padding: 16px;
+  background: rgba(197, 168, 128, 0.1);
+  border: 1px solid rgba(197, 168, 128, 0.2);
+  border-radius: var(--radius-md);
+  padding: var(--space-md);
 }
 
 .tips h4 {
-  color: #2c2c2c;
-  margin: 0 0 12px 0;
-  font-size: 1rem;
+  font-family: var(--font-sans);
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: var(--space-sm);
 }
 
 .tips ul {
+  color: var(--text-secondary);
+  font-size: 0.8rem;
+  line-height: 1.5;
   margin: 0;
-  padding-left: 20px;
+  padding-left: var(--space-md);
+  font-family: var(--font-sans);
 }
 
 .tips li {
-  color: #666;
-  margin-bottom: 6px;
-  line-height: 1.4;
-  font-size: 0.9rem;
+  margin-bottom: var(--space-xs);
 }
 
 .footer {
-  padding: 16px 24px 24px;
+  padding: var(--space-md);
+  border-top: 1px solid var(--border-color);
   display: flex;
   justify-content: center;
-  border-top: 1px solid #e8e2d4;
 }
 
-/* Responsive */
+/* ===== RESPONSIVE DESIGN ===== */
 @media (max-width: 768px) {
   .overlay {
-    padding: 16px;
+    padding: var(--space-xs);
   }
-  
+
   .modal {
+    max-width: 95vw;
     max-height: 95vh;
   }
-  
+
   .header {
-    padding: 20px 20px 12px;
+    padding: var(--space-sm);
   }
-  
+
   .titleSection h2 {
-    font-size: 1.2rem;
+    font-size: 1.125rem;
   }
-  
+
   .content {
-    padding: 20px;
+    padding: var(--space-sm);
   }
-  
-  .qrSection {
-    margin-bottom: 24px;
-  }
-  
+
   .footer {
-    padding: 12px 20px 20px;
+    padding: var(--space-sm);
   }
 }
 
 @media (max-width: 480px) {
-  .overlay {
-    padding: 12px;
+  .modal {
+    border-radius: var(--radius-lg);
   }
-  
-  .header {
-    padding: 16px 16px 8px;
-  }
-  
-  .content {
-    padding: 16px;
-  }
-  
+
   .titleSection h2 {
-    font-size: 1.1rem;
+    font-size: 1rem;
+  }
+
+  .instructions h3 {
+    font-size: 0.95rem;
+  }
+
+  .tips h4 {
+    font-size: 0.9rem;
   }
 } 

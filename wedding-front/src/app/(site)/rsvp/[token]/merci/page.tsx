@@ -1,8 +1,20 @@
 'use client';
 
 import React, { useState, useEffect, use } from 'react';
-import { Card } from '@/components/Card/Card';
+import { 
+  CheckCircle, 
+  XCircle, 
+  Users, 
+  Heart, 
+  Wine, 
+  MessageCircle, 
+  Eye, 
+  Shield,
+  Loader,
+  Sparkles
+} from 'lucide-react';
 import { rsvpApi } from '@/lib/api/rsvp';
+import styles from './merci.module.css';
 
 interface RSVPResponse {
   status: 'PENDING' | 'CONFIRMED' | 'DECLINED';
@@ -10,20 +22,63 @@ interface RSVPResponse {
   message?: string;
   attendingCeremony?: boolean;
   attendingReception?: boolean;
+  profilePhotoUrl?: string;
+  plusOne?: boolean;
+  plusOneName?: string;
+  dietaryRestrictions?: string;
+  respondedAt?: string;
+  guest?: {
+    firstName: string;
+    lastName: string;
+    email?: string;
+    phone?: string;
+  };
 }
 
 export default function RSVPThankYouPage({ params }: { params: Promise<{ token: string }> }) {
   const [status, setStatus] = useState<RSVPResponse | null>(null);
   const [loading, setLoading] = useState(true);
-  const { token } = use(params);
+  const [token, setToken] = useState<string>('');
 
   useEffect(() => {
+    const initParams = async () => {
+      const resolvedParams = await params;
+      setToken(resolvedParams.token);
+    };
+    initParams();
+  }, [params]);
+
+  useEffect(() => {
+    if (!token) return;
+
     const getStatus = async () => {
       try {
-        const statusData = await rsvpApi.getStatus(token);
-        setStatus(statusData);
-  } catch (error) {
-    console.error('Error fetching RSVP status:', error);
+        // Récupérer les données depuis sessionStorage (passées depuis le formulaire)
+        const rsvpData = sessionStorage.getItem('rsvpData');
+        if (rsvpData) {
+          const parsedData = JSON.parse(rsvpData);
+          setStatus({
+            status: parsedData.rsvp.status,
+            numberOfGuests: parsedData.rsvp.numberOfGuests,
+            message: parsedData.rsvp.message,
+            attendingCeremony: parsedData.rsvp.attendingCeremony,
+            attendingReception: parsedData.rsvp.attendingReception,
+            plusOne: parsedData.rsvp.plusOne,
+            plusOneName: parsedData.rsvp.plusOneName,
+            dietaryRestrictions: parsedData.rsvp.dietaryRestrictions,
+            profilePhotoUrl: parsedData.rsvp.profilePhotoUrl,
+            guest: parsedData.guest,
+            respondedAt: parsedData.rsvp.respondedAt
+          });
+          // Nettoyer les données après utilisation
+          sessionStorage.removeItem('rsvpData');
+        } else {
+          // Si pas de données en session, récupérer depuis l'API
+          const statusData = await rsvpApi.getStatus(token);
+          setStatus(statusData);
+        }
+      } catch (error) {
+        console.error('Error fetching RSVP status:', error);
         setStatus(null);
       } finally {
         setLoading(false);
@@ -35,219 +90,151 @@ export default function RSVPThankYouPage({ params }: { params: Promise<{ token: 
 
   if (loading) {
     return (
-      <div className="container mx-auto px-4 py-8" style={{ marginTop: '80px' }}>
-        <Card className="max-w-2xl mx-auto shadow-lg">
-          <div className="text-center p-12">
-            <p>Chargement...</p>
+      <div className={styles.container}>
+        <div className={styles.loadingContainer}>
+          <div className={styles.loadingAnimation}>
+            <div className={styles.loadingRing}></div>
+            <div className={styles.loadingRing}></div>
+            <div className={styles.loadingRing}></div>
+            <Sparkles className={styles.loadingIcon} />
           </div>
-        </Card>
+          <p className={styles.loadingText}>Chargement de votre réponse...</p>
+        </div>
       </div>
     );
   }
 
   if (!status) {
     return (
-      <div className="container mx-auto px-4 py-8" style={{ marginTop: '80px' }}>
-        <Card className="max-w-2xl mx-auto shadow-lg">
-          <div className="text-center p-12">
-            <div className="mb-8">
-              <div className="w-20 h-20 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <span className="text-3xl">❌</span>
-              </div>
-            </div>
-            <h1 className="text-3xl font-serif mb-6 text-gray-800">
-              Une erreur est survenue
-            </h1>
-            <p className="text-gray-600 text-lg">
-              Nous n'avons pas pu récupérer votre réponse. Veuillez réessayer plus tard.
-            </p>
-          </div>
-        </Card>
+      <div className={styles.container}>
+        <div className={styles.errorCard}>
+          <XCircle className={styles.errorIcon} />
+          <h2>Une erreur est survenue</h2>
+          <p>Nous n'avons pas pu récupérer votre réponse. Veuillez réessayer plus tard.</p>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="container mx-auto px-4 py-8" style={{ marginTop: '80px' }}>
-      <style jsx>{`
-        .thank-you-card {
-          background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
-          border: 1px solid #e9ecef;
-          box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-          animation: fadeInUp 0.6s ease-out;
-        }
-        
-        .success-icon {
-          background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%);
-          animation: pulse 2s infinite;
-        }
-        
-        .decline-icon {
-          background: linear-gradient(135deg, #f8d7da 0%, #f5c6cb 100%);
-        }
-        
-        .message-box {
-          background: linear-gradient(135deg, #fff3cd 0%, #ffeaa7 100%);
-          border-left: 4px solid #C5A880;
-          padding: 1.5rem;
-          border-radius: 0.5rem;
-          margin-top: 2rem;
-        }
-        
-        .back-link {
-          display: inline-flex;
-          align-items: center;
-          gap: 0.5rem;
-          padding: 0.75rem 1.5rem;
-          background: linear-gradient(135deg, #C5A880 0%, #B39670 100%);
-          color: white;
-          text-decoration: none;
-          border-radius: 0.5rem;
-          transition: all 0.3s ease;
-          font-weight: 500;
-        }
-        
-        .back-link:hover {
-          transform: translateY(-2px);
-          box-shadow: 0 4px 12px rgba(197, 168, 128, 0.3);
-          color: white;
-        }
-        
-        @keyframes fadeInUp {
-          from {
-            opacity: 0;
-            transform: translateY(30px);
-          }
-          to {
-            opacity: 1;
-            transform: translateY(0);
-          }
-        }
-        
-        @keyframes pulse {
-          0%, 100% {
-            transform: scale(1);
-          }
-          50% {
-            transform: scale(1.05);
-          }
-        }
-        
-        .detail-item {
-          display: flex;
-          align-items: center;
-          gap: 0.75rem;
-          padding: 0.75rem;
-          background: rgba(197, 168, 128, 0.1);
-          border-radius: 0.5rem;
-          margin-bottom: 0.5rem;
-        }
-        
-        .detail-icon {
-          width: 2rem;
-          height: 2rem;
-          border-radius: 50%;
-          background: #C5A880;
-          color: white;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          font-size: 0.875rem;
-        }
-      `}</style>
-      
-      <Card className="max-w-3xl mx-auto thank-you-card">
-        <div className="text-center p-12">
-          <div className="mb-8">
-            <div className={`w-24 h-24 rounded-full flex items-center justify-center mx-auto mb-6 ${
-              status.status === 'CONFIRMED' ? 'success-icon' : 'decline-icon'
-            }`}>
-              <span className="text-4xl">
-                {status.status === 'CONFIRMED' ? '🎉' : '😔'}
-              </span>
-            </div>
+    <div className={styles.container}>
+      <div className={styles.thankYouCard}>
+        <div className={styles.headerSection}>
+          <div className={styles.badge}>
+            <CheckCircle style={{ width: '16px', height: '16px' }} />
+            Confirmation RSVP
           </div>
           
-          <h1 className="text-4xl font-serif mb-8 text-gray-800">
-            Merci pour votre réponse !
+          <div className={styles.iconContainer}>
+            {status.status === 'CONFIRMED' ? (
+              <CheckCircle className={styles.successIcon} />
+            ) : (
+              <XCircle className={styles.declineIcon} />
+            )}
+          </div>
+          
+          <h1 className={styles.title}>
+            Merci pour votre <span className={styles.titleAccent}>réponse</span> !
           </h1>
 
+          {/* Affichage des informations personnelles */}
+          {status.guest?.firstName && status.guest?.lastName && (
+            <p className={styles.subtitle}>
+              Merci <strong>{status.guest.firstName} {status.guest.lastName}</strong> !
+            </p>
+          )}
+        </div>
+
+        <div className={styles.contentSection}>
           {status.status === 'CONFIRMED' ? (
-            <div className="space-y-6">
-              <p className="text-2xl text-green-600 font-medium">
+            <div className={styles.confirmedContent}>
+              <p className={styles.confirmationMessage}>
                 Nous sommes ravis de vous compter parmi nous ! ✨
               </p>
               
-              <div className="max-w-md mx-auto space-y-3">
-                <div className="detail-item">
-                  <div className="detail-icon">👥</div>
-                  <span className="text-lg">
-                    {status.numberOfGuests || 1} personne{(status.numberOfGuests || 1) > 1 ? 's' : ''}
-                  </span>
+              <div className={styles.detailsGrid}>
+                <div className={styles.detailItem}>
+                  <div className={styles.detailIcon}>
+                    <Users />
+                  </div>
+                  <div className={styles.detailContent}>
+                    <span className={styles.detailValue}>
+                      {status.plusOne ? 2 : 1} personne{status.plusOne ? 's' : ''}
+                    </span>
+                    <span className={styles.detailLabel}>Présent(e)(s)</span>
+                  </div>
                 </div>
                 
                 {status.attendingCeremony && (
-                  <div className="detail-item">
-                    <div className="detail-icon">💒</div>
-                    <span>Présent(e) à la cérémonie</span>
+                  <div className={styles.detailItem}>
+                    <div className={styles.detailIcon}>
+                      <Heart />
+                    </div>
+                    <div className={styles.detailContent}>
+                      <span className={styles.detailValue}>cérémonie</span>
+                      <span className={styles.detailLabel}>Présent(e)</span>
+                    </div>
                   </div>
                 )}
                 
                 {status.attendingReception && (
-                  <div className="detail-item">
-                    <div className="detail-icon">🥂</div>
-                    <span>Présent(e) à la réception</span>
+                  <div className={styles.detailItem}>
+                    <div className={styles.detailIcon}>
+                      <Wine />
+                    </div>
+                    <div className={styles.detailContent}>
+                      <span className={styles.detailValue}>réception</span>
+                      <span className={styles.detailLabel}>Présent(e)</span>
+                    </div>
                   </div>
                 )}
               </div>
-              
-              {status.message && (
-                <div className="message-box">
-                  <h3 className="text-lg font-semibold mb-3 text-gray-800">
-                    💌 Votre message pour les mariés
-                  </h3>
-                  <p className="italic text-gray-700 text-left leading-relaxed">
-                    "{status.message}"
-                  </p>
-                </div>
-              )}
             </div>
           ) : (
-            <div className="space-y-6">
-              <p className="text-xl text-gray-600">
+            <div className={styles.declinedContent}>
+              <p className={styles.declineMessage}>
                 Nous sommes désolés que vous ne puissiez pas être présent(e).
               </p>
-              <p className="text-lg text-gray-500">
+              <p className={styles.declineSubtext}>
                 Nous espérons vous voir lors d'une prochaine occasion ! 💕
               </p>
-              
-              {status.message && (
-                <div className="message-box">
-                  <h3 className="text-lg font-semibold mb-3 text-gray-800">
-                    💌 Votre message pour les mariés
-                  </h3>
-                  <p className="italic text-gray-700 text-left leading-relaxed">
-                    "{status.message}"
-                  </p>
-                </div>
-              )}
             </div>
           )}
+          
+          {status.message && (
+            <div className={styles.messageSection}>
+              <div className={styles.messageHeader}>
+                <MessageCircle className={styles.messageIcon} />
+                <h3>Votre message pour l'organisateur</h3>
+              </div>
+              <div className={styles.messageContent}>
+                "{status.message}"
+              </div>
+            </div>
+          )}
+        </div>
 
-          <div className="mt-12 pt-8 border-t border-gray-200">
-            <p className="text-gray-600 mb-6">
-              Vous pouvez toujours modifier votre réponse si nécessaire
-            </p>
+        <div className={styles.footerSection}>
+          <p className={styles.confirmationText}>
+            Votre réponse a été enregistrée avec succès. L'organisateur a été notifié.
+          </p>
+          
+          <div className={styles.actionButtons}>
             <a
               href={`/rsvp/${token}`}
-              className="back-link"
+              className={styles.viewInvitationButton}
             >
-              <span>🔄</span>
-              Modifier ma réponse
+              <Eye className={styles.buttonIcon} />
+              Voir l'invitation
             </a>
           </div>
+          
+          <div className={styles.securityNotice}>
+            <Shield className={styles.securityIcon} />
+            <span>Ce lien est personnel. Merci de ne pas le partager avec d'autres personnes.</span>
+          </div>
         </div>
-      </Card>
+      </div>
     </div>
   );
-} 
+}

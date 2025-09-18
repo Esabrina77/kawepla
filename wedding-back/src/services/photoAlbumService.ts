@@ -77,12 +77,15 @@ export class PhotoAlbumService {
         originalUrl = await uploadToFirebase(file.buffer, fileName, file.mimetype);
         compressedUrl = originalUrl; // Pour l'instant, même URL
         thumbnailUrl = originalUrl; // Pour l'instant, même URL
+        console.log('Photo uploadée avec succès vers Firebase:', originalUrl);
       } catch (firebaseError) {
         console.warn('Erreur Firebase, utilisation de placeholders:', firebaseError);
         // Fallback vers des placeholders si Firebase échoue
+        const timestamp = Date.now();
         originalUrl = `https://via.placeholder.com/800x600/cccccc/666666?text=Photo+${timestamp}`;
         compressedUrl = `https://via.placeholder.com/800x600/cccccc/666666?text=Compressed+${timestamp}`;
         thumbnailUrl = `https://via.placeholder.com/300x300/cccccc/666666?text=Thumb+${timestamp}`;
+        console.log('URLs placeholder générées:', { originalUrl, compressedUrl, thumbnailUrl });
       }
 
       // Sauvegarder en base de données
@@ -236,18 +239,25 @@ export class PhotoAlbumService {
     }
 
     try {
-      // Supprimer les fichiers de Firebase
-      await Promise.all([
-        deleteFromFirebase(photo.originalUrl),
-        photo.compressedUrl ? deleteFromFirebase(photo.compressedUrl) : Promise.resolve(),
-        photo.thumbnailUrl ? deleteFromFirebase(photo.thumbnailUrl) : Promise.resolve()
-      ]);
+      // Supprimer les fichiers de Firebase (ne pas faire échouer si Firebase échoue)
+      try {
+        await Promise.all([
+          deleteFromFirebase(photo.originalUrl),
+          photo.compressedUrl ? deleteFromFirebase(photo.compressedUrl) : Promise.resolve(),
+          photo.thumbnailUrl ? deleteFromFirebase(photo.thumbnailUrl) : Promise.resolve()
+        ]);
+        console.log('Suppression Firebase terminée pour la photo:', photoId);
+      } catch (firebaseError) {
+        console.warn('Erreur lors de la suppression Firebase (continuation):', firebaseError);
+        // Continuer même si Firebase échoue
+      }
 
       // Supprimer de la base de données
       await prisma.photo.delete({
         where: { id: photoId }
       });
 
+      console.log('Photo supprimée avec succès de la base de données:', photoId);
       return { success: true };
     } catch (error) {
       console.error('Erreur lors de la suppression de la photo:', error);
@@ -304,8 +314,8 @@ export class PhotoAlbumService {
         invitation: {
           select: {
             id: true,
-            coupleName: true,
-            weddingDate: true
+            eventTitle: true,
+            eventDate: true
           }
         },
         photos: {
@@ -362,7 +372,7 @@ export class PhotoAlbumService {
         },
         album: {
           select: {
-            title: true
+    
           }
         }
       },

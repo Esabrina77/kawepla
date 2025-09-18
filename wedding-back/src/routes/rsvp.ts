@@ -1,43 +1,8 @@
 import { Router } from 'express';
 import { RSVPController } from '../controllers/rsvpController';
 import { ShareableInvitationService } from '../services/shareableInvitationService';
-import { validateBody } from '../middleware/validation';
-import { z } from 'zod';
 
 const router = Router();
-
-// Schéma de validation pour la réponse RSVP
-const rsvpSchema = z.object({
-  status: z.enum(['CONFIRMED', 'DECLINED', 'PENDING']),
-  numberOfGuests: z.number().min(1),
-  message: z.string().optional(),
-  attendingCeremony: z.boolean().optional().default(true),
-  attendingReception: z.boolean().optional().default(true)
-});
-
-// Schéma de validation pour la mise à jour RSVP
-const rsvpUpdateSchema = z.object({
-  status: z.enum(['CONFIRMED', 'DECLINED', 'PENDING']).optional(),
-  numberOfGuests: z.number().min(1).optional(),
-  message: z.string().optional(),
-  attendingCeremony: z.boolean().optional(),
-  attendingReception: z.boolean().optional()
-});
-
-// Schéma de validation pour la réponse RSVP partageable
-const shareableRSVPSchema = z.object({
-  // Infos personnelles
-  firstName: z.string().min(2, 'Le prénom doit contenir au moins 2 caractères'),
-  lastName: z.string().min(2, 'Le nom doit contenir au moins 2 caractères'),
-  email: z.string().email().optional().nullable(),
-  phone: z.string().min(8, 'Le numéro de téléphone doit contenir au moins 8 caractères'),
-  // RSVP classique
-  status: z.enum(['CONFIRMED', 'DECLINED', 'PENDING']),
-  numberOfGuests: z.number().min(1),
-  message: z.string().optional(),
-  attendingCeremony: z.boolean().optional().default(true),
-  attendingReception: z.boolean().optional().default(true)
-});
 
 /**
  * @route   GET /api/rsvp/:token/invitation
@@ -51,7 +16,7 @@ router.get('/:token/invitation', RSVPController.getInvitation);
  * @desc    Répondre à une invitation
  * @access  Public
  */
-router.post('/:token/respond', validateBody(rsvpSchema), RSVPController.respond);
+router.post('/:token/respond', RSVPController.respond);
 
 /**
  * @route   GET /api/rsvp/:token
@@ -65,7 +30,7 @@ router.get('/:token', RSVPController.getStatus);
  * @desc    Mettre à jour une réponse RSVP
  * @access  Public
  */
-router.patch('/:token', validateBody(rsvpUpdateSchema), RSVPController.update);
+router.patch('/:token', RSVPController.update);
 
 /**
  * @route   GET /api/rsvp/shared/:shareableToken/invitation
@@ -88,7 +53,7 @@ router.get('/shared/:shareableToken/invitation', async (req, res, next) => {
  * @desc    Répondre via lien partageable avec infos personnelles
  * @access  Public
  */
-router.post('/shared/:shareableToken/respond', validateBody(shareableRSVPSchema), async (req, res, next) => {
+router.post('/shared/:shareableToken/respond', async (req, res, next) => {
   try {
     const { shareableToken } = req.params;
     // Pour le RSVP, on vérifie les limites strictes

@@ -2,11 +2,11 @@ import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Check } from 'lucide-react';
-import { SubscriptionPlan } from '@/lib/api/stripe';
+import { ServicePurchasePlan } from '@/lib/api/stripe';
 import styles from './PricingCard.module.css';
 
 interface PricingCardProps {
-  plan: SubscriptionPlan;
+  plan: ServicePurchasePlan;
   isPopular?: boolean;
   onSelect: (planId: string) => void;
   loading?: boolean;
@@ -61,7 +61,7 @@ export const PricingCard: React.FC<PricingCardProps> = ({
           onClick={() => onSelect(plan.id)}
           disabled={loading}
           className={styles.selectButton}
-          variant={plan.id === 'FREE' ? 'outline' : 'default'}
+          variant={plan.id === 'FREE' ? 'outline' : 'primary'}
         >
           {loading ? 'Chargement...' : 
            plan.id === 'FREE' ? 'Commencer gratuitement' : `Choisir ${plan.name}`}

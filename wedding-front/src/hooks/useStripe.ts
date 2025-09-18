@@ -3,7 +3,7 @@ import { loadStripe } from '@stripe/stripe-js';
 
 const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!);
 
-export interface SubscriptionPlan {
+export interface ServicePurchasePlan {
   id: string;
   name: string;
   description: string;
@@ -20,7 +20,7 @@ export const useStripe = () => {
     setError(null);
 
     try {
-      const response = await fetch('/api/subscriptions/create-checkout-session', {
+      const response = await fetch('/api/servicePurchases/create-checkout-session', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -52,9 +52,9 @@ export const useStripe = () => {
     }
   };
 
-  const getPlans = async (): Promise<SubscriptionPlan[]> => {
+  const getPlans = async (): Promise<ServicePurchasePlan[]> => {
     try {
-      const response = await fetch('/api/subscriptions/plans');
+      const response = await fetch('/api/servicePurchases/plans');
       if (!response.ok) {
         throw new Error('Erreur lors du chargement des plans');
       }
@@ -67,7 +67,7 @@ export const useStripe = () => {
 
   const verifyPayment = async (sessionId: string) => {
     try {
-      const response = await fetch(`/api/subscriptions/verify-payment/${sessionId}`, {
+      const response = await fetch(`/api/servicePurchases/verify-payment/${sessionId}`, {
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('token')}`
         }

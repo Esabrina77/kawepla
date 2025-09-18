@@ -13,13 +13,13 @@ const upload = multer({
     fileSize: 5 * 1024 * 1024, // 5MB max
   },
   fileFilter: (req, file, cb) => {
-    const allowedExtensions = ['.csv', '.json', '.txt'];
+    const allowedExtensions = ['.csv', '.txt'];
     const fileExtension = '.' + file.originalname.split('.').pop()?.toLowerCase();
     
     if (allowedExtensions.includes(fileExtension)) {
       cb(null, true);
     } else {
-      cb(new Error('Format de fichier non supporté. Utilisez CSV, JSON ou TXT.'));
+      cb(new Error('Format de fichier non supporté. Utilisez CSV ou TXT uniquement.'));
     }
   }
 });
@@ -285,49 +285,24 @@ export class GuestController {
 
       switch (format.toLowerCase()) {
         case 'csv':
-          content = 'firstName,lastName,email,phone,isVIP,dietaryRestrictions,plusOne,plusOneName\n' +
-                   'Jean,Dupont,jean.dupont@email.com,0123456789,false,Végétarien,true,Marie Dupont\n' +
-                   'Sophie,Martin,sophie.martin@email.com,0987654321,true,,false,';
+          content = 'firstName,lastName,email,phone,isVIP\n' +
+                   'Jean,Dupont,jean.dupont@email.com,0123456789,false\n' +
+                   'Sophie,Martin,sophie.martin@email.com,0987654321,true\n' +
+                   'Pierre,Blanc,pierre.blanc@email.com,0987654321,false';
           filename = 'template_invites.csv';
           contentType = 'text/csv';
           break;
 
-        case 'json':
-          content = JSON.stringify([
-            {
-              firstName: 'Jean',
-              lastName: 'Dupont',
-              email: 'jean.dupont@email.com',
-              phone: '0123456789',
-              isVIP: false,
-              dietaryRestrictions: 'Végétarien',
-              plusOne: true,
-              plusOneName: 'Marie Dupont'
-            },
-            {
-              firstName: 'Sophie',
-              lastName: 'Martin',
-              email: 'sophie.martin@email.com',
-              phone: '0987654321',
-              isVIP: true,
-              dietaryRestrictions: '',
-              plusOne: false,
-              plusOneName: ''
-            }
-          ], null, 2);
-          filename = 'template_invites.json';
-          contentType = 'application/json';
-          break;
-
         case 'txt':
-          content = 'Jean,Dupont,jean.dupont@email.com,0123456789,false,Végétarien,true,Marie Dupont\n' +
-                   'Sophie,Martin,sophie.martin@email.com,0987654321,true,,false,';
+          content = 'Jean,Dupont,jean.dupont@email.com,0123456789,false\n' +
+                   'Sophie,Martin,sophie.martin@email.com,0987654321,true\n' +
+                   'Pierre,Blanc,pierre.blanc@email.com,0987654321,false';
           filename = 'template_invites.txt';
           contentType = 'text/plain';
           break;
 
         default:
-          res.status(400).json({ message: 'Format non supporté. Utilisez: csv, json, txt' });
+          res.status(400).json({ message: 'Format non supporté. Utilisez csv ou txt uniquement.' });
           return;
       }
 

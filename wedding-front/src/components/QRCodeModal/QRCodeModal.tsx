@@ -3,7 +3,7 @@
 import React from 'react';
 import { X, QrCode } from 'lucide-react';
 import { QRCodeComponent } from '@/components/QRCode/QRCode';
-import { Button } from '@/components/Button/Button';
+import { Button } from '@/components/ui/button';
 import styles from './QRCodeModal.module.css';
 
 interface QRCodeModalProps {
@@ -32,7 +32,7 @@ export function QRCodeModal({ isOpen, onClose, albumTitle, albumId }: QRCodeModa
           </div>
           <Button
             variant="outline"
-            size="small"
+            size="sm"
             onClick={onClose}
             className={styles.closeButton}
           >
@@ -61,7 +61,7 @@ export function QRCodeModal({ isOpen, onClose, albumTitle, albumId }: QRCodeModa
             <h3>Comment utiliser ce QR code :</h3>
             <ol>
               <li>Téléchargez le QR code ou imprimez-le</li>
-              <li>Placez-le sur les tables lors de votre mariage</li>
+              <li>Placez-le sur les tables lors de votre événement</li>
               <li>Vos invités scannent avec leur téléphone</li>
               <li>Ils peuvent uploader leurs photos directement</li>
             </ol>

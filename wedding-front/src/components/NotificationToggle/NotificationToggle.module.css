@@ -1,0 +1,119 @@
+/* Notification Toggle Component */
+.notificationToggle {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-sm);
+  padding: var(--space-md);
+  background: var(--card-bg);
+  border-radius: var(--border-radius);
+  border: 1px solid var(--border-color);
+}
+
+.toggleButton {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  padding: var(--space-sm) var(--space-md);
+  border: none;
+  border-radius: var(--border-radius);
+  cursor: pointer;
+  font-size: var(--font-size-sm);
+  font-weight: 500;
+  transition: all 0.2s ease;
+  min-width: 200px;
+  justify-content: center;
+}
+
+.toggleButton.enabled {
+  background: var(--success-color);
+  color: var(--success-text);
+}
+
+.toggleButton.enabled:hover {
+  background: var(--success-hover);
+}
+
+.toggleButton.disabled {
+  background: var(--primary-color);
+  color: var(--primary-text);
+}
+
+.toggleButton.disabled:hover {
+  background: var(--primary-hover);
+}
+
+.toggleButton:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.icon {
+  width: 18px;
+  height: 18px;
+}
+
+.label {
+  font-weight: 500;
+}
+
+.status {
+  padding: var(--space-xs) var(--space-sm);
+  border-radius: var(--border-radius-sm);
+  font-size: var(--font-size-xs);
+  font-weight: 500;
+  text-align: center;
+  min-width: 200px;
+}
+
+.status.success {
+  background: var(--success-bg);
+  color: var(--success-text);
+  border: 1px solid var(--success-border);
+}
+
+.status.error {
+  background: var(--error-bg);
+  color: var(--error-text);
+  border: 1px solid var(--error-border);
+}
+
+.helpText {
+  font-size: var(--font-size-xs);
+  color: var(--text-secondary);
+  text-align: center;
+  max-width: 300px;
+  line-height: 1.4;
+}
+
+.warning {
+  padding: var(--space-sm);
+  background: var(--warning-bg);
+  color: var(--warning-text);
+  border: 1px solid var(--warning-border);
+  border-radius: var(--border-radius);
+  font-size: var(--font-size-xs);
+  text-align: center;
+  max-width: 300px;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .notificationToggle {
+    padding: var(--space-sm);
+  }
+  
+  .toggleButton {
+    min-width: 180px;
+    font-size: var(--font-size-xs);
+  }
+  
+  .status {
+    min-width: 180px;
+  }
+  
+  .helpText,
+  .warning {
+    max-width: 250px;
+  }
+}

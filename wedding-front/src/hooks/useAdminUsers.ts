@@ -1,21 +1,9 @@
 import { useState, useEffect } from 'react';
 import { apiClient } from '@/lib/api/apiClient';
-
-interface User {
-  id: string;
-  email: string;
-  firstName: string;
-  lastName: string;
-  role: 'ADMIN' | 'COUPLE' | 'GUEST';
-  subscriptionTier: 'FREE' | 'ESSENTIAL' | 'ELEGANT' | 'PREMIUM' | 'LUXE';
-  isActive: boolean;
-  emailVerified: boolean;
-  createdAt: string;
-  updatedAt: string;
-}
+import { User } from '@/types';
 
 interface UserFilters {
-  role?: 'ADMIN' | 'COUPLE' | 'GUEST';
+  role?: 'ADMIN' | 'HOST' | 'GUEST' | 'PROVIDER';  // NOUVELLE architecture
   isActive?: boolean;
   search?: string;
 }
@@ -82,12 +70,8 @@ export const useAdminUsers = () => {
     return updateUser(id, { isActive: !user.isActive });
   };
 
-  const changeUserRole = async (id: string, role: 'ADMIN' | 'COUPLE' | 'GUEST') => {
+  const changeUserRole = async (id: string, role: 'ADMIN' | 'HOST' | 'GUEST' | 'PROVIDER') => {
     return updateUser(id, { role });
-  };
-
-  const changeUserSubscriptionTier = async (id: string, subscriptionTier: 'FREE' | 'ESSENTIAL' | 'ELEGANT' | 'PREMIUM' | 'LUXE') => {
-    return updateUser(id, { subscriptionTier });
   };
 
   // Filtrer les utilisateurs
@@ -104,11 +88,13 @@ export const useAdminUsers = () => {
 
     if (filters.search) {
       const searchLower = filters.search.toLowerCase();
-      filtered = filtered.filter(user => 
-        user.email.toLowerCase().includes(searchLower) ||
-        user.firstName.toLowerCase().includes(searchLower) ||
-        user.lastName.toLowerCase().includes(searchLower)
-      );
+      filtered = filtered.filter(user => {
+        const firstName = user.firstName || '';
+        const lastName = user.lastName || '';
+        return user.email.toLowerCase().includes(searchLower) ||
+               firstName.toLowerCase().includes(searchLower) ||
+               lastName.toLowerCase().includes(searchLower);
+      });
     }
 
     setFilteredUsers(filtered);
@@ -129,7 +115,6 @@ export const useAdminUsers = () => {
     deleteUser,
     toggleUserStatus,
     changeUserRole,
-    changeUserSubscriptionTier,
     refetch: fetchUsers,
   };
 }; 

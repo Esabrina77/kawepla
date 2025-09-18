@@ -1,38 +1,41 @@
 .messageForm {
-  padding: 16px;
-  background: #f0f2f5;
-  border-top: 1px solid #e4e6ea;
+  padding: var(--space-md);
+  background: var(--bg-secondary);
+  border-top: 1px solid var(--border-color);
   position: relative;
+  flex-shrink: 0; /* Empêche l'input de se rétrécir */
 }
 
 .inputContainer {
   display: flex;
   align-items: flex-end;
-  gap: 8px;
-  background: white;
-  border-radius: 24px;
-  padding: 8px 12px;
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+  gap: var(--space-xs);
+  background: var(--bg-primary);
+  border-radius: var(--radius-xl);
+  padding: var(--space-xs) var(--space-sm);
+  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--border-color);
 }
 
 .emojiButton {
   background: none;
   border: none;
-  font-size: 20px;
+  font-size: 1.25rem;
   cursor: pointer;
-  padding: 4px;
+  padding: var(--space-xs);
   border-radius: 50%;
   width: 32px;
   height: 32px;
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: background-color 0.2s ease;
+  transition: background-color var(--transition-normal);
   flex-shrink: 0;
+  color: var(--text-secondary);
 }
 
 .emojiButton:hover:not(:disabled) {
-  background-color: #f0f2f5;
+  background-color: var(--bg-secondary);
 }
 
 .emojiButton:disabled {
@@ -45,17 +48,18 @@
   border: none;
   outline: none;
   resize: none;
-  font-size: 14px;
+  font-size: 0.875rem;
   line-height: 1.4;
-  padding: 8px 0;
+  padding: var(--space-xs) 0;
   max-height: 120px;
   min-height: 20px;
   font-family: inherit;
   background: transparent;
+  color: var(--text-primary);
 }
 
 .messageInput::placeholder {
-  color: #8696a0;
+  color: var(--text-secondary);
 }
 
 .messageInput:disabled {
@@ -64,7 +68,7 @@
 }
 
 .sendButton {
-  background: #25d366;
+  background: var(--gradient-primary);
   border: none;
   border-radius: 50%;
   width: 40px;
@@ -73,18 +77,19 @@
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  transition: all 0.2s ease;
-  color: white;
+  transition: all var(--transition-normal);
+  color: var(--luxury-velvet-black);
   flex-shrink: 0;
 }
 
 .sendButton:hover:not(:disabled) {
-  background: #20c55e;
   transform: scale(1.05);
+  box-shadow: var(--shadow-md);
 }
 
 .sendButton:disabled {
-  background: #bcc0c4;
+  background: var(--bg-secondary);
+  color: var(--text-secondary);
   cursor: not-allowed;
   transform: none;
 }
@@ -97,55 +102,56 @@
 .emojiPicker {
   position: absolute;
   bottom: 100%;
-  left: 16px;
-  right: 16px;
-  background: white;
-  border: 1px solid #e4e6ea;
-  border-radius: 12px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  left: var(--space-md);
+  right: var(--space-md);
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-lg);
   z-index: 1000;
   max-height: 300px;
   overflow: hidden;
-  margin-bottom: 8px;
+  margin-bottom: var(--space-xs);
 }
 
 .emojiCategories {
   display: flex;
-  padding: 8px;
-  border-bottom: 1px solid #e4e6ea;
-  background: #f8f9fa;
-  gap: 4px;
+  padding: var(--space-xs);
+  border-bottom: 1px solid var(--border-color);
+  background: var(--bg-secondary);
+  gap: var(--space-xs);
 }
 
 .categoryButton {
   background: none;
   border: none;
-  font-size: 18px;
+  font-size: 1.125rem;
   cursor: pointer;
-  padding: 6px 8px;
-  border-radius: 6px;
-  transition: background-color 0.2s ease;
+  padding: var(--space-xs) var(--space-sm);
+  border-radius: var(--radius-sm);
+  transition: background-color var(--transition-normal);
   min-width: 36px;
   height: 36px;
   display: flex;
   align-items: center;
   justify-content: center;
+  color: var(--text-secondary);
 }
 
 .categoryButton:hover {
-  background-color: #e9ecef;
+  background-color: var(--bg-primary);
 }
 
 .categoryButton.active {
-  background-color: #25d366;
-  color: white;
+  background-color: var(--luxury-champagne-gold);
+  color: var(--luxury-velvet-black);
 }
 
 .emojiGrid {
   display: grid;
   grid-template-columns: repeat(10, 1fr);
   gap: 2px;
-  padding: 8px;
+  padding: var(--space-xs);
   max-height: 200px;
   overflow-y: auto;
 }
@@ -153,20 +159,21 @@
 .emojiItem {
   background: none;
   border: none;
-  font-size: 18px;
+  font-size: 1.125rem;
   cursor: pointer;
-  padding: 4px;
-  border-radius: 4px;
-  transition: background-color 0.2s ease;
+  padding: var(--space-xs);
+  border-radius: var(--radius-xs);
+  transition: background-color var(--transition-normal);
   aspect-ratio: 1;
   display: flex;
   align-items: center;
   justify-content: center;
   min-height: 28px;
+  color: var(--text-primary);
 }
 
 .emojiItem:hover {
-  background-color: #f0f2f5;
+  background-color: var(--bg-secondary);
   transform: scale(1.05);
 }
 
@@ -177,23 +184,23 @@
 .messageInfo {
   display: flex;
   justify-content: flex-end;
-  margin-top: 4px;
-  padding: 0 12px;
+  margin-top: var(--space-xs);
+  padding: 0 var(--space-sm);
 }
 
 .charCount {
-  font-size: 11px;
-  color: #8696a0;
+  font-size: 0.7rem;
+  color: var(--text-secondary);
 }
 
 /* Responsive */
 @media (max-width: 768px) {
   .messageForm {
-    padding: 12px;
+    padding: var(--space-sm);
   }
   
   .inputContainer {
-    padding: 6px 10px;
+    padding: var(--space-xs) var(--space-sm);
   }
   
   .sendButton {
@@ -204,33 +211,33 @@
   .emojiButton {
     width: 28px;
     height: 28px;
-    font-size: 18px;
+    font-size: 1.125rem;
   }
   
   .messageInput {
-    font-size: 13px;
+    font-size: 0.8rem;
   }
 
   .emojiPicker {
-    left: 12px;
-    right: 12px;
+    left: var(--space-sm);
+    right: var(--space-sm);
     max-height: 250px;
   }
   
   .emojiGrid {
     grid-template-columns: repeat(8, 1fr);
-    padding: 6px;
+    padding: var(--space-xs);
     gap: 1px;
   }
   
   .emojiItem {
-    font-size: 16px;
-    padding: 3px;
+    font-size: 1rem;
+    padding: var(--space-xs);
     min-height: 24px;
   }
   
   .categoryButton {
-    font-size: 16px;
+    font-size: 1rem;
     min-width: 32px;
     height: 32px;
   }

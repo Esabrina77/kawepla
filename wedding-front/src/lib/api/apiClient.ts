@@ -14,11 +14,8 @@ class ApiClient {
 
   private getAuthToken(): string | null {
     if (typeof window !== 'undefined') {
-      const token = document.cookie
-        .split('; ')
-        .find(row => row.startsWith('token='))
-        ?.split('=')[1];
-      return token ? decodeURIComponent(token) : null;
+      // Utiliser localStorage au lieu des cookies
+      return localStorage.getItem('token');
     }
     return null;
   }
@@ -38,18 +35,41 @@ class ApiClient {
 
   private async handleResponse<T>(response: Response): Promise<T> {
     if (!response.ok) {
-      if (response.status === 401) {
-        // Token expiré - rediriger vers login
-        if (typeof window !== 'undefined') {
-          document.cookie = 'token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
-          document.cookie = 'user=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
-          window.location.href = '/auth/login';
-        }
-        throw new Error('Session expirée');
+      // Essayer de récupérer le message d'erreur du serveur
+      let errorMessage = 'Une erreur est survenue';
+      
+      try {
+        const errorData = await response.json();
+        errorMessage = errorData.message || errorMessage;
+      } catch {
+        // Si on ne peut pas parser le JSON, utiliser le message par défaut
       }
       
-      const error = await response.json().catch(() => ({ message: 'Erreur serveur' }));
-      throw new Error(error.message || 'Une erreur est survenue');
+      if (response.status === 401) {
+        // Pour les erreurs 401, nettoyer le localStorage mais préserver le message d'erreur
+        if (typeof window !== 'undefined') {
+          localStorage.removeItem('token');
+          localStorage.removeItem('user');
+        }
+        
+        // Si c'est une erreur d'authentification (login/register), préserver le message
+        // Sinon, utiliser "Session expirée" pour les autres cas
+        const url = response.url;
+        if (url && (url.includes('/auth/login') || url.includes('/auth/register'))) {
+          throw new Error(errorMessage);
+        } else {
+          // Émettre un événement personnalisé pour la session expirée
+          if (typeof window !== 'undefined') {
+            const sessionExpiredEvent = new CustomEvent('sessionExpired', {
+              detail: { error: 'Session expirée' }
+            });
+            window.dispatchEvent(sessionExpiredEvent);
+          }
+          throw new Error('Session expirée');
+        }
+      }
+      
+      throw new Error(errorMessage);
     }
 
     // Pour les réponses 204 No Content, ne pas essayer de parser du JSON
@@ -156,7 +176,7 @@ export const apiClient = new ApiClient();
 
 // Messages RSVP
 export const rsvpMessagesApi = {
-  // Récupérer tous les messages RSVP pour un couple
+  // Récupérer tous les messages RSVP pour un organisateur
   getMessages: async (): Promise<RSVPMessage[]> => {
     return apiClient.get<RSVPMessage[]>('/rsvp-messages/rsvp-messages');
   },

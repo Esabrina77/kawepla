@@ -1,0 +1,92 @@
+.floatingIcon {
+  position: fixed;
+  z-index: 9999;
+  width: 56px;
+  height: 56px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  cursor: grab;
+  user-select: none;
+  transition: all var(--transition-normal);
+  box-shadow: var(--shadow-lg);
+  backdrop-filter: blur(10px);
+  border: 2px solid var(--border-color);
+  animation: floatIn 0.5s ease-out;
+}
+
+.floatingIcon:active {
+  cursor: grabbing;
+  transform: scale(0.95);
+}
+
+.floatingIcon:hover {
+  transform: scale(1.1);
+  box-shadow: var(--shadow-xl);
+}
+
+.floatingIcon.darkMode {
+  background: rgba(51, 51, 51, 0.9);
+  color: var(--luxury-champagne-gold);
+  border-color: var(--luxury-champagne-gold);
+}
+
+.floatingIcon.lightMode {
+  background: rgba(255, 255, 255, 0.9);
+  color: var(--luxury-velvet-black);
+  border-color: var(--luxury-champagne-gold);
+}
+
+.icon {
+  transition: transform var(--transition-fast);
+}
+
+.floatingIcon:hover .icon {
+  transform: rotate(180deg);
+}
+
+/* Animation d'apparition */
+@keyframes floatIn {
+  from {
+    opacity: 0;
+    transform: scale(0.5) translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .floatingIcon {
+    width: 48px;
+    height: 48px;
+  }
+  
+  .icon {
+    width: 20px;
+    height: 20px;
+  }
+}
+
+/* État de focus pour l'accessibilité */
+.floatingIcon:focus {
+  outline: 2px solid var(--luxury-champagne-gold);
+  outline-offset: 2px;
+}
+
+/* Animation de pulsation pour attirer l'attention */
+@keyframes pulse {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+}
+
+.floatingIcon.pulse {
+  animation: pulse 2s infinite;
+}

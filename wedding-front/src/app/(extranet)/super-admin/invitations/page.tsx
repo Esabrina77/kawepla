@@ -7,7 +7,9 @@ import styles from './invitations.module.css';
 
 interface Invitation {
   id: string;
-  title: string;
+  eventTitle: string;        // NOUVELLE architecture
+  eventDate: string;         // NOUVELLE architecture
+  eventType: string;         // NOUVELLE architecture
   status: 'DRAFT' | 'PUBLISHED' | 'ARCHIVED';
   createdAt: string;
   updatedAt: string;
@@ -16,6 +18,7 @@ interface Invitation {
     email: string;
     firstName: string;
     lastName: string;
+    role: string;            // NOUVEAU: rôle de l'utilisateur
   };
   _count: {
     guests: number;
@@ -98,7 +101,7 @@ export default function AdminInvitationsPage() {
     <div className={styles.container}>
       <div className={styles.header}>
         <h1>Gestion des Invitations</h1>
-        <p>Vue d'ensemble de toutes les invitations créées par les utilisateurs</p>
+        <p>Vue d'ensemble de toutes les invitations d'événements créées par les utilisateurs</p>
       </div>
 
       <div className={styles.stats}>
@@ -130,8 +133,10 @@ export default function AdminInvitationsPage() {
         <table className={styles.table}>
           <thead>
             <tr>
-              <th>Titre</th>
+              <th>Événement</th>
+              <th>Type</th>
               <th>Créateur</th>
+              <th>Rôle</th>
               <th>Statut</th>
               <th>Invitations</th>
               <th>RSVP</th>
@@ -143,7 +148,15 @@ export default function AdminInvitationsPage() {
             {invitations.map((invitation) => (
               <tr key={invitation.id}>
                 <td className={styles.titleCell}>
-                  <strong>{invitation.title}</strong>
+                  <strong>{invitation.eventTitle}</strong>
+                  <div className={styles.eventDate}>
+                    {new Date(invitation.eventDate).toLocaleDateString('fr-FR')}
+                  </div>
+                </td>
+                <td className={styles.typeCell}>
+                  <span className={styles.eventType}>
+                    {invitation.eventType}
+                  </span>
                 </td>
                 <td className={styles.userCell}>
                   <div className={styles.userInfo}>
@@ -154,6 +167,11 @@ export default function AdminInvitationsPage() {
                       {invitation.user.email}
                     </span>
                   </div>
+                </td>
+                <td className={styles.roleCell}>
+                  <span className={styles.userRole}>
+                    {invitation.user.role}
+                  </span>
                 </td>
                 <td>
                   <span className={`${styles.status} ${getStatusColor(invitation.status)}`}>

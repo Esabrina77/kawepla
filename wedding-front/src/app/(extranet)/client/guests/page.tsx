@@ -4,19 +4,37 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useGuests } from '@/hooks/useGuests';
 import { useInvitations } from '@/hooks/useInvitations';
-import { Button } from '@/components/Button/Button';
-import { Card } from '@/components/Card/Card';
-import { SubscriptionLimits } from '@/components/SubscriptionLimits/SubscriptionLimits';
+import { Button } from '@/components/ui/button';
+import { LimitsIndicator } from '@/components/LimitsIndicator/LimitsIndicator';
 import { apiClient } from '@/lib/api/apiClient';
-import { guestsApi } from '@/lib/api/guests';
-import PhoneInput from '@/components/PhoneInput/PhoneInput';
-import { ConditionalTutorial } from '@/components/Tutorial/ConditionalTutorial';
-import { guestsTutorialConfig } from '@/components/Tutorial/tutorialConfig';
-import { Users, Plus, FolderOpen, Search, User, Star, UserPlus, Mail, Phone, Utensils, Trash2, CheckCircle, Clock, XCircle, Link2, Send, Bell, Edit3, ClipboardList, Copy, RefreshCw, Share2, AlertTriangle, Info, FileText, Upload, Loader, HelpCircle, FileUp } from 'lucide-react';
+import { 
+  Users,
+  Plus,
+  Search,
+  Filter,
+  Eye,
+  Edit,
+  Trash2,
+  Mail,
+  Phone,
+  UserPlus,
+  FileText,
+  Download,
+  Upload,
+  CheckCircle,
+  XCircle,
+  Clock,
+  Star,
+  Crown,
+  Link2,
+  Copy,
+  RefreshCw,
+  Share2,
+  HelpCircle,
+  AlertTriangle,
+  Loader
+} from 'lucide-react';
 import styles from './guests.module.css';
-import { Guest } from '@/types';
-import PhotoModal from '@/components/PhotoModal/PhotoModal';
-import { useSubscriptionLimits } from '@/hooks/useSubscriptionLimits';
 
 // Composant Modal personnalisé
 interface ModalProps {
@@ -31,11 +49,11 @@ interface ModalProps {
   cancelText?: string;
 }
 
-function CustomModal({ 
-  isOpen, 
-  onClose, 
-  title, 
-  message, 
+function CustomModal({
+  isOpen,
+  onClose,
+  title,
+  message,
   type = 'info',
   showConfirm = false,
   onConfirm,
@@ -46,52 +64,49 @@ function CustomModal({
 
   const getIcon = () => {
     switch (type) {
-      case 'success': return <CheckCircle className={styles.modalIcon} />;
-      case 'error': return <XCircle className={styles.modalIcon} />;
-      case 'warning': return <AlertTriangle className={styles.modalIcon} />;
-      default: return <Info className={styles.modalIcon} />;
-    }
-  };
-
-  const getColor = () => {
-    switch (type) {
-      case 'success': return '#4CAF50';
-      case 'error': return '#f44336';
-      case 'warning': return '#ff9800';
-      default: return '#2196F3';
+      case 'success': return <CheckCircle className={styles.customModalIcon} style={{ color: '#22c55e' }} />;
+      case 'error': return <XCircle className={styles.customModalIcon} style={{ color: '#dc3545' }} />;
+      case 'warning': return <AlertTriangle className={styles.customModalIcon} style={{ color: '#f59e0b' }} />;
+      default: return <HelpCircle className={styles.customModalIcon} style={{ color: '#3b82f6' }} />;
     }
   };
 
   return (
-    <div className={styles.modal} onClick={onClose}>
-      <div className={styles.modalContent} onClick={(e) => e.stopPropagation()}>
-        <div className={styles.modalHeader} style={{ borderBottom: `3px solid ${getColor()}` }}>
-          <h3 style={{ color: getColor() }}>
+    <div className={styles.customModal} onClick={onClose}>
+      <div className={styles.customModalContent} onClick={(e) => e.stopPropagation()}>
+        <div className={`${styles.customModalHeader} ${styles[type]}`}>
+          <h3 className={`${styles.customModalTitle} ${styles[type]}`}>
             {getIcon()} {title}
           </h3>
-          <button className={styles.closeButton} onClick={onClose}>✕</button>
+          <button
+            onClick={onClose}
+            className={styles.customModalCloseButton}
+          >
+            ×
+          </button>
         </div>
-        <div className={styles.modalBody}>
-          <p>{message}</p>
+        <div className={styles.customModalBody}>
+          <p className={styles.customModalMessage}>{message}</p>
         </div>
-        <div className={styles.modalFooter}>
+        <div className={styles.customModalFooter}>
           {showConfirm ? (
             <>
-              <Button 
+              <Button
                 onClick={() => {
                   onConfirm?.();
                   onClose();
                 }}
                 variant="primary"
+                size="sm"
               >
                 {confirmText}
               </Button>
-              <Button onClick={onClose} variant="outline">
+              <Button onClick={onClose} variant="outline" size="sm">
                 {cancelText}
               </Button>
             </>
           ) : (
-            <Button onClick={onClose} variant="primary">
+            <Button onClick={onClose} variant="primary" size="sm">
               OK
             </Button>
           )}
@@ -122,87 +137,136 @@ function useInvitationSelection() {
     selectedInvitationId, 
     setSelectedInvitationId,
     selectedInvitation,
-    loading 
+    loading
   };
 }
 
 export default function GuestsPage() {
-  const { 
-    invitations, 
-    selectedInvitationId, 
-    setSelectedInvitationId, 
-    selectedInvitation, 
-    loading: loadingInvitations 
+  const {
+    invitations,
+    selectedInvitationId,
+    setSelectedInvitationId,
+    selectedInvitation,
+    loading: loadingInvitations
   } = useInvitationSelection();
-  
+
   if (loadingInvitations) {
-    return <div>Chargement des invitations...</div>;
+    return (
+      <div className={styles.loadingContainer}>
+        <div className={styles.loadingText}>
+          <div className={styles.loadingSpinner}></div>
+          <p>Chargement des invitations...</p>
+        </div>
+      </div>
+    );
   }
 
   if (invitations.length === 0) {
     return (
-      <div className={styles.noInvitation}>
-        <Card>
-          <h2>Aucune invitation créée</h2>
-          <p>Vous devez d'abord créer une invitation avant de pouvoir gérer vos invités.</p>
-          <Link href="/client/invitations" className="inline-block">
-            <Button variant="primary">
+      <div className={styles.emptyStateContainer}>
+        <div className={styles.emptyStateContent}>
+          <Users className={styles.emptyStateIcon} />
+          <h2 className={styles.emptyStateTitle}>
+            Aucune invitation créée
+          </h2>
+          <p className={styles.emptyStateDescription}>
+            Vous devez d'abord créer une invitation avant de pouvoir gérer vos invités.
+          </p>
+          <Link href="/client/invitations">
+            <Button variant="primary" size="sm">
               Créer une invitation
             </Button>
           </Link>
-        </Card>
+        </div>
       </div>
     );
   }
 
   if (!selectedInvitationId || !selectedInvitation) {
-    return <div>Sélection de l'invitation...</div>;
+    return (
+      <div className={styles.loadingContainer}>
+        <div className={styles.loadingText}>
+          <p>Sélection de l'invitation...</p>
+        </div>
+      </div>
+    );
   }
 
   return (
-    <div className={styles.guestsPage}>
-      <ConditionalTutorial 
-        config={guestsTutorialConfig} 
-        condition={() => {
-          // Vérifier que l'utilisateur a au moins une invitation
-          return invitations.length > 0;
-        }}
-        delay={1500}
-      />
-      {/* Affichage des limites d'abonnement */}
-      <div data-tutorial="subscription-limits">
-      <SubscriptionLimits invitationId={selectedInvitationId} />
+    <div className={styles.pageContainer}>
+      {/* Header Section */}
+      <div className={styles.headerSection}>
+        <div className={styles.headerBadge}>
+          <Users style={{ width: '16px', height: '16px' }} />
+          Gestion des invités
+        </div>
+
+        <h1 className={styles.headerTitle}>
+          Vos <span className={styles.headerTitleAccent}>invités</span>
+        </h1>
+
+        <p className={styles.headerSubtitle}>
+          Gérez vos invités et suivez leurs réponses en temps réel
+        </p>
+
+        {/* Limits Indicator */}
+        <LimitsIndicator invitationId={selectedInvitationId} />
       </div>
-      
+
       {/* Sélecteur d'invitation si plusieurs */}
       {invitations.length > 1 && (
-        <div className={styles.invitationSelector}>
-          <label htmlFor="invitation-select" className={styles.selectorLabel}>
-            <ClipboardList className={styles.headerIcon} /> Sélectionner l'invitation à gérer
-          </label>
-          <div className={styles.invitationSelect}>
-            <select 
-              id="invitation-select"
-              value={selectedInvitationId || ''} 
+        <div className={styles.invitationSelectorContainer}>
+          <div className={styles.invitationSelectorCard}>
+            <h3 className={styles.invitationSelectorTitle}>
+              <FileText style={{ width: '20px', height: '20px' }} />
+              Sélectionner l'invitation à gérer
+            </h3>
+            <select
+              value={selectedInvitationId}
               onChange={(e) => setSelectedInvitationId(e.target.value)}
+              className={styles.invitationSelect}
             >
               {invitations.map(invitation => (
                 <option key={invitation.id} value={invitation.id}>
-                  {invitation.coupleName || invitation.title} 
-                  {invitation.weddingDate && ` - ${new Date(invitation.weddingDate).toLocaleDateString('fr-FR')}`}
-                  {` • ${invitation.status === 'PUBLISHED' ? 'Publiée' : 'Brouillon'}`}
+                  {invitation.eventTitle}
+                  {invitation.eventDate && ` - ${new Date(invitation.eventDate).toLocaleDateString('fr-FR')}`}
+                  {invitation.status === 'PUBLISHED' ? ' ✅ Publiée' : ' 📝 Brouillon'}
                 </option>
               ))}
             </select>
           </div>
         </div>
       )}
-      
-      {/* Gestion directe des invitations */}
-      <InvitationManagement invitationId={selectedInvitationId} invitation={selectedInvitation} />
 
+      {/* Avertissement si l'invitation est en draft */}
+      {selectedInvitation && selectedInvitation.status === 'DRAFT' && (
+        <div className={styles.draftWarning}>
+          <div className={styles.draftWarningContent}>
+            <AlertTriangle style={{ width: '20px', height: '20px' }} />
+            <div className={styles.draftWarningText}>
+              <h3>Invitation en brouillon</h3>
+              <p>Cette invitation n'est pas encore publiée. Publiez-la d'abord pour pouvoir gérer les invités et partager des liens.</p>
+            </div>
+            <Link href={`/client/invitations/${selectedInvitation.id}`}>
+              <Button variant="primary" size="sm">
+                Publier l'invitation
+              </Button>
+            </Link>
+          </div>
+        </div>
+      )}
 
-      
+      {/* Contenu principal - masqué si invitation en draft */}
+      {selectedInvitation && selectedInvitation.status === 'PUBLISHED' && (
+        <GuestsList invitationId={selectedInvitationId} invitation={selectedInvitation} />
+      )}
+
+      <style jsx>{`
+        @keyframes spin {
+          0% { transform: rotate(0deg); }
+          100% { transform: rotate(360deg); }
+        }
+      `}</style>
     </div>
   );
 }
@@ -217,52 +281,55 @@ function ShareableLinkManager({ invitationId }: { invitationId: string }) {
     remainingGuests: number;
   } | null>(null);
   const [loading, setLoading] = useState(false);
-  const { limits, usage, remaining } = useSubscriptionLimits();
 
   // Charger les statistiques du lien partageable existant
   useEffect(() => {
     const fetchShareableStats = async () => {
       try {
-        const response = await apiClient.get(`/invitations/${invitationId}/shareable-stats`);
-        const stats = response as any;
-        
-        if (stats.shareableEnabled && stats.shareableUrl) {
+        const response = await apiClient.get(`/invitations/${invitationId}/shareable-stats`) as any;
+        console.log('Shareable stats response:', response); // Debug
+
+        // Le backend renvoie directement l'objet, pas dans response.data
+        const stats = response;
+
+        if (stats && stats.shareableEnabled && stats.shareableUrl) {
           setShareableLink({
             url: stats.shareableUrl,
-            maxUses: stats.shareableMaxUses,
-            usedCount: stats.shareableUsedCount,
+            maxUses: stats.shareableMaxUses || 0,
+            usedCount: stats.shareableUsedCount || 0,
             expiresAt: stats.shareableExpiresAt ? new Date(stats.shareableExpiresAt) : undefined,
-            remainingGuests: remaining?.guests || 0
+            remainingGuests: stats.remainingGuests || 0
           });
         }
       } catch (error) {
         console.error('Erreur lors de la récupération des statistiques:', error);
+        // L'endpoint n'existe peut-être pas, on continue sans erreur
       }
     };
 
     fetchShareableStats();
-  }, [invitationId, remaining?.guests]);
+  }, [invitationId]);
 
   const generateShareableLink = async () => {
     try {
       setLoading(true);
-      const response = await apiClient.post(`/invitations/${invitationId}/generate-shareable-link`, {
-        // Pas d'expiration - on n'envoie pas expiresAt
+      const response = await apiClient.post(`/invitations/${invitationId}/generate-shareable-link`, {}) as any;
+
+      console.log('Response from API:', response); // Debug
+
+      // Le backend renvoie directement l'objet, pas dans response.data
+      const backendResponse = response;
+      setShareableLink({
+        url: backendResponse.shareableUrl,
+        maxUses: backendResponse.maxUses || 0,
+        usedCount: backendResponse.usedCount || 0,
+        expiresAt: backendResponse.expiresAt ? new Date(backendResponse.expiresAt) : undefined,
+        remainingGuests: backendResponse.remainingGuests || 0
       });
-      
-      // Adapter la réponse du backend au format attendu par le frontend
-      if (response) {
-        const backendResponse = response as any;
-        setShareableLink({
-          url: backendResponse.shareableUrl,
-          maxUses: backendResponse.maxUses,
-          usedCount: backendResponse.usedCount,
-          expiresAt: backendResponse.expiresAt ? new Date(backendResponse.expiresAt) : undefined,
-          remainingGuests: remaining?.guests || 0
-        });
-      }
     } catch (error) {
       console.error('Erreur lors de la génération du lien:', error);
+      // Afficher une notification d'erreur à l'utilisateur
+      alert('Erreur lors de la génération du lien partageable. Veuillez réessayer.');
     } finally {
       setLoading(false);
     }
@@ -271,22 +338,24 @@ function ShareableLinkManager({ invitationId }: { invitationId: string }) {
   const regenerateShareableLink = async () => {
     try {
       setLoading(true);
-      const response = await apiClient.post(`/invitations/${invitationId}/generate-shareable-link`, {});
-      
-      if (response) {
-        const backendResponse = response as any;
-        const newLink = {
-          url: backendResponse.shareableUrl,
-          maxUses: backendResponse.maxUses,
-          usedCount: backendResponse.usedCount,
-          expiresAt: backendResponse.expiresAt ? new Date(backendResponse.expiresAt) : undefined,
-          remainingGuests: remaining?.guests || 0
-        };
-        setShareableLink(newLink);
-        return newLink.url;
-      }
+      const response = await apiClient.post(`/invitations/${invitationId}/generate-shareable-link`, {}) as any;
+
+      console.log('Regenerate response:', response); // Debug
+
+      // Le backend renvoie directement l'objet, pas dans response.data
+      const backendResponse = response;
+      const newLink = {
+        url: backendResponse.shareableUrl,
+        maxUses: backendResponse.maxUses || 0,
+        usedCount: backendResponse.usedCount || 0,
+        expiresAt: backendResponse.expiresAt ? new Date(backendResponse.expiresAt) : undefined,
+        remainingGuests: backendResponse.remainingGuests || 0
+      };
+      setShareableLink(newLink);
+      return newLink.url;
     } catch (error) {
       console.error('Erreur lors de la régénération du lien:', error);
+      alert('Erreur lors de la régénération du lien partageable. Veuillez réessayer.');
     } finally {
       setLoading(false);
     }
@@ -306,13 +375,13 @@ function ShareableLinkManager({ invitationId }: { invitationId: string }) {
   };
 
   const shareLink = async (url: string) => {
-    const message = `Vous êtes invité à notre mariage ! Cliquez sur ce lien pour confirmer votre présence : ${url}`;
-    
+    const message = `Vous êtes invité à notre événement ! Cliquez sur ce lien pour confirmer votre présence : ${url}`;
+
     // Utiliser l'API Web Share si disponible
     if (navigator.share) {
       try {
         await navigator.share({
-          title: 'Invitation de mariage',
+          title: 'Invitation d\'événement',
           text: message,
           url: url
         });
@@ -334,22 +403,22 @@ function ShareableLinkManager({ invitationId }: { invitationId: string }) {
 
   return (
     <div className={styles.shareableContent}>
+      <div className={styles.shareableHeader}>
+        <h2>🔗 Lien partageable</h2>
+        <p>Partagez un lien unique à chaque invité</p>
+      </div>
+
       {!shareableLink ? (
         <div className={styles.generateSection}>
           <p>Créez un lien unique que vous pouvez partager avec vos invités.</p>
-          <Button 
-            onClick={generateShareableLink} 
+          <Button
+            onClick={generateShareableLink}
             variant="primary"
-            disabled={loading || (remaining?.guests || 0) <= 0}
+            size="sm"
+            disabled={loading}
           >
             {loading ? <Loader className={styles.spinIcon} /> : <Link2 className={styles.buttonIcon} />} Générer un lien partageable
-            {(remaining?.guests || 0) <= 0 && <span className={styles.limitReached}> (Limite atteinte)</span>}
           </Button>
-          {(remaining?.guests || 0) <= 0 && (
-            <p className={styles.warningText}>
-              <AlertTriangle className={styles.warningIcon} /> Vous avez atteint la limite d'invités de votre forfait
-            </p>
-          )}
         </div>
       ) : (
         <div className={styles.shareableLinkInfo}>
@@ -357,88 +426,76 @@ function ShareableLinkManager({ invitationId }: { invitationId: string }) {
           <div className={styles.importantNotice}>
             <div className={styles.noticeIcon}><HelpCircle className={styles.infoIcon} /></div>
             <div className={styles.noticeContent}>
-              Partagez ce lien avec votre invité. Chaque lien est personnel et permet de répondre facilement à l'invitation.
+              <strong>Partagez ce lien avec votre invité.</strong> Chaque lien est personnel et permet de répondre facilement à l'invitation.
+              <br />
+              <span className={styles.timeLimitNotice}>
+                ⏰ <strong>Durée limitée :</strong> Chaque lien expire après 20 minutes. Si votre invité ne l'utilise pas à temps, vous devrez l'envoyer un nouveau.
+              </span>
             </div>
           </div>
-          
+
           <div className={styles.linkDisplay}>
-            <input 
-              type="text" 
-              value={shareableLink.url} 
-              readOnly 
+            <input
+              type="text"
+              value={shareableLink.url}
+              readOnly
               className={styles.linkInput}
+              placeholder="Le lien partageable apparaîtra ici..."
             />
-            <Button 
+            <Button
               onClick={copyToClipboard}
               variant="outline"
+              size="sm"
               className={styles.copyButton}
             >
               <Copy className={styles.buttonIcon} /> Copier le lien
             </Button>
           </div>
-          
-          <div className={styles.shareStats}>
+
+          {/* <div className={styles.shareStats}>
             <div className={styles.usageStats}>
               <div className={styles.usageCount}>
                 <span>Utilisé {shareableLink.usedCount} fois</span>
               </div>
               <div className={styles.remainingCount}>
-                <span>{remaining?.guests || 0} invités restants sur {limits?.guests || 0}</span>
+                <span>{shareableLink.remainingGuests} invités restants</span>
               </div>
             </div>
-            <div className={styles.progressBar}>
-              <div 
-                className={styles.progressFill} 
-                style={{ 
-                  width: `${((usage?.guests || 0) / (limits?.guests || 1)) * 100}%`,
-                  backgroundColor: (remaining?.guests || 0) <= 10 ? '#ff4444' : '#4CAF50'
-                }}
-              />
-            </div>
-          </div>
-          
+          </div> */}
+
           <div className={styles.shareButtons}>
-            <Button 
-              onClick={regenerateShareableLink} 
+            <Button
+              onClick={regenerateShareableLink}
               variant="primary"
-              disabled={loading || (remaining?.guests || 0) <= 0}
+              size="sm"
+              disabled={loading}
             >
               <RefreshCw className={styles.buttonIcon} /> Générer un nouveau lien
             </Button>
-            <Button 
-              onClick={() => shareLink(shareableLink.url)} 
+            <Button
+              onClick={() => shareLink(shareableLink.url)}
               variant="outline"
-              disabled={(remaining?.guests || 0) <= 0}
+              size="sm"
             >
               <Share2 className={styles.buttonIcon} /> Partager
             </Button>
           </div>
-
-          {(remaining?.guests || 0) <= 10 && (
-            <div className={styles.warningText}>
-              <AlertTriangle className={styles.warningIcon} /> Il ne vous reste que {remaining?.guests} invités disponibles
-          </div>
-          )}
         </div>
       )}
     </div>
   );
 }
 
-type GuestHookProps = ReturnType<typeof useGuests>;
-
-function GuestsList({ invitationId, invitation, ...guestProps }: { invitationId: string, invitation: any } & GuestHookProps) {
+function GuestsList({ invitationId, invitation }: { invitationId: string, invitation: any }) {
   const {
     guests,
-    statistics,
     loading,
     error,
     createGuest,
     updateGuest,
     deleteGuest,
-    importGuests,
-    loadGuests
-  } = guestProps;
+    fetchGuests
+  } = useGuests(invitationId);
 
   const [showAddForm, setShowAddForm] = useState(false);
   const [sendingEmails, setSendingEmails] = useState(false);
@@ -448,10 +505,14 @@ function GuestsList({ invitationId, invitation, ...guestProps }: { invitationId:
   const [importFile, setImportFile] = useState<File | null>(null);
   const [importing, setImporting] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
-  const [showImportModal, setShowImportModal] = useState(false);
-  const [photoModalOpen, setPhotoModalOpen] = useState(false);
-  const [selectedPhoto, setSelectedPhoto] = useState<{ url: string; alt: string } | null>(null);
-  
+
+  // Charger les invités au montage du composant
+  useEffect(() => {
+    if (invitationId) {
+      fetchGuests();
+    }
+  }, [invitationId, fetchGuests]);
+
   // États pour les modals
   const [modal, setModal] = useState<{
     isOpen: boolean;
@@ -471,8 +532,8 @@ function GuestsList({ invitationId, invitation, ...guestProps }: { invitationId:
 
   // Fonctions utilitaires pour les modals
   const showModal = (
-    title: string, 
-    message: string, 
+    title: string,
+    message: string,
     type: 'success' | 'error' | 'warning' | 'info' = 'info',
     options?: {
       showConfirm?: boolean;
@@ -499,10 +560,7 @@ function GuestsList({ invitationId, invitation, ...guestProps }: { invitationId:
     lastName: '',
     email: '',
     phone: '',
-    isVIP: false,
-    dietaryRestrictions: '',
-    plusOne: false,
-    plusOneName: ''
+    isVIP: false
   });
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -534,7 +592,7 @@ function GuestsList({ invitationId, invitation, ...guestProps }: { invitationId:
       showModal('Erreur de validation', 'Au moins un email ou un téléphone est requis', 'error');
       return;
     }
-    
+
     // Validation email si fourni
     if (hasEmail) {
       const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -542,9 +600,9 @@ function GuestsList({ invitationId, invitation, ...guestProps }: { invitationId:
         showModal('Erreur de validation', 'Format d\'email invalide', 'error');
         return;
       }
-      
+
       // Vérifier l'unicité de l'email
-      const emailExists = guests.some((guest) => 
+      const emailExists = guests.some(guest =>
         guest.email && guest.email.toLowerCase() === formData.email.trim().toLowerCase()
       );
       if (emailExists) {
@@ -552,7 +610,7 @@ function GuestsList({ invitationId, invitation, ...guestProps }: { invitationId:
         return;
       }
     }
-    
+
     // Validation téléphone si fourni
     if (hasPhone) {
       const phoneRegex = /^[\+]?[0-9\s\-\(\)]{8,}$/;
@@ -569,10 +627,7 @@ function GuestsList({ invitationId, invitation, ...guestProps }: { invitationId:
         lastName: '',
         email: '',
         phone: '',
-        isVIP: false,
-        dietaryRestrictions: '',
-        plusOne: false,
-        plusOneName: ''
+        isVIP: false
       });
       setShowAddForm(false);
       showModal('Succès', 'Invité ajouté avec succès !', 'success');
@@ -588,20 +643,12 @@ function GuestsList({ invitationId, invitation, ...guestProps }: { invitationId:
     }
   };
 
-  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
-    try {
-      const result = await importGuests(file);
-      console.log(`${result.imported} invités importés`);
-      if (result.errors.length > 0) {
-        console.error('Erreurs lors de l\'import:', result.errors);
-      }
-    } catch (error) {
-      console.error('Erreur lors de l\'import du fichier:', error);
-    }
-  };
+  // Cette fonction n'est plus utilisée - remplacée par handleFilePreview
+  // const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  //   const file = e.target.files?.[0];
+  //   if (!file) return;
+  //   // Logique remplacée par le système de prévisualisation
+  // };
 
   const handleDeleteGuest = async (guestId: string) => {
     showModal(
@@ -625,6 +672,8 @@ function GuestsList({ invitationId, invitation, ...guestProps }: { invitationId:
     );
   };
 
+
+
   // Envoyer une invitation à un invité spécifique
   const sendInvitationToGuest = async (guestId: string) => {
     try {
@@ -635,7 +684,7 @@ function GuestsList({ invitationId, invitation, ...guestProps }: { invitationId:
     } catch (error) {
       console.error('Erreur lors de l\'envoi de l\'invitation:', error);
       const errorMessage = error instanceof Error ? error.message : 'Erreur lors de l\'envoi de l\'invitation';
-      
+
       // Messages d'erreur plus spécifiques
       if (errorMessage.toLowerCase().includes('email')) {
         showModal('Erreur d\'email', 'Problème avec l\'adresse email de cet invité', 'error');
@@ -655,7 +704,7 @@ function GuestsList({ invitationId, invitation, ...guestProps }: { invitationId:
     } catch (error) {
       console.error('Erreur lors de l\'envoi du rappel:', error);
       const errorMessage = error instanceof Error ? error.message : 'Erreur lors de l\'envoi du rappel';
-      
+
       // Messages d'erreur plus spécifiques
       if (errorMessage.toLowerCase().includes('email')) {
         showModal('Erreur d\'email', 'Problème avec l\'adresse email de cet invité', 'error');
@@ -682,20 +731,20 @@ function GuestsList({ invitationId, invitation, ...guestProps }: { invitationId:
           try {
             const response = await apiClient.post<{
               sent: number;
-              failed: Array<{guestId: string; guestName: string; error: string}>;
+              failed: Array<{ guestId: string; guestName: string; error: string }>;
             }>(`/invitations/${invitationId}/guests/send-all`);
             setEmailResults(response);
-            
+
             let message = '';
             let type: 'success' | 'warning' | 'error' = 'success';
-            
+
             if (response.sent > 0) {
               message = `✅ ${response.sent} invitation(s) envoyée(s) avec succès !`;
             }
-            
+
             if (response.failed.length > 0) {
               message += `\n❌ ${response.failed.length} échec(s) d'envoi:`;
-              
+
               // Regrouper les erreurs par type
               const errorsByType = response.failed.reduce((acc, failure) => {
                 const errorType = failure.error.toLowerCase().includes('email') ? 'email' : 'autre';
@@ -703,7 +752,7 @@ function GuestsList({ invitationId, invitation, ...guestProps }: { invitationId:
                 acc[errorType].push(failure);
                 return acc;
               }, {} as Record<string, typeof response.failed>);
-              
+
               // Afficher les erreurs d'email
               if (errorsByType.email) {
                 message += '\n\n📧 Problèmes d\'email:';
@@ -711,7 +760,7 @@ function GuestsList({ invitationId, invitation, ...guestProps }: { invitationId:
                   message += `\n• ${failure.guestName}: ${failure.error}`;
                 });
               }
-              
+
               // Afficher les autres erreurs
               if (errorsByType.autre) {
                 message += '\n\n⚠️ Autres erreurs:';
@@ -719,16 +768,16 @@ function GuestsList({ invitationId, invitation, ...guestProps }: { invitationId:
                   message += `\n• ${failure.guestName}: ${failure.error}`;
                 });
               }
-              
+
               type = response.sent > 0 ? 'warning' : 'error';
             }
-            
+
             showModal(
               response.sent > 0 ? 'Envoi terminé' : 'Échec de l\'envoi',
               message,
               type
             );
-            
+
             // Recharger la liste des invités
             window.location.reload();
           } catch (error) {
@@ -754,43 +803,43 @@ function GuestsList({ invitationId, invitation, ...guestProps }: { invitationId:
       const response = await apiClient.postFormData<{
         totalGuests: number;
         validGuests: number;
-        errors: Array<{line: number; error: string}>;
-        preview: Array<{firstName: string; lastName: string; email: string; isVIP?: boolean; plusOne?: boolean}>;
+        errors: Array<{ line: number; error: string }>;
+        preview: Array<{ firstName: string; lastName: string; email: string; isVIP?: boolean; plusOne?: boolean }>;
       }>(`/invitations/${invitationId}/guests/preview-import`, formData);
-      
+
       setImportPreview(response);
       setImportFile(file);
-      
+
       // Afficher les erreurs de prévisualisation si présentes
       if (response.errors && response.errors.length > 0) {
-        const duplicateEmails = response.errors.filter(err => 
-          err.error.toLowerCase().includes('email') && 
+        const duplicateEmails = response.errors.filter(err =>
+          err.error.toLowerCase().includes('email') &&
           (err.error.toLowerCase().includes('déjà utilisé') || err.error.toLowerCase().includes('plusieurs fois'))
         );
-        
-        const otherErrors = response.errors.filter(err => 
-          !err.error.toLowerCase().includes('email') || 
+
+        const otherErrors = response.errors.filter(err =>
+          !err.error.toLowerCase().includes('email') ||
           (!err.error.toLowerCase().includes('déjà utilisé') && !err.error.toLowerCase().includes('plusieurs fois'))
         );
-        
+
         let errorMessage = `${response.errors.length} erreur(s) détectée(s) dans le fichier:\n\n`;
-        
+
         if (duplicateEmails.length > 0) {
           errorMessage += '📧 Emails en doublon:\n';
           duplicateEmails.forEach(err => {
             errorMessage += `• Ligne ${err.line}: ${err.error}\n`;
           });
         }
-        
+
         if (otherErrors.length > 0) {
           errorMessage += '\n⚠️ Autres erreurs:\n';
           otherErrors.forEach(err => {
             errorMessage += `• Ligne ${err.line}: ${err.error}\n`;
           });
         }
-        
+
         errorMessage += `\nSeuls ${response.validGuests} invité(s) sur ${response.totalGuests} pourront être importés.`;
-        
+
         showModal(
           'Erreurs détectées dans le fichier',
           errorMessage,
@@ -816,53 +865,53 @@ function GuestsList({ invitationId, invitation, ...guestProps }: { invitationId:
       const response = await apiClient.postFormData<{
         imported: number;
         failed: number;
-        errors: Array<{line: number; error: string; data?: any}>;
+        errors: Array<{ line: number; error: string; data?: any }>;
       }>(`/invitations/${invitationId}/guests/bulk-import`, formData);
 
       // Préparer le message de résultat
       let message = '';
       let type: 'success' | 'warning' | 'error' = 'success';
-      
+
       if (response.imported > 0) {
         message = `✅ ${response.imported} invité(s) importé(s) avec succès !`;
       }
-      
+
       if (response.failed > 0) {
         message += `\n❌ ${response.failed} invité(s) n'ont pas pu être importés.`;
         type = response.imported > 0 ? 'warning' : 'error';
       }
-      
+
       // Afficher les erreurs détaillées
       if (response.errors && response.errors.length > 0) {
-        const duplicateEmails = response.errors.filter(err => 
-          err.error.toLowerCase().includes('email') && 
+        const duplicateEmails = response.errors.filter(err =>
+          err.error.toLowerCase().includes('email') &&
           (err.error.toLowerCase().includes('déjà utilisé') || err.error.toLowerCase().includes('plusieurs fois'))
         );
-        
-        const otherErrors = response.errors.filter(err => 
-          !err.error.toLowerCase().includes('email') || 
+
+        const otherErrors = response.errors.filter(err =>
+          !err.error.toLowerCase().includes('email') ||
           (!err.error.toLowerCase().includes('déjà utilisé') && !err.error.toLowerCase().includes('plusieurs fois'))
         );
-        
+
         let errorDetails = '';
-        
+
         if (duplicateEmails.length > 0) {
           errorDetails += '\n\n📧 Emails en doublon:\n';
           duplicateEmails.forEach(err => {
             errorDetails += `• Ligne ${err.line}: ${err.error}\n`;
           });
         }
-        
+
         if (otherErrors.length > 0) {
           errorDetails += '\n\n⚠️ Autres erreurs:\n';
           otherErrors.forEach(err => {
             errorDetails += `• Ligne ${err.line}: ${err.error}\n`;
           });
         }
-        
+
         message += errorDetails;
       }
-      
+
       showModal(
         response.imported > 0 ? 'Import terminé' : 'Échec de l\'import',
         message,
@@ -886,74 +935,25 @@ function GuestsList({ invitationId, invitation, ...guestProps }: { invitationId:
   };
 
   // Télécharger un template
-  const downloadTemplate = (format: 'csv' | 'json' | 'txt') => {
+  const downloadTemplate = (format: 'csv' | 'txt') => {
     let content = '';
     let filename = '';
     let mimeType = '';
 
     switch (format) {
       case 'csv':
-        content = 'firstName,lastName,email,phone,isVIP,dietaryRestrictions,plusOne,plusOneName\n' +
-                 'Sabrina,Eloundou,sabrinaeloundou33@gmail.com,0123456789,false,Végétarien,true,Marie Antana\n' +
-                 'Pamela,Simo,pamelasimo77@gmail.com,0987654321,true,Aucune,false,\n' +
-                 'Jean,Dupont,jean.dupont@email.com,+33612345678,false,,false,\n' +
-                 'Marie,Martin,,0987654321,true,Sans gluten,true,Pierre Martin';
+        content = 'firstName,lastName,email,phone,isVIP\n' +
+          'Jean,Dupont,jean.dupont@email.com,0123456789,false\n' +
+          'Sophie,Martin,sophie.martin@email.com,0987654321,true\n' +
+          'Pierre,Blanc,pierre.blanc@email.com,0987654321,false';
         filename = 'template_invites.csv';
         mimeType = 'text/csv';
         break;
-        
-      case 'json':
-        content = JSON.stringify([
-          {
-            "firstName": "Sabrina",
-            "lastName": "Eloundou", 
-            "email": "sabrinaeloundou33@gmail.com",
-            "phone": "0123456789",
-            "isVIP": false,
-            "dietaryRestrictions": "Végétarien",
-            "plusOne": true,
-            "plusOneName": "Marie Antana"
-          },
-          {
-            "firstName": "Pamela",
-            "lastName": "Simo",
-            "email": "pamelasimo77@gmail.com", 
-            "phone": "0987654321",
-            "isVIP": true,
-            "dietaryRestrictions": "Aucune",
-            "plusOne": false,
-            "plusOneName": ""
-          },
-          {
-            "firstName": "Jean",
-            "lastName": "Dupont",
-            "email": "jean.dupont@email.com",
-            "phone": "+33612345678",
-            "isVIP": false,
-            "dietaryRestrictions": "",
-            "plusOne": false,
-            "plusOneName": ""
-          },
-          {
-            "firstName": "Marie",
-            "lastName": "Martin",
-            "email": "",
-            "phone": "0987654321",
-            "isVIP": true,
-            "dietaryRestrictions": "Sans gluten",
-            "plusOne": true,
-            "plusOneName": "Pierre Martin"
-          }
-        ], null, 2);
-        filename = 'template_invites.json';
-        mimeType = 'application/json';
-        break;
-        
+
       case 'txt':
-        content = 'Sabrina,Eloundou,sabrinaeloundou33@gmail.com,0123456789,false,Végétarien,true,Marie Antana\n' +
-                 'Pamela,Simo,pamelasimo77@gmail.com,0987654321,true,Aucune,false,\n' +
-                 'Jean,Dupont,jean.dupont@email.com,+33612345678,false,,false,\n' +
-                 'Marie,Martin,,0987654321,true,Sans gluten,true,Pierre Martin';
+        content = 'Jean,Dupont,jean.dupont@email.com,0123456789,false\n' +
+          'Sophie,Martin,sophie.martin@email.com,0987654321,true\n' +
+          'Pierre,Blanc,pierre.blanc@email.com,0987654321,false';
         filename = 'template_invites.txt';
         mimeType = 'text/plain';
         break;
@@ -962,14 +962,14 @@ function GuestsList({ invitationId, invitation, ...guestProps }: { invitationId:
     // Créer un blob avec le contenu
     const blob = new Blob([content], { type: mimeType });
     const url = URL.createObjectURL(blob);
-    
+
     // Créer un lien de téléchargement
     const link = document.createElement('a');
     link.href = url;
     link.download = filename;
     document.body.appendChild(link);
     link.click();
-    
+
     // Nettoyer
     document.body.removeChild(link);
     URL.revokeObjectURL(url);
@@ -990,26 +990,26 @@ function GuestsList({ invitationId, invitation, ...guestProps }: { invitationId:
           try {
             const response = await apiClient.post<{
               sent: number;
-              failed: Array<{guestId: string; guestName: string; error: string}>;
-              skipped: Array<{guestId: string; guestName: string; reason: string}>;
+              failed: Array<{ guestId: string; guestName: string; error: string }>;
+              skipped: Array<{ guestId: string; guestName: string; reason: string }>;
             }>(`/invitations/${invitationId}/guests/bulk-send`, {
               guestIds
             });
-            
+
             let message = '';
             let type: 'success' | 'warning' | 'error' = 'success';
-            
+
             if (response.sent > 0) {
               message = `✅ ${response.sent} invitation(s) envoyée(s) avec succès !`;
             }
-            
+
             if (response.skipped && response.skipped.length > 0) {
               message += `\n⏭️ ${response.skipped.length} invité(s) ignoré(s):`;
               response.skipped.forEach(skip => {
                 message += `\n• ${skip.guestName}: ${skip.reason}`;
               });
             }
-            
+
             if (response.failed && response.failed.length > 0) {
               message += `\n❌ ${response.failed.length} échec(s) d'envoi:`;
               response.failed.forEach(failure => {
@@ -1017,13 +1017,13 @@ function GuestsList({ invitationId, invitation, ...guestProps }: { invitationId:
               });
               type = response.sent > 0 ? 'warning' : 'error';
             }
-            
+
             showModal(
               response.sent > 0 ? 'Envoi terminé' : 'Échec de l\'envoi',
               message,
               type
             );
-            
+
             window.location.reload();
           } catch (error) {
             console.error('Erreur lors de l\'envoi en masse:', error);
@@ -1037,36 +1037,26 @@ function GuestsList({ invitationId, invitation, ...guestProps }: { invitationId:
     );
   };
 
-  const getGuestCount = (guest: Guest) => {
-    return guest.rsvp?.numberOfGuests || (guest.rsvp as any)?.attendees || 1;
-  };
-
-  const getGuestStatus = (guest: Guest) => {
-    if (!guest.rsvp) return 'En attente';
+  const getGuestStatus = (guest: any) => {
+    if (guest.rsvp) {
       switch (guest.rsvp.status) {
         case 'CONFIRMED': return 'Confirmé';
-      case 'DECLINED': return 'Décliné';
+        case 'DECLINED': return 'Refusé';
         default: return 'En attente';
       }
-  };
-
-  const getGuestStatusColor = (guest: Guest) => {
-    if (!guest.rsvp) return '#f59e0b';
-      switch (guest.rsvp.status) {
-      case 'CONFIRMED': return '#10b981';
-      case 'DECLINED': return '#ef4444';
-      default: return '#f59e0b';
     }
+    return 'Pas de réponse';
   };
 
-  const handlePhotoClick = (photoUrl: string, alt: string) => {
-    setSelectedPhoto({ url: photoUrl, alt });
-    setPhotoModalOpen(true);
-  };
-
-  const closePhotoModal = () => {
-    setPhotoModalOpen(false);
-    setSelectedPhoto(null);
+  const getGuestStatusColor = (guest: any) => {
+    if (guest.rsvp) {
+      switch (guest.rsvp.status) {
+        case 'CONFIRMED': return '#4CAF50';
+        case 'DECLINED': return '#f44336';
+        default: return '#ff9800';
+      }
+    }
+    return '#9e9e9e';
   };
 
   if (loading) {
@@ -1078,82 +1068,137 @@ function GuestsList({ invitationId, invitation, ...guestProps }: { invitationId:
   }
 
   const canSendEmails = invitation?.status === 'PUBLISHED';
-  const guestsWithEmails = guests.filter((g) => g.email);
+  const guestsWithEmails = guests.filter(g => g.email);
 
   // Filtrer les invités selon la recherche
-  const filteredGuests = guests.filter((guest) => {
+  const filteredGuests = guests.filter(guest => {
     if (!searchQuery.trim()) return true;
-    
+
     const query = searchQuery.toLowerCase().trim();
     const fullName = `${guest.firstName} ${guest.lastName}`.toLowerCase();
     const email = guest.email?.toLowerCase() || '';
     const phone = guest.phone?.toLowerCase() || '';
-    const restrictions = guest.dietaryRestrictions?.toLowerCase() || '';
-    const plusOneName = guest.plusOneName?.toLowerCase() || '';
-    
+
     return (
       fullName.includes(query) ||
       email.includes(query) ||
-      phone.includes(query) ||
-      restrictions.includes(query) ||
-      plusOneName.includes(query)
+      phone.includes(query)
     );
   });
-
-  const { limits, usage, remaining } = useSubscriptionLimits();
-
-  // Vérifier si on peut ajouter des invités
-  const canAddGuests = (remaining?.guests || 0) > 0;
 
   return (
     <div className={styles.guestsPage}>
       <div className={styles.header}>
-        <h1>Gestion des invités</h1>
-        {invitation?.status === 'PUBLISHED' && (
-          <div className={styles.actions}>
-            <Button 
-              onClick={() => setShowAddForm(true)} 
-              variant="primary" 
-              data-tutorial="add-guest"
-              disabled={!canAddGuests}
-            >
-              <Plus className={styles.buttonIcon} /> Ajouter un invité
-              {!canAddGuests && <span className={styles.limitReached}> (Limite atteinte)</span>}
-            </Button>
-            <Button 
-              onClick={() => setShowBulkImport(true)} 
-              variant="outline" 
-              data-tutorial="import-guests"
-              disabled={!canAddGuests}
-            >
-              <FolderOpen className={styles.buttonIcon} /> Import en masse
-              {!canAddGuests && <span className={styles.limitReached}> (Limite atteinte)</span>}
-            </Button>
-          </div>
-        )}
+        <h1>Envoi par email</h1>
+        <div className={styles.actions}>
+          <Button
+            onClick={() => setShowAddForm(true)}
+            variant="primary"
+            size="sm"
+          >
+            ➕ Ajouter un invité
+          </Button>
+          <Button
+            onClick={() => setShowBulkImport(true)}
+            variant="outline"
+            size="sm"
+          >
+            📂 Import en masse
+          </Button>
+        </div>
       </div>
 
-      {invitation?.status !== 'PUBLISHED' && (
-        <div className={styles.restrictedAccess}>
-          <div className={styles.restrictedIcon}>
-            <AlertTriangle className={styles.warningIcon} />
-          </div>
-          <h3>Invitation non publiée</h3>
-          <p>Vous devez d'abord publier votre invitation pour pouvoir ajouter des invités et envoyer des invitations par email.</p>
-          <div className={styles.restrictedActions}>
-            <Button 
-              onClick={() => window.location.href = '/client/invitations'} 
-              variant="primary"
-            >
-              Publier mon invitation
-            </Button>
+      
+      {showAddForm && (
+        <div className={styles.addFormContainer}>
+          <div className={styles.addFormCard}>
+            <div className={styles.formHeader}>
+              <h2>➕ Ajouter un invité</h2>
+              </div>
+            <form onSubmit={handleSubmit}>
+              <div className={styles.formGrid}>
+                <div className={styles.formField}>
+                  <label>Prénom *</label>
+                <input
+                  type="text"
+                  name="firstName"
+                    placeholder="Prénom (min. 2 caractères)"
+                  value={formData.firstName}
+                  onChange={handleInputChange}
+                  required
+                    minLength={2}
+                    className={styles.formInput}
+                    />
+                  </div>
+                <div className={styles.formField}>
+                  <label>Nom *</label>
+                <input
+                  type="text"
+                  name="lastName"
+                    placeholder="Nom (min. 2 caractères)"
+                  value={formData.lastName}
+                  onChange={handleInputChange}
+                  required
+                    minLength={2}
+                    className={styles.formInput}
+                    />
+                  </div>
+                <div className={styles.formField}>
+                  <label>Email</label>
+                <input
+                  type="email"
+                  name="email"
+                    placeholder="Email (requis si pas de téléphone)"
+                  value={formData.email}
+                  onChange={handleInputChange}
+                    className={styles.formInput}
+                  />
+                </div>
+                <div className={styles.formField}>
+                  <label>Téléphone</label>
+                <input
+                  type="tel"
+                  name="phone"
+                    placeholder="Téléphone (requis si pas d'email)"
+                  value={formData.phone}
+                  onChange={handleInputChange}
+                    pattern="[\+]?[0-9\s\-\(\)]{8,}"
+                    title="Minimum 8 caractères, chiffres/espaces/+/-/() autorisés"
+                    className={styles.formInput}
+                  />
+                </div>
+                <div className={styles.formField}>
+                  <div className={styles.checkboxField}>
+                    <input
+                      type="checkbox"
+                      name="isVIP"
+                      checked={formData.isVIP}
+                      onChange={handleInputChange}
+                    />
+                    <label>⭐ Invité VIP</label>
+                </div>
+              </div>
+              </div>
+              <div className={styles.formActions}>
+                <Button type="submit" variant="primary" size="sm">
+                  ✅ Ajouter l'invité
+                </Button>
+                <Button type="button" variant="outline" size="sm" onClick={() => setShowAddForm(false)}>
+                  Annuler
+                </Button>
+              </div>
+            </form>
           </div>
         </div>
       )}
 
+
+      {/* Section lien partageable */}
+      <ShareableLinkManager invitationId={invitationId} />
+
       {/* Modal d'import en masse */}
       {showBulkImport && (
-        <div 
+        <div
           className={styles.modal}
           onClick={(e) => {
             // Fermer le modal si on clique sur l'overlay (pas sur le contenu)
@@ -1166,113 +1211,95 @@ function GuestsList({ invitationId, invitation, ...guestProps }: { invitationId:
         >
           <div className={styles.modalContent}>
             <div className={styles.modalHeader}>
-              <h2><FolderOpen className={styles.headerIcon} /> Import en masse d'invités</h2>
-              <button 
+              <h2>📂 Import en masse d'invités</h2>
+                <button
                 className={styles.closeButton}
                 onClick={() => {
                   setShowBulkImport(false);
                   setImportPreview(null);
                   setImportFile(null);
-                }}
-              >
-                ✕
-              </button>
-            </div>
-            
+                  }}
+                >
+                  ✕
+                </button>
+              </div>
+              
             <div className={styles.modalBody}>
               {!importPreview ? (
                 <div className={styles.importStep}>
-                  <h3><FileText className={styles.headerIcon} /> 1. Téléchargez un template</h3>
+                  <h3>📋 1. Téléchargez un template</h3>
                   <div className={styles.templateButtons}>
-                    <Button onClick={() => downloadTemplate('csv')} variant="outline">
-                      <FileText className={styles.buttonIcon} /> Template CSV
+                    <Button onClick={() => downloadTemplate('csv')} variant="outline" size="sm">
+                      📄 Template CSV
                     </Button>
-                    <Button onClick={() => downloadTemplate('json')} variant="outline">
-                      <FileText className={styles.buttonIcon} /> Template JSON
-                    </Button>
-                    <Button onClick={() => downloadTemplate('txt')} variant="outline">
-                      <FileText className={styles.buttonIcon} /> Template TXT
+                    <Button onClick={() => downloadTemplate('txt')} variant="outline" size="sm">
+                      📄 Template TXT
                     </Button>
                   </div>
-
-                  <h3><FileText className={styles.headerIcon} /> 2. Remplissez le fichier</h3>
+                
+                  <h3>📝 2. Remplissez le fichier</h3>
                   <div className={styles.formatInfo}>
                     <h4>📋 Règles de validation :</h4>
                     <ul>
                       <li><strong>Prénom et Nom :</strong> Obligatoires, minimum 2 caractères chacun</li>
-                      <li><strong>Contact :</strong> Au moins un email OU un téléphone requis</li>
-                      <li><strong>Email :</strong> Format valide (ex: nom@domaine.com) si fourni</li>
-                      <li><strong>Téléphone :</strong> Minimum 8 caractères, chiffres/espaces/+/-/() autorisés</li>
+                      <li><strong>Email :</strong> OBLIGATOIRE pour l'import en masse (les invitations seront envoyées par email)</li>
+                      <li><strong>Téléphone :</strong> Optionnel, minimum 8 caractères, chiffres/espaces/+/-/() autorisés</li>
                       <li><strong>isVIP :</strong> true/false ou 1/0</li>
-                      <li><strong>plusOne :</strong> true/false ou 1/0</li>
                     </ul>
-                    
+
                     <h4>💡 Format CSV (recommandé) :</h4>
-                    <code>firstName,lastName,email,phone,isVIP,dietaryRestrictions,plusOne,plusOneName</code>
+                    <code>firstName,lastName,email,phone,isVIP</code>
                     <p><em>Note: La première ligne d'en-têtes est automatiquement ignorée</em></p>
-                    
+
                     <h4>📝 Format TXT :</h4>
-                    <code>Prénom,Nom,email,téléphone,isVIP,restrictions,plusOne,nomAccompagnant</code>
+                    <code>Prénom,Nom,email,téléphone,isVIP</code>
                     <p><em>Chaque ligne = un invité, valeurs séparées par des virgules</em></p>
-                    
-                    <h4>🔧 Format JSON :</h4>
-                    <pre>{`[
-  {
-    "firstName": "Sabrina",
-    "lastName": "Eloundou",
-    "email": "sabrina@gmail.com",
-    "phone": "0123456789",
-    "isVIP": false,
-    "dietaryRestrictions": "Végétarien",
-    "plusOne": true,
-    "plusOneName": "Marie"
-  }
-]`}</pre>
-                    
+
                     <h4>⚠️ Exemples valides :</h4>
                     <ul>
-                      <li>✅ Avec email seul : <code>Jean,Dupont,jean@email.com,,false,,false,</code></li>
-                      <li>✅ Avec téléphone seul : <code>Marie,Martin,,0123456789,true,,false,</code></li>
-                      <li>✅ Avec les deux : <code>Paul,Durand,paul@email.com,+33612345678,false,,true,Sophie</code></li>
-                      <li>❌ Sans contact : <code>Pierre,Blanc,,,false,,false,</code></li>
+                      <li>✅ Avec email seul : <code>Jean,Dupont,jean@email.com,,false</code></li>
+                      <li>✅ Avec email et téléphone : <code>Paul,Durand,paul@email.com,+33612345678,false</code></li>
+                      <li>✅ Invité VIP : <code>Sophie,Martin,sophie@email.com,0987654321,true</code></li>
+                      <li>❌ Sans email : <code>Pierre,Blanc,,0987654321,false</code></li>
                     </ul>
                   </div>
 
-                  <h3><Upload className={styles.headerIcon} /> 3. Uploadez votre fichier</h3>
+                  <h3>📤 3. Uploadez votre fichier</h3>
                   <div className={styles.uploadArea}>
-            <input
-              type="file"
-                      accept=".csv,.json,.txt"
+                  <input
+                    type="file"
+                      accept=".csv,.txt"
                       onChange={(e) => {
                         const file = e.target.files?.[0];
                         if (file) handleFilePreview(file);
                       }}
-              style={{ display: 'none' }}
+                    style={{ display: 'none' }}
                       id="bulkUpload"
                     />
-                    <Button 
+                    <Button
                       onClick={() => document.getElementById('bulkUpload')?.click()}
                       variant="primary"
+                      size="sm"
                     >
-                      <FileUp className={styles.buttonIcon} /> Choisir un fichier
+                      📤 Choisir un fichier
                     </Button>
-                    <p>Formats supportés: CSV, JSON, TXT (max 5MB)</p>
-                  </div>
+                    <p>Formats supportés: CSV, TXT (max 5MB)</p>
+                </div>
                 </div>
               ) : (
                 <div className={styles.previewStep}>
                   <h3>👀 Prévisualisation de l'import</h3>
-                  
+
                   <div className={styles.previewStats}>
                     <div className={styles.statItem}>
-                      <span><CheckCircle className={styles.statIcon} /> Invités valides</span>
+                      <span>✅ Invités valides</span>
                       <strong>{importPreview.validGuests || importPreview.totalGuests}</strong>
-                    </div>
+            </div>
                     <div className={styles.statItem}>
-                      <span><AlertTriangle className={styles.statIcon} /> Erreurs</span>
+                      <span>❌ Erreurs</span>
                       <strong>{importPreview.errors.length}</strong>
-                    </div>
-                  </div>
+              </div>
+            </div>
 
                   {importPreview.errors.length > 0 && (
                     <div className={styles.errors}>
@@ -1286,9 +1313,9 @@ function GuestsList({ invitationId, invitation, ...guestProps }: { invitationId:
                         {importPreview.errors.length > 5 && (
                           <p>... et {importPreview.errors.length - 5} autres erreurs</p>
                         )}
-                      </div>
-                    </div>
-                  )}
+          </div>
+                  </div>
+                )}
 
                   {importPreview.preview.length > 0 && (
                     <div className={styles.preview}>
@@ -1299,38 +1326,31 @@ function GuestsList({ invitationId, invitation, ...guestProps }: { invitationId:
                             <strong>{guest.firstName} {guest.lastName}</strong>
                             <span>{guest.email}</span>
                             {guest.isVIP && <span className={styles.vipBadge}>⭐ VIP</span>}
-                            {guest.plusOne && <span className={styles.plusOneBadge}>👥 +1</span>}
-                          </div>
+            </div>
                         ))}
                       </div>
                     </div>
                   )}
 
                   <div className={styles.previewActions}>
-                    <Button 
+                    <Button
                       onClick={confirmImport}
                       variant="primary"
+                      size="sm"
                       disabled={importing || (importPreview.validGuests || importPreview.totalGuests) === 0}
                     >
-                      {importing ? (
-                        <>
-                          <Loader className={styles.spinIcon} /> Import en cours...
-                        </>
-                      ) : (
-                        <>
-                          <CheckCircle className={styles.buttonIcon} /> Confirmer l'import ({importPreview.validGuests || importPreview.totalGuests} invités)
-                        </>
-                      )}
+                      {importing ? '⏳ Import en cours...' : `✅ Confirmer l'import (${importPreview.validGuests || importPreview.totalGuests} invités)`}
                     </Button>
-                    <Button 
+                    <Button
                       onClick={() => {
                         setImportPreview(null);
                         setImportFile(null);
                       }}
                       variant="outline"
+                      size="sm"
                     >
                       🔄 Choisir un autre fichier
-            </Button>
+                    </Button>
                   </div>
                 </div>
               )}
@@ -1339,248 +1359,163 @@ function GuestsList({ invitationId, invitation, ...guestProps }: { invitationId:
         </div>
       )}
 
-      {/* Barre de recherche */}
-      <div className={styles.searchSection}>
-        <Card>
-          <div className={styles.searchContainer}>
-            <div className={styles.searchInputWrapper}>
-              <Search className={styles.searchIcon} />
-              <input
-                type="text"
-                placeholder="Rechercher un invité (nom, email, téléphone...)"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className={styles.searchInput}
-              />
-              {searchQuery && (
-                <button
-                  onClick={() => setSearchQuery('')}
-                  className={styles.clearSearch}
-                  title="Effacer la recherche"
-                >
-                  <XCircle size={16} />
-                </button>
-              )}
-            </div>
-            {searchQuery && (
-              <div className={styles.searchResults}>
-                {filteredGuests.length} invité(s) trouvé(s) sur {guests.length}
-              </div>
-            )}
+      {!canSendEmails && (
+        <div className={styles.warning}>
+          <div className={styles.emptyState}>
+            <h3>⚠️ Invitation non publiée</h3>
+            <p>Vous devez publier votre invitation avant de pouvoir envoyer des emails aux invités.</p>
+            <Link href="/client/invitations">
+              <Button variant="primary" size="sm">Publier l'invitation</Button>
+            </Link>
           </div>
-        </Card>
+        </div>
+      )}
+
+      {/* Section de recherche moderne */}
+      <div className={styles.searchSection}>
+        <div className={styles.searchHeader}>
+          <h2>🔍 Rechercher un invité</h2>
+          <input
+            type="text"
+            placeholder="Nom, email, téléphone..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className={styles.searchInput}
+          />
+        </div>
       </div>
 
 
-
-      {showAddForm && (
-        <div className={styles.addForm}>
-          <Card>
-            <h2><UserPlus className={styles.headerIcon} /> Ajouter un invité</h2>
-            <form onSubmit={handleSubmit}>
-              <div className={styles.formGrid}>
-                <input
-                  type="text"
-                  name="firstName"
-                  placeholder="Prénom *"
-                  value={formData.firstName}
-                  onChange={handleInputChange}
-                  required
-                  minLength={2}
-                />
-                <input
-                  type="text"
-                  name="lastName"
-                  placeholder="Nom *"
-                  value={formData.lastName}
-                  onChange={handleInputChange}
-                  required
-                  minLength={2}
-                />
-                <input
-                  type="email"
-                  name="email"
-                  placeholder="Email"
-                  value={formData.email}
-                  onChange={handleInputChange}
-                />
-                <PhoneInput
-                  value={formData.phone}
-                  onChange={(value: string) => setFormData(prev => ({ ...prev, phone: value }))}
-                  placeholder="Téléphone"
-                  name="phone"
-                  required={!formData.email}
-                />
-                <div className={styles.checkboxGroup}>
-                  <label>
-                    <input
-                      type="checkbox"
-                      name="isVIP"
-                      checked={formData.isVIP}
-                      onChange={handleInputChange}
-                    />
-                    <Star className={styles.checkboxIcon} /> Invité VIP
-                  </label>
-                <label>
-                  <input
-                    type="checkbox"
-                      name="plusOne"
-                      checked={formData.plusOne}
-                      onChange={handleInputChange}
-                    />
-                    <Users className={styles.checkboxIcon} /> Accompagné
-                  </label>
-                </div>
-                {formData.plusOne && (
-                  <input
-                    type="text"
-                    name="plusOneName"
-                    placeholder="Nom de l'accompagnant"
-                    value={formData.plusOneName}
-                    onChange={handleInputChange}
-                  />
-                )}
-                <textarea
-                  name="dietaryRestrictions"
-                  placeholder="Restrictions alimentaires (optionnel)"
-                  value={formData.dietaryRestrictions}
-                  onChange={handleInputChange}
-                  rows={2}
-                />
-              </div>
-              <div className={styles.formActions}>
-                <Button type="submit" variant="primary" disabled={!canAddGuests}>
-                  <UserPlus className={styles.buttonIcon} /> Ajouter l'invité
-                  {!canAddGuests && <span className={styles.limitReached}> (Limite atteinte)</span>}
-                </Button>
-                <Button type="button" variant="outline" onClick={() => setShowAddForm(false)}>
-                  <XCircle className={styles.buttonIcon} /> Annuler
-                </Button>
-              </div>
-            </form>
-          </Card>
-        </div>
-      )}
-
-      <div className={styles.guestsList} data-tutorial="guests-list">
-        <h2><Users className={styles.headerIcon} /> Liste des invités ({searchQuery ? `${filteredGuests.length} sur ${guests.length}` : guests.length})</h2>
-        <div className={styles.guestsGrid}>
-          {filteredGuests.map((guest) => (
-          <Card key={guest.id} className={styles.guestCard}>
-            <div className={styles.guestInfo}>
-                <div className={styles.guestHeader}>
-                  {(guest.profilePhotoUrl || (guest as any).rsvp?.profilePhotoUrl) && (
-                    <div className={styles.guestPhotoSection}>
-                      <img 
-                        src={guest.profilePhotoUrl || (guest as any).rsvp?.profilePhotoUrl} 
-                        alt={`Photo de ${guest.firstName} ${guest.lastName}`} 
-                        className={`${styles.guestPhoto} cursor-pointer hover:opacity-80 transition-opacity`}
-                        onClick={() => handlePhotoClick(guest.profilePhotoUrl || (guest as any).rsvp?.profilePhotoUrl, `Photo de ${guest.firstName} ${guest.lastName}`)}
-                      />
-                    </div>
-                  )}
-                  <div className={styles.guestNameSection}>
-                  <h3>
-                    {guest.firstName} {guest.lastName}
-                      {guest.isVIP && <span className={styles.vipBadge}><Star className={styles.badgeIcon} /> VIP</span>}
-                      {guest.rsvp?.status === 'CONFIRMED' && getGuestCount(guest) > 2 && (
-                        <span className={styles.groupBadge}><Users className={styles.badgeIcon} /> Groupe ({getGuestCount(guest)})</span>
-                      )}
-                      {guest.rsvp?.status === 'CONFIRMED' && getGuestCount(guest) === 2 && (
-                        <span className={styles.plusOneBadge}><Users className={styles.badgeIcon} /> +1</span>
-                      )}
-                  </h3>
-                  <div 
-                    className={styles.statusBadge}
-                    style={{ backgroundColor: getGuestStatusColor(guest) }}
+      <div className={styles.guestsList}>
+        <div className={styles.guestsListHeader}>
+          <h2>👥 Liste des invités ({searchQuery ? `${filteredGuests.length} sur ${guests.length}` : guests.length})</h2>
+          {canSendEmails && (
+            <div className={styles.bulkActions}>
+              {(() => {
+                const guestsWithoutInvitation = guests.filter(g => g.email && !g.invitationSentAt && !g.rsvp);
+                return guestsWithoutInvitation.length > 0 && (
+                  <Button
+                    onClick={sendAllInvitations}
+                    variant="primary"
+                    size="sm"
+                    disabled={sendingEmails}
+                    className={styles.shakeButton}
                   >
-                    {getGuestStatus(guest)}
-                    </div>
-                  </div>
-                </div>
-                
-                <div className={styles.guestDetails}>
-                  {guest.email && <p><Mail className={styles.detailIcon} /> {guest.email}</p>}
-                  {guest.phone && <p><Phone className={styles.detailIcon} /> {guest.phone}</p>}
-              {guest.dietaryRestrictions && (
-                    <p className={styles.dietaryRestrictions}>
-                      <Utensils className={styles.detailIcon} /> {guest.dietaryRestrictions}
-                    </p>
-                  )}
-                  {guest.invitationSentAt && (
-                    <p className={styles.sentDate}>
-                      <CheckCircle className={styles.detailIcon} /> Envoyée le {new Date(guest.invitationSentAt).toLocaleDateString('fr-FR')}
-                    </p>
-                  )}
-                  {guest.usedAt && (
-                    <p className={styles.usedDate}>
-                      <Clock className={styles.detailIcon} /> Répondu le {new Date(guest.usedAt).toLocaleDateString('fr-FR')}
-                </p>
-              )}
+                    {sendingEmails ? (
+                      <>
+                        <Loader className={styles.spinIcon} /> Envoi en cours...
+                      </>
+                    ) : (
+                      <>
+                        📧 Envoyer aux invités en attente ({guestsWithoutInvitation.length})
+                      </>
+                    )}
+                  </Button>
+                );
+              })()}
             </div>
+          )}
+        </div>
+        <div className={styles.guestsGrid}>
+          {filteredGuests.map(guest => (
+            <div key={guest.id} className={styles.guestCard}>
+              <div className={styles.guestHeader}>
+                <h3>
+                  {guest.firstName} {guest.lastName}
+                  {guest.isVIP && <span className={styles.vipBadge}>⭐ VIP</span>}
+              </h3>
+                <div
+                  className={styles.statusBadge}
+                  style={{ backgroundColor: getGuestStatusColor(guest) }}
+                >
+                  {getGuestStatus(guest)}
+                </div>
               </div>
-              
-            <div className={styles.guestActions}>
-                {canSendEmails && guest.email && (guest as any).invitationType !== 'SHAREABLE' && (
+
+              <div className={styles.guestDetails}>
+                {guest.profilePhotoUrl && (
+                  <div className={styles.profilePhoto}>
+                    <img 
+                      src={guest.profilePhotoUrl} 
+                      alt={`Photo de ${guest.firstName} ${guest.lastName}`}
+                      className={styles.photoThumbnail}
+                    />
+                  </div>
+                )}
+                {guest.email && <p>📧 {guest.email}</p>}
+                {guest.phone && <p>📞 {guest.phone}</p>}
+                {guest.plusOne && guest.plusOneName && (
+                  <p>👥 Accompagnant: {guest.plusOneName}</p>
+                )}
+                {guest.dietaryRestrictions && (
+                  <p>🥗 Restrictions: {guest.dietaryRestrictions}</p>
+                )}
+                {guest.invitationSentAt && (
+                  <p className={styles.sentDate}>
+                    ✅ Invitation envoyée le {new Date(guest.invitationSentAt).toLocaleDateString('fr-FR')}
+                  </p>
+                )}
+                {guest.usedAt && (
+                  <p className={styles.usedDate}>
+                    🔗 Lien utilisé le {new Date(guest.usedAt).toLocaleDateString('fr-FR')}
+                  </p>
+                )}
+              </div>
+
+              <div className={styles.guestActions}>
+                {canSendEmails && guest.email && (
                   <div className={styles.emailActions}>
-                    {!guest.invitationSentAt && (
+                    {!guest.invitationSentAt && !guest.usedAt && !guest.rsvp && (
                       <Button
                         onClick={() => sendInvitationToGuest(guest.id)}
                         variant="primary"
-                        size="small"
+                        size="sm"
                       >
-                        <Send className={styles.actionIcon} /> Envoyer invitation
+                        📧 Envoyer invitation
                       </Button>
                     )}
-                    {guest.invitationSentAt && !guest.rsvp && (
+                    {guest.invitationSentAt && !guest.usedAt && !guest.rsvp && (
                       <Button
                         onClick={() => sendReminderToGuest(guest.id)}
                         variant="outline"
-                        size="small"
+                        size="sm"
                       >
-                        <Bell className={styles.actionIcon} /> Envoyer rappel
+                        🔔 Envoyer rappel
                       </Button>
                     )}
-                  </div>
+        </div>
                 )}
-                {(guest as any).invitationType === 'SHAREABLE' && (
-                  <div className={styles.shareableInfo}>
-                    <span className={styles.shareableBadge}><Link2 className={styles.badgeIcon} /> Via lien partageable</span>
-                  </div>
-                )}
-              <Button
-                variant="danger"
-                onClick={() => handleDeleteGuest(guest.id)}
-                size="small"
-              >
-                  <Trash2 className={styles.actionIcon} /> Supprimer
-              </Button>
-            </div>
-          </Card>
-        ))}
-          
+                <Button
+                  onClick={() => handleDeleteGuest(guest.id)}
+                  variant="secondary"
+                  size="sm"
+                >
+                  🗑️ Supprimer
+                </Button>
+      </div>
+        </div>
+          ))}
+
           {filteredGuests.length === 0 && guests.length > 0 && (
-            <Card className={styles.emptyState}>
-              <h3>Aucun invité trouvé</h3>
+            <div className={styles.emptyState}>
+              <h3>🔍 Aucun invité trouvé</h3>
               <p>Aucun invité ne correspond à votre recherche "{searchQuery}".</p>
-              <Button onClick={() => setSearchQuery('')} variant="primary">
-                <RefreshCw className={styles.buttonIcon} /> Effacer la recherche
+              <Button onClick={() => setSearchQuery('')} variant="primary" size="sm">
+                🔄 Effacer la recherche
               </Button>
-            </Card>
-          )}
-          
+        </div>
+      )}
+
           {guests.length === 0 && (
-            <Card className={styles.emptyState}>
-              <h3>Aucun invité ajouté</h3>
+            <div className={styles.emptyState}>
+              <h3>👥 Aucun invité ajouté</h3>
               <p>Commencez par ajouter vos premiers invités pour pouvoir envoyer les invitations.</p>
-              <Button onClick={() => setShowAddForm(true)} variant="primary">
-                <UserPlus className={styles.buttonIcon} /> Ajouter le premier invité
-              </Button>
-            </Card>
+
+            </div>
           )}
         </div>
       </div>
-      
+
       {/* Modal personnalisé */}
       <CustomModal
         isOpen={modal.isOpen}
@@ -1593,258 +1528,6 @@ function GuestsList({ invitationId, invitation, ...guestProps }: { invitationId:
         confirmText={modal.confirmText}
         cancelText={modal.cancelText}
       />
-      
-      {/* Modal pour agrandir les photos */}
-      {selectedPhoto && (
-        <PhotoModal
-          isOpen={photoModalOpen}
-          onClose={closePhotoModal}
-          photoUrl={selectedPhoto.url}
-          alt={selectedPhoto.alt}
-        />
-      )}
     </div>
   );
 } 
-
-
-
-// Nouveau composant pour gérer les invitations avec une UX épurée
-function InvitationManagement({ invitationId, invitation }: { invitationId: string, invitation: any }) {
-  const [activeTab, setActiveTab] = useState<'guests' | 'shareable' | 'email'>('guests');
-  const guestHookProps = useGuests(invitationId);
-
-  if (guestHookProps.loading) {
-    return <div>Chargement des invités...</div>;
-  }
-
-  if (guestHookProps.error) {
-    return <div>Une erreur est survenue lors du chargement des invités.</div>;
-  }
-
-  return (
-    <div className={styles.invitationManagement}>
-      {/* Onglets de navigation */}
-      <div className={styles.tabsContainer} data-tutorial="guest-tabs">
-        <Card>
-          <div className={styles.tabs}>
-            <button
-              className={`${styles.tab} ${activeTab === 'guests' ? styles.tabActive : ''}`}
-              onClick={() => setActiveTab('guests')}
-            >
-              <Users className={styles.tabIcon} />
-              <span className={styles.tabLabel}>Invités</span>
-            </button>
-            <button
-              className={`${styles.tab} ${activeTab === 'shareable' ? styles.tabActive : ''}`}
-              onClick={() => setActiveTab('shareable')}
-            >
-              <Link2 className={styles.tabIcon} />
-              <span className={styles.tabLabel}>Lien Partageable</span>
-            </button>
-            <button
-              className={`${styles.tab} ${activeTab === 'email' ? styles.tabActive : ''}`}
-              onClick={() => setActiveTab('email')}
-            >
-              <Mail className={styles.tabIcon} />
-              <span className={styles.tabLabel}>Invitations Email</span>
-            </button>
-          </div>
-        </Card>
-      </div>
-
-      {/* Contenu des onglets */}
-      <div className={styles.tabContent}>
-        {activeTab === 'guests' && (
-          <GuestsTab
-            invitationId={invitationId}
-            invitation={invitation}
-            {...guestHookProps}
-          />
-        )}
-        {activeTab === 'email' && (
-          <EmailInvitationsTab
-            invitationId={invitationId}
-            invitation={invitation}
-            {...guestHookProps}
-          />
-        )}
-        {activeTab === 'shareable' && (
-          <ShareableInvitationsTab invitationId={invitationId} invitation={invitation} />
-        )}
-      </div>
-    </div>
-  );
-}
-
-// Onglet pour tous les invités (email + lien partageable)
-function GuestsTab({ invitationId, invitation, ...guestProps }: { invitationId: string, invitation: any } & GuestHookProps) {
-  return (
-    <div className={styles.guestsTab}>
-      <div className={styles.tabHeader}>
-        <h2><Users className={styles.headerIcon} /> Tous les Invités</h2>
-        <p>Vue d'ensemble de tous vos invités, qu'ils aient été ajoutés manuellement ou via le lien partageable</p>
-      </div>
-      <GuestsList invitationId={invitationId} invitation={invitation} {...guestProps} />
-    </div>
-  );
-}
-
-// Onglet pour les invitations email
-function EmailInvitationsTab({ invitationId, invitation, ...guestProps }: { invitationId: string, invitation: any } & GuestHookProps) {
-  const { guests } = guestProps;
-  const emailGuests = guests.filter(g => (g as any).invitationType !== 'SHAREABLE');
-  const canSendEmails = invitation?.status === 'PUBLISHED';
-  const [showAddForm, setShowAddForm] = useState(false);
-  const [showBulkImport, setShowBulkImport] = useState(false);
-  
-  return (
-    <div className={styles.emailInvitationsTab}>
-      <div className={styles.tabHeader}>
-        <h2><Mail className={styles.headerIcon} /> Invitations Email</h2>
-        <p>Gestion des invitations par email</p>
-      </div>
-      
-      <div className={styles.emailManagement}>
-        <Card>
-          {/* Affichage conditionnel des actions selon le statut de l'invitation */}
-          {invitation?.status === 'PUBLISHED' ? (
-            <div className={styles.header}>
-              <h2>Gestion des invités</h2>
-              <div className={styles.actions}>
-                <Button onClick={() => setShowAddForm(true)} variant="primary" data-tutorial="add-guest">
-                  <Plus className={styles.buttonIcon} /> Ajouter un invité
-                </Button>
-                <Button onClick={() => setShowBulkImport(true)} variant="outline" data-tutorial="import-guests">
-                  <FolderOpen className={styles.buttonIcon} /> Import en masse
-                </Button>
-              </div>
-            </div>
-          ) : (
-            <div className={styles.restrictedAccess}>
-              <div className={styles.restrictedIcon}>
-                <AlertTriangle className={styles.warningIcon} />
-              </div>
-              <h3>Invitation non publiée</h3>
-              <p>Vous devez d'abord publier votre invitation pour pouvoir ajouter des invités et envoyer des invitations par email.</p>
-              <div className={styles.restrictedActions}>
-                <Button 
-                  onClick={() => window.location.href = '/client/invitations'} 
-                  variant="primary"
-                >
-                  Publier mon invitation
-                </Button>
-              </div>
-            </div>
-          )}
-
-          <div className={styles.emailStats}>
-            <div className={styles.statItem}>
-              <span><Mail className={styles.statIcon} /> Invités par email</span>
-              <strong>{emailGuests.length}</strong>
-            </div>
-            <div className={styles.statItem}>
-              <span><Send className={styles.statIcon} /> Emails envoyés</span>
-              <strong>{emailGuests.filter(g => g.invitationSentAt).length}</strong>
-            </div>
-            <div className={styles.statItem}>
-              <span><CheckCircle className={styles.statIcon} /> Confirmés</span>
-              <strong>{emailGuests.filter(g => g.rsvp?.status === 'CONFIRMED').length}</strong>
-            </div>
-          </div>
-          
-          <div className={styles.emailActions}>
-            {canSendEmails && emailGuests.length > 0 && (
-              <div className={styles.bulkActions}>
-                <Button
-                  onClick={() => {
-                    // Fonction d'envoi en masse depuis GuestsList
-                    const event = new CustomEvent('sendAllInvitations');
-                    document.dispatchEvent(event);
-                  }}
-                  variant="primary"
-                >
-                  <Send className={styles.buttonIcon} /> Envoyer toutes les invitations
-                </Button>
-              </div>
-            )}
-            
-            <div className={styles.managementActions}>
-              <p><HelpCircle className={styles.infoIcon} /> <strong>Conseil :</strong> Utilisez l'onglet "Invités" pour ajouter, modifier ou voir tous vos invités.</p>
-            </div>
-          </div>
-        </Card>
-      </div>
-
-      
-
-    </div>
-  );
-}
-
-// Onglet pour les liens partageables
-function ShareableInvitationsTab({ invitationId, invitation }: { invitationId: string, invitation: any }) {
-  const { guests } = useGuests(invitationId);
-  const shareableGuests = guests.filter(g => (g as any).invitationType === 'SHAREABLE');
-  
-  return (
-    <div className={styles.shareableInvitationsTab}>
-      <div className={styles.tabHeader}>
-        <h2><Link2 className={styles.headerIcon} /> Lien Partageable</h2>
-        <p>Partagez un lien unique sur vos réseaux sociaux, WhatsApp ou SMS</p>
-      </div>
-      
-      <div className={styles.shareableContent} data-tutorial="shareable-links">
-        {invitation?.status === 'PUBLISHED' ? (
-          <>
-            <ShareableLinkManager invitationId={invitationId} />
-            
-            {/* Statistiques rapides */}
-            <Card>
-              <div className={styles.shareableStats}>
-                <div className={styles.statItem}>
-                  <span><Link2 className={styles.statIcon} /> Réponses via lien</span>
-                  <strong>{shareableGuests.length}</strong>
-                </div>
-                <div className={styles.statItem}>
-                  <span><CheckCircle className={styles.statIcon} /> Confirmés</span>
-                  <strong>{shareableGuests.filter(g => g.rsvp?.status === 'CONFIRMED').length}</strong>
-                </div>
-                <div className={styles.statItem}>
-                  <span><XCircle className={styles.statIcon} /> Refusés</span>
-                  <strong>{shareableGuests.filter(g => g.rsvp?.status === 'DECLINED').length}</strong>
-                </div>
-              </div>
-              
-              <div className={styles.shareableNote}>
-                <p><HelpCircle className={styles.infoIcon} /> <strong>Conseil :</strong> Consultez l'onglet "Invités" pour voir tous les détails des réponses via lien partageable.</p>
-              </div>
-            </Card>
-          </>
-        ) : (
-          <div className={styles.restrictedAccess}>
-            <div className={styles.restrictedIcon}>
-              <AlertTriangle className={styles.warningIcon} />
-            </div>
-            <h3>Invitation non publiée</h3>
-            <p>Vous devez d'abord publier votre invitation pour pouvoir générer des liens partageables.</p>
-            <div className={styles.restrictedActions}>
-              <Button 
-                onClick={() => window.location.href = '/client/invitations'} 
-                variant="primary"
-              >
-                Publier mon invitation
-              </Button>
-            </div>
-          </div>
-        )}
-      </div>
-    </div>
-  );
-}
-
-
-
- 
-
- 

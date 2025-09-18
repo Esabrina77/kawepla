@@ -1,49 +1,46 @@
-'use client';
-
 import React from 'react';
 import styles from './Button.module.css';
 
 interface ButtonProps {
   children: React.ReactNode;
-  variant?: 'primary' | 'outline' | 'text' | 'danger';
-  size?: 'small' | 'medium' | 'large';
-  onClick?: () => void;
-  className?: string;
-  fullWidth?: boolean;
-  title?: string;
-  type?: 'button' | 'submit' | 'reset';
+  variant?: 'primary' | 'secondary' | 'outline' | 'ghost';
+  size?: 'sm' | 'md' | 'lg';
   disabled?: boolean;
+  loading?: boolean;
+  onClick?: () => void;
+  type?: 'button' | 'submit' | 'reset';
+  className?: string;
 }
 
 export const Button: React.FC<ButtonProps> = ({
   children,
   variant = 'primary',
-  size = 'medium',
-  onClick,
-  className = '',
-  fullWidth = false,
-  title,
-  type = 'button',
+  size = 'md',
   disabled = false,
+  loading = false,
+  onClick,
+  type = 'button',
+  className = ''
 }) => {
   const buttonClasses = [
     styles.button,
     styles[variant],
     styles[size],
-    fullWidth ? styles.fullWidth : '',
-    disabled ? styles.disabled : '',
-    className,
+    loading && styles.loading,
+    className
   ].filter(Boolean).join(' ');
 
   return (
-    <button 
-      className={buttonClasses} 
-      onClick={onClick}
-      title={title}
+    <button
       type={type}
-      disabled={disabled}
+      className={buttonClasses}
+      disabled={disabled || loading}
+      onClick={onClick}
     >
+      {loading && <span className={styles.spinner} />}
       {children}
     </button>
   );
-}; 
+};
+
+export default Button;

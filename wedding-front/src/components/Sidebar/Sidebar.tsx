@@ -4,26 +4,26 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import styles from './Sidebar.module.css';
-import Image from 'next/image';
-import { AccessibilityMenu } from '@/components/Accessibility/AccessibilityMenu';
+import NextImage from 'next/image';
+import { Button } from '@/components/ui/button';
+
 import { useAuth } from '@/hooks/useAuth';
-import { 
-  LayoutDashboard, 
-  CalendarRange, 
-  Users, 
-  PaintBucket, 
-  MessageSquareText, 
-  MessagesSquare, 
-  HelpCircle, 
-  LogOut, 
-  ChevronLeft, 
-  ChevronRight, 
-  Plus, 
-  Home, 
+import {
+  LayoutDashboard,
+  CalendarRange,
+  Users,
+  PaintBucket,
+  MessageSquare,
+  HelpCircle,
+  LogOut,
+  ChevronLeft,
+  ChevronRight,
+  Plus,
+  Home,
   Settings,
-  Images,
-  Image as ImageIcon,
-  CreditCard
+  Image,
+  CreditCard,
+  User
 } from 'lucide-react';
 
 const menuItems = [
@@ -33,6 +33,13 @@ const menuItems = [
     icon: LayoutDashboard,
     description: 'Vue d\'ensemble de votre invitation',
     priority: 1
+  },
+  {
+    title: 'Design',
+    path: '/client/design',
+    icon: PaintBucket,
+    description: 'Personnalisez votre invitation',
+    priority: 2
   },
   {
     title: 'Créer l\'événement',
@@ -48,24 +55,25 @@ const menuItems = [
     description: 'Gérez votre liste d\'invités et les RSVP',
     priority: 1
   },
-  {
-    title: 'Design',
-    path: '/client/design',
-    icon: PaintBucket,
-    description: 'Personnalisez votre invitation',
-    priority: 2
-  },
+
   {
     title: 'Réponses Invitations',
     path: '/client/messages',
-    icon: MessageSquareText,
-    description: 'Consultez les réponses et messages de vos invités',
+    icon: MessageSquare,
+    description: 'Consultez les messages de vos invités',
+    priority: 2
+  },
+  {
+    title: 'Prestataires',
+    path: '/client/providers/all',
+    icon: Users,
+    description: 'Trouvez des prestataires',
     priority: 2
   },
   {
     title: 'Albums Photos',
     path: '/client/photos',
-    icon: Images,
+    icon: Image,
     description: 'Gérez vos albums photos et les photos',
     priority: 2
   },
@@ -76,28 +84,20 @@ const menuItems = [
     description: 'Gérez votre abonnement et facturation',
     priority: 2
   },
-  {
-    title: 'Discussions',
-    path: '/client/discussions',
-    icon: MessagesSquare,
-    description: 'Discutez avec la team Kawepla',
-    priority: 2
-  },
-  
-  {
-    title: 'Aide',
-    path: '/client/help',
-    icon: HelpCircle,
-    description: 'Centre d\'aide et support',
-    priority: 2
-  }
+  // {
+  //   title: 'Outils',
+  //   path: '/client/tools',
+  //   icon: Wrench,
+  //   description: 'Outils pour votre mariage et événement',
+  //   priority: 2
+  // },
 ];
 
 export const Sidebar = () => {
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [showMobileMenu, setShowMobileMenu] = useState(false);
   const pathname = usePathname();
-  const { logout } = useAuth();
+  const { logout, user } = useAuth();
 
   // Déterminer le chemin de base pour la correspondance active
   const basePath = pathname?.split('/').slice(0, 3).join('/');
@@ -116,15 +116,17 @@ export const Sidebar = () => {
 
   return (
     <>
+      {/* Desktop Sidebar */}
       <aside className={`${styles.sidebar} ${isCollapsed ? styles.collapsed : ''}`}>
+        {/* Header Section */}
         <div className={styles.sidebarHeader}>
           <Link href="/" data-tutorial="logo">
-            <Image 
+            <NextImage 
               src="/images/logo.png" 
               alt="WeddInvite" 
               width={100} 
               height={100} 
-              style={{ objectFit: 'contain' }}
+              className={styles.logoImage}
               priority
             />
           </Link>
@@ -137,8 +139,8 @@ export const Sidebar = () => {
           </button>
         </div>
 
+        {/* Navigation Section */}
         <nav className={styles.navigation}>
-          {/* Desktop: afficher tous les éléments */}
           <div className={styles.desktopMenu}>
             {menuItems.map((item) => (
               <Link
@@ -150,7 +152,7 @@ export const Sidebar = () => {
                 title={item.description}
               >
                 <span className={styles.icon}>
-                  {<item.icon className={styles.menuIcon} size={24} />}
+                  {<item.icon className={styles.menuIcon} size={18} />}
                 </span>
                 {!isCollapsed && (
                   <div className={styles.navContent}>
@@ -162,62 +164,57 @@ export const Sidebar = () => {
                 )}
               </Link>
             ))}
-            <div className={`${styles.navItem} ${styles.accessibilityNavItem}`} data-tutorial="accessibility">
-              <AccessibilityMenu />
-            </div>
-          </div>
-
-          {/* Mobile: afficher les éléments prioritaires + bouton + */}
-          <div className={styles.mobileMenu}>
-            {primaryItems.map((item) => (
-              <Link
-                key={item.path}
-                href={item.path}
-                className={`${styles.navItem} ${
-                  basePath?.includes(item.path) ? styles.active : ''
-                }`}
-                title={item.description}
-              >
-                <span className={styles.icon}>
-                  {<item.icon className={styles.menuIcon} size={20} />}
-                </span>
-                <div className={styles.navContent}>
-                  <span className={styles.title}>{item.title}</span>
-                </div>
-              </Link>
-            ))}
-
-            {/* Bouton + pour afficher plus d'options */}
-            <button
-              onClick={toggleMobileMenu}
-              className={`${styles.navItem} ${styles.moreButton}`}
-              title="Plus d'options"
-            >
-              <span className={styles.icon}>
-                <Plus className={styles.plusIcon} size={24} />
-              </span>
-              <div className={styles.navContent}>
-                <span className={styles.title}>Plus</span>
-              </div>
-            </button>
           </div>
         </nav>
 
+        {/* Footer Section */}
         <div className={styles.sidebarFooter}>
           <div className={styles.footerContent}>
-            <button 
+            <Button
+              variant="outline"
               onClick={logout}
               className={styles.logoutButton}
               title="Se déconnecter"
             >
-              <span className={styles.icon}>
-                <LogOut className={styles.menuIcon} size={24} />
-              </span>
+              <LogOut className={styles.menuIcon} size={16} />
               {!isCollapsed && <span>Se déconnecter</span>}
-            </button>
+            </Button>
           </div>
         </div>
       </aside>
+
+      {/* Mobile Bottom Navigation */}
+      <nav className={styles.mobileBottomNav}>
+        <div className={styles.mobileNavContainer}>
+          {primaryItems.map((item) => (
+            <Link
+              key={item.path}
+              href={item.path}
+              className={`${styles.mobileNavItem} ${
+                basePath?.includes(item.path) ? styles.active : ''
+              }`}
+              title={item.title}
+            >
+              <span className={styles.mobileIcon}>
+                {<item.icon className={styles.mobileMenuIcon} size={20} />}
+              </span>
+              <span className={styles.mobileTitle}>{item.title}</span>
+            </Link>
+          ))}
+
+          {/* Bouton Plus pour menu complet */}
+          <button
+            onClick={toggleMobileMenu}
+            className={`${styles.mobileNavItem} ${styles.mobileMoreButton}`}
+            title="Plus d'options"
+          >
+            <span className={styles.mobileIcon}>
+              <Plus className={styles.mobileMenuIcon} size={20} />
+            </span>
+            <span className={styles.mobileTitle}>Plus</span>
+          </button>
+        </div>
+      </nav>
 
       {/* Menu mobile popup */}
       {showMobileMenu && (
@@ -240,7 +237,7 @@ export const Sidebar = () => {
                 onClick={toggleMobileMenu}
               >
                 <span className={styles.icon}>
-                  <Home className={styles.menuIcon} size={20} />
+                  <Home className={styles.menuIcon} size={18} />
                 </span>
                 <div className={styles.mobileMenuItemContent}>
                   <span className={styles.title}>Accueil</span>
@@ -259,7 +256,7 @@ export const Sidebar = () => {
                   onClick={toggleMobileMenu}
                 >
                   <span className={styles.icon}>
-                    {<item.icon className={styles.menuIcon} size={20} />}
+                    {<item.icon className={styles.menuIcon} size={18} />}
                   </span>
                   <div className={styles.mobileMenuItemContent}>
                     <span className={styles.title}>{item.title}</span>
@@ -267,31 +264,19 @@ export const Sidebar = () => {
                   </div>
                 </Link>
               ))}
-
-              {/* Menu d'accessibilité */}
-              <div className={styles.mobileMenuAccessibility}>
-                <div className={styles.mobileMenuItemContent}>
-                  <span className={styles.title}>Accessibilité</span>
-                  <span className={styles.description}>Options d'accessibilité</span>
-                </div>
-                <div className={styles.accessibilityWrapper}>
-                  <AccessibilityMenu />
-                </div>
-              </div>
               
               <div className={styles.mobileMenuFooter}>
-                <button 
+                <Button
+                  variant="outline"
                   onClick={() => {
                     logout();
                     toggleMobileMenu();
                   }}
                   className={styles.mobileLogoutButton}
                 >
-                  <span className={styles.icon}>
-                    <LogOut className={styles.menuIcon} size={20} />
-                  </span>
+                  <LogOut className={styles.menuIcon} size={18} />
                   <span>Se déconnecter</span>
-                </button>
+                </Button>
               </div>
             </div>
           </div>

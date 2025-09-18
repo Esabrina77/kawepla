@@ -7,12 +7,7 @@ import { authApi } from '@/lib/api/auth';
 export default function AuthLayout({ children }: { children: React.ReactNode }) {
   const router = useRouter();
 
-  useEffect(() => {
-    // Rediriger vers le dashboard si l'utilisateur est déjà connecté
-    if (authApi.isAuthenticated()) {
-      router.push('/dashboard');
-    }
-  }, [router]);
+ 
 
   return (
     <div className="min-h-screen bg-white-cream">

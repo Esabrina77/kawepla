@@ -2,34 +2,38 @@ export type Guest = {
   id: string;
   firstName: string;
   lastName: string;
-  email: string;
+  email?: string;
   phone?: string;
-  profilePhotoUrl?: string; // URL de la photo de profil Firebase Storage
-  status: 'pending' | 'confirmed' | 'declined';
-  token: string;
+  profilePhotoUrl?: string;
+  isVIP: boolean;
   dietaryRestrictions?: string;
-  isVIP?: boolean;
-  plusOne?: boolean;
+  plusOne: boolean;
   plusOneName?: string;
-  invitationSentAt?: string;
+  inviteToken: string;
   usedAt?: string;
+  invitationSentAt?: string;
+  createdAt: Date;
+  updatedAt: Date;
+  invitationType: 'PERSONAL' | 'SHAREABLE';
+  sharedLinkUsed: boolean;
+  userId: string;
+  invitationId: string;
   rsvp?: {
     id: string;
     status: 'PENDING' | 'CONFIRMED' | 'DECLINED';
-    numberOfGuests: number;
-    dietaryRestrictions?: string;
     message?: string;
+    attendingCeremony?: boolean;
+    attendingReception?: boolean;
+    respondedAt?: string;
     createdAt: string;
     updatedAt: string;
   };
-  createdAt: Date;
-  updatedAt: Date;
 };
 
 export type Design = {
   id: string;
   name: string;
-  description: string;
+  description?: string;
   category?: string;
   tags?: string[];
   isPremium: boolean;
@@ -43,10 +47,10 @@ export type Design = {
   styles: {
     base: Record<string, any>;
     components: Record<string, any>;
-    animations: Record<string, any>;
+    animations?: Record<string, any>;
   };
   variables: {
-    colors: Record<string, string>;
+    colors: Record<string, string | undefined>;
     typography: Record<string, any>;
     spacing: Record<string, string>;
   };
@@ -54,7 +58,7 @@ export type Design = {
   updatedAt: string;
 };
 
-export type WeddingConfig = {
+export type eventConfig = {
   id: string;
   designId: string;
   brideFirstName: string;
@@ -83,7 +87,7 @@ export type WeddingConfig = {
   languages?: string[];
 };
 
-export type PlanTier = 'FREE' | 'ESSENTIAL' | 'ELEGANT' | 'PREMIUM' | 'LUXE';
+export type PlanTier = 'basic' | 'standard' | 'premium';
 
 export type Statistics = {
   totalGuests: number;
@@ -99,9 +103,9 @@ export interface User {
   email: string;
   firstName?: string;
   lastName?: string;
-  role: 'COUPLE' | 'GUEST' | 'ADMIN';
-  subscriptionTier?: string;
-  subscriptionEndDate?: string;
+  role: 'HOST' | 'GUEST' | 'ADMIN' | 'PROVIDER'; // HOST remplace organisateur
+  serviceTier?: string;
+  purchasedAt?: string;
   isActive: boolean;
   emailVerified: boolean;
   createdAt: string;
@@ -154,22 +158,20 @@ export interface Program {
 
 export interface Invitation {
   id: string;
-  title: string;
-  description: string;
-  weddingDate: string;
-  ceremonyTime: string;
-  receptionTime: string;
-  venueName: string;
-  venueAddress: string;
-  venueCoordinates: string;
-  customDomain: string | null;
+  // NOUVELLE ARCHITECTURE SIMPLIFIÉE
+  eventTitle: string;       // "Emma & Lucas" ou "Anniversaire de Marie"
+  eventDate: string;        // Date de l'événement
+  eventTime?: string;       // "15h00" (optionnel)
+  location: string;         // "Château de la Roseraie, Paris"
+  eventType: 'event' | 'BIRTHDAY' | 'BAPTISM' | 'ANNIVERSARY' | 'GRADUATION' | 'BABY_SHOWER' | 'ENGAGEMENT' | 'COMMUNION' | 'CONFIRMATION' | 'RETIREMENT' | 'HOUSEWARMING' | 'CORPORATE' | 'OTHER';
+  customText?: string;      // Texte libre personnalisable
+  moreInfo?: string;        // Informations supplémentaires
+  
+  // Champs techniques conservés
+  description?: string;
   status: 'DRAFT' | 'PUBLISHED' | 'ARCHIVED';
-  theme: Theme;
-  photos: Photo[];
-  program: Program;
-  restrictions: string;
+  photos: string[];         // URLs des photos
   languages: string[];
-  maxGuests: number;
   createdAt: string;
   updatedAt: string;
   userId: string;
@@ -181,7 +183,6 @@ export interface RSVPMessage {
   id: string;
   message: string;
   status: 'PENDING' | 'CONFIRMED' | 'DECLINED';
-  numberOfGuests: number;
   attendingCeremony: boolean;
   attendingReception: boolean;
   respondedAt: string | null;
@@ -191,10 +192,148 @@ export interface RSVPMessage {
     firstName: string;
     lastName: string;
     email: string;
+    phone?: string;
+    plusOne: boolean;
+    plusOneName?: string;
+    dietaryRestrictions?: string;
+    profilePhotoUrl?: string;
   };
   invitation: {
     id: string;
-    title: string;
+    eventTitle: string;     // Nouveau champ
+    eventType: string;      // Type d'événement
     createdAt: string;
   };
+}
+
+// NOUVEAU V1: Types pour les prestataires
+export interface ServiceCategory {
+  id: string;
+  name: string;
+  description?: string;
+  icon?: string;
+  color?: string;
+}
+
+export interface ProviderProfile {
+  id: string;
+  businessName: string;
+  categoryId: string;
+  description: string;
+  // GÉOLOCALISATION V1
+  latitude: number;
+  longitude: number;
+  serviceRadius: number;
+  displayCity: string;
+  // CONTACT
+  phone: string;
+  // PHOTOS
+  profilePhoto?: string;
+  portfolio: string[];
+  // STATUT V1 (auto-approuvé)
+  status: 'PENDING' | 'APPROVED' | 'REJECTED' | 'SUSPENDED';
+  verifiedAt: string;
+  // STRIPE CONNECT V1
+  stripeAccountId?: string;
+  stripeOnboarded: boolean;
+  commissionRate: number;
+  // MÉTRIQUES
+  rating: number;
+  reviewCount: number;
+  bookingCount: number;
+  totalEarnings: number;
+  distance?: number; // Distance calculée pour la recherche géolocalisée
+  createdAt: string;
+  updatedAt: string;
+  category: ServiceCategory;
+  user: {
+    id: string;
+    firstName: string;
+    lastName: string;
+    email: string;
+  };
+}
+
+export interface CreateProviderProfileDto {
+  businessName: string;
+  categoryId: string;
+  description: string;
+  // GÉOLOCALISATION V1
+  latitude: number;
+  longitude: number;
+  serviceRadius?: number;
+  displayCity: string;
+  // CONTACT OBLIGATOIRE V1
+  phone: string;
+  // PHOTOS FIREBASE V1
+  profilePhoto?: string;
+  portfolio?: string[];
+}
+
+export interface ServiceDto {
+  id: string;
+  name: string;
+  description: string;
+  shortDescription?: string;
+  price: number;
+  priceType: 'hourly' | 'daily' | 'fixed' | 'package';
+  currency: string;
+  minPrice?: number;
+  maxPrice?: number;
+  duration?: number;
+  capacity?: number;
+  includes: string[];
+  requirements: string[];
+  photos: string[];
+  eventTypes: string[]; // Types d'événements supportés
+  isActive: boolean;
+  rating: number;
+  reviewCount: number;
+  bookingCount: number;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface BookingDto {
+  id: string;
+  serviceId: string;
+  eventDate: string;
+  eventTime?: string;
+  eventType: string;
+  clientName: string;
+  clientPhone: string;
+  clientEmail: string;
+  guestCount?: number;
+  message?: string;
+  status: 'PENDING' | 'CONFIRMED' | 'CANCELLED' | 'COMPLETED' | 'DISPUTED';
+  totalPrice: number;
+  ourCommission: number;
+  providerAmount: number;
+  stripePaymentIntentId?: string;
+  confirmedAt?: string;
+  paidAt?: string;
+  createdAt: string;
+  service: {
+    id: string;
+    name: string;
+    price: number;
+  };
+  provider: {
+    id: string;
+    businessName: string;
+    phone: string;
+  };
+}
+
+// NOUVEAU V1: Types pour recherche géolocalisée
+export interface GeoSearchParams {
+  latitude: number;
+  longitude: number;
+  radius?: number;
+  categoryId?: string;
+  eventType?: string;
+  minRating?: number;
+  maxPrice?: number;
+  limit?: number;
+  offset?: number;
 } 

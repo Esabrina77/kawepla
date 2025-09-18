@@ -37,7 +37,7 @@ export interface Conversation {
   invitation?: {
     id: string;
     title: string;
-    coupleName: string;
+    organisateurName: string;
   };
   messages: Message[];
   _count?: {

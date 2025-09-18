@@ -1,5 +1,5 @@
 import React, { useState, useRef } from 'react';
-import { Button } from '@/components/Button/Button';
+import { Button } from '@/components/ui/button';
 import { uploadToFirebase, deleteFromFirebase } from '@/lib/firebase';
 import imageCompression from 'browser-image-compression';
 import styles from './GuestProfilePhotoUpload.module.css';
@@ -57,7 +57,7 @@ export default function GuestProfilePhotoUpload({
       }
 
       // Uploader la nouvelle photo
-      const fileName = `guest-photos/${Date.now()}-${Math.random().toString(36).substring(2)}.jpg`;
+      const fileName = `guest-photos/profile/${Date.now()}-${Math.random().toString(36).substring(2)}.jpg`;
       const downloadURL = await uploadToFirebase(compressedFile, fileName);
 
       onPhotoChange(downloadURL);
@@ -127,7 +127,6 @@ export default function GuestProfilePhotoUpload({
           <Button
             type="button"
             variant="outline"
-            size="small"
             onClick={() => fileInputRef.current?.click()}
             disabled={disabled || uploading}
           >
@@ -138,7 +137,6 @@ export default function GuestProfilePhotoUpload({
             <Button
               type="button"
               variant="outline"
-              size="small"
               onClick={handleRemovePhoto}
               disabled={disabled || uploading}
             >
@@ -156,8 +154,8 @@ export default function GuestProfilePhotoUpload({
       )}
       
       <div className={styles.info}>
-        <p>📸 Ajoutez votre photo pour que les mariés puissent vous reconnaître</p>
-        <p>🔒 Votre photo sera visible uniquement par les mariés</p>
+        <p>📸 Ajoutez votre photo pour que les organisateurs puissent vous reconnaître</p>
+        <p>🔒 Votre photo sera visible uniquement par les organisateurs</p>
       </div>
     </div>
   );

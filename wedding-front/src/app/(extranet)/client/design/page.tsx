@@ -4,8 +4,18 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useDesigns } from '@/hooks/useDesigns';
 import { Design } from '@/types';
-import styles from './design.module.css';
 import { TemplateEngine } from '@/lib/templateEngine';
+import { 
+  Palette, 
+  Search, 
+  Filter, 
+  Eye, 
+  CheckCircle, 
+  Sparkles,
+  Crown,
+  Star
+} from 'lucide-react';
+import styles from './design.module.css';
 
 export default function ClientDesignPage() {
   const router = useRouter();
@@ -25,7 +35,7 @@ export default function ClientDesignPage() {
 
   // Données d'exemple pour les prévisualisations
   const miniPreviewData = {
-    coupleName: "A & B",
+    organisateurName: "A & B",
     day: "15",
     month: "Juin",
     year: "2024"
@@ -76,41 +86,75 @@ export default function ClientDesignPage() {
     }
   };
 
-  if (loading) return <div className={styles.loading}>Chargement des designs...</div>;
-  if (error) return <div className={styles.error}>Erreur: {error}</div>;
+  if (loading) {
+    return (
+      <div className={styles.loadingContainer}>
+        <div style={{ textAlign: 'center' }}>
+          <div className={styles.loadingSpinner}></div>
+          <p>Chargement des designs...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className={styles.errorContainer}>
+        <div style={{ textAlign: 'center' }}>
+          <p>Erreur: {error}</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className={styles.designPage}>
-      <div className={styles.header}>
-        <h1>Choisir un Design</h1>
-        <p>
+      {/* Header Section */}
+      <div className={styles.headerSection}>
+        <div className={styles.badge}>
+          <Palette style={{ width: '16px', height: '16px' }} />
+          {returnTo === 'invitations' ? 'Sélection de design' : 'Galerie de designs'}
+        </div>
+        
+        <h1 className={styles.title}>
+          Nos <span className={styles.titleAccent}>design</span>
+        </h1>
+        
+        <p className={styles.subtitle}>
           {returnTo === 'invitations' 
-            ? 'Sélectionnez le design pour votre invitation de mariage' 
-            : 'Sélectionnez le design parfait pour votre invitation de mariage'
+            ? 'Sélectionnez le design parfait pour votre invitation d\'événement' 
+            : 'Découvrez notre collection de designs élégants et personnalisables'
           }
         </p>
+
         {returnTo === 'invitations' && (
           <div className={styles.returnInfo}>
-            <p>👈 Vous serez redirigé vers la création d'invitation après avoir choisi un design</p>
+            <p>
+              👈 Vous serez redirigé vers la création d'invitation après avoir choisi un design
+            </p>
           </div>
         )}
       </div>
 
       {/* Filtres */}
-      <div className={styles.filters}>
-        <div className={styles.searchBar}>
+      <div className={styles.filtersContainer}>
+        <div className={styles.searchContainer}>
+          <Search className={styles.searchIcon} />
           <input
             type="text"
-            placeholder="Rechercher..."
+            placeholder="Rechercher un design..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
+            className={styles.searchInput}
           />
         </div>
 
-        <div className={styles.filterSelect}>
+        <div className={styles.filterContainer}>
+          <Filter className={styles.filterIcon} />
           <select
             value={selectedFilter}
             onChange={(e) => setSelectedFilter(e.target.value)}
+            className={styles.filterSelect}
           >
             {filterOptions.map(option => (
               <option key={option.value} value={option.value}>
@@ -122,66 +166,85 @@ export default function ClientDesignPage() {
       </div>
 
       {/* Grille des designs */}
-      <div className={styles.designGrid}>
+      <div className={styles.designsGrid}>
         {filteredDesigns.map((design) => (
           <div key={design.id} className={styles.designCard}>
-            <div className={styles.designPreview}>
-              <div className={styles.mockupContainer}>
-                <div className={styles.mockup}>
-                  {design.template && design.styles && design.variables ? (
-                    <div 
-                      dangerouslySetInnerHTML={{
-                        __html: new TemplateEngine().render(design, {
-                          coupleName: "A & B",
-                          date: "2024",
-                          details: "Lieu",
-                          message: "Invitation",
-                          rsvpForm: "RSVP"
-                        })
-                      }}
-                    />
-                  ) : (
-                    <div className={styles.placeholderPreview}>
-                      <h3>{design.name}</h3>
-                      <p>Aperçu non disponible</p>
-                    </div>
-                  )}
-                </div>
+            {/* Badge Premium */}
+            {design.isPremium && (
+              <div className={styles.premiumBadge}>
+                <Crown style={{ width: '12px', height: '12px' }} />
+                Premium
               </div>
+            )}
+
+            {/* Preview */}
+            <div className={styles.previewContainer}>
+              {design.template && design.styles && design.variables ? (
+                <div 
+                  className={styles.previewContent}
+                  dangerouslySetInnerHTML={{
+                    __html: new TemplateEngine().render(design, {
+                      eventTitle: "Emma & Lucas",
+                      eventDate: new Date('2025-06-14T15:00:00'),
+                      eventTime: "15h00",
+                      location: "Château de la Roseraie, Paris",
+                      eventType: "event",
+                      customText: "Ont le plaisir de vous inviter à célébrer leur événement.",
+                      moreInfo: "cérémonie suivie d'un cocktail et dîner."
+                    })
+                  }}
+                />
+              ) : (
+                <div className={styles.previewPlaceholder}>
+                  <Palette style={{ width: '48px', height: '48px', marginBottom: 'var(--space-sm)' }} />
+                  <h3>{design.name}</h3>
+                  <p>Aperçu non disponible</p>
+                </div>
+              )}
             </div>
             
+            {/* Info */}
             <div className={styles.designInfo}>
-              <h3>{design.name}</h3>
-              <p>{design.description}</p>
+              <h3 className={styles.designTitle}>
+                {design.name}
+              </h3>
+              
+              <p className={styles.designDescription}>
+                {design.description}
+              </p>
               
               {design.category && (
-                <span className={styles.category}>{design.category}</span>
+                <span className={styles.categoryBadge}>
+                  {design.category}
+                </span>
               )}
               
               {design.tags && design.tags.length > 0 && (
-                <div className={styles.tags}>
+                <div className={styles.tagsContainer}>
                   {design.tags.map(tag => (
-                    <span key={tag} className={styles.tag}>{tag}</span>
+                    <span key={tag} className={styles.tag}>
+                      {tag}
+                    </span>
                   ))}
                 </div>
               )}
               
-              {design.isPremium && (
-                <span className={styles.premium}>Premium</span>
-              )}
-              
-              <div className={styles.actions}>
+              {/* Actions */}
+              <div className={styles.actionsContainer}>
                 <button
-                  className={styles.previewButton}
                   onClick={() => handlePreviewClick(design.id)}
+                  className={styles.previewButton}
                 >
+                  <Eye style={{ width: '14px', height: '14px' }} />
                   Aperçu
                 </button>
+                
                 {returnTo === 'invitations' && (
                   <button
-                    className={styles.chooseButton}
                     onClick={() => handleChooseDesign(design.id)}
+                    className={styles.chooseButton}
                   >
+                    <CheckCircle style={{ width: '14px', height: '14px' }} />
                     Choisir ce design
                   </button>
                 )}
@@ -190,6 +253,15 @@ export default function ClientDesignPage() {
           </div>
         ))}
       </div>
+
+      {/* Empty State */}
+      {filteredDesigns.length === 0 && (
+        <div className={styles.emptyState}>
+          <Palette style={{ width: '64px', height: '64px', marginBottom: 'var(--space-md)' }} />
+          <h3>Aucun design trouvé</h3>
+          <p>Essayez de modifier vos critères de recherche</p>
+        </div>
+      )}
     </div>
   );
 } 

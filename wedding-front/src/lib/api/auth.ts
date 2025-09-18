@@ -1,134 +1,115 @@
-import { LoginCredentials, RegisterData, TokenResponse, User } from '@/types';
 import { apiClient } from './apiClient';
+import { User, TokenResponse, LoginCredentials, RegisterData } from '@/types';
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3013';
+// Types pour l'auth V1 (avec support provider)
+export interface RegisterProviderData extends RegisterData {
+  role: 'HOST' | 'PROVIDER';
+  // Champs spécifiques aux prestataires (optionnels à l'inscription)
+  businessName?: string;
+  description?: string;
+  phone?: string;
+  city?: string;
+  postalCode?: string;
+}
 
-const setCookie = (name: string, value: string, days = 7) => {
-  const expires = new Date(Date.now() + days * 864e5).toUTCString();
-  document.cookie = `${name}=${encodeURIComponent(value)}; expires=${expires}; path=/; SameSite=Lax; secure=${window.location.protocol === 'https:'}`;
-  console.log(`Cookie ${name} set:`, value);
-};
+export interface EmailVerificationData {
+  email: string;
+  code: string;
+}
+
+export interface ForgotPasswordData {
+  email: string;
+}
+
+export interface ResetPasswordData {
+  token: string;
+  password: string;
+}
 
 export const authApi = {
+  // INSCRIPTION (HOST ou PROVIDER)
+  async register(data: RegisterProviderData): Promise<{ 
+    message: string; 
+    user: User; 
+    isProvider?: boolean 
+  }> {
+    return apiClient.post<{ 
+      message: string; 
+      user: User; 
+      isProvider?: boolean 
+    }>('/auth/register', data);
+  },
+
+  // CONNEXION
   async login(credentials: LoginCredentials): Promise<TokenResponse> {
-    const apiUrl = `${API_URL}/api/auth/login`;
-    console.log('Sending login request to:', apiUrl);
-    const response = await fetch(apiUrl, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(credentials),
-      credentials: 'include'
-    });
-
-    if (!response.ok) {
-      const error = await response.json();
-      throw new Error(error.message || 'Erreur lors de la connexion');
-    }
-
-    const data = await response.json();
-    console.log('Login response:', data);
-    
-    // Stockage sécurisé des informations
-    if (data.accessToken) {
-      setCookie('token', data.accessToken);
-    } else {
-      console.error('No accessToken in response');
-    }
-    
-    if (data.user) {
-      setCookie('user', JSON.stringify(data.user));
-    } else {
-      console.error('No user in response');
-    }
-
-    return data;
+    return apiClient.post<TokenResponse>('/auth/login', credentials);
   },
 
-  async register(data: RegisterData): Promise<TokenResponse> {
-    const apiUrl = `${API_URL}/api/auth/register`;
-    const response = await fetch(apiUrl, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(data),
-      credentials: 'include'
-    });
-
-    if (!response.ok) {
-      const error = await response.json();
-      throw new Error(error.message || 'Erreur lors de l\'inscription');
-    }
-
-    const authData = await response.json();
-    
-    if (authData.accessToken) {
-      setCookie('token', authData.accessToken);
-    }
-    
-    if (authData.user) {
-      setCookie('user', JSON.stringify(authData.user));
-    }
-
-    return authData;
+  // VÉRIFICATION EMAIL
+  async sendVerificationCode(email: string): Promise<{ message: string }> {
+    return apiClient.post<{ message: string }>('/auth/send-verification-code', { email });
   },
 
-  async forgotPassword(email: string): Promise<void> {
-    await apiClient.post('/auth/forgot-password', { email });
+  async verifyEmail(data: EmailVerificationData): Promise<{ message: string; user: User }> {
+    return apiClient.post<{ message: string; user: User }>('/auth/verify-email', data);
   },
 
-  async verifyResetToken(token: string): Promise<void> {
-    await apiClient.post('/auth/verify-reset-token', { token });
+  // RÉINITIALISATION MOT DE PASSE
+  async forgotPassword(data: ForgotPasswordData): Promise<{ message: string }> {
+    return apiClient.post<{ message: string }>('/auth/forgot-password', data);
   },
 
-  async resetPassword(token: string, password: string): Promise<void> {
-    await apiClient.post('/auth/reset-password', { token, password });
+  async verifyResetToken(token: string): Promise<{ valid: boolean; message: string }> {
+    return apiClient.post<{ valid: boolean; message: string }>('/auth/verify-reset-token', { token });
   },
 
-  getToken(): string | null {
-    if (typeof window === 'undefined') return null;
-    const match = document.cookie.match(new RegExp('(^| )token=([^;]+)'));
-    if (!match) return null;
-    try {
-      return decodeURIComponent(match[2]);
-    } catch {
-      return null;
+  async resetPassword(data: ResetPasswordData): Promise<{ message: string }> {
+    return apiClient.post<{ message: string }>('/auth/reset-password', data);
+  },
+
+  // UTILITAIRES
+  logout(): void {
+    if (typeof window !== 'undefined') {
+      localStorage.removeItem('token');
+      localStorage.removeItem('user');
     }
   },
 
-  getUser(): User | null {
-    if (typeof window === 'undefined') return null;
-    const match = document.cookie.match(new RegExp('(^| )user=([^;]+)'));
-    if (!match) return null;
-    try {
-      return JSON.parse(decodeURIComponent(match[2]));
-    } catch {
-      return null;
-    }
-  },
-
-  async fetchUser(): Promise<User | null> {
-    try {
-      const response = await apiClient.get('/users/profile') as User;
-      if (response && response.id) {
-        setCookie('user', JSON.stringify(response));
-        return response;
+  getCurrentUser(): User | null {
+    if (typeof window !== 'undefined') {
+      const userStr = localStorage.getItem('user');
+      if (userStr) {
+        try {
+          return JSON.parse(userStr);
+        } catch {
+          return null;
+        }
       }
-      return null;
-    } catch (error) {
-      console.error('Error fetching user:', error);
-      return null;
     }
+    return null;
   },
 
   isAuthenticated(): boolean {
-    return !!this.getToken();
+    if (typeof window !== 'undefined') {
+      const token = localStorage.getItem('token');
+      const user = this.getCurrentUser();
+      return !!(token && user);
+    }
+    return false;
   },
 
-  async logout() {
-    document.cookie = 'token=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/';
-    document.cookie = 'user=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/';
+  isProvider(): boolean {
+    const user = this.getCurrentUser();
+    return user?.role === 'PROVIDER';
+  },
+
+  isHost(): boolean {
+    const user = this.getCurrentUser();
+    return user?.role === 'HOST';
+  },
+
+  isAdmin(): boolean {
+    const user = this.getCurrentUser();
+    return user?.role === 'ADMIN';
   }
-}; 
+};

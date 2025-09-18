@@ -1,7 +1,7 @@
 .messageContainer {
   display: flex;
   flex-direction: column;
-  margin-bottom: 12px;
+  margin-bottom: var(--space-sm);
   max-width: 70%;
   word-wrap: break-word;
 }
@@ -17,119 +17,119 @@
 }
 
 .sender {
-  font-size: 12px;
-  color: #8696a0;
-  margin-bottom: 4px;
-  padding-left: 12px;
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+  margin-bottom: var(--space-xs);
+  padding-left: var(--space-sm);
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: var(--space-xs);
 }
 
 .adminBadge {
-  background: #25d366;
-  color: white;
-  padding: 2px 6px;
-  border-radius: 10px;
-  font-size: 10px;
+  background: var(--luxury-champagne-gold);
+  color: var(--luxury-velvet-black);
+  padding: 2px var(--space-xs);
+  border-radius: var(--radius-sm);
+  font-size: 0.625rem;
   font-weight: 500;
 }
 
 .bubble {
   position: relative;
-  padding: 8px 12px;
-  border-radius: 18px;
+  padding: var(--space-xs) var(--space-sm);
+  border-radius: var(--radius-lg);
   max-width: 100%;
   word-wrap: break-word;
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+  box-shadow: var(--shadow-sm);
 }
 
 .ownBubble {
-  background: #d9fdd3;
-  color: #111b21;
-  border-bottom-right-radius: 4px;
+  background: var(--luxury-champagne-gold);
+  color: var(--luxury-velvet-black);
+  border-bottom-right-radius: var(--radius-xs);
 }
 
 .otherBubble {
-  background: #ffffff;
-  color: #111b21;
-  border-bottom-left-radius: 4px;
+  background: var(--bg-card);
+  color: var(--text-primary);
+  border-bottom-left-radius: var(--radius-xs);
 }
 
 .content {
-  margin-bottom: 4px;
+  margin-bottom: var(--space-xs);
 }
 
 .text {
   margin: 0;
-  font-size: 14px;
+  font-size: 0.875rem;
   line-height: 1.4;
   white-space: pre-wrap;
 }
 
 .systemMessage {
   margin: 0;
-  font-size: 13px;
+  font-size: 0.8rem;
   font-style: italic;
-  color: #8696a0;
+  color: var(--text-secondary);
   text-align: center;
 }
 
 .imageMessage {
-  margin: -8px -12px 4px -12px;
+  margin: calc(-1 * var(--space-xs)) calc(-1 * var(--space-sm)) var(--space-xs) calc(-1 * var(--space-sm));
 }
 
 .image {
   width: 100%;
   max-width: 300px;
   height: auto;
-  border-radius: 12px;
+  border-radius: var(--radius-md);
   display: block;
 }
 
 .fileMessage {
   display: flex;
   align-items: center;
-  gap: 8px;
-  padding: 8px;
-  background: rgba(0, 0, 0, 0.05);
-  border-radius: 8px;
-  margin: -4px -6px 4px -6px;
+  gap: var(--space-xs);
+  padding: var(--space-xs);
+  background: var(--bg-secondary);
+  border-radius: var(--radius-sm);
+  margin: calc(-1 * var(--space-xs)) calc(-1 * var(--space-xs)) var(--space-xs) calc(-1 * var(--space-xs));
 }
 
 .fileIcon {
-  font-size: 20px;
+  font-size: 1.25rem;
 }
 
 .fileName {
-  font-size: 14px;
-  color: #111b21;
+  font-size: 0.875rem;
+  color: var(--text-primary);
 }
 
 .messageInfo {
   display: flex;
   align-items: center;
   justify-content: flex-end;
-  gap: 4px;
+  gap: var(--space-xs);
   margin-top: 2px;
 }
 
 .time {
-  font-size: 11px;
-  color: #8696a0;
+  font-size: 0.7rem;
+  color: var(--text-secondary);
 }
 
 .readStatus {
-  font-size: 12px;
+  font-size: 0.75rem;
   font-weight: bold;
 }
 
 .readStatus.sent {
-  color: #8696a0;
+  color: var(--text-secondary);
 }
 
 .readStatus.read {
-  color: #25d366;
+  color: var(--alert-success);
 }
 
 /* Responsive */
@@ -139,10 +139,10 @@
   }
   
   .bubble {
-    padding: 6px 10px;
+    padding: var(--space-xs) var(--space-sm);
   }
   
   .text {
-    font-size: 13px;
+    font-size: 0.8rem;
   }
 } 

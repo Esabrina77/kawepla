@@ -2,55 +2,71 @@
 
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '@/hooks/useAuth';
-import { stripeApi, SubscriptionPlan, AdditionalService } from '@/lib/api/stripe';
+import { stripeApi, ServicePurchasePlan, AdditionalService } from '@/lib/api/stripe';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { useToast } from '@/components/ui/toast';
-import { ConfirmModal } from '@/components/ui/modal';
+import { ConfirmModal, SuccessModal, ErrorModal } from '@/components/ui/modal';
 import { 
   CreditCard, 
-  Calendar, 
   Users, 
   Image, 
   Mail, 
-  TrendingUp,
   CheckCircle,
   AlertCircle,
   Crown,
   ExternalLink,
-  Plus,
-  Package,
-  Sparkles
+  Clock
 } from 'lucide-react';
+import Link from 'next/link';
 import styles from './billing.module.css';
 
 export default function BillingPage() {
-  const { user, refreshUser } = useAuth();
-  const { addToast } = useToast();
+  const { user } = useAuth();
   const [userLimits, setUserLimits] = useState<any>(null);
-  const [availablePlans, setAvailablePlans] = useState<SubscriptionPlan[]>([]);
+  const [activePurchases, setActivePurchases] = useState<any>(null);
+  const [availablePlans, setAvailablePlans] = useState<ServicePurchasePlan[]>([]);
   const [additionalServices, setAdditionalServices] = useState<AdditionalService[]>([]);
   const [loading, setLoading] = useState(true);
   const [upgrading, setUpgrading] = useState(false);
   const [purchasingService, setPurchasingService] = useState<string | null>(null);
   
-  // Modal state
+  // Modal states
   const [confirmModal, setConfirmModal] = useState<{
     isOpen: boolean;
-    plan: SubscriptionPlan | null;
+    plan: ServicePurchasePlan | null;
   }>({
     isOpen: false,
     plan: null
   });
 
-  // Service modal state
   const [serviceModal, setServiceModal] = useState<{
     isOpen: boolean;
     service: AdditionalService | null;
   }>({
     isOpen: false,
     service: null
+  });
+
+  // Success and Error modals
+  const [successModal, setSuccessModal] = useState<{
+    isOpen: boolean;
+    title: string;
+    message: string;
+  }>({
+    isOpen: false,
+    title: '',
+    message: ''
+  });
+
+  const [errorModal, setErrorModal] = useState<{
+    isOpen: boolean;
+    title: string;
+    message: string;
+  }>({
+    isOpen: false,
+    title: '',
+    message: ''
   });
 
   useEffect(() => {
@@ -65,8 +81,8 @@ export default function BillingPage() {
     if (success === 'true' && planId) {
       handlePaymentReturn(planId);
     } else if (canceled === 'true') {
-      addToast({
-        type: 'info',
+      setErrorModal({
+        isOpen: true,
         title: 'Paiement annulé',
         message: 'Vous avez annulé le processus de paiement.'
       });
@@ -81,23 +97,26 @@ export default function BillingPage() {
   const loadBillingData = async () => {
     try {
       console.log('🔍 Loading billing data...');
-      const [limits, plans, services] = await Promise.all([
+      const [limits, activePurchasesData, plans, services] = await Promise.all([
         stripeApi.getUserLimitsAndUsage(),
+        stripeApi.getActivePurchases(),
         stripeApi.getPlans(),
         stripeApi.getAdditionalServices()
       ]);
       
       console.log('✅ Limits loaded:', limits);
+      console.log('✅ Active purchases loaded:', activePurchasesData);
       console.log('✅ Plans loaded:', plans);
       console.log('✅ Additional services loaded:', services);
       
       setUserLimits(limits);
+      setActivePurchases(activePurchasesData);
       setAvailablePlans(plans);
       setAdditionalServices(services);
     } catch (error) {
       console.error('❌ Error loading billing data:', error);
-      addToast({
-        type: 'error',
+      setErrorModal({
+        isOpen: true,
         title: 'Erreur de chargement',
         message: 'Impossible de charger vos informations de facturation.'
       });
@@ -112,35 +131,32 @@ export default function BillingPage() {
       const result = await stripeApi.confirmPayment(planId);
       
       if (result.success) {
-        addToast({
-          type: 'success',
+        setSuccessModal({
+          isOpen: true,
           title: 'Paiement réussi !',
           message: result.message
         });
         
-        // Refresh user data to get updated subscription tier
-        await refreshUser();
-        
         // Refresh billing data
         await loadBillingData();
       } else {
-        addToast({
-          type: 'error',
+        setErrorModal({
+          isOpen: true,
           title: 'Erreur de paiement',
           message: result.message
         });
       }
     } catch (error) {
       console.error('❌ Error confirming payment:', error);
-      addToast({
-        type: 'error',
+      setErrorModal({
+        isOpen: true,
         title: 'Erreur de confirmation',
         message: 'Impossible de confirmer le paiement.'
       });
     }
   };
 
-  const handleUpgradeClick = (plan: SubscriptionPlan) => {
+  const handleUpgradeClick = (plan: ServicePurchasePlan) => {
     console.log('🔍 handleUpgradeClick called with plan:', plan);
     console.log('🔍 Setting modal state to open');
     setConfirmModal({
@@ -173,8 +189,8 @@ export default function BillingPage() {
       }
     } catch (error) {
       console.error('❌ Error creating checkout session:', error);
-      addToast({
-        type: 'error',
+      setErrorModal({
+        isOpen: true,
         title: 'Erreur de paiement',
         message: 'Impossible de créer la session de paiement.'
       });
@@ -213,8 +229,8 @@ export default function BillingPage() {
       window.location.href = result.url;
     } catch (error) {
       console.error('❌ Error processing service purchase:', error);
-      addToast({
-        type: 'error',
+      setErrorModal({
+        isOpen: true,
         title: 'Erreur d\'achat',
         message: 'Impossible d\'acheter le service supplémentaire.'
       });
@@ -247,22 +263,19 @@ export default function BillingPage() {
         window.location.href = result.url;
       } else if (result.success) {
         // Direct downgrade
-        addToast({
-          type: 'success',
+        setSuccessModal({
+          isOpen: true,
           title: 'Forfait modifié !',
           message: `Vous êtes maintenant sur le forfait ${result.plan?.name}.`
         });
-        
-        // Refresh user data to get updated subscription tier
-        await refreshUser();
         
         // Refresh billing data
         await loadBillingData();
       }
     } catch (error) {
       console.error('❌ Error changing plan:', error);
-      addToast({
-        type: 'error',
+      setErrorModal({
+        isOpen: true,
         title: 'Erreur de changement',
         message: 'Impossible de changer votre forfait.'
       });
@@ -281,237 +294,273 @@ export default function BillingPage() {
   };
 
   const getProgressColor = (percentage: number) => {
-    if (percentage >= 90) return 'var(--color-danger)';
-    if (percentage >= 70) return 'var(--color-warning)';
-    return 'var(--color-success)';
+    if (percentage >= 80) return '#dc3545'; // Rouge si critique (80%+)
+    if (percentage >= 50) return '#ffc107'; // Orange si dépassé la moitié (50%+)
+    return '#28a745'; // Vert si suffisant (<50%)
   };
 
   const getCurrentPlan = () => {
     return availablePlans.find(plan => plan.id === userLimits?.tier);
   };
 
-  const getOtherPlans = () => {
-    if (!userLimits) return [];
-    // Ne retourner que les plans plus chers que le forfait actuel
-    const currentPlan = getCurrentPlan();
-    return availablePlans.filter(plan => 
-      plan.id !== userLimits.tier && 
-      plan.price > (currentPlan?.price || 0)
-    );
+  const getAvailableForPurchase = () => {
+    // Retourner tous les plans payants (exclure FREE)
+    return availablePlans.filter(plan => plan.id !== 'FREE');
+  };
+
+  const getOriginalPrice = (currentPrice: number) => {
+    // Simuler un prix original pour l'effet de promotion
+    // Par exemple, si le prix actuel est 39€, l'original pourrait être 59€
+    if (currentPrice <= 39) return 59;
+    if (currentPrice <= 69) return 99;
+    if (currentPrice <= 99) return 149;
+    if (currentPrice <= 149) return 199;
+    return Math.floor(currentPrice * 1.4); // Prix actuel * 1.4 pour un effet de promotion
+  };
+
+  const getDiscountPercentage = (currentPrice: number) => {
+    // Calculer le pourcentage de réduction
+    const originalPrice = getOriginalPrice(currentPrice);
+    if (originalPrice === 0) return 0; // Eviter la division par zéro
+    return Math.floor(((originalPrice - currentPrice) / originalPrice) * 100);
   };
 
   if (loading) {
     return (
-      <div className={styles.loading}>
-        <div className={styles.loadingSpinner}></div>
-        <p>Chargement de vos informations de facturation...</p>
+      <div className={styles.loadingContainer}>
+        <div className={styles.loadingContent}>
+          <div className={styles.loadingSpinner}></div>
+          <p>Chargement de vos informations de facturation...</p>
+        </div>
       </div>
     );
   }
 
   if (!userLimits) {
     return (
-      <div className={styles.error}>
-        <AlertCircle className={styles.errorIcon} />
-        <h2>Erreur de chargement</h2>
-        <p>Impossible de charger vos informations de facturation.</p>
-        <Button onClick={loadBillingData}>Réessayer</Button>
+      <div className={styles.errorContainer}>
+        <div className={styles.errorContent}>
+          <AlertCircle className={styles.errorIcon} />
+          <h2>Erreur de chargement</h2>
+          <p>Impossible de charger vos informations de facturation.</p>
+          <Button onClick={loadBillingData}>Réessayer</Button>
+        </div>
       </div>
     );
   }
 
   const currentPlan = getCurrentPlan();
-  const upgradePlans = getOtherPlans();
+  const availableForPurchase = getAvailableForPurchase();
 
   return (
-    <div className={styles.container}>
+    <div className={styles.billingPage}>
       {/* Header */}
-      <div className={styles.header}>
-        <h1>Facturation & Abonnement</h1>
-        <p>Gérez votre forfait et consultez votre utilisation</p>
+      <div className={styles.headerSection}>
+        <div className={styles.badge}>
+          <CreditCard className={styles.badgeIcon} />
+          Gestion des achats
+        </div>
+        
+        <h1 className={styles.title}>
+          Facturation & <span className={styles.titleAccent}>Packs d'achat</span>
+        </h1>
+        
+        <p className={styles.subtitle}>
+          Gérez vos achats et consultez votre utilisation
+        </p>
       </div>
 
-      {/* Current Plan */}
+      {/* Current Status */}
       <Card className={styles.currentPlanCard}>
         <CardHeader>
           <div className={styles.planHeader}>
             <div className={styles.planInfo}>
               <CardTitle className={styles.planTitle}>
                 <Crown className={styles.crownIcon} />
-                Forfait actuel : {currentPlan?.name || 'Inconnu'}
+                Votre statut actuel
               </CardTitle>
-              <Badge variant={currentPlan?.id === 'FREE' ? 'secondary' : 'default'}>
-                {currentPlan?.price === 0 ? 'Gratuit' : `${currentPlan?.price}€`}
-              </Badge>
+              <div className={styles.planActions}>
+                <Link href="/client/billing/history" className={styles.historyLink}>
+                  <Clock className={styles.historyIcon} />
+                  Voir l'historique
+                </Link>
+                <Button 
+                  variant="outline" 
+                  onClick={() => document.getElementById('upgrade-section')?.scrollIntoView()}
+                  className={styles.upgradeActionButton}
+                >
+                  Acheter des packs
+                </Button>
+              </div>
             </div>
-            {currentPlan?.id !== 'LUXE' && (
-              <Button 
-                variant="outline" 
-                onClick={() => document.getElementById('upgrade-section')?.scrollIntoView()}
-              >
-                Améliorer le forfait
-              </Button>
-            )}
           </div>
-          <p className={styles.planDescription}>{currentPlan?.description}</p>
         </CardHeader>
         <CardContent>
-          <div className={styles.featuresGrid}>
-            {currentPlan?.features.map((feature, index) => (
-              <div key={index} className={styles.feature}>
-                <CheckCircle className={styles.checkIcon} />
-                <span>{feature}</span>
+          {/* Packs achetés (hors FREE) */}
+          {activePurchases?.activePurchases?.length > 0 ? (
+            <div className={styles.activePurchasesGrid}>
+              <div className={styles.purchasesHeader}>
+                <h4>Packs achetés</h4>
               </div>
-            ))}
-          </div>
+              {activePurchases.activePurchases.map((purchase: any, index: number) => (
+                <div key={index} className={styles.purchaseItem}>
+                  <div className={styles.purchaseHeader}>
+                    <h4>{availablePlans.find(p => p.id === purchase.tier)?.name || purchase.tier}</h4>
+                    <Badge variant="outline" className={styles.purchaseCount}>
+                      {purchase.count}x
+                    </Badge>
+                  </div>
+                  <p className={styles.purchaseDescription}>
+                    {availablePlans.find(p => p.id === purchase.tier)?.description}
+                  </p>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className={styles.noPurchases}>
+              <div className={styles.freeStatus}>
+                <div className={styles.freeIcon}>🎉</div>
+                <h4>Pack gratuit actif</h4>
+                <p>Vous bénéficiez des fonctionnalités de base gratuitement</p>
+              </div>
+            </div>
+          )}
+
+          {/* Limites actuelles */}
+          {activePurchases?.totalLimits && (
+            <div className={styles.totalLimitsSection}>
+              <div className={styles.limitsHeader}>
+                <h4 className={styles.limitsTitle}>Vos limites actuelles</h4>
+              </div>
+              <div className={styles.limitsGrid}>
+                <div className={styles.limitItem}>
+                  <Mail className={styles.limitIcon} />
+                  <span className={styles.limitLabel}>Invitations</span>
+                  <span className={styles.limitValue}>
+                    {userLimits?.usage?.invitations || 0} / {activePurchases.totalLimits.invitations || 0}
+                  </span>
+                  <div className={styles.limitProgress}>
+                    <div 
+                      className={styles.limitProgressBar}
+                      style={{
+                        width: `${Math.min(100, ((userLimits?.usage?.invitations || 0) / (activePurchases.totalLimits.invitations || 1)) * 100)}%`
+                      }}
+                    />
+                  </div>
+                </div>
+                <div className={styles.limitItem}>
+                  <Users className={styles.limitIcon} />
+                  <span className={styles.limitLabel}>Invités</span>
+                  <span className={styles.limitValue}>
+                    {userLimits?.usage?.guests || 0} / {activePurchases.totalLimits.guests || 0}
+                  </span>
+                  <div className={styles.limitProgress}>
+                    <div 
+                      className={styles.limitProgressBar}
+                      style={{
+                        width: `${Math.min(100, ((userLimits?.usage?.guests || 0) / (activePurchases.totalLimits.guests || 1)) * 100)}%`
+                      }}
+                    />
+                  </div>
+                </div>
+                <div className={styles.limitItem}>
+                  <Image className={styles.limitIcon} />
+                  <span className={styles.limitLabel}>Photos</span>
+                  <span className={styles.limitValue}>
+                    {userLimits?.usage?.photos || 0} / {activePurchases.totalLimits.photos || 0}
+                  </span>
+                  <div className={styles.limitProgress}>
+                    <div 
+                      className={styles.limitProgressBar}
+                      style={{
+                        width: `${Math.min(100, ((userLimits?.usage?.photos || 0) / (activePurchases.totalLimits.photos || 1)) * 100)}%`
+                      }}
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
         </CardContent>
       </Card>
-
-      {/* Usage Statistics */}
-      <div className={styles.usageSection}>
-        <h2>Utilisation actuelle</h2>
-        <div className={styles.usageGrid}>
-          <Card className={styles.usageCard}>
-            <CardHeader>
-              <CardTitle className={styles.usageTitle}>
-                <Mail className={styles.usageIcon} />
-                Invitations
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className={styles.usageStats}>
-                <span className={styles.usageNumber}>
-                  {userLimits.usage.invitations} / {formatNumber(userLimits.limits.invitations)}
-                </span>
-                <div className={styles.progressBar}>
-                  <div 
-                    className={styles.progressFill}
-                    style={{ 
-                      width: `${getProgressPercentage(userLimits.usage.invitations, userLimits.limits.invitations)}%`,
-                      backgroundColor: getProgressColor(getProgressPercentage(userLimits.usage.invitations, userLimits.limits.invitations))
-                    }}
-                  />
-                </div>
-                <span className={styles.remainingText}>
-                  {formatNumber(userLimits.remaining.invitations)} restantes
-                </span>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card className={styles.usageCard}>
-            <CardHeader>
-              <CardTitle className={styles.usageTitle}>
-                <Users className={styles.usageIcon} />
-                Invités
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className={styles.usageStats}>
-                <span className={styles.usageNumber}>
-                  {userLimits.usage.guests} / {formatNumber(userLimits.limits.guests)}
-                </span>
-                <div className={styles.progressBar}>
-                  <div 
-                    className={styles.progressFill}
-                    style={{ 
-                      width: `${getProgressPercentage(userLimits.usage.guests, userLimits.limits.guests)}%`,
-                      backgroundColor: getProgressColor(getProgressPercentage(userLimits.usage.guests, userLimits.limits.guests))
-                    }}
-                  />
-                </div>
-                <span className={styles.remainingText}>
-                  {formatNumber(userLimits.remaining.guests)} restants
-                </span>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card className={styles.usageCard}>
-            <CardHeader>
-              <CardTitle className={styles.usageTitle}>
-                <Image className={styles.usageIcon} />
-                Photos
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className={styles.usageStats}>
-                <span className={styles.usageNumber}>
-                  {userLimits.usage.photos} / {formatNumber(userLimits.limits.photos)}
-                </span>
-                <div className={styles.progressBar}>
-                  <div 
-                    className={styles.progressFill}
-                    style={{ 
-                      width: `${getProgressPercentage(userLimits.usage.photos, userLimits.limits.photos)}%`,
-                      backgroundColor: getProgressColor(getProgressPercentage(userLimits.usage.photos, userLimits.limits.photos))
-                    }}
-                  />
-                </div>
-                <span className={styles.remainingText}>
-                  {formatNumber(userLimits.remaining.photos)} restantes
-                </span>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-      </div>
 
       {/* Upgrade Section */}
       {availablePlans.length > 0 && (
         <div id="upgrade-section" className={styles.upgradeSection}>
-          <h2>Changer de forfait</h2>
-          <p>Passez à un forfait différent selon vos besoins</p>
+          <h2 className={styles.sectionTitle}>Acheter des packs supplémentaires</h2>
+          <p className={styles.sectionSubtitle}>Achetez des packs pour augmenter vos limites</p>
           
           <div className={styles.upgradeGrid}>
-            {getOtherPlans().map((plan) => {
-              const currentPlan = getCurrentPlan();
-              const isUpgrade = currentPlan && plan.price > currentPlan.price;
+            {availableForPurchase.map((plan) => {
+              const isPopular = plan.id === 'ELEGANT';
               
               return (
-                <Card key={plan.id} className={styles.upgradeCard}>
+                <Card key={plan.id} className={styles.upgradeCard} data-popular={plan.id === 'ELEGANT'}>
+                  {/* Badge LIMITÉ pour créer l'urgence */}
+                  {/* <div className={styles.limitedBadge}>LIMITÉ</div>
+                   */}
                   <CardHeader>
-                    <CardTitle className={styles.upgradePlanTitle}>
-                      {plan.name}
-                      {plan.id === 'ELEGANT' && (
-                        <Badge variant="default">Populaire</Badge>
-                      )}
-                    </CardTitle>
-                    <div className={styles.upgradePrice}>
-                      <span className={styles.priceAmount}>{plan.price}€</span>
-                      <span className={styles.priceUnit}>unique</span>
+                    <div className={styles.upgradeHeader}>
+                      <div className={styles.upgradePlanName}>
+                        {plan.name}
+                        {plan.id === 'ELEGANT' && (
+                          <Badge variant="default" className={styles.popularBadge}>POPULAIRE</Badge>
+                        )}
+                      </div>
+                      <div className={styles.upgradePriceSection}>
+                        <span className={styles.priceAmount}>{plan.price}€</span>
+                        <span className={styles.priceUnit}>unique</span>
+                      </div>
+                      <p className={styles.upgradeDescription}>{plan.description}</p>
                     </div>
-                    <p className={styles.upgradeDescription}>{plan.description}</p>
                   </CardHeader>
                   <CardContent>
                     <div className={styles.upgradeLimits}>
                       <div className={styles.upgradeLimit}>
-                        <Mail size={16} />
+                        <Mail className={styles.limitIcon} />
                         <span>{formatNumber(plan.limits.invitations)} invitations</span>
                       </div>
                       <div className={styles.upgradeLimit}>
-                        <Users size={16} />
+                        <Users className={styles.limitIcon} />
                         <span>{formatNumber(plan.limits.guests)} invités</span>
                       </div>
                       <div className={styles.upgradeLimit}>
-                        <Image size={16} />
+                        <Image className={styles.limitIcon} />
                         <span>{formatNumber(plan.limits.photos)} photos</span>
                       </div>
                     </div>
                     
-                      <Button 
-                        onClick={() => handleUpgradeClick(plan)}
-                        disabled={upgrading}
-                        className={styles.upgradeButton}
-                      >
-                        {upgrading ? 'Traitement...' : (
-                          <div className="flex items-center space-x-2">
-                            <CreditCard size={16} />
-                            <span>Passer à {plan.name}</span>
-                            <ExternalLink size={14} />
-                          </div>
-                        )}
-                      </Button>
+                    {/* Prix avec effet de promotion */}
+                    <div className={styles.pricingSection}>
+                      <div className={styles.originalPrice}>
+                        {getOriginalPrice(plan.price)}€
+                      </div>
+                      <div className={styles.currentPrice}>
+                        {plan.price}€
+                      </div>
+                      <div className={styles.promotionBadge}>
+                        -{getDiscountPercentage(plan.price)}%
+                      </div>
+                    </div>
+                    
+                    {/* Message d'urgence */}
+                    {/* <div className={styles.urgencyMessage}>
+                      Offre limitée - Plus que 3 packs disponibles !
+                    </div> */}
+                    
+                    <Button 
+                      onClick={() => handleUpgradeClick(plan)}
+                      disabled={upgrading}
+                      className={styles.upgradeButton}
+                    >
+                      {upgrading ? 'Traitement...' : (
+                        <>
+                          <CreditCard className={styles.buttonIcon} />
+                          <span>Acheter le pack {plan.name}</span>
+                          <ExternalLink className={styles.buttonIcon} />
+                        </>
+                      )}
+                    </Button>
                   </CardContent>
                 </Card>
               );
@@ -526,75 +575,21 @@ export default function BillingPage() {
           <CardContent>
             <div className={styles.luxeContent}>
               <Crown className={styles.luxeIcon} />
-              <h3>Félicitations ! Vous avez le forfait ultime</h3>
-              <p>Profitez de toutes les fonctionnalités avec les limites de l'abonnement LUXE.</p>
+              <h3>Félicitations ! Vous avez le pack ultime</h3>
+              <p>Profitez de toutes les fonctionnalités avec les limites du pack LUXE.</p>
             </div>
           </CardContent>
         </Card>
       )}
-
-      {/* Additional Services Section 
-      {additionalServices.length > 0 && (
-        <div className={styles.additionalServicesSection}>
-          <h2>Services Supplémentaires</h2>
-          <p>Étendez votre forfait avec ces services optionnels</p>
-          
-          <div className={styles.servicesGrid}>
-            {additionalServices.map((service) => {
-              const ServiceIcon = service.type === 'guests' ? Users : service.type === 'photos' ? Image : Sparkles;
-              
-              return (
-                <Card key={service.id} className={styles.serviceCard}>
-                  <CardHeader>
-                    <div className={styles.serviceHeader}>
-                      <ServiceIcon className={styles.serviceIcon} />
-                      <CardTitle className={styles.serviceTitle}>{service.name}</CardTitle>
-                    </div>
-                    <div className={styles.servicePrice}>
-                      <span className={styles.priceAmount}>{service.price}€</span>
-                      <span className={styles.priceUnit}>unique</span>
-                    </div>
-                    <p className={styles.serviceDescription}>{service.description}</p>
-                  </CardHeader>
-                  <CardContent>
-                    <div className={styles.serviceDetails}>
-                      <div className={styles.serviceQuantity}>
-                        <Package size={16} />
-                        <span>+{service.quantity} {service.type === 'guests' ? 'invités' : service.type === 'photos' ? 'photos' : 'design'}</span>
-                      </div>
-                    </div>
-                    
-                    <Button 
-                      onClick={() => handleServiceClick(service)}
-                      disabled={purchasingService === service.id}
-                      className={styles.serviceButton}
-                    >
-                      {purchasingService === service.id ? 'Traitement...' : (
-                        <div className="flex items-center space-x-2">
-                          <Plus size={16} />
-                          <span>Ajouter</span>
-                          <ExternalLink size={14} />
-                        </div>
-                      )}
-                    </Button>
-                  </CardContent>
-                </Card>
-              );
-            })}
-          </div>
-        </div>
-      )}
-*/}
-
 
       {/* Confirm Upgrade Modal */}
       <ConfirmModal
         isOpen={confirmModal.isOpen}
         onClose={handleCancelUpgrade}
         onConfirm={handleConfirmUpgrade}
-        title={`Passer au forfait ${confirmModal.plan?.name || ''} ?`}
-        message={`Voulez-vous passer au forfait ${confirmModal.plan?.name || ''} pour ${confirmModal.plan?.price || 0}€ ?`}
-        confirmText="Oui, passer au forfait"
+        title={`Acheter le pack ${confirmModal.plan?.name || ''} ?`}
+        message={`Voulez-vous acheter le pack ${confirmModal.plan?.name || ''} pour ${confirmModal.plan?.price || 0}€ ?`}
+        confirmText="Oui, acheter le pack"
         cancelText="Non, annuler"
         isLoading={upgrading}
       />
@@ -609,6 +604,24 @@ export default function BillingPage() {
         confirmText="Oui, acheter"
         cancelText="Non, annuler"
         isLoading={purchasingService !== null}
+      />
+
+      {/* Success Modal */}
+      <SuccessModal
+        isOpen={successModal.isOpen}
+        onClose={() => setSuccessModal({ isOpen: false, title: '', message: '' })}
+        title={successModal.title}
+        message={successModal.message}
+        confirmText="Parfait !"
+      />
+
+      {/* Error Modal */}
+      <ErrorModal
+        isOpen={errorModal.isOpen}
+        onClose={() => setErrorModal({ isOpen: false, title: '', message: '' })}
+        title={errorModal.title}
+        message={errorModal.message}
+        confirmText="Compris"
       />
     </div>
   );

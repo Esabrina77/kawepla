@@ -6,11 +6,26 @@ import { ChatBox } from '@/components/Messages/ChatBox';
 import { useAuth } from '@/hooks/useAuth';
 import { MessagesAPI, Conversation } from '@/lib/api/messages';
 import { useSocket } from '@/hooks/useSocket';
+import { 
+  MessageCircle, 
+  Search, 
+  Filter, 
+  RefreshCw, 
+  Archive, 
+  RotateCcw, 
+  User, 
+  Mail, 
+  Calendar,
+  Clock,
+  CheckCircle,
+  AlertCircle,
+  X
+} from 'lucide-react';
 import styles from './discussions.module.css';
 
 export default function AdminDiscussionsPage() {
   const router = useRouter();
-  const { user, token, loading: authLoading } = useAuth();
+  const { user, token, isLoading: authLoading } = useAuth();
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [selectedConversation, setSelectedConversation] = useState<Conversation | null>(null);
   const [messages, setMessages] = useState<any[]>([]);
@@ -42,13 +57,10 @@ export default function AdminDiscussionsPage() {
 
     socket.on({
       onNewClientMessage: (data) => {
-        // Mettre à jour la liste des conversations
         loadConversations();
         
-        // Si c'est la conversation sélectionnée, ajouter le message
         if (selectedConversation && data.conversationId === selectedConversation.id) {
           setMessages(prev => {
-            // Éviter les doublons en vérifiant si le message existe déjà
             const messageExists = prev.some(msg => msg.id === data.message.id);
             if (messageExists) return prev;
             return [...prev, data.message];
@@ -58,7 +70,6 @@ export default function AdminDiscussionsPage() {
       onNewMessage: (data) => {
         if (selectedConversation && data.conversationId === selectedConversation.id) {
           setMessages(prev => {
-            // Éviter les doublons en vérifiant si le message existe déjà
             const messageExists = prev.some(msg => msg.id === data.message.id);
             if (messageExists) return prev;
             return [...prev, data.message];
@@ -104,14 +115,11 @@ export default function AdminDiscussionsPage() {
     setTypingUsers(new Set());
 
     try {
-      // Rejoindre la conversation WebSocket
       socket.joinConversation(conversation.id);
       
-      // Charger les messages
       const messagesData = await MessagesAPI.getMessages(conversation.id);
       setMessages(messagesData.messages);
       
-      // Marquer comme lu
       await MessagesAPI.markAsRead(conversation.id);
       
     } catch (err) {
@@ -168,12 +176,10 @@ export default function AdminDiscussionsPage() {
   };
 
   const filteredConversations = conversations.filter(conv => {
-    // Filtre par statut
     if (statusFilter !== 'ALL' && conv.status !== statusFilter) {
       return false;
     }
     
-    // Filtre par recherche
     if (!searchQuery) return true;
     
     const query = searchQuery.toLowerCase();
@@ -181,7 +187,7 @@ export default function AdminDiscussionsPage() {
       conv.user.firstName.toLowerCase().includes(query) ||
       conv.user.lastName.toLowerCase().includes(query) ||
       conv.user.email.toLowerCase().includes(query) ||
-      conv.invitation?.coupleName?.toLowerCase().includes(query) ||
+      conv.invitation?.organisateurName?.toLowerCase().includes(query) ||
       conv.invitation?.title?.toLowerCase().includes(query)
     );
   });
@@ -223,24 +229,24 @@ export default function AdminDiscussionsPage() {
     }
   };
 
-  const getStatusColor = (status: string) => {
+  const getStatusIcon = (status: string) => {
     switch (status) {
       case 'ACTIVE':
-        return styles.statusActive;
+        return <CheckCircle style={{ width: '12px', height: '12px' }} />;
       case 'ARCHIVED':
-        return styles.statusArchived;
+        return <Archive style={{ width: '12px', height: '12px' }} />;
       case 'CLOSED':
-        return styles.statusClosed;
+        return <X style={{ width: '12px', height: '12px' }} />;
       default:
-        return '';
+        return <AlertCircle style={{ width: '12px', height: '12px' }} />;
     }
   };
 
   if (authLoading) {
     return (
-      <div className={styles.container}>
-        <div className={styles.loading}>
-          <div className={styles.spinner}></div>
+      <div className={styles.discussionsContainer}>
+        <div className={styles.loadingContainer}>
+          <div className={styles.loadingSpinner}></div>
           <p>Chargement...</p>
         </div>
       </div>
@@ -248,53 +254,72 @@ export default function AdminDiscussionsPage() {
   }
 
   return (
-    <div className={styles.container}>
+    <div className={styles.discussionsContainer}>
+      {/* Sidebar */}
       <div className={styles.sidebar}>
+        {/* Header */}
         <div className={styles.sidebarHeader}>
-          <h2>Discussions</h2>
+          <div className={styles.headerContent}>
+            <div className={styles.badge}>
+              <MessageCircle style={{ width: '16px', height: '16px' }} />
+              Discussions
+            </div>
+            <h1 className={styles.title}>
+              Support <span className={styles.titleAccent}>client</span>
+            </h1>
+          </div>
           <button onClick={loadConversations} className={styles.refreshButton}>
-            🔄
+            <RefreshCw style={{ width: '16px', height: '16px' }} />
           </button>
         </div>
 
+        {/* Filters */}
         <div className={styles.filtersContainer}>
           <div className={styles.searchContainer}>
+            <Search className={styles.searchIcon} />
             <input
               type="text"
-              placeholder="Rechercher..."
+              placeholder="Rechercher une conversation..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className={styles.searchInput}
             />
           </div>
 
-          <div className={styles.statusFilter}>
-            <label htmlFor="status-filter">Statut :</label>
+          <div className={styles.filterContainer}>
+            <Filter className={styles.filterIcon} />
             <select
-              id="status-filter"
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value as 'ALL' | 'ACTIVE' | 'ARCHIVED' | 'CLOSED')}
-              className={styles.statusSelect}
+              className={styles.filterSelect}
             >
-              <option value="ALL">Toutes</option>
-              <option value="ACTIVE">Actives</option>
-              <option value="ARCHIVED">Archivées</option>
-              <option value="CLOSED">Fermées</option>
+              <option value="ALL">Toutes les conversations</option>
+              <option value="ACTIVE">Conversations actives</option>
+              <option value="ARCHIVED">Conversations archivées</option>
+              <option value="CLOSED">Conversations fermées</option>
             </select>
           </div>
         </div>
 
+        {/* Conversations List */}
         <div className={styles.conversationsList}>
           {loading && (
             <div className={styles.loadingItem}>
-              <div className={styles.spinner}></div>
-              <span>Chargement...</span>
+              <div className={styles.loadingSpinner}></div>
+              <span>Chargement des conversations...</span>
             </div>
           )}
 
           {!loading && filteredConversations.length === 0 && (
             <div className={styles.emptyConversations}>
-              <p>Aucune conversation trouvée</p>
+              <MessageCircle style={{ width: '48px', height: '48px', marginBottom: 'var(--space-md)' }} />
+              <h3>Aucune conversation trouvée</h3>
+              <p>
+                {searchQuery || statusFilter !== 'ALL'
+                  ? 'Aucune conversation ne correspond à vos critères'
+                  : 'Aucune conversation en cours'
+                }
+              </p>
             </div>
           )}
 
@@ -306,39 +331,55 @@ export default function AdminDiscussionsPage() {
               }`}
               onClick={() => selectConversation(conversation)}
             >
-              <div className={styles.conversationHeader}>
-                <div className={styles.userInfo}>
-                  <span className={styles.userName}>
-                    {conversation.user.firstName} {conversation.user.lastName}
-                  </span>
-                  <span className={styles.userEmail}>{conversation.user.email}</span>
+              {/* User Info */}
+              <div className={styles.userInfo}>
+                <div className={styles.userAvatar}>
+                  <div className={styles.avatarContent}>
+                    {conversation.user.firstName.charAt(0).toUpperCase()}
+                  </div>
                 </div>
-                <div className={styles.conversationMeta}>
-                  <span className={styles.time}>
-                    {formatTime(conversation.lastMessageAt)}
-                  </span>
-                  <span className={`${styles.statusBadge} ${getStatusColor(conversation.status)}`}>
-                    {getStatusLabel(conversation.status)}
-                  </span>
-                  {conversation._count && conversation._count.messages > 0 && (
-                    <span className={styles.unreadCount}>
-                      {conversation._count.messages}
-                    </span>
-                  )}
+                <div className={styles.userDetails}>
+                  <h3 className={styles.userName}>
+                    {conversation.user.firstName} {conversation.user.lastName}
+                  </h3>
+                  <div className={styles.userEmail}>
+                    <Mail style={{ width: '12px', height: '12px' }} />
+                    {conversation.user.email}
+                  </div>
                 </div>
               </div>
 
-              <div className={styles.conversationPreview}>
-                <div className={styles.invitationInfo}>
-                  <span className={styles.invitationName}>
-                    {conversation.invitation?.title || conversation.invitation?.coupleName}
+              {/* Conversation Meta */}
+              <div className={styles.conversationMeta}>
+                <div className={styles.metaRow}>
+                  <div className={styles.timeInfo}>
+                    <Clock style={{ width: '12px', height: '12px' }} />
+                    <span>{formatTime(conversation.lastMessageAt)}</span>
+                  </div>
+                  <span className={`${styles.statusBadge} ${styles[`status${conversation.status}`]}`}>
+                    {getStatusIcon(conversation.status)}
+                    {getStatusLabel(conversation.status)}
                   </span>
+                </div>
+                
+                {conversation._count && conversation._count.messages > 0 && (
+                  <div className={styles.unreadBadge}>
+                    {conversation._count.messages}
+                  </div>
+                )}
+              </div>
+
+              {/* Invitation Info */}
+              <div className={styles.invitationInfo}>
+                <div className={styles.invitationName}>
+                  {conversation.invitation?.title || conversation.invitation?.organisateurName}
                 </div>
                 <div className={styles.lastMessage}>
                   {formatLastMessage(conversation)}
                 </div>
               </div>
 
+              {/* Actions */}
               <div className={styles.conversationActions}>
                 {conversation.status === 'ACTIVE' && (
                   <>
@@ -350,6 +391,7 @@ export default function AdminDiscussionsPage() {
                         }}
                         className={styles.assignButton}
                       >
+                        <User style={{ width: '12px', height: '12px' }} />
                         M'assigner
                       </button>
                     )}
@@ -360,6 +402,7 @@ export default function AdminDiscussionsPage() {
                       }}
                       className={styles.archiveButton}
                     >
+                      <Archive style={{ width: '12px', height: '12px' }} />
                       Archiver
                     </button>
                   </>
@@ -372,6 +415,7 @@ export default function AdminDiscussionsPage() {
                     }}
                     className={styles.restoreButton}
                   >
+                    <RotateCcw style={{ width: '12px', height: '12px' }} />
                     Restaurer
                   </button>
                 )}
@@ -381,26 +425,36 @@ export default function AdminDiscussionsPage() {
         </div>
       </div>
 
+      {/* Chat Area */}
       <div className={styles.chatArea}>
         {selectedConversation ? (
           <div className={styles.chatContainer}>
             <div className={styles.chatHeader}>
               <div className={styles.chatUserInfo}>
-                <h3>
-                  {selectedConversation.user.firstName} {selectedConversation.user.lastName}
-                </h3>
-                <span className={styles.chatUserEmail}>
-                  {selectedConversation.user.email}
-                </span>
-                <span className={styles.chatInvitation}>
-                  {selectedConversation.invitation?.title || selectedConversation.invitation?.coupleName}
-                </span>
+                <div className={styles.chatUserAvatar}>
+                  <div className={styles.avatarContent}>
+                    {selectedConversation.user.firstName.charAt(0).toUpperCase()}
+                  </div>
+                </div>
+                <div className={styles.chatUserDetails}>
+                  <h3 className={styles.chatUserName}>
+                    {selectedConversation.user.firstName} {selectedConversation.user.lastName}
+                  </h3>
+                  <div className={styles.chatUserEmail}>
+                    <Mail style={{ width: '12px', height: '12px' }} />
+                    {selectedConversation.user.email}
+                  </div>
+                  <div className={styles.chatInvitation}>
+                    {selectedConversation.invitation?.title || selectedConversation.invitation?.organisateurName}
+                  </div>
+                </div>
               </div>
               <div className={styles.chatActions}>
                 <button
                   onClick={() => archiveConversation(selectedConversation)}
                   className={styles.archiveButton}
                 >
+                  <Archive style={{ width: '14px', height: '14px' }} />
                   Archiver
                 </button>
               </div>
@@ -419,18 +473,20 @@ export default function AdminDiscussionsPage() {
           </div>
         ) : (
           <div className={styles.noChatSelected}>
-            <div className={styles.noChatIcon}>💬</div>
+            <MessageCircle style={{ width: '64px', height: '64px', marginBottom: 'var(--space-md)' }} />
             <h3>Sélectionnez une conversation</h3>
             <p>Choisissez une conversation dans la liste pour commencer à discuter avec un client.</p>
           </div>
         )}
       </div>
 
+      {/* Error Banner */}
       {error && (
         <div className={styles.errorBanner}>
+          <AlertCircle style={{ width: '16px', height: '16px' }} />
           <span>{error}</span>
           <button onClick={() => setError(null)} className={styles.closeError}>
-            ×
+            <X style={{ width: '16px', height: '16px' }} />
           </button>
         </div>
       )}

@@ -1,37 +1,75 @@
 import { Metadata } from 'next';
+import { SITE_CONFIG } from '@/config/siteConfig';
 
 const metadata: Metadata = {
-  title: 'KaWePla - Plateforme de gestion de mariage moderne',
-  description: 'Créez, personnalisez et gérez vos invitations de mariage en ligne. Suivi des invités, designs élégants, gestion RSVP, messagerie et plus.',
-  keywords: [
-    'mariage', 'invitation mariage', 'gestion mariage', 'RSVP', 'wedding planner', 'liste invités', 'organisation mariage', 'événement', 'invitation digitale', 'design invitation', 'KaWePla'
-  ],
+  title: SITE_CONFIG.seo.titre,
+  description: SITE_CONFIG.seo.description,
+  keywords: SITE_CONFIG.seo.keywords,
+  authors: [{ name: 'KaWePla Team' }],
+  creator: 'KaWePla',
+  publisher: 'KaWePla',
+  formatDetection: {
+    email: false,
+    address: false,
+    telephone: false,
+  },
+  metadataBase: new URL('https://kawepla.kaporelo.com'),
+  alternates: {
+    canonical: '/',
+  },
+  openGraph: {
+    title: SITE_CONFIG.seo.titre,
+    description: SITE_CONFIG.seo.description,
+    url: 'https://kawepla.kaporelo.com',
+    siteName: 'KaWePla',
+    images: [
+      {
+        url: '/images/og-image.jpg',
+        width: 1200,
+        height: 630,
+        alt: 'KaWePla - Plateforme d\'invitations de événement numériques',
+      },
+    ],
+    locale: 'fr_FR',
+    type: 'website',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: SITE_CONFIG.seo.titre,
+    description: SITE_CONFIG.seo.description,
+    images: ['/images/twitter-image.jpg'],
+  },
   manifest: '/manifest.json',
   themeColor: '#D4B895',
+  colorScheme: 'light dark',
+  viewport: {
+    width: 'device-width',
+    initialScale: 1,
+    maximumScale: 1,
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      'max-video-preview': -1,
+      'max-image-preview': 'large',
+      'max-snippet': -1,
+    },
+  },
   icons: {
     icon: [
       { url: '/icons/logo-16.png', sizes: '16x16', type: 'image/png' },
       { url: '/icons/logo-32.png', sizes: '32x32', type: 'image/png' },
       { url: '/icons/logo-192.png', sizes: '192x192', type: 'image/png' }
     ],
-    apple: { url: '/icons/apple-icon.png' }
+    apple: { url: '/icons/apple-icon.png' },
+    shortcut: '/favicon.ico',
   },
-  openGraph: {
-    title: 'KaWePla - Plateforme de gestion de mariage moderne',
-    description: 'Créez, personnalisez et gérez vos invitations de mariage en ligne. Suivi des invités, designs élégants, gestion RSVP, messagerie et plus.',
-    url: 'https://kawepla.kaporelo.com',
-    siteName: 'KaWePla',
-    images: [
-      {
-        url: '/images/logo.png',
-        width: 512,
-        height: 512,
-        alt: 'KaWePla Logo'
-      }
-    ],
-    locale: 'fr_FR',
-    type: 'website'
-  }
+  verification: {
+    google: 'your-google-verification-code',
+  },
 };
 
 export default metadata; 

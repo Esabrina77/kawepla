@@ -3,7 +3,7 @@ import type { NextRequest } from 'next/server';
 
 // Routes qui nécessitent une authentification
 const protectedRoutes = {
-  COUPLE: ['/client'],
+  organisateur: ['/client'],
   ADMIN: ['/super-admin']
 };
 

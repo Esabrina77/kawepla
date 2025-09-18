@@ -2,29 +2,23 @@
 
 import React, { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
-import { Card } from '@/components/Card/Card';
-import { Button } from '@/components/Button/Button';
-import PhoneInput from '@/components/PhoneInput/PhoneInput';
-import { renderTemplate, invitationToTemplateData, DesignTemplate } from '@/lib/templateEngine';
+import { Button } from '@/components/ui/button';
+import { TemplateEngine } from '@/lib/templateEngine';
 import GuestProfilePhotoUpload from '@/components/GuestProfilePhotoUpload/GuestProfilePhotoUpload';
-import PhotoModal from '@/components/PhotoModal/PhotoModal';
+import PhotoModal from '@/components/PhotoModal/PhotoModal'; 
+import PhoneInput from '@/components/PhoneInput/PhoneInput';
+import { Heart, CheckCircle, XCircle, Users, Church, Wine, MessageCircle, RefreshCw, Shield, Camera } from 'lucide-react';
+import { useNotifications } from '@/hooks/useNotifications';
+import styles from './rsvp.module.css';
 
 interface Invitation {
   id: string;
-  title?: string;
-  coupleName: string;
-  weddingDate: string;
-  ceremonyTime?: string;
-  receptionTime?: string;
-  venueName: string;
-  venueAddress: string;
-  venueCoordinates?: string;
-  invitationText?: string;
-  message?: string;
-  blessingText?: string;
-  welcomeMessage?: string;
-  dressCode?: string;
-  contact?: string;
+  eventTitle: string;
+  eventDate: string;
+  eventTime?: string;
+  location: string;
+  eventType: string;
+  customText?: string;
   moreInfo?: string;
   rsvpDetails?: string;
   rsvpForm?: string;
@@ -51,8 +45,13 @@ interface Invitation {
     phone?: string;
     rsvp?: {
       status: 'CONFIRMED' | 'DECLINED' | 'PENDING';
-      numberOfGuests: number;
       message?: string;
+      attendingCeremony?: boolean;
+      attendingReception?: boolean;
+      plusOne?: boolean;
+      plusOneName?: string;
+      dietaryRestrictions?: string;
+      profilePhotoUrl?: string;
     };
   }>;
 }
@@ -61,6 +60,9 @@ export default function SharedRSVPPage() {
   const params = useParams();
   const router = useRouter();
   const shareableToken = params.shareableToken as string;
+  
+  // Hook pour les notifications
+  const { notifyRSVPConfirmed, notifyRSVPDeclined } = useNotifications();
   
   const [invitation, setInvitation] = useState<Invitation | null>(null);
   const [loading, setLoading] = useState(true);
@@ -80,11 +82,13 @@ export default function SharedRSVPPage() {
     phone: '',
     // RSVP classique
     status: 'PENDING' as 'PENDING' | 'CONFIRMED' | 'DECLINED',
-    numberOfGuests: 1,
     message: '',
     attendingCeremony: true,
     attendingReception: true,
-    profilePhotoUrl: ''
+    profilePhotoUrl: '',
+    plusOne: false,
+    plusOneName: '',
+    dietaryRestrictions: ''
   });
 
   useEffect(() => {
@@ -124,22 +128,31 @@ export default function SharedRSVPPage() {
     if (!invitation || !invitation.design) return;
 
     try {
-      // Créer le template à partir du design
-      const template: DesignTemplate = {
-        layout: invitation.design.template.layout,
-        sections: invitation.design.template.sections,
-        styles: invitation.design.styles,
-        variables: invitation.design.variables,
-        components: invitation.design.components,
-        version: invitation.design.version
+      const templateEngine = new TemplateEngine();
+      
+      // Utiliser la NOUVELLE architecture avec les données de l'invitation
+      const invitationData = {
+        eventTitle: invitation.eventTitle || '',
+        eventDate: invitation.eventDate ? new Date(invitation.eventDate) : new Date(),
+        eventTime: invitation.eventTime || '',
+        location: invitation.location || '',
+        eventType: invitation.eventType || 'event',
+        customText: invitation.customText || '',
+        moreInfo: invitation.moreInfo || ''
       };
 
-      // Convertir les données d'invitation en données de template
-      const templateData = invitationToTemplateData(invitation);
-
-      // Rendre le template
-      const rendered = renderTemplate(template, templateData, invitation.design.id);
-      setRenderedInvitation(rendered);
+      // Rendre le template avec la nouvelle architecture
+      const renderedHtml = templateEngine.render(invitation.design, invitationData);
+      
+      // Extraire le CSS et le HTML du rendu
+      const cssMatch = renderedHtml.match(/<style>([\s\S]*?)<\/style>/);
+      const css = cssMatch ? cssMatch[1] : '';
+      const htmlMatch = renderedHtml.replace(/<style>[\s\S]*?<\/style>/, '');
+      
+      setRenderedInvitation({ 
+        html: htmlMatch, 
+        css: css 
+      });
     } catch (error) {
       console.error('Erreur lors du rendu du template:', error);
       // En cas d'erreur, on affichera la version simple
@@ -205,13 +218,25 @@ export default function SharedRSVPPage() {
       
       const result = await response.json();
       
+      // Déclencher les notifications pour les nouvelles réponses
+      if (invitation && !existingResponse) {
+        const guestName = `${formData.firstName} ${formData.lastName}`;
+        const invitationName = invitation.eventTitle || 'votre événement';
+        
+        if (formData.status === 'CONFIRMED') {
+          notifyRSVPConfirmed(guestName, invitationName);
+        } else if (formData.status === 'DECLINED') {
+          notifyRSVPDeclined(guestName, invitationName);
+        }
+      }
+      
       // Stocker les données RSVP dans sessionStorage pour la page de remerciement
       sessionStorage.setItem('rsvpData', JSON.stringify(result));
       
-              // Sauvegarder le téléphone dans localStorage pour un accès ultérieur
-        if (formData.phone) {
-          localStorage.setItem(`rsvp_phone_${shareableToken}`, formData.phone);
-        }
+      // Sauvegarder le téléphone dans localStorage pour un accès ultérieur
+      if (formData.phone) {
+        localStorage.setItem(`rsvp_phone_${shareableToken}`, formData.phone);
+      }
       
       // Rediriger vers la page de remerciement
       router.push(`/rsvp/shared/${shareableToken}/merci`);
@@ -245,72 +270,50 @@ export default function SharedRSVPPage() {
 
   if (loading) {
     return (
-      <div className="container mx-auto px-4 py-8" style={{ marginTop: '70px' }}>
-        <Card className="max-w-4xl mx-auto">
-          <div className="text-center p-8">
-            <p>Chargement de votre invitation...</p>
+      <div className={styles.container}>
+        <div className={`card ${styles.loadingCard}`}>
+          <div className={styles.loadingContent}>
+            <div className={styles.loadingIcon}>
+              <Heart style={{ width: '24px', height: '24px' }} />
+            </div>
+            <p className={styles.loadingText}>Chargement de votre invitation...</p>
           </div>
-        </Card>
+        </div>
       </div>
     );
   }
 
   if (error || !invitation) {
     return (
-      <div className="container mx-auto px-4 py-8" style={{ marginTop: '70px' }}>
-        <Card className="max-w-4xl mx-auto">
-          <div className="text-center p-8">
-            <h1 className="text-2xl font-bold mb-4">Lien d'invitation invalide</h1>
-            <p className="text-gray-600">{error || "Ce lien d'invitation n'existe pas ou a expiré."}</p>
+      <div className={styles.container}>
+        <div className={`card ${styles.errorCard}`}>
+          <div className={styles.errorContent}>
+            <div className={styles.errorIcon}>
+              <XCircle style={{ width: '32px', height: '32px' }} />
+            </div>
+            <h1 className={`heading-2 ${styles.errorTitle}`}>Lien d'invitation invalide</h1>
+            <p className={styles.errorText}>{error || "Ce lien d'invitation n'existe pas ou a expiré."}</p>
             <Button
               variant="primary"
               className="mt-6"
               onClick={() => window.location.reload()}
             >
-              🔄 Rafraîchir
+              <RefreshCw style={{ width: '16px', height: '16px', marginRight: '8px' }} />
+              Rafraîchir
             </Button>
           </div>
-        </Card>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="container mx-auto px-4 py-8" style={{ marginTop: '70px' }}>
-      {/* Styles CSS personnalisés pour forcer le layout */}
-      <style jsx>{`
-        .rsvp-layout {
-          display: grid;
-          grid-template-columns: 1fr;
-          gap: 2rem;
-        }
-        
-        @media (min-width: 1024px) {
-          .rsvp-layout {
-            grid-template-columns: 1fr 1fr;
-            max-width: 1400px;
-            margin: 0 auto;
-          }
-          
-          .invitation-column {
-            position: sticky;
-            top: 120px;
-            height: fit-content;
-          }
-        }
-        
-        @media (min-width: 1280px) {
-          .rsvp-layout {
-            grid-template-columns: 1.2fr 0.8fr;
-          }
-        }
-      `}</style>
-      
-      <div className="rsvp-layout">
+    <div className={styles.container}>
+      <div className={styles.rsvpLayout}>
         
         {/* Colonne gauche : Invitation avec son design visuel */}
-        <div className="invitation-column">
-          <Card className="overflow-hidden">
+        <div className={styles.invitationColumn}>
+          <div className={styles.invitationCard}>
             {renderedInvitation ? (
               <div className="invitation-container">
                 {/* Injecter le CSS du design */}
@@ -320,314 +323,352 @@ export default function SharedRSVPPage() {
               </div>
             ) : (
               // Version de fallback si le rendu échoue
-              <div className="text-center p-8">
-                <h1 className="text-3xl font-serif mb-6">
-                  {invitation.title || `Mariage de ${invitation.coupleName}`}
+              <div className={styles.fallbackInvitation}>
+                <h1 className={styles.fallbackTitle}>
+                  {invitation.eventTitle}
                 </h1>
                 
-                <div className="my-8">
-                  <p className="text-2xl mb-2">
-                    {new Date(invitation.weddingDate).toLocaleDateString('fr-FR', {
+                <div>
+                  <p className={styles.fallbackDate}>
+                    {new Date(invitation.eventDate).toLocaleDateString('fr-FR', {
                       weekday: 'long',
                       day: 'numeric',
                       month: 'long',
                       year: 'numeric'
                     })}
                   </p>
-                  {invitation.ceremonyTime && (
-                    <p className="text-xl mb-2">
-                      Cérémonie à {invitation.ceremonyTime}
+                  {invitation.eventTime && (
+                    <p className={styles.fallbackTime}>
+                      à {invitation.eventTime}
                     </p>
                   )}
-                  {invitation.receptionTime && (
-                    <p className="text-xl mb-2">
-                      Réception à {invitation.receptionTime}
-                    </p>
-                  )}
-                  <p className="text-xl">
-                    à {invitation.venueName}
-                    <br />
-                    {invitation.venueAddress}
+                  <p className={styles.fallbackLocation}>
+                    à {invitation.location}
                   </p>
                 </div>
 
-                {invitation.invitationText && (
-                  <div className="my-6">
-                    <p className="text-lg italic">{invitation.invitationText}</p>
+                {invitation.customText && (
+                  <div className={styles.fallbackCustomText}>
+                    <p>{invitation.customText}</p>
                   </div>
                 )}
               </div>
             )}
-          </Card>
+          </div>
         </div>
 
         {/* Colonne droite : Formulaire RSVP étendu */}
-        <div className="form-column">
-          {/* Section des invités qui ont déjà répondu */}
-          {/* Ainsi, la liste des invités ne s'affichera plus jamais sur cette page. */}
-
-          <Card>
-            <div className="p-8">
-              {checkingExistingResponse ? (
-                <div className="text-center">
-                  <p>Vérification de votre réponse...</p>
+        <div className={styles.formColumn}>
+          <div className={`card ${styles.formCard}`}>
+            {checkingExistingResponse ? (
+              <div className={styles.checkingContent}>
+                <div className={styles.checkingIcon}>
+                  <Heart style={{ width: '24px', height: '24px' }} />
                 </div>
-              ) : existingResponse ? (
-                // Afficher la réponse existante
-                <div className="text-center">
-                  <h2 className="text-2xl font-bold mb-6">Votre réponse</h2>
-                  
-                  <div className="mb-6">
-                    <div className={`w-24 h-24 rounded-full flex items-center justify-center mx-auto mb-4 ${
-                      existingResponse.rsvp.status === 'CONFIRMED' ? 'bg-green-100' : 'bg-red-100'
-                    }`}>
-                      <span className="text-4xl">
-                        {existingResponse.rsvp.status === 'CONFIRMED' ? '🎉' : '😔'}
-                      </span>
-                    </div>
-                    
-                    <h3 className="text-xl font-semibold mb-2">
-                      {existingResponse.guest.firstName} {existingResponse.guest.lastName}
-                    </h3>
-                    
-                    {existingResponse.rsvp.profilePhotoUrl && (
-                      <div className="mb-4">
-                        <img 
-                          src={existingResponse.rsvp.profilePhotoUrl} 
-                          alt={`Photo de ${existingResponse.guest.firstName} ${existingResponse.guest.lastName}`}
-                          className="w-20 h-20 rounded-full object-cover mx-auto border-2 border-gray-200 cursor-pointer hover:opacity-80 transition-opacity"
-                          onClick={() => handlePhotoClick(existingResponse.rsvp.profilePhotoUrl, `Photo de ${existingResponse.guest.firstName} ${existingResponse.guest.lastName}`)}
-                        />
-                      </div>
-                    )}
-                    
-                    <p className={`text-lg font-medium ${
-                      existingResponse.rsvp.status === 'CONFIRMED' ? 'text-green-600' : 'text-red-600'
-                    }`}>
-                      {existingResponse.rsvp.status === 'CONFIRMED' ? 
-                        'Vous avez confirmé votre présence ✅' : 
-                        'Vous avez décliné l\'invitation ❌'
-                      }
-                    </p>
-                    
-                    {existingResponse.rsvp.status === 'CONFIRMED' && (
-                      <div className="mt-4 space-y-2">
-                        <p className="text-gray-600">
-                          👥 {existingResponse.rsvp.numberOfGuests} personne{existingResponse.rsvp.numberOfGuests > 1 ? 's' : ''}
-                        </p>
-                        {existingResponse.rsvp.attendingCeremony && (
-                          <p className="text-gray-600">💒 Présent(e) à la cérémonie</p>
-                        )}
-                        {existingResponse.rsvp.attendingReception && (
-                          <p className="text-gray-600">🥂 Présent(e) à la réception</p>
-                        )}
-                      </div>
-                    )}
-                    
-                    {existingResponse.rsvp.message && (
-                      <div className="mt-4 p-4 bg-yellow-50 border-l-4 border-yellow-400 text-left">
-                        <h4 className="font-semibold text-gray-800 mb-2">💌 Votre message:</h4>
-                        <p className="italic text-gray-700">"{existingResponse.rsvp.message}"</p>
-                      </div>
+                <p className={styles.checkingText}>Vérification de votre réponse...</p>
+              </div>
+            ) : existingResponse ? (
+              // Afficher la réponse existante
+              <div className={styles.responseStatus}>
+                <h2 className={`heading-2 ${styles.responseTitle}`}>Votre réponse</h2>
+                
+                <div className={styles.guestWelcome}>
+                  <div className={`${styles.statusIcon} ${
+                    existingResponse.rsvp.status === 'CONFIRMED' ? styles.statusConfirmed : styles.statusDeclined
+                  }`}>
+                    {existingResponse.rsvp.status === 'CONFIRMED' ? (
+                      <CheckCircle style={{ width: '48px', height: '48px', color: 'white' }} />
+                    ) : (
+                      <XCircle style={{ width: '48px', height: '48px', color: 'white' }} />
                     )}
                   </div>
                   
-                  <div className="mt-6 text-sm text-gray-500">
-                    <p>Votre réponse a été enregistrée le {new Date(existingResponse.rsvp.respondedAt).toLocaleDateString('fr-FR')}</p>
-                  </div>
-                </div>
-              ) : (
-                // Afficher le formulaire
-                <div>
-                  <h2 className="text-2xl font-bold text-center mb-6">Confirmer votre présence</h2>
+                  <h3 className={`heading-3 ${styles.guestName}`}>
+                    {existingResponse.guest.firstName} {existingResponse.guest.lastName}
+                  </h3>
                   
-                  <form onSubmit={handleSubmit} className="space-y-6">
-                {/* NOUVEAU: Section informations personnelles */}
-                <div className="personal-info-section">
-                  <h3 className="text-lg font-semibold mb-4">Vos informations</h3>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
-                        Prénom *
-                      </label>
-                      <input
-                        type="text"
-                        name="firstName"
-                        value={formData.firstName}
-                        onChange={handleInputChange}
-                        required
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                        placeholder="Votre prénom"
+                  {existingResponse.rsvp.profilePhotoUrl && (
+                    <div className={styles.photoContainer}>
+                      <img 
+                        src={existingResponse.rsvp.profilePhotoUrl} 
+                        alt={`Photo de ${existingResponse.guest.firstName} ${existingResponse.guest.lastName}`}
+                        className={styles.guestPhoto}
+                        onClick={() => handlePhotoClick(existingResponse.rsvp.profilePhotoUrl, `Photo de ${existingResponse.guest.firstName} ${existingResponse.guest.lastName}`)}
                       />
                     </div>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
-                        Nom *
-                      </label>
-                      <input
-                        type="text"
-                        name="lastName"
-                        value={formData.lastName}
-                        onChange={handleInputChange}
-                        required
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                        placeholder="Votre nom"
-                      />
-                    </div>
-                  </div>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
-                        Email (optionnel)
-                      </label>
-                      <input
-                        type="email"
-                        name="email"
-                        value={formData.email}
-                        onChange={handleInputChange}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                        placeholder="votre.email@example.com"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
-                        Téléphone *
-                      </label>
-                      <PhoneInput
-                        value={formData.phone}
-                        onChange={(value: string) => setFormData(prev => ({ ...prev, phone: value }))}
-                        placeholder="Entrez votre numéro de téléphone"
-                        name="phone"
-                        required
-                      />
-                    </div>
-                  </div>
+                  )}
                   
-                  {/* Section photo de profil */}
-                  <div className="mt-4">
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Votre photo (optionnel)
-                    </label>
-                    <GuestProfilePhotoUpload
-                      currentPhotoUrl={formData.profilePhotoUrl || null}
-                      onPhotoChange={(url) => setFormData(prev => ({ ...prev, profilePhotoUrl: url || '' }))}
-                      disabled={submitting}
-                    />
-                  </div>
-                </div>
-
-                {/* Formulaire RSVP classique */}
-                <div className="rsvp-section">
-                  <h3 className="text-lg font-semibold mb-4">Votre réponse</h3>
+                  <p className={`${styles.statusMessage} ${
+                    existingResponse.rsvp.status === 'CONFIRMED' ? styles.statusMessageConfirmed : styles.statusMessageDeclined
+                  }`}>
+                    {existingResponse.rsvp.status === 'CONFIRMED' ? 
+                      'Vous avez confirmé votre présence' : 
+                      'Vous avez décliné l\'invitation'
+                    }
+                  </p>
                   
-                  <div className="flex flex-col sm:flex-row justify-center gap-4 mb-6">
-                    <Button
-                      type="button"
-                      variant={formData.status === 'CONFIRMED' ? 'primary' : 'outline'}
-                      onClick={() => setFormData(prev => ({ ...prev, status: 'CONFIRMED' }))}
-                      className="flex-1 sm:flex-none"
-                    >
-                      ✅ Je serai présent(e)
-                    </Button>
-                    <Button
-                      type="button"
-                      variant={formData.status === 'DECLINED' ? 'danger' : 'outline'}
-                      onClick={() => setFormData(prev => ({ ...prev, status: 'DECLINED' }))}
-                      className="flex-1 sm:flex-none"
-                    >
-                      ❌ Je ne pourrai pas venir
-                    </Button>
-                  </div>
-
-                  {formData.status === 'CONFIRMED' && (
-                    <>
-                      <div className="mb-4">
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                          Nombre de personnes
-                        </label>
-                        <input
-                          type="number"
-                          name="numberOfGuests"
-                          value={formData.numberOfGuests}
-                          onChange={handleInputChange}
-                          min="1"
-                          max="2"
-                          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                        />
+                  {existingResponse.rsvp.status === 'CONFIRMED' && (
+                    <div className={styles.detailList}>
+                      <div className={styles.detailItem}>
+                        <Users style={{ width: '16px', height: '16px', color: 'var(--color-primary)' }} />
+                        <span>{existingResponse.rsvp.plusOne ? '2 personnes' : '1 personne'}</span>
                       </div>
-
-                      <div className="space-y-3 mb-4">
-                        <label className="flex items-center">
+                      {existingResponse.rsvp.plusOne && existingResponse.rsvp.plusOneName && (
+                        <div className={styles.detailItem}>
+                          <Users style={{ width: '16px', height: '16px', color: 'var(--color-primary)' }} />
+                          <span>Accompagnant: {existingResponse.rsvp.plusOneName}</span>
+                        </div>
+                      )}
+                      {existingResponse.rsvp.attendingCeremony && (
+                        <div className={styles.detailItem}>
+                          <Church style={{ width: '16px', height: '16px', color: 'var(--color-primary)' }} />
+                          <span>Présent(e) à la cérémonie</span>
+                        </div>
+                      )}
+                      {existingResponse.rsvp.attendingReception && (
+                        <div className={styles.detailItem}>
+                          <Wine style={{ width: '16px', height: '16px', color: 'var(--color-primary)' }} />
+                          <span>Présent(e) à la réception</span>
+                        </div>
+                      )}
+                    </div>
+                  )}
+                  
+                  {existingResponse.rsvp.message && (
+                    <div className={styles.messageBox}>
+                      <h4 className={styles.messageHeader}>
+                        <MessageCircle style={{ width: '16px', height: '16px' }} />
+                        Votre message:
+                      </h4>
+                      <p className={styles.messageContent}>"{existingResponse.rsvp.message}"</p>
+                    </div>
+                  )}
+                </div>
+                
+                <div className={styles.responseDate}>
+                  <p>Votre réponse a été enregistrée le {new Date(existingResponse.rsvp.respondedAt).toLocaleDateString('fr-FR')}</p>
+                </div>
+              </div>
+            ) : (
+              // Afficher le formulaire
+              <div className={styles.formContent}>
+                <h2 className={`heading-2 ${styles.formTitle}`}>Confirmer votre présence</h2>
+                
+                <form onSubmit={handleSubmit} className={styles.form}>
+                  {/* Section informations personnelles */}
+                  <div className={styles.formSection}>
+                    <div>
+                      <label className={styles.sectionLabel}>
+                        Vos informations
+                      </label>
+                      <div className={styles.inputGrid}>
+                        <div>
                           <input
-                            type="checkbox"
-                            name="attendingCeremony"
-                            checked={formData.attendingCeremony}
+                            type="text"
+                            name="firstName"
+                            value={formData.firstName}
                             onChange={handleInputChange}
-                            className="mr-2"
+                            required
+                            placeholder="Prénom *"
+                            className={styles.textInput}
                           />
-                          Je serai présent(e) à la cérémonie
-                        </label>
-                        <label className="flex items-center">
+                        </div>
+                        <div>
                           <input
-                            type="checkbox"
-                            name="attendingReception"
-                            checked={formData.attendingReception}
+                            type="text"
+                            name="lastName"
+                            value={formData.lastName}
                             onChange={handleInputChange}
-                            className="mr-2"
+                            required
+                            placeholder="Nom *"
+                            className={styles.textInput}
                           />
-                          Je serai présent(e) à la réception
-                        </label>
+                        </div>
                       </div>
-                    </>
+                      <div className={`${styles.inputGrid} mt-4`}>
+                        <div>
+                          <input
+                            type="email"
+                            name="email"
+                            value={formData.email}
+                            onChange={handleInputChange}
+                            placeholder="Email (optionnel)"
+                            className={styles.textInput}
+                          />
+                        </div>
+                        <div>
+                          <PhoneInput
+                            value={formData.phone}
+                            onChange={(value: string) => setFormData(prev => ({ ...prev, phone: value }))}
+                            placeholder="Téléphone *"
+                            name="phone"
+                            required
+                          />
+                        </div>
+                      </div>
+                      
+                      {/* Section photo de profil */}
+                      <div className="mt-4">
+                      
+                        <GuestProfilePhotoUpload
+                          currentPhotoUrl={formData.profilePhotoUrl || null}
+                          onPhotoChange={(url) => setFormData(prev => ({ ...prev, profilePhotoUrl: url || '' }))}
+                          disabled={submitting}
+                        />
+ 
+                      </div>
+                    </div>
+
+                    {/* Formulaire RSVP classique */}
+                    <div className={styles.formSection}>
+                      <label className={styles.sectionLabel}>
+                        Votre réponse
+                      </label>
+                      <div className={styles.responseButtons}>
+                        <button
+                          type="button"
+                          className={`${formData.status === 'CONFIRMED' ? 'btn btn-primary' : 'btn btn-outline'} ${styles.responseButton}`}
+                          onClick={() => setFormData(prev => ({ ...prev, status: 'CONFIRMED' }))}
+                        >
+                          <CheckCircle style={{ width: '16px', height: '16px' }} />
+                          Je serai présent(e)
+                        </button>
+                        <button
+                          type="button"
+                          className={`${formData.status === 'DECLINED' ? 'btn btn-secondary' : 'btn btn-outline'} ${styles.responseButton}`}
+                          onClick={() => setFormData(prev => ({ ...prev, status: 'DECLINED' }))}
+                        >
+                          <XCircle style={{ width: '16px', height: '16px' }} />
+                          Je ne pourrai pas venir
+                        </button>
+                      </div>
+                    </div>
+
+                    {formData.status === 'CONFIRMED' && (
+                      <>
+                        <div className={styles.checkboxGroup}>
+                          <div>
+                            <label className={styles.checkboxLabel}>
+                              <input
+                                type="checkbox"
+                                name="attendingCeremony"
+                                checked={formData.attendingCeremony}
+                                onChange={handleInputChange}
+                                className={styles.checkbox}
+                              />
+                              <span>
+                                Je serai présent(e) à la cérémonie
+                              </span>
+                            </label>
+                          </div>
+                          <div>
+                            <label className={styles.checkboxLabel}>
+                              <input
+                                type="checkbox"
+                                name="attendingReception"
+                                checked={formData.attendingReception}
+                                onChange={handleInputChange}
+                                className={styles.checkbox}
+                              />
+                              <span>
+                                Je serai présent(e) à la réception
+                              </span>
+                            </label>
+                          </div>
+                        </div>
+
+                        {/* Section accompagnant */}
+                        <div>
+                          <label className={styles.plusOneLabel}>
+                            <input
+                              type="checkbox"
+                              name="plusOne"
+                              checked={formData.plusOne}
+                              onChange={handleInputChange}
+                              className={styles.checkbox}
+                            />
+                            <Users style={{ width: '16px', height: '16px' }} />
+                            👥 Accompagnant autorisé
+                          </label>
+                          
+                          {formData.plusOne && (
+                            <div className={styles.plusOneSection}>
+                              <input
+                                type="text"
+                                name="plusOneName"
+                                value={formData.plusOneName}
+                                onChange={handleInputChange}
+                                placeholder="Nom de l'accompagnant"
+                                className={styles.textInput}
+                              />
+                            </div>
+                          )}
+                        </div>
+
+                        {/* Section restrictions alimentaires */}
+                        <div>
+                          <label className={styles.sectionLabel}>
+                            🥗 Restrictions alimentaires
+                          </label>
+                          <textarea
+                            name="dietaryRestrictions"
+                            rows={3}
+                            value={formData.dietaryRestrictions}
+                            onChange={handleInputChange}
+                            placeholder="Ex: Végétarien, allergies, sans gluten..."
+                            className={`${styles.textarea} ${styles.dietaryTextarea}`}
+                          />
+                        </div>
+                      </>
+                    )}
+
+                    <div>
+                      <label className={styles.sectionLabel}>
+                        Message pour l'organisateur
+                      </label>
+                      <textarea
+                        name="message"
+                        rows={4}
+                        value={formData.message}
+                        onChange={handleInputChange}
+                        placeholder="Votre message pour l'organisateur..."
+                        className={styles.textarea}
+                      />
+                    </div>
+                  </div>
+
+                  {error && (
+                    <div className={styles.errorMessage}>
+                      {error}
+                      <div className="mt-2">
+                        <button
+                          className="btn btn-outline"
+                          onClick={() => window.location.reload()}
+                        >
+                          <RefreshCw style={{ width: '16px', height: '16px', marginRight: '8px' }} />
+                          Rafraîchir
+                        </button>
+                      </div>
+                    </div>
                   )}
 
-                  <div className="mb-4">
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Message pour les mariés
-                    </label>
-                    <textarea
-                      name="message"
-                      value={formData.message}
-                      onChange={handleInputChange}
-                      rows={3}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                      placeholder="Un petit message pour les mariés..."
-                    />
-                  </div>
-                </div>
-
-                {error && (
-                  <div className="text-red-600 text-sm text-center bg-red-50 p-3 rounded-md">
-                    {error}
-                    <div className="mt-2">
-                      <Button
-                        variant="outline"
-                        size="small"
-                        onClick={() => window.location.reload()}
-                      >
-                        🔄 Rafraîchir
-                      </Button>
-                    </div>
-                  </div>
-                )}
-
-                <Button
-                  type="submit"
-                  variant="primary"
-                  className="w-full"
-                  disabled={submitting}
-                >
-                  {submitting ? 'Envoi en cours...' : 'Envoyer ma réponse'}
-                </Button>
-              </form>
-                </div>
-              )}
-            </div>
-          </Card>
-          <div style={{ background: '#f8fafc', padding: '0.75rem', borderRadius: '0.5rem', marginTop: '1.5rem', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.85rem', color: '#64748b', gap: '0.5rem' }}>
-  <span style={{ fontSize: '1.1em' }}>🔒</span>
-  <span>Ce lien est personnel. Merci de ne pas le partager avec d'autres personnes.</span>
-</div>
+                  <button
+                    type="submit"
+                    disabled={submitting || formData.status === 'PENDING'}
+                    className={`btn btn-primary ${styles.submitButton}`}
+                  >
+                    {submitting ? 'Envoi en cours...' : 'Envoyer ma réponse'}
+                  </button>
+                </form>
+              </div>
+            )}
+          </div>
+          
+          {/* Notice de sécurité */}
+          <div className={styles.securityNotice}>
+            <Shield style={{ width: '16px', height: '16px' }} />
+            <span>Ce lien est personnel. Merci de ne pas le partager avec d'autres personnes.</span>
+          </div>
         </div>
       </div>
       

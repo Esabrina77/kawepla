@@ -1,11 +1,12 @@
 {
-  "name": "KaWePla",
-  "short_name": "KaWePla",
-  "description": "Créez et gérez vos invitations de mariage en toute simplicité",
+  "name": "Kawepla - Organisez votre événement de rêve",
+  "short_name": "Kawepla",
+  "description": "Créez vos invitations d'événements numériques élégantes, gérez vos invités et suivez les réponses en temps réel",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#ffffff",
+  "background_color": "#FDF8F3",
   "theme_color": "#D4B895",
+  "orientation": "portrait-primary",
   "icons": [
     {
       "src": "/icons/logo-16.png",
@@ -20,12 +21,58 @@
     {
       "src": "/icons/logo-192.png",
       "sizes": "192x192",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any maskable"
     },
     {
       "src": "/icons/logo-512.png",
       "sizes": "512x512",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["lifestyle", "productivity", "social", "wedding"],
+  "lang": "fr",
+  "dir": "ltr",
+  "scope": "/",
+  "prefer_related_applications": false,
+  "related_applications": [],
+  "shortcuts": [
+    {
+      "name": "Tableau de bord",
+      "short_name": "Dashboard",
+      "description": "Accéder au tableau de bord",
+      "url": "/client/dashboard",
+      "icons": [
+        {
+          "src": "/icons/logo-96.png",
+          "sizes": "96x96"
+        }
+      ]
+    },
+    {
+      "name": "Nouvelle invitation",
+      "short_name": "Créer",
+      "description": "Créer une nouvelle invitation",
+      "url": "/client/invitations",
+      "icons": [
+        {
+          "src": "/icons/logo-96.png",
+          "sizes": "96x96"
+        }
+      ]
+    },
+    {
+      "name": "Mes invités",
+      "short_name": "Invités",
+      "description": "Gérer mes invités",
+      "url": "/client/guests",
+      "icons": [
+        {
+          "src": "/icons/logo-96.png",
+          "sizes": "96x96"
+        }
+      ]
     }
   ]
 } 
