@@ -1,12 +1,12 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { Lock, Eye, EyeOff, Check, X, ArrowLeft } from 'lucide-react';
 import styles from '@/styles/site/auth.module.css';
 
-export default function ResetPasswordPage() {
+function ResetPasswordContent() {
   const searchParams = useSearchParams();
   const token = searchParams.get('token') || '';
   const [showPassword, setShowPassword] = useState(false);
@@ -195,5 +195,25 @@ export default function ResetPasswordPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function ResetPasswordPage() {
+  return (
+    <Suspense fallback={
+      <div className={styles.auth}>
+        <div className={styles.container}>
+          <div className={styles.authCard}>
+            <div className={styles.header}>
+              <Lock size={48} className={styles.icon} />
+              <h1>Chargement...</h1>
+              <p>Préparation de la réinitialisation</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    }>
+      <ResetPasswordContent />
+    </Suspense>
   );
 }

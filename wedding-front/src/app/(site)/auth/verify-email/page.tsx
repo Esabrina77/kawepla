@@ -1,13 +1,13 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useAuth } from '@/hooks/useAuth';
 import { Mail, ArrowLeft, CheckCircle, AlertCircle, Key } from 'lucide-react';
 import styles from '@/styles/site/auth.module.css';
 
-export default function VerifyEmailPage() {
+function VerifyEmailContent() {
   const { verifyEmail, sendVerificationCode } = useAuth();
   const searchParams = useSearchParams();
   const router = useRouter();
@@ -167,5 +167,27 @@ export default function VerifyEmailPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function VerifyEmailPage() {
+  return (
+    <Suspense fallback={
+      <div className={styles.auth}>
+        <div className={styles.container}>
+          <div className={styles.authCard}>
+            <div className={styles.header}>
+              <div className={styles.iconContainer}>
+                <Mail size={56} className={styles.icon} />
+              </div>
+              <h1>Chargement...</h1>
+              <p className={styles.description}>Préparation de la vérification email</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    }>
+      <VerifyEmailContent />
+    </Suspense>
   );
 } 
