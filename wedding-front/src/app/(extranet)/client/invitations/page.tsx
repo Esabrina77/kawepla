@@ -101,18 +101,8 @@ export default function InvitationsPage() {
       return;
     }
 
-    // Utiliser le design sélectionné via URL ou le premier design disponible
-    const designToUse = selectedDesignId || designs[0]?.id;
-    
-    if (!designToUse) {
-      // Rediriger vers la page des designs
-      router.push('/client/design?returnTo=invitations');
-      return;
-    }
-
-    // Définir le design dans le formulaire
-    setFormData(prev => ({ ...prev, designId: designToUse }));
-    setShowCreateForm(true);
+    // Toujours rediriger vers la page des designs pour choisir un design
+    router.push('/client/design?returnTo=invitations');
   };
 
   const handleFormSubmit = async (e: React.FormEvent) => {

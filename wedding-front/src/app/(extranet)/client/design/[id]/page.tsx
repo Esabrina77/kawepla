@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState, use } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useDesigns } from '@/hooks/useDesigns';
 import { Design } from '@/types';
@@ -20,9 +20,18 @@ export default function DesignDetailPage({ params }: Props) {
   const [design, setDesign] = useState<Design | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [designId, setDesignId] = useState<string | null>(null);
   
-  // Unwrap params avec React.use()
-  const resolvedParams = use(params);
+  // Resolve params asynchronously
+  useEffect(() => {
+    params.then(resolvedParams => {
+      setDesignId(resolvedParams.id);
+    }).catch(err => {
+      console.error('Error resolving params:', err);
+      setError('Erreur lors du chargement des paramètres');
+      setLoading(false);
+    });
+  }, [params]);
 
   // Données d'exemple pour la prévisualisation (adaptées au type d'événement)
   const getPreviewData = (design: Design | null) => {
@@ -30,11 +39,13 @@ export default function DesignDetailPage({ params }: Props) {
   };
 
   useEffect(() => {
+    if (!designId) return;
+    
     const fetchDesign = async () => {
       try {
         setLoading(true);
         setError(null);
-        const designData = await getDesignById(resolvedParams.id);
+        const designData = await getDesignById(designId);
         if (!designData) {
           setError('Design non trouvé');
           return;
@@ -48,7 +59,7 @@ export default function DesignDetailPage({ params }: Props) {
     };
 
     fetchDesign();
-  }, [resolvedParams.id, getDesignById]);
+  }, [designId, getDesignById]);
 
   const handleSelectDesign = () => {
     // Rediriger vers la page de création d'invitation avec le design sélectionné
