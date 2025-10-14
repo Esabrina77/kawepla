@@ -257,14 +257,16 @@ export default function RSVPPage() {
                 </h1>
                 
                 <div>
-                  <p className={styles.fallbackDate}>
-                    {new Date(invitation.eventDate).toLocaleDateString('fr-FR', {
-                      weekday: 'long',
-                      day: 'numeric',
-                      month: 'long',
-                      year: 'numeric'
-                    })}
-                  </p>
+                  {invitation.eventDate && (
+                    <p className={styles.fallbackDate}>
+                      {new Date(invitation.eventDate).toLocaleDateString('fr-FR', {
+                        weekday: 'long',
+                        day: 'numeric',
+                        month: 'long',
+                        year: 'numeric'
+                      })}
+                    </p>
+                  )}
                   {invitation.eventTime && (
                     <p className={styles.fallbackTime}>
                       à {invitation.eventTime}

@@ -95,7 +95,7 @@ export default function PhotosPage() {
             >
               {invitations.map(invitation => (
                 <option key={invitation.id} value={invitation.id}>
-                  {invitation.eventTitle} - {new Date(invitation.eventDate).toLocaleDateString('fr-FR')}
+                  {invitation.eventTitle}{invitation.eventDate ? ` - ${new Date(invitation.eventDate).toLocaleDateString('fr-FR')}` : ''}
                 </option>
               ))}
             </select>

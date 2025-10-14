@@ -1,52 +1,22 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useParams } from 'next/navigation';
 import { useDesigns } from '@/hooks/useDesigns';
 import { Design } from '@/types';
 import { TemplateEngine, getPreviewDataByType } from '@/lib/templateEngine';
 import { Palette, ArrowLeft, Crown } from 'lucide-react';
 import styles from './design-detail.module.css';
 
-interface Props {
-  params: Promise<{
-    id: string;
-  }> | {
-    id: string;
-  };
-}
-
-export default function DesignDetailPage({ params }: Props) {
+export default function DesignDetailPage() {
   const router = useRouter();
+  const params = useParams();
   const { getDesignById } = useDesigns();
   const [design, setDesign] = useState<Design | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [designId, setDesignId] = useState<string | null>(null);
   
-  // Resolve params asynchronously or synchronously
-  useEffect(() => {
-    const resolveParams = async () => {
-      try {
-        if (params && typeof params === 'object' && 'then' in params) {
-          // params is a Promise
-          const resolvedParams = await params;
-          setDesignId(resolvedParams.id);
-        } else if (params && typeof params === 'object' && 'id' in params) {
-          // params is already resolved
-          setDesignId(params.id);
-        } else {
-          throw new Error('Invalid params format');
-        }
-      } catch (err) {
-        console.error('Error resolving params:', err);
-        setError('Erreur lors du chargement des paramètres');
-        setLoading(false);
-      }
-    };
-
-    resolveParams();
-  }, [params]);
+  const designId = params?.id as string;
 
   // Données d'exemple pour la prévisualisation (adaptées au type d'événement)
   const getPreviewData = (design: Design | null) => {

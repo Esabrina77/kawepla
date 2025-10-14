@@ -62,8 +62,9 @@ const metadata: Metadata = {
     shortcut: '/favicon.ico',
   },
   verification: {
-    google: 'your-google-verification-code',
-  },
+    google: 'iLofx6S2vdlLlPQzyPedkFKg8QJriArtaPM65SzmL2s',
+  
+  },  
 };
 
 export default metadata; 
