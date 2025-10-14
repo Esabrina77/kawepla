@@ -387,7 +387,7 @@
 /* Responsive Design */
 @media (max-width: 768px) {
   .bookingsContainer {
-    padding: var(--space-md);
+    padding: var(--space-sm) var(--space-md); /* Réduire le padding top */
   }
 
   .statsGrid {
@@ -425,7 +425,7 @@
 
 @media (max-width: 480px) {
   .bookingsContainer {
-    padding: var(--space-sm);
+    padding: var(--space-xs) var(--space-sm); /* Encore moins de padding */
   }
 
   .statsGrid {

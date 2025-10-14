@@ -202,13 +202,13 @@ export default function RSVPPage() {
   if (loading) {
     return (
       <div className={styles.container}>
-        <div className={`card animate-scale-in ${styles.loadingCard}`}>
+        <div className={`card animate-scaleIn ${styles.loadingCard}`}>
           <div className={styles.loadingContent}>
             <div className={styles.loadingIcon}>
               <Heart style={{ width: '24px', height: '24px' }} />
             </div>
-            <h2 className={`heading-2 ${styles.loadingTitle}`}>Chargement...</h2>
-            <p className={`text-body ${styles.loadingText}`}>
+            <h2 className={`${styles.loadingTitle}`}>Chargement...</h2>
+            <p className={`${styles.loadingText}`}>
               Préparation de votre invitation
             </p>
           </div>
@@ -220,13 +220,13 @@ export default function RSVPPage() {
   if (error || !invitation) {
     return (
       <div className={styles.container}>
-        <div className={`card animate-scale-in ${styles.errorCard}`}>
+        <div className={`card animate-scaleIn ${styles.errorCard}`}>
           <div className={styles.errorContent}>
             <div className={styles.errorIcon}>
               <HelpCircle style={{ width: '24px', height: '24px' }} />
             </div>
-            <h1 className={`heading-2 ${styles.errorTitle}`}>Invitation non trouvée</h1>
-            <p className={`text-body ${styles.errorText}`}>
+            <h1 className={`${styles.errorTitle}`}>Invitation non trouvée</h1>
+            <p className={`${styles.errorText}`}>
               {error || 'Cette invitation n\'existe pas ou a expiré.'}
             </p>
           </div>
@@ -241,7 +241,7 @@ export default function RSVPPage() {
         
         {/* Colonne gauche : Invitation avec son design visuel */}
         <div className={styles.invitationColumn}>
-          <div className={`card animate-scale-in ${styles.invitationCard}`}>
+          <div className={`card animate-scaleIn ${styles.invitationCard}`}>
             {renderedInvitation ? (
               <div className="invitation-container">
                 {/* Injecter le CSS du design */}
@@ -287,12 +287,12 @@ export default function RSVPPage() {
 
         {/* Colonne droite : Formulaire RSVP ou Réponse existante */}
         <div className={styles.formColumn}>
-          <div className="card animate-scale-in">
+          <div className="animate-scaleIn">
             <div className={styles.formCard}>
               {showExistingResponse ? (
                 // Afficher la réponse existante
                 <div className={styles.responseContent}>
-                  <h2 className={`heading-2 ${styles.responseTitle}`}>
+                  <h2 className={`${styles.responseTitle}`}>
                     Votre réponse
                   </h2>
                   
@@ -362,7 +362,7 @@ export default function RSVPPage() {
                   </div>
                   
                   <div>
-                    <p className={`text-small ${styles.responseDate}`}>
+                    <p className={`${styles.responseDate}`}>
                       Votre réponse a été enregistrée le {rsvpStatus?.respondedAt ? new Date(rsvpStatus.respondedAt).toLocaleDateString('fr-FR') : 'aujourd\'hui'}
                     </p>
                   </div>
@@ -370,7 +370,7 @@ export default function RSVPPage() {
               ) : (
                 // Afficher le formulaire
                 <div>
-                  <h2 className={`heading-2 ${styles.formTitle}`}>
+                  <h2 className={`${styles.formTitle}`}>
                     Confirmer votre présence
                   </h2>
               
@@ -518,7 +518,7 @@ export default function RSVPPage() {
                 </button>
 
                 {rsvpStatus && !showExistingResponse && (
-                  <p className={`text-small ${styles.updateNote}`}>
+                  <p className={`${styles.updateNote}`}>
                     Vous avez déjà répondu à cette invitation. Vous pouvez modifier votre réponse ci-dessus.
                   </p>
                 )}

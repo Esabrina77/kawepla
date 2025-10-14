@@ -30,7 +30,7 @@ const getDefaultFormData = () => ({
   eventDate: '',
   eventTime: '15:00',
   location: '',
-  eventType: 'event' as const,
+  eventType: 'WEDDING' as const,
   customText: 'Vous êtes cordialement invités à célébrer avec nous',
   moreInfo: 'Informations complémentaires',
   designId: ''
@@ -75,7 +75,7 @@ export default function InvitationsPage() {
         eventDate: formData.eventDate ? new Date(formData.eventDate) : new Date('2024-06-15T15:00:00'),
         eventTime: formData.eventTime || '15:00',
         location: formData.location || 'Lieu de l\'événement',
-        eventType: formData.eventType || 'event',
+          eventType: formData.eventType || 'WEDDING',
         customText: formData.customText, // Utiliser directement la valeur du formulaire (pré-remplie)
         moreInfo: formData.moreInfo // Utiliser directement la valeur du formulaire (pré-remplie)
       });

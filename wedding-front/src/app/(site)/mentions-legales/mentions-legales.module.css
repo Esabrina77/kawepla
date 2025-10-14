@@ -1,0 +1,230 @@
+/* ===== MENTIONS LEGALES - LUXURY DESIGN SYSTEM ===== */
+
+.container {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: var(--space-lg);
+  background: var(--bg-primary);
+  min-height: 100vh;
+}
+
+.header {
+  margin-bottom: var(--space-xl);
+}
+
+.backButton {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-xs);
+  padding: var(--space-sm) var(--space-md);
+  background: transparent;
+  border: 2px solid var(--luxury-pearl-gray);
+  border-radius: var(--radius-md);
+  color: var(--luxury-pearl-gray);
+  font-size: 0.9rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all var(--transition-normal);
+  margin-bottom: var(--space-lg);
+}
+
+.backButton:hover {
+  background: var(--luxury-pearl-gray);
+  color: white;
+  transform: translateY(-1px);
+}
+
+.titleSection {
+  text-align: center;
+  margin-bottom: var(--space-lg);
+}
+
+.iconContainer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 80px;
+  height: 80px;
+  background: var(--gradient-primary);
+  border-radius: 50%;
+  margin: 0 auto var(--space-md);
+  box-shadow: var(--shadow-lg);
+}
+
+.icon {
+  color: white;
+  width: 40px;
+  height: 40px;
+}
+
+.title {
+  font-family: var(--font-sans);
+  font-size: clamp(2rem, 4vw, 2.5rem);
+  font-weight: 400;
+  color: var(--text-primary);
+  margin-bottom: var(--space-sm);
+}
+
+.subtitle {
+  color: var(--text-secondary);
+  font-size: 1.1rem;
+  margin: 0;
+}
+
+.content {
+  background: white;
+  border-radius: var(--radius-lg);
+  padding: var(--space-xl);
+  box-shadow: var(--shadow-md);
+  border: 1px solid var(--luxury-pearl-gray);
+}
+
+.section {
+  margin-bottom: var(--space-xl);
+}
+
+.section:last-child {
+  margin-bottom: 0;
+}
+
+.sectionTitle {
+  font-family: var(--font-sans);
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: var(--space-md);
+  padding-bottom: var(--space-sm);
+  border-bottom: 2px solid var(--luxury-champagne-gold);
+}
+
+.text {
+  color: var(--text-secondary);
+  line-height: 1.7;
+  margin-bottom: var(--space-md);
+  font-size: 1rem;
+}
+
+.text:last-child {
+  margin-bottom: 0;
+}
+
+.infoCard {
+  background: rgba(197, 168, 128, 0.05);
+  border: 1px solid rgba(197, 168, 128, 0.1);
+  border-radius: var(--radius-md);
+  padding: var(--space-lg);
+}
+
+.infoItem {
+  display: flex;
+  margin-bottom: var(--space-sm);
+  font-size: 1rem;
+  line-height: 1.6;
+}
+
+.infoItem:last-child {
+  margin-bottom: 0;
+}
+
+.infoItem strong {
+  color: var(--text-primary);
+  min-width: 140px;
+  margin-right: var(--space-sm);
+}
+
+.contactCard {
+  background: rgba(197, 168, 128, 0.05);
+  border: 1px solid rgba(197, 168, 128, 0.1);
+  border-radius: var(--radius-md);
+  padding: var(--space-lg);
+  text-align: center;
+}
+
+.contactItem {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-sm);
+  margin-bottom: var(--space-md);
+  font-size: 1.1rem;
+  font-weight: 500;
+  color: var(--text-primary);
+}
+
+.contactIcon {
+  color: var(--luxury-champagne-gold);
+  width: 20px;
+  height: 20px;
+}
+
+.contactText {
+  color: var(--text-secondary);
+  line-height: 1.6;
+  margin: 0;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .container {
+    padding: var(--space-md);
+  }
+
+  .content {
+    padding: var(--space-lg);
+  }
+
+  .title {
+    font-size: 1.75rem;
+  }
+
+  .subtitle {
+    font-size: 1rem;
+  }
+
+  .sectionTitle {
+    font-size: 1.25rem;
+  }
+
+  .infoItem {
+    flex-direction: column;
+    gap: var(--space-xs);
+  }
+
+  .infoItem strong {
+    min-width: auto;
+    margin-right: 0;
+  }
+}
+
+@media (max-width: 480px) {
+  .container {
+    padding: var(--space-sm);
+  }
+
+  .content {
+    padding: var(--space-md);
+  }
+
+  .iconContainer {
+    width: 60px;
+    height: 60px;
+  }
+
+  .icon {
+    width: 30px;
+    height: 30px;
+  }
+
+  .title {
+    font-size: 1.5rem;
+  }
+
+  .sectionTitle {
+    font-size: 1.1rem;
+  }
+
+  .infoCard,
+  .contactCard {
+    padding: var(--space-md);
+  }
+}

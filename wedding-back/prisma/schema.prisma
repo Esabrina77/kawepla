@@ -8,33 +8,33 @@ datasource db {
 }
 
 model User {
-  id                 String                  @id @default(cuid())
-  email              String                  @unique
-  password           String
-  firstName          String
-  lastName           String
-  role               UserRole                @default(HOST)
-  isActive           Boolean                 @default(true)
-  emailVerified      Boolean                 @default(false)
-  createdAt          DateTime                @default(now())
-  updatedAt          DateTime                @updatedAt
-  stripeCustomerId   String?
-  clientBookings     Booking[]               @relation("ClientBookings")
-  adminConversations Conversation[]          @relation("AdminConversations")
-  userConversations  Conversation[]          @relation("UserConversations")
-  guests             Guest[]
-  invitations        Invitation[]
-  sentMessages       Message[]               @relation("SentMessages")
-  passwordResets     PasswordReset[]
-  providerProfile    ProviderProfile?
-  purchaseHistory    PurchaseHistory[]
-  pushSubscriptions  PushSubscription?
-  refreshTokens      RefreshToken[]
-  reviews            Review[]                @relation("ClientReviews")
-  servicePurchases   ServicePurchase[]
-  additionalServices UserAdditionalService[]
-  createdNewsletters Newsletter[]          @relation("NewsletterCreator")
-  newsletterRecipients NewsletterRecipient[] @relation("NewsletterRecipients")
+  id                   String                  @id @default(cuid())
+  email                String                  @unique
+  password             String
+  firstName            String
+  lastName             String
+  role                 UserRole                @default(HOST)
+  isActive             Boolean                 @default(true)
+  emailVerified        Boolean                 @default(false)
+  createdAt            DateTime                @default(now())
+  updatedAt            DateTime                @updatedAt
+  stripeCustomerId     String?
+  clientBookings       Booking[]               @relation("ClientBookings")
+  adminConversations   Conversation[]          @relation("AdminConversations")
+  userConversations    Conversation[]          @relation("UserConversations")
+  guests               Guest[]
+  invitations          Invitation[]
+  sentMessages         Message[]               @relation("SentMessages")
+  newsletterRecipients NewsletterRecipient[]   @relation("NewsletterRecipients")
+  createdNewsletters   Newsletter[]            @relation("NewsletterCreator")
+  passwordResets       PasswordReset[]
+  providerProfile      ProviderProfile?
+  purchaseHistory      PurchaseHistory[]
+  pushSubscriptions    PushSubscription?
+  refreshTokens        RefreshToken[]
+  reviews              Review[]                @relation("ClientReviews")
+  servicePurchases     ServicePurchase[]
+  additionalServices   UserAdditionalService[]
 
   @@map("users")
 }
@@ -460,38 +460,38 @@ model PushSubscription {
 }
 
 model Newsletter {
-  id                String             @id @default(cuid())
-  title             String
-  subject           String
-  content           String
-  htmlContent       String?
-  status            NewsletterStatus   @default(DRAFT)
-  targetAudience    NewsletterAudience @default(ALL_USERS)
-  specificUserIds   String[]           @default([])
-  scheduledAt       DateTime?
-  sentAt            DateTime?
-  sentCount         Int                @default(0)
-  openCount         Int                @default(0)
-  clickCount        Int                @default(0)
-  createdBy         String
-  createdAt         DateTime           @default(now())
-  updatedAt         DateTime           @updatedAt
-  creator           User               @relation("NewsletterCreator", fields: [createdBy], references: [id])
-  recipients        NewsletterRecipient[]
+  id              String                @id @default(cuid())
+  title           String
+  subject         String
+  content         String
+  htmlContent     String?
+  status          NewsletterStatus      @default(DRAFT)
+  targetAudience  NewsletterAudience    @default(ALL_USERS)
+  specificUserIds String[]              @default([])
+  scheduledAt     DateTime?
+  sentAt          DateTime?
+  sentCount       Int                   @default(0)
+  openCount       Int                   @default(0)
+  clickCount      Int                   @default(0)
+  createdBy       String
+  createdAt       DateTime              @default(now())
+  updatedAt       DateTime              @updatedAt
+  recipients      NewsletterRecipient[]
+  creator         User                  @relation("NewsletterCreator", fields: [createdBy], references: [id])
 
   @@map("newsletters")
 }
 
 model NewsletterRecipient {
-  id           String    @id @default(cuid())
+  id           String     @id @default(cuid())
   newsletterId String
   userId       String
   sentAt       DateTime?
   openedAt     DateTime?
   clickedAt    DateTime?
-  status       String    @default("PENDING") // PENDING, SENT, FAILED, OPENED, CLICKED
+  status       String     @default("PENDING")
   newsletter   Newsletter @relation(fields: [newsletterId], references: [id], onDelete: Cascade)
-  user         User      @relation("NewsletterRecipients", fields: [userId], references: [id], onDelete: Cascade)
+  user         User       @relation("NewsletterRecipients", fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([newsletterId, userId])
   @@map("newsletter_recipients")

@@ -228,7 +228,7 @@ export class InvitationService {
     const invitation = await prisma.invitation.findFirst({
       where: {
         id,
-        userId
+        ...(userId !== 'admin' ? { userId } : {})
       }
     });
 
@@ -236,11 +236,16 @@ export class InvitationService {
       throw new Error('Invitation non trouvée');
     }
 
-    if (invitation.status === PrismaInvitationStatus.PUBLISHED) {
+    // Les admins peuvent supprimer toutes les invitations, les utilisateurs seulement les non publiées
+    if (userId !== 'admin' && invitation.status === PrismaInvitationStatus.PUBLISHED) {
       throw new Error('Impossible de supprimer une invitation publiée');
     }
 
-    // Supprimer les fichiers S3 associés
+    // Nettoyer les fichiers Firebase des albums photos
+    const { FirebaseCleanupService } = await import('./firebaseCleanupService');
+    await FirebaseCleanupService.deleteInvitationPhotos(id);
+
+    // Supprimer les fichiers S3 associés (ancien système)
     if (invitation.photos) {
       const photos = invitation.photos as { url: string }[];
       for (const photo of photos) {
@@ -385,6 +390,28 @@ export class InvitationService {
       where: {
         userId,
       },
+      select: {
+        // Champs scalaires de l'invitation
+        id: true,
+        eventTitle: true,
+        eventDate: true,
+        eventType: true,
+        eventTime: true,
+        location: true,
+        customText: true,
+        moreInfo: true,
+        status: true,
+        createdAt: true,
+        updatedAt: true,
+        description: true,
+        photos: true,
+        languages: true,
+        designId: true,
+        shareableEnabled: true,
+        shareableMaxUses: true,
+        shareableToken: true,
+        shareableUsedCount: true
+      },
       orderBy: {
         createdAt: 'desc'
       }
@@ -401,6 +428,76 @@ export class InvitationService {
         userId,
         status: {
           not: 'ARCHIVED'
+        }
+      },
+      orderBy: {
+        createdAt: 'desc'
+      }
+    });
+  }
+
+  /**
+   * Supprimer une invitation (pour l'admin).
+   */
+  static async deleteInvitationAdmin(id: string) {
+    const invitation = await prisma.invitation.findUnique({
+      where: { id }
+    });
+
+    if (!invitation) {
+      throw new Error('Invitation non trouvée');
+    }
+
+    // Nettoyer les fichiers Firebase associés
+    const { FirebaseCleanupService } = await import('./firebaseCleanupService');
+    await FirebaseCleanupService.deleteInvitationPhotos(id);
+
+    // Supprimer les fichiers S3 associés (ancien système)
+    if (invitation.photos) {
+      const photos = invitation.photos as { url: string }[];
+      for (const photo of photos) {
+        await S3Service.deleteFile(photo.url);
+      }
+    }
+
+    return prisma.invitation.delete({
+      where: { id }
+    });
+  }
+
+  /**
+   * Récupérer toutes les invitations (pour l'admin).
+   */
+  static async getAllInvitations() {
+    return prisma.invitation.findMany({
+      select: {
+        // Champs scalaires de l'invitation
+        id: true,
+        eventTitle: true,
+        eventDate: true,
+        eventType: true,
+        eventTime: true,
+        location: true,
+        customText: true,
+        moreInfo: true,
+        status: true,
+        createdAt: true,
+        updatedAt: true,
+        // Relations
+        user: {
+          select: {
+            id: true,
+            email: true,
+            firstName: true,
+            lastName: true,
+            role: true
+          }
+        },
+        _count: {
+          select: {
+            guests: true,
+            rsvps: true
+          }
         }
       },
       orderBy: {

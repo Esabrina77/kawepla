@@ -302,7 +302,6 @@
   align-items: flex-start;
   gap: var(--space-sm);
   margin-bottom: var(--space-md);
-  padding: var(--space-sm);
 }
 
 .problemIcon {

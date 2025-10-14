@@ -2,20 +2,17 @@
 
 /* Container principal */
 .container {
-  max-width: 1200px;
+  max-width: 1000px;
   margin: 0 auto;
-  padding: var(--space-xs);
-  min-height: 100vh;
+  padding: var(--space-sm);
   background: white;
 }
 
 /* Header Section */
 .headerSection {
   text-align: center;
-  margin-bottom: var(--space-xl);
-  max-width: 800px;
-  margin: 0 auto var(--space-xl);
-  padding: var(--space-lg) 0;
+  margin-bottom: var(--space-lg);
+  padding: var(--space-md) 0;
 }
 
 .badge {
@@ -34,37 +31,77 @@
 
 .title {
   font-family: var(--font-sans);
-  font-size: clamp(2rem, 5vw, 3.5rem);
+  font-size: clamp(1.75rem, 4vw, 2.5rem);
   font-weight: 400;
   line-height: 1.2;
-  margin-bottom: var(--space-md);
+  margin-bottom: var(--space-sm);
   color: var(--color-dark);
 }
 
-.organisateurInfo {
+.eventInfo {
   display: flex;
+  flex-direction: row;
   align-items: center;
   justify-content: center;
-  gap: var(--space-sm);
+  gap: var(--space-md);
   margin-bottom: var(--space-sm);
+  flex-wrap: wrap;
 }
 
 .organisateurName {
-  font-size: 1.25rem;
+  font-size: 1.1rem;
   color: var(--luxury-champagne-gold);
   font-weight: 500;
 }
 
-.flowerIcon {
-  color: var(--luxury-champagne-gold);
-  width: 20px;
-  height: 20px;
+.eventDate {
+  font-size: 1rem;
+  color: var(--luxury-pearl-gray);
 }
 
-.eventDate {
-  font-size: 1.1rem;
+.separator {
   color: var(--luxury-pearl-gray);
-  font-style: italic;
+  font-size: 1.2rem;
+  font-weight: 300;
+}
+
+/* Message d'invitation explicite */
+.invitationMessage {
+  background: rgba(197, 168, 128, 0.05);
+  border: 1px solid rgba(197, 168, 128, 0.1);
+  border-radius: var(--radius-lg);
+  padding: var(--space-md);
+  margin-top: var(--space-md);
+  text-align: center;
+}
+
+.invitationIcon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: var(--gradient-primary);
+  color: white;
+  margin: 0 auto var(--space-sm);
+  box-shadow: var(--shadow-md);
+}
+
+.invitationTitle {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: var(--space-xs);
+}
+
+.invitationText {
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+  line-height: 1.5;
+  margin: 0;
+  max-width: 500px;
+  margin: 0 auto;
 }
 
 /* Loading States */
@@ -176,15 +213,15 @@
 .photoGallery {
   background: white;
   border-radius: var(--radius-lg);
-  padding: var(--space-xl);
-  margin-bottom: var(--space-xl);
+  padding: var(--space-lg);
+  margin-bottom: var(--space-lg);
   box-shadow: var(--shadow-md);
   border: 1px solid var(--luxury-pearl-gray);
 }
 
 .galleryHeader {
   text-align: center;
-  margin-bottom: var(--space-lg);
+  margin-bottom: var(--space-md);
 }
 
 .galleryTitle {
@@ -192,7 +229,7 @@
   align-items: center;
   justify-content: center;
   gap: var(--space-sm);
-  font-size: 1.5rem;
+  font-size: 1.25rem;
   font-weight: 600;
   color: var(--color-dark);
   margin-bottom: var(--space-xs);
@@ -211,9 +248,9 @@
 
 .photoGrid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-  gap: var(--space-md);
-  margin-top: var(--space-lg);
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: var(--space-sm);
+  margin-top: var(--space-md);
 }
 
 .photoGridItem {
@@ -484,37 +521,37 @@
 .uploadSection {
   background: white;
   border-radius: var(--radius-lg);
-  padding: var(--space-xl);
-  margin-bottom: var(--space-xl);
+  padding: var(--space-lg);
+  margin-bottom: var(--space-lg);
   box-shadow: var(--shadow-md);
   border: 1px solid var(--luxury-pearl-gray);
 }
 
 .uploadHeader {
   text-align: center;
-  margin-bottom: var(--space-lg);
+  margin-bottom: var(--space-md);
 }
 
 .uploadIcon {
-  width: 64px;
-  height: 64px;
+  width: 48px;
+  height: 48px;
   background: var(--gradient-primary);
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  margin: 0 auto var(--space-md);
+  margin: 0 auto var(--space-sm);
   box-shadow: var(--shadow-lg);
 }
 
 .giftIcon {
   color: white;
-  width: 32px;
-  height: 32px;
+  width: 24px;
+  height: 24px;
 }
 
 .uploadTitle {
-  font-size: 1.75rem;
+  font-size: 1.25rem;
   font-weight: 600;
   color: var(--color-dark);
   margin-bottom: var(--space-xs);
@@ -522,8 +559,10 @@
 
 .uploadSubtitle {
   color: var(--luxury-pearl-gray);
-  font-size: 1rem;
+  font-size: 0.9rem;
   margin: 0;
+  max-width: 450px;
+  margin: 0 auto;
 }
 
 .uploadForm {
@@ -532,23 +571,15 @@
 }
 
 .formGroup {
-  margin-bottom: var(--space-lg);
+  margin-bottom: var(--space-md);
 }
 
 .elegantLabel {
-  display: flex;
-  align-items: center;
-  gap: var(--space-xs);
+  display: block;
   margin-bottom: var(--space-sm);
   font-weight: 500;
   color: var(--color-dark);
   font-size: 1rem;
-}
-
-.labelIcon {
-  width: 20px;
-  height: 20px;
-  color: var(--luxury-champagne-gold);
 }
 
 .elegantInput {
@@ -616,21 +647,11 @@
 }
 
 .previewTitle {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: var(--space-sm);
-  font-size: 1.25rem;
+  font-size: 1.1rem;
   font-weight: 600;
   color: var(--color-dark);
   margin-bottom: var(--space-md);
   text-align: center;
-}
-
-.previewIcon {
-  color: var(--luxury-champagne-gold);
-  width: 20px;
-  height: 20px;
 }
 
 .previewSwiper {
@@ -812,70 +833,21 @@
   height: 20px;
 }
 
-/* Tips Section */
+/* Tips Section - Compact */
 .tipsSection {
-  background: white;
-  border-radius: var(--radius-lg);
-  padding: var(--space-xl);
-  margin-bottom: var(--space-xl);
-  box-shadow: var(--shadow-md);
-  border: 1px solid var(--luxury-pearl-gray);
-}
-
-.tipsHeader {
-  text-align: center;
-  margin-bottom: var(--space-lg);
-}
-
-.tipsIcon {
-  width: 48px;
-  height: 48px;
-  color: var(--luxury-champagne-gold);
-  margin-bottom: var(--space-md);
-}
-
-.tipsHeader h3 {
-  font-size: 1.5rem;
-  font-weight: 600;
-  color: var(--color-dark);
-  margin: 0;
-}
-
-.tipsGrid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-  gap: var(--space-lg);
-  max-width: 1000px;
-  margin: 0 auto;
-}
-
-.tip {
-  text-align: center;
-  padding: var(--space-lg);
   background: #f8fafc;
   border-radius: var(--radius-md);
+  padding: var(--space-sm);
+  margin-bottom: var(--space-lg);
   border: 1px solid var(--luxury-pearl-gray);
-  transition: all var(--transition-normal);
+  text-align: center;
 }
 
-.tip:hover {
-  transform: translateY(-4px);
-  box-shadow: var(--shadow-lg);
-  border-color: var(--luxury-champagne-gold);
-}
-
-.tipIcon {
-  width: 32px;
-  height: 32px;
-  color: var(--luxury-champagne-gold);
-  margin-bottom: var(--space-md);
-}
-
-.tip p {
+.tipsText {
   color: var(--luxury-pearl-gray);
-  line-height: 1.6;
+  font-size: var(--font-size-sm);
   margin: 0;
-  font-size: 0.95rem;
+  line-height: 1.5;
 }
 
 /* Messages de statut */
@@ -941,8 +913,17 @@
   }
 
   .headerSection {
-    margin-bottom: var(--space-lg);
-    padding: var(--space-md) 0;
+    margin-bottom: var(--space-md);
+    padding: var(--space-sm) 0;
+  }
+
+  .eventInfo {
+    flex-direction: column;
+    gap: var(--space-xs);
+  }
+
+  .separator {
+    display: none;
   }
 
   .title {
@@ -988,10 +969,6 @@
     gap: var(--space-sm);
   }
 
-  .tipsGrid {
-    grid-template-columns: 1fr;
-    gap: var(--space-md);
-  }
 
   .actionButtons {
     flex-direction: column;
@@ -1057,17 +1034,21 @@
     gap: var(--space-xs);
   }
 
-  .tip {
-    padding: var(--space-md);
-  }
-
-  .tipIcon {
-    width: 28px;
-    height: 28px;
-  }
 
   .uploadTitle {
-    font-size: 1.5rem;
+    font-size: 1.25rem;
+  }
+
+  .uploadSubtitle {
+    font-size: 0.9rem;
+  }
+
+  .invitationTitle {
+    font-size: 1.1rem;
+  }
+
+  .invitationText {
+    font-size: 0.9rem;
   }
 
   .elegantFileLabel {
@@ -1100,22 +1081,3 @@
     height: 35px;
   }
 }
-
-/* Grid responsiveness improvements */
-@media (max-width: 1200px) {
-  .tipsGrid {
-    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-  }
-}
-
-@media (max-width: 900px) {
-  .tipsGrid {
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  }
-}
-
-@media (max-width: 600px) {
-  .tipsGrid {
-    grid-template-columns: 1fr;
-  }
-} 

@@ -43,7 +43,7 @@ interface Album {
   isPublic: boolean;
   invitation: {
     id: string;
-    organisateurName: string;
+    eventTitle: string;
     eventDate: string;
   };
   photos: Array<{
@@ -188,7 +188,10 @@ export default function ShareAlbumPage() {
         
         const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3013'}/api/photos/albums/${albumId}/photos/guest`, {
           method: 'POST',
-          body: formData
+          body: formData,
+          headers: {
+            // Pas d'authentification requise pour les invités
+          }
         });
         
         if (!response.ok) {
@@ -296,7 +299,7 @@ export default function ShareAlbumPage() {
 
   return (
     <div className={styles.container}>
-      {/* En-tête luxueux */}
+      {/* En-tête explicatif */}
       <div className={styles.headerSection}>
         <div className={styles.badge}>
           <Camera style={{ width: '16px', height: '16px' }} />
@@ -307,19 +310,28 @@ export default function ShareAlbumPage() {
           {album?.title}
         </h1>
         
-        <div className={styles.organisateurInfo}>
-          <Flower2 className={styles.flowerIcon} />
-          <span className={styles.organisateurName}>événement de {album?.invitation.organisateurName}</span>
-          <Flower2 className={styles.flowerIcon} />
+        <div className={styles.eventInfo}>
+          <span className={styles.organisateurName}>{album?.invitation.eventTitle}</span>
+          <span className={styles.separator}>•</span>
+          <span className={styles.eventDate}>
+            {new Date(album?.invitation.eventDate || '').toLocaleDateString('fr-FR', {
+              day: 'numeric',
+              month: 'long',
+              year: 'numeric'
+            })}
+          </span>
         </div>
-        
-        <div className={styles.eventDate}>
-          {new Date(album?.invitation.eventDate || '').toLocaleDateString('fr-FR', {
-            weekday: 'long',
-            year: 'numeric',
-            month: 'long',
-            day: 'numeric'
-          })}
+
+        {/* Message d'invitation explicite */}
+        <div className={styles.invitationMessage}>
+          <div className={styles.invitationIcon}>
+            <Heart style={{ width: '24px', height: '24px' }} />
+          </div>
+          <h2 className={styles.invitationTitle}>Participez à l'album souvenir !</h2>
+          <p className={styles.invitationText}>
+            Les organisateurs vous invitent à partager vos plus belles photos de cet événement. 
+            Vos souvenirs contribueront à créer un album inoubliable pour tous les invités.
+          </p>
         </div>
       </div>
 
@@ -329,10 +341,8 @@ export default function ShareAlbumPage() {
           <div className={styles.galleryHeader}>
             <div className={styles.galleryTitle}>
               <ImageIcon />
-              <span>Galerie Photos</span>
-              <span className={styles.photoCount}>({approvedPhotos.length} photos)</span>
+              <span>Photos ({approvedPhotos.length})</span>
             </div>
-            <p className={styles.gallerySubtitle}>Cliquez sur une photo pour la voir en grand</p>
           </div>
 
           <div className={styles.photoGrid}>
@@ -465,9 +475,9 @@ export default function ShareAlbumPage() {
           <div className={styles.uploadIcon}>
             <Gift className={styles.giftIcon} />
           </div>
-          <h2 className={styles.uploadTitle}>Partagez vos Souvenirs</h2>
+          <h2 className={styles.uploadTitle}>Ajoutez vos souvenirs</h2>
           <p className={styles.uploadSubtitle}>
-            Contribuez à créer un album inoubliable pour les organisateurs
+            Sélectionnez vos plus belles photos de l'événement pour enrichir l'album commun
           </p>
         </div>
 
@@ -490,14 +500,13 @@ export default function ShareAlbumPage() {
         <div className={styles.uploadForm}>
           <div className={styles.formGroup}>
             <label className={styles.elegantLabel}>
-              <Star className={styles.labelIcon} />
               Votre nom (optionnel)
             </label>
             <input
               type="text"
               value={guestName}
               onChange={(e) => setGuestName(e.target.value)}
-              placeholder="Votre nom ou laissez vide pour 'Invité anonyme'"
+              placeholder="Votre nom"
               className={styles.elegantInput}
               disabled={uploading}
             />
@@ -505,7 +514,6 @@ export default function ShareAlbumPage() {
 
           <div className={styles.formGroup}>
             <label className={styles.elegantLabel}>
-              <Camera className={styles.labelIcon} />
               Sélectionnez vos photos
             </label>
             <input
@@ -520,7 +528,7 @@ export default function ShareAlbumPage() {
             <label htmlFor="photo-upload" className={styles.elegantFileLabel}>
               <Upload className={styles.uploadIcon} />
               <span>Choisir des photos</span>
-              <span className={styles.fileHint}>(maximum 10 photos)</span>
+              <span className={styles.fileHint}>(max 10 photos)</span>
             </label>
           </div>
 
@@ -528,7 +536,6 @@ export default function ShareAlbumPage() {
           {previews.length > 0 && (
             <div className={styles.previewSection}>
               <h3 className={styles.previewTitle}>
-                <Sparkles className={styles.previewIcon} />
                 Photos sélectionnées ({previews.length})
               </h3>
               <Swiper
@@ -618,30 +625,11 @@ export default function ShareAlbumPage() {
         </div>
       </div>
 
-      {/* Conseils élégants */}
+      {/* Conseils compacts */}
       <div className={styles.tipsSection}>
-        <div className={styles.tipsHeader}>
-          <Crown className={styles.tipsIcon} />
-          <h3>Conseils pour de magnifiques photos</h3>
-        </div>
-        <div className={styles.tipsGrid}>
-          <div className={styles.tip}>
-            <Camera className={styles.tipIcon} />
-            <p>Capturez les moments authentiques et les émotions</p>
-          </div>
-          <div className={styles.tip}>
-            <Heart className={styles.tipIcon} />
-            <p>Privilégiez la qualité à la quantité</p>
-          </div>
-          <div className={styles.tip}>
-            <Star className={styles.tipIcon} />
-            <p>Variez les angles et les perspectives</p>
-          </div>
-          <div className={styles.tip}>
-            <CheckCircle className={styles.tipIcon} />
-            <p>Vos photos seront validées par les organisateurs</p>
-          </div>
-        </div>
+        <p className={styles.tipsText}>
+          💡 <strong>Conseil :</strong> Privilégiez la qualité à la quantité. Vos photos seront validées par les organisateurs.
+        </p>
       </div>
     </div>
   );

@@ -195,6 +195,23 @@ export function PhotoAlbumManager({ invitationId }: PhotoAlbumManagerProps) {
     }
   };
 
+  // Supprimer un album
+  const handleDeleteAlbum = async (album: PhotoAlbum) => {
+    const confirmed = confirm(
+      `Êtes-vous sûr de vouloir supprimer l'album "${album.title}" ?\n\nCette action supprimera définitivement l'album et toutes ses photos. Cette action est irréversible.`
+    );
+    
+    if (confirmed) {
+      try {
+        await deleteAlbum(album.id);
+        // L'album sera automatiquement retiré de la liste grâce au hook
+      } catch (error) {
+        console.error('Erreur lors de la suppression de l\'album:', error);
+        // L'erreur sera gérée par le hook usePhotoAlbums
+      }
+    }
+  };
+
   const getPhotoStatusIcon = (status: Photo['status']) => {
     switch (status) {
       case 'PENDING':
@@ -596,6 +613,14 @@ export function PhotoAlbumManager({ invitationId }: PhotoAlbumManagerProps) {
                       >
                         <ExternalLink className={styles.dropdownIcon} />
                         Ouvrir
+                      </button>
+                      <div className={styles.dropdownSeparator}></div>
+                      <button 
+                        onClick={() => handleDeleteAlbum(album)}
+                        className={`${styles.dropdownItem} ${styles.dangerItem}`}
+                      >
+                        <Trash2 className={styles.dropdownIcon} />
+                        Supprimer l'album
                       </button>
                     </div>
                   </div>

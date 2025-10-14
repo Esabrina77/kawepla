@@ -8,7 +8,7 @@ export interface CreateInvitationDto {
   eventDate: string;       // Date de l'événement (ISO string)
   eventTime?: string;      // "15h00" (optionnel)
   location: string;        // "Château de la Roseraie, Paris"
-  eventType?: 'event' | 'BIRTHDAY' | 'BAPTISM' | 'ANNIVERSARY' | 'GRADUATION' | 'BABY_SHOWER' | 'ENGAGEMENT' | 'COMMUNION' | 'CONFIRMATION' | 'RETIREMENT' | 'HOUSEWARMING' | 'CORPORATE' | 'OTHER';
+  eventType?: 'WEDDING' | 'BIRTHDAY' | 'BAPTISM' | 'ANNIVERSARY' | 'GRADUATION' | 'BABY_SHOWER' | 'ENGAGEMENT' | 'COMMUNION' | 'CONFIRMATION' | 'RETIREMENT' | 'HOUSEWARMING' | 'CORPORATE' | 'OTHER';
   customText?: string;     // Texte libre personnalisable
   moreInfo?: string;       // Informations supplémentaires
   

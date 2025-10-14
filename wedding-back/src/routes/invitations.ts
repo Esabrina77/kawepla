@@ -20,6 +20,10 @@ router.get('/', InvitationController.getUserInvitations);
 router.get('/active', InvitationController.getActiveInvitation);
 router.post('/', checkInvitationLimit, InvitationController.create);
 
+// Routes admin (protégées)
+router.get('/admin/invitations', InvitationController.getAllInvitations);
+router.delete('/admin/invitations/:id', InvitationController.deleteInvitationAdmin);
+
 // Routes spécifiques avec ID (protégées)
 router.get('/:id/stats', InvitationController.stats);
 router.get('/:id/export', InvitationController.exportCSV);

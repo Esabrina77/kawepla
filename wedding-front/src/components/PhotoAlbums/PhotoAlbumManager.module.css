@@ -649,6 +649,21 @@
   color: var(--luxury-champagne-gold);
 }
 
+.dropdownSeparator {
+  height: 1px;
+  background: var(--luxury-pearl-gray);
+  margin: var(--space-xs) 0;
+}
+
+.dangerItem {
+  color: #dc3545;
+}
+
+.dangerItem:hover {
+  background: rgba(220, 53, 69, 0.1);
+  color: #dc3545;
+}
+
 .dropdownIcon {
   width: 14px;
   height: 14px;

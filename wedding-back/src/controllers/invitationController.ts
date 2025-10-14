@@ -66,7 +66,7 @@ export class InvitationController {
   }
 
   /**
-   * Créer une nouvelle invitation de mariage (legacy).
+   * Créer une nouvelle invitation  (legacy).
    * @route POST /api/invitations
    */
   static async create(req: Request, res: Response, next: NextFunction): Promise<void> {
@@ -468,4 +468,72 @@ export class InvitationController {
       next(error);
     }
   }
-} 
+
+  /**
+   * Récupérer toutes les invitations (pour l'admin).
+   * @route GET /api/admin/invitations
+   */
+  static async getAllInvitations(req: Request, res: Response, next: NextFunction): Promise<void> {
+    try {
+      const userRole = (req as any).user?.role;
+      
+      if (userRole !== 'ADMIN') {
+        res.status(403).json({ message: 'Accès non autorisé' });
+        return;
+      }
+
+      try {
+        console.log('🚨 DEBUT getAllInvitations - NOUVEAU CODE');
+        const invitations = await InvitationService.getAllInvitations();
+        console.log('🔍 Invitations récupérées:', invitations.length);
+        console.log('📊 Première invitation complète:', invitations[0] ? JSON.stringify(invitations[0], null, 2) : 'Aucune invitation');
+        console.log('🚨 FIN getAllInvitations - DONNÉES COMPLÈTES');
+        res.status(200).json(invitations);
+      } catch (error) {
+        console.error('❌ Erreur getAllInvitations:', error);
+        res.status(500).json({ message: 'Erreur interne du serveur' });
+      }
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  /**
+   * Supprimer une invitation (pour l'admin).
+   * @route DELETE /api/admin/invitations/:id
+   */
+  static async deleteInvitationAdmin(req: Request, res: Response, next: NextFunction): Promise<void> {
+    try {
+      const userRole = (req as any).user?.role;
+      const { id } = req.params;
+      
+      console.log('🗑️ Tentative de suppression invitation:', id);
+      console.log('👤 Rôle utilisateur:', userRole);
+      
+      if (userRole !== 'ADMIN') {
+        console.log('❌ Accès refusé - rôle:', userRole);
+        res.status(403).json({ message: 'Accès non autorisé' });
+        return;
+      }
+
+      try {
+        await InvitationService.deleteInvitationAdmin(id);
+        console.log('✅ Invitation supprimée avec succès:', id);
+        res.status(204).send();
+      } catch (error) {
+        console.error('❌ Erreur lors de la suppression:', error);
+        if (error instanceof Error) {
+          if (error.message === 'Invitation non trouvée') {
+            res.status(404).json({ message: error.message });
+          } else {
+            res.status(500).json({ message: 'Erreur interne du serveur' });
+          }
+        } else {
+          res.status(500).json({ message: 'Erreur interne du serveur' });
+        }
+      }
+    } catch (error) {
+      next(error);
+    }
+  }
+}

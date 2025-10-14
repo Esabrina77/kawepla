@@ -15,8 +15,7 @@
     "seed:users": "ts-node -r tsconfig-paths/register scripts/seed-users.ts",
     "export:production": "ts-node -r tsconfig-paths/register scripts/export-production-db.ts",
     "test": "jest --detectOpenHandles",
-    "test:watch": "jest --watch",
-    "pretest": "cross-env DATABASE_URL=postgresql://weduser:wed_password200@localhost:5432/wedding_invitations_test prisma db push"
+    "test:watch": "jest --watch"
   },
   "keywords": [
     "wedding",

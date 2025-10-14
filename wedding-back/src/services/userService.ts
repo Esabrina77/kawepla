@@ -229,9 +229,13 @@ export class UserService {
   }
 
   static async deleteUser(userId: string): Promise<void> {
-    await prisma.user.update({
-      where: { id: userId },
-      data: { isActive: false }
+    // Nettoyer les fichiers Firebase avant la suppression
+    const { FirebaseCleanupService } = await import('./firebaseCleanupService');
+    await FirebaseCleanupService.deleteUserFiles(userId);
+
+    // Supprimer l'utilisateur (les relations en cascade s'occuperont du reste)
+    await prisma.user.delete({
+      where: { id: userId }
     });
   }
 

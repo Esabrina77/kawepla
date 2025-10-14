@@ -1,7 +1,9 @@
 /* ===== RSVP PAGE - DESIGN SYSTEM ===== */
 
 .container {
-  margin-top: 70px;
+  margin: 70px auto;
+  background: var(--bg-primary);
+  min-height: 100vh;
 }
 
 .rsvpLayout {
@@ -72,8 +74,9 @@
   height: 60px;
   margin: 0 auto var(--space-lg);
   border-radius: var(--radius-md);
-  background: var(--color-primary);
-  color: var(--text-primary);
+  background: var(--gradient-primary);
+  color: white;
+  box-shadow: var(--shadow-md);
 }
 
 .loadingTitle {
@@ -104,8 +107,9 @@
   height: 60px;
   margin: 0 auto var(--space-lg);
   border-radius: var(--radius-md);
-  background: var(--bg-secondary);
-  color: var(--text-primary);
+  background: var(--bg-error);
+  color: var(--error-color);
+  border: 1px solid var(--border-error);
 }
 
 .errorTitle {
@@ -120,6 +124,9 @@
 /* Invitation Column */
 .invitationCard {
   overflow: hidden;
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  box-shadow: var(--shadow-lg);
 }
 
 .fallbackInvitation {
@@ -129,37 +136,44 @@
 
 .fallbackTitle {
   font-family: var(--font-sans);
-  font-size: 2rem;
+  font-size: var(--font-size-4xl);
   margin-bottom: var(--space-lg);
   color: var(--text-primary);
+  font-weight: 400;
 }
 
 .fallbackDate {
-  font-size: 1.5rem;
+  font-size: var(--font-size-2xl);
   margin-bottom: var(--space-sm);
   color: var(--color-primary);
   font-weight: 600;
 }
 
 .fallbackTime {
-  font-size: 1.25rem;
+  font-size: var(--font-size-xl);
   margin-bottom: var(--space-sm);
   color: var(--text-secondary);
 }
 
 .fallbackLocation {
-  font-size: 1.25rem;
+  font-size: var(--font-size-xl);
   color: var(--text-primary);
 }
 
 .fallbackCustomText {
   margin: var(--space-lg) 0;
-  font-size: 1.125rem;
+  font-size: var(--font-size-lg);
   font-style: italic;
   color: var(--text-secondary);
 }
 
 /* Form Column */
+.formColumn {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  box-shadow: var(--shadow-lg);
+  border-radius: var(--radius-lg);
+}
 .formCard {
   padding: var(--space-xl);
 }
@@ -184,7 +198,7 @@
 
 .formLabel {
   display: block;
-  font-size: 0.875rem;
+  font-size: var(--font-size-sm);
   font-weight: 500;
   color: var(--text-primary);
   margin-bottom: var(--space-md);
@@ -232,7 +246,7 @@
   display: inline-flex;
   align-items: center;
   cursor: pointer;
-  font-size: 0.875rem;
+  font-size: var(--font-size-sm);
   font-weight: 500;
   color: var(--text-primary);
   margin-bottom: var(--space-sm);
@@ -242,7 +256,7 @@
 .textInput {
   width: 100%;
   padding: var(--space-md);
-  font-size: 1rem;
+  font-size: var(--font-size-base);
   border: 2px solid var(--border-color);
   border-radius: var(--radius-md);
   transition: all var(--transition-normal);
@@ -259,7 +273,7 @@
 .textarea {
   width: 100%;
   padding: var(--space-md);
-  font-size: 1rem;
+  font-size: var(--font-size-base);
   border: 2px solid var(--border-color);
   border-radius: var(--radius-md);
   transition: all var(--transition-normal);
@@ -281,7 +295,7 @@
 
 .errorMessage {
   color: var(--error-color);
-  font-size: 0.875rem;
+  font-size: var(--font-size-sm);
   text-align: center;
   background: var(--bg-error);
   padding: var(--space-md);
@@ -292,7 +306,7 @@
 .submitButton {
   width: 100%;
   height: 56px;
-  font-size: 1.125rem;
+  font-size: var(--font-size-lg);
 }
 
 .submitButton:disabled {
@@ -302,7 +316,7 @@
 }
 
 .updateNote {
-  font-size: 0.875rem;
+  font-size: var(--font-size-sm);
   text-align: center;
   color: var(--text-secondary);
 }
@@ -319,7 +333,7 @@
 
 .guestWelcome {
   text-align: center;
-  font-size: 1.1rem;
+  font-size: var(--font-size-lg);
   color: var(--text-secondary);
   margin-bottom: var(--space-md);
 }
@@ -346,11 +360,15 @@
 }
 
 .statusIconConfirmed {
-  background: var(--color-primary);
+  background: var(--gradient-primary);
+  color: white;
+  box-shadow: var(--shadow-md);
 }
 
 .statusIconDeclined {
   background: var(--error-color);
+  color: white;
+  box-shadow: var(--shadow-md);
 }
 
 .statusTitle {
@@ -363,6 +381,7 @@
   border-radius: var(--radius-md);
   padding: var(--space-md);
   margin: var(--space-md) 0;
+  border: 1px solid rgba(197, 168, 128, 0.2);
 }
 
 .detailItem {
@@ -398,25 +417,25 @@
 }
 
 .responseDate {
-  font-size: 0.875rem;
+  font-size: var(--font-size-sm);
   color: var(--text-secondary);
 }
 
 @media (max-width: 768px) {
   .fallbackTitle {
-    font-size: 1.5rem;
+    font-size: var(--font-size-3xl);
   }
   
   .fallbackDate {
-    font-size: 1.25rem;
+    font-size: var(--font-size-xl);
   }
   
   .fallbackTime,
   .fallbackLocation {
-    font-size: 1rem;
+    font-size: var(--font-size-base);
   }
   
   .fallbackCustomText {
-    font-size: 1rem;
+    font-size: var(--font-size-base);
   }
 }

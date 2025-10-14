@@ -1,7 +1,10 @@
 /* ===== SHARED RSVP PAGE - DESIGN SYSTEM (IDENTICAL TO TOKEN RSVP) ===== */
 
 .container {
-  margin-top: 70px;
+  margin: 70px auto;
+  margin-bottom: 200px;
+  background: var(--bg-primary);
+  min-height: 100vh;
 }
 
 .rsvpLayout {

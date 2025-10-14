@@ -457,14 +457,9 @@ export class PhotoAlbumService {
     }
 
     try {
-      // Supprimer toutes les photos de Firebase
-      for (const photo of album.photos) {
-        await Promise.all([
-          deleteFromFirebase(photo.originalUrl),
-          photo.compressedUrl ? deleteFromFirebase(photo.compressedUrl) : Promise.resolve(),
-          photo.thumbnailUrl ? deleteFromFirebase(photo.thumbnailUrl) : Promise.resolve()
-        ]);
-      }
+      // Nettoyer les fichiers Firebase des photos de l'album
+      const { FirebaseCleanupService } = await import('./firebaseCleanupService');
+      await FirebaseCleanupService.deleteAlbumPhotos(albumId);
 
       // Supprimer l'album (les photos seront supprimées en cascade)
       await prisma.photoAlbum.delete({

@@ -165,6 +165,10 @@ export class GuestService {
       throw new Error('Invité non trouvé ou accès non autorisé');
     }
 
+    // Nettoyer les fichiers Firebase des photos de l'invité
+    const { FirebaseCleanupService } = await import('./firebaseCleanupService');
+    await FirebaseCleanupService.deleteGuestPhotos(id);
+
     // Utiliser une transaction pour s'assurer que tout est supprimé correctement
     await prisma.$transaction(async (tx) => {
       // Supprimer d'abord les RSVP associés (si ils existent)

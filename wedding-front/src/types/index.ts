@@ -160,10 +160,10 @@ export interface Invitation {
   id: string;
   // NOUVELLE ARCHITECTURE SIMPLIFIÉE
   eventTitle: string;       // "Emma & Lucas" ou "Anniversaire de Marie"
-  eventDate: string;        // Date de l'événement
+  eventDate?: string;       // Date de l'événement (optionnel)
   eventTime?: string;       // "15h00" (optionnel)
   location: string;         // "Château de la Roseraie, Paris"
-  eventType: 'event' | 'BIRTHDAY' | 'BAPTISM' | 'ANNIVERSARY' | 'GRADUATION' | 'BABY_SHOWER' | 'ENGAGEMENT' | 'COMMUNION' | 'CONFIRMATION' | 'RETIREMENT' | 'HOUSEWARMING' | 'CORPORATE' | 'OTHER';
+  eventType?: 'WEDDING' | 'BIRTHDAY' | 'BAPTISM' | 'ANNIVERSARY' | 'GRADUATION' | 'BABY_SHOWER' | 'ENGAGEMENT' | 'COMMUNION' | 'CONFIRMATION' | 'RETIREMENT' | 'HOUSEWARMING' | 'CORPORATE' | 'OTHER';
   customText?: string;      // Texte libre personnalisable
   moreInfo?: string;        // Informations supplémentaires
   
@@ -176,6 +176,19 @@ export interface Invitation {
   updatedAt: string;
   userId: string;
   designId: string;
+  
+  // Champs pour l'admin (avec relations)
+  user?: {
+    id: string;
+    email: string;
+    firstName: string;
+    lastName: string;
+    role: string;
+  };
+  _count?: {
+    guests: number;
+    rsvps: number;
+  };
 }
 
 // Types pour les messages RSVP

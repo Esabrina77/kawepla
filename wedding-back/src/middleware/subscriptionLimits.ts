@@ -175,6 +175,76 @@ export const checkPhotoLimit = async (req: Request, res: Response, next: NextFun
 };
 
 /**
+ * Vérifier les limites de photos pour les invités (sans authentification)
+ * Les invités peuvent toujours uploader, les limites s'appliquent au propriétaire de l'album
+ */
+export const checkGuestPhotoLimit = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const { albumId } = req.params;
+
+    // Récupérer l'album et son propriétaire
+    const album = await prisma.photoAlbum.findUnique({
+      where: { id: albumId },
+      include: {
+        invitation: {
+          include: {
+            user: true
+          }
+        }
+      }
+    });
+
+    if (!album) {
+      res.status(404).json({ message: 'Album non trouvé' });
+      return;
+    }
+
+    const userId = album.invitation.userId;
+    const userRole = album.invitation.user.role;
+
+    // Les admins n'ont pas de limites
+    if (userRole === 'ADMIN') {
+      next();
+      return;
+    }
+
+    const limits = await getUserLimits('FREE', userId);
+
+    // Si photos illimitées
+    if (limits.photos === 999999) {
+      next();
+      return;
+    }
+
+    // Compter les photos existantes dans cet album
+    const photoCount = await prisma.photo.count({
+      where: {
+        album: {
+          invitation: {
+            userId: userId
+          }
+        }
+      }
+    });
+
+    if (photoCount >= limits.photos) {
+      res.status(403).json({
+        message: `Limite atteinte: l'organisateur ne peut accepter que ${limits.photos} photo(s) avec son forfait actuel.`,
+        limit: limits.photos,
+        current: photoCount,
+        upgradeRequired: true
+      });
+      return;
+    }
+
+    next();
+  } catch (error) {
+    console.error('Erreur lors de la vérification des limites de photos pour invités:', error);
+    res.status(500).json({ message: 'Erreur serveur' });
+  }
+};
+
+/**
  * Obtenir les limites et l'utilisation d'un utilisateur
  */
 export const getUserLimitsAndUsage = async (req: Request, res: Response): Promise<void> => {
