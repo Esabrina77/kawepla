@@ -12,10 +12,7 @@ async function migrateInvitationData() {
     const invitations = await prisma.invitation.findMany({
       where: {
         OR: [
-          { eventTitle: null },
-          { eventTitle: '' },
-          { eventDate: null },
-          { eventType: null }
+          { eventTitle: '' }
         ]
       }
     });
