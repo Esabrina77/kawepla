@@ -11,7 +11,8 @@ import {
   ThumbsUp, Award as AwardIcon, Globe as GlobeIcon, Zap as ZapIcon, Calculator,
   Eye, Building2, UserCheck, Image, MessageSquare as MessageSquareIcon
 } from "lucide-react";
-import { PWAInstallButton } from '@/components/PWAInstallButton/PWAInstallButton';
+
+
 import { GuaranteeBadge } from '@/components/GuaranteeBadge/GuaranteeBadge';
 import { SITE_CONFIG } from '@/config/siteConfig';
 import styles from './page.module.css';
@@ -203,7 +204,7 @@ export default function HomePage() {
               {SITE_CONFIG.hero.badge}
             </span>
           </div>
-          
+
           <h1 className={`heading-hero mb-lg ${styles.heroTitle}`}>
             <span>Kawepla - La plateforme complète</span>
             <br />
@@ -233,7 +234,7 @@ export default function HomePage() {
               <Rocket style={{ marginRight: '8px', width: '20px', height: '20px' }} />
               Organiser mon événement gratuitement
             </a>
-            <PWAInstallButton />
+            {/* <PWAInstallButton /> */}
           </div>
 
           <div style={{ maxWidth: '1000px', margin: '0 auto', position: 'relative' }}>
@@ -255,7 +256,7 @@ export default function HomePage() {
           <div className="text-center mb-xl">
             <h2 className={`heading-2 ${styles.sectionTitle}`}>
               Fini le <span className={styles.sectionTitleAccent}>stress</span> de l'organisation !
-            </h2>
+          </h2>
             <p className={`text-large ${styles.sectionDescription}`}>
               Découvrez comment Kawepla révolutionne l'organisation d'événements avec une solution tout-en-un
             </p>
@@ -278,8 +279,8 @@ export default function HomePage() {
                   </div>
                 </div>
               ))}
-            </div>
-
+        </div>
+        
             <div className={styles.solutionsColumn}>
               <h3 className={`heading-3 mb-lg ${styles.columnTitle}`}>
                 <CheckCircle className="w-6 h-6" style={{ marginRight: '8px' }} />
@@ -300,61 +301,8 @@ export default function HomePage() {
           </div>
         </div>
       </section>
-      
-      {/* Types d'événements supportés */}
-      <section className={`section ${styles.eventTypesSection}`}>
-        <div className="container">
-          <div className="text-center mb-xl">
-            <h2 className={`heading-2 ${styles.sectionTitle}`}>
-              Pour tous types d'<span className={styles.sectionTitleAccent}>événements</span>
-            </h2>
-            <p className={`text-large ${styles.sectionDescription}`}>
-              Mariages, anniversaires, événements corporatifs... Kawepla s'adapte à vos besoins
-            </p>
-          </div>
 
-          <div className="grid grid-3">
-            {[
-              {
-                icon: <Heart className="w-12 h-12" />,
-                title: "Mariages",
-                description: "Le jour le plus important de votre vie mérite une organisation parfaite",
-                features: ["Invitations élégantes", "Réponses détaillées", "Albums photos", "Coordination prestataires"]
-              },
-              {
-                icon: <Gift className="w-12 h-12" />,
-                title: "Anniversaires",
-                description: "Célébrez vos moments spéciaux avec style et simplicité",
-                features: ["Designs festifs", "Gestion VIP", "Photos partagées", "Messages personnalisés"]
-              },
-              {
-                icon: <Building2 className="w-12 h-12" />,
-                title: "Événements corporatifs",
-                description: "Professionnalisme et efficacité pour vos événements d'entreprise",
-                features: ["Interface professionnelle", "Statistiques détaillées", "Gestion de groupes", "Rapports automatiques"]
-              }
-            ].map((eventType, index) => (
-              <div key={index} className={styles.eventTypeCard}>
-                <div className={styles.eventTypeIcon}>
-                  {eventType.icon}
-                </div>
-                <h3 className={`heading-3 ${styles.eventTypeTitle}`}>{eventType.title}</h3>
-                <p className={`text-body ${styles.eventTypeDescription}`}>
-                  {eventType.description}
-                </p>
-                <ul className={styles.eventTypeFeatures}>
-                  {eventType.features.map((feature, featureIndex) => (
-                    <li key={featureIndex} className={styles.eventTypeFeature}>
-                      <Check className={styles.checkIcon} />
-                      {feature}
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
+
 
       {/* Fonctionnalités - Version Minimaliste */}
       <section id="fonctionnalites" className={`section ${styles.featuresSection}`}>
@@ -362,7 +310,7 @@ export default function HomePage() {
           <div className="text-center mb-xl">
             <h2 className={`heading-2 ${styles.sectionTitle}`}>
               Tout ce dont vous avez besoin
-            </h2>
+              </h2>
             <p className={`text-large ${styles.sectionDescription}`}>
               Une plateforme complète pour organiser vos événements
             </p>
@@ -373,7 +321,7 @@ export default function HomePage() {
               <div key={index} className={styles.featureItem}>
                 <div className={styles.featureIcon}>
                   {feature.icon}
-                </div>
+                  </div>
                 <div className={styles.featureContent}>
                   <h3>{feature.title}</h3>
                   <p>{feature.description}</p>
@@ -381,63 +329,63 @@ export default function HomePage() {
               </div>
             ))}
           </div>
-        </div>
-      </section>
+            </div>
+          </section>
 
       {/* Témoignages avec photos */}
       <section id="témoignages" className={`section ${styles.testimonialsSection}`}>
-        <div className="container">
-          <div className="text-center mb-xl">
-            <h2 className={`heading-2 ${styles.sectionTitle}`}>
+            <div className="container">
+              <div className="text-center mb-xl">
+                <h2 className={`heading-2 ${styles.sectionTitle}`}>
               {SITE_CONFIG.testimonials.titre} <span className={styles.sectionTitleAccent}>confiance</span>
-            </h2>
-            <p className={`text-large ${styles.sectionDescription}`}>
+                </h2>
+                <p className={`text-large ${styles.sectionDescription}`}>
               {SITE_CONFIG.testimonials.sousTitre}
-            </p>
-          </div>
+                </p>
+              </div>
 
-          <div className="grid grid-3">
+              <div className="grid grid-3">
             {testimonials.map((testimonial, index) => (
               <div key={index} className={`card animate-fade-in-up ${styles.testimonialCard}`} style={{
                 animationDelay: `${index * 0.2}s`
               }}>
-                <div className={styles.testimonialHeader}>
+                    <div className={styles.testimonialHeader}>
                   <img 
                     src={testimonial.photo} 
-                    alt={testimonial.name}
-                    className={styles.testimonialPhoto}
+                         alt={testimonial.name}
+                         className={styles.testimonialPhoto}
                     onError={(e) => {
                       e.currentTarget.src = '/images/testimonials.png';
                     }}
-                  />
-                  <div className={styles.testimonialInfo}>
-                    <div className={styles.testimonialName}>
-                      {testimonial.name}
-                    </div>
-                    <div className={styles.testimonialLocation}>
+                       />
+                      <div className={styles.testimonialInfo}>
+                        <div className={styles.testimonialName}>
+                          {testimonial.name}
+                        </div>
+                        <div className={styles.testimonialLocation}>
                       {testimonial.location}
                     </div>
                     <div className={styles.testimonialStats}>
                       <span>{testimonial.guests} invités</span>
                       <span>•</span>
                       <span>Économie: {testimonial.savings}</span>
+                        </div>
+                      </div>
                     </div>
-                  </div>
-                </div>
-                
-                <div style={{ marginBottom: 'var(--space-md)' }}>
+                      
+                    <div style={{ marginBottom: 'var(--space-md)' }}>
                   {[...Array(testimonial.rating)].map((_, i) => (
                     <Star key={i} className={styles.starIcon} />
-                  ))}
-                </div>
+                      ))}
+                    </div>
                 <p className={`text-body ${styles.testimonialText}`}>
-                  "{testimonial.text}"
-                </p>
+                      "{testimonial.text}"
+                    </p>
+                  </div>
+                ))}
               </div>
-            ))}
-          </div>
-        </div>
-      </section>
+            </div>
+          </section>
 
       {/* Pricing Optimisé */}
       <section id="tarifs" className={`section ${styles.pricingSection}`}>

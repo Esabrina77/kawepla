@@ -493,6 +493,7 @@ export class InvitationService {
             role: true
           }
         },
+        design: true, // Inclure toutes les données du design (comme RSVP)
         _count: {
           select: {
             guests: true,
@@ -504,5 +505,39 @@ export class InvitationService {
         createdAt: 'desc'
       }
     });
+  }
+
+  /**
+   * Récupérer une invitation spécifique avec tous les détails (pour l'admin).
+   */
+  static async getInvitationByIdAdmin(id: string) {
+    const invitation = await prisma.invitation.findUnique({
+      where: { id },
+      include: {
+        // Relations complètes (comme RSVP)
+        user: true,
+        design: true, // Inclure TOUTES les données du design
+        guests: {
+          include: {
+            rsvp: true
+          },
+          orderBy: {
+            createdAt: 'desc'
+          }
+        },
+        _count: {
+          select: {
+            guests: true,
+            rsvps: true
+          }
+        }
+      }
+    });
+
+    if (!invitation) {
+      throw new Error('Invitation non trouvée');
+    }
+
+    return invitation;
   }
 } 

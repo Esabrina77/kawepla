@@ -499,6 +499,57 @@ export class InvitationController {
   }
 
   /**
+   * Récupérer une invitation spécifique avec tous les détails (pour l'admin).
+   * @route GET /api/admin/invitations/:id
+   */
+  static async getInvitationByIdAdmin(req: Request, res: Response, next: NextFunction): Promise<void> {
+    try {
+      const userRole = (req as any).user?.role;
+      
+      if (userRole !== 'ADMIN') {
+        res.status(403).json({ message: 'Accès non autorisé' });
+        return;
+      }
+
+      const { id } = req.params;
+
+      try {
+        console.log('═══════════════════════════════════════════');
+        console.log('🔍 BACKEND - getInvitationByIdAdmin');
+        console.log('ID demandé:', id);
+        
+        const invitation = await InvitationService.getInvitationByIdAdmin(id);
+        
+        console.log('✅ Invitation trouvée:');
+        console.log('  - ID:', invitation.id);
+        console.log('  - eventTitle:', invitation.eventTitle);
+        console.log('  - Design présent?', !!invitation.design);
+        
+        if (invitation.design) {
+          console.log('  - Design ID:', invitation.design.id);
+          console.log('  - Design name:', invitation.design.name);
+          console.log('  - Design template?', !!invitation.design.template);
+          console.log('  - Design styles?', !!invitation.design.styles);
+          console.log('  - Design variables?', !!invitation.design.variables);
+        }
+        console.log('═══════════════════════════════════════════');
+        
+        res.status(200).json(invitation);
+      } catch (error) {
+        if (error instanceof Error && error.message === 'Invitation non trouvée') {
+          console.log('❌ Invitation non trouvée pour ID:', id);
+          res.status(404).json({ message: error.message });
+        } else {
+          console.error('❌ Erreur getInvitationByIdAdmin:', error);
+          res.status(500).json({ message: 'Erreur interne du serveur' });
+        }
+      }
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  /**
    * Supprimer une invitation (pour l'admin).
    * @route DELETE /api/admin/invitations/:id
    */
