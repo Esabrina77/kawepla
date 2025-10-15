@@ -164,10 +164,7 @@ export const SITE_CONFIG = {
       titre: "Albums photos partagés",
       description: "Partagez vos moments avec modération automatique, galeries sécurisées et accès contrôlé pour vos invités."
     },
-    {
-      titre: "Messagerie intégrée",
-      description: "Communiquez directement avec vos invités, recevez leurs messages et gérez toutes les conversations."
-    },
+
     {
       titre: "Réseau de prestataires",
       description: "Trouvez et réservez les meilleurs prestataires pour votre événement directement sur la plateforme."

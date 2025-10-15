@@ -161,7 +161,8 @@
 .ctaPrimary:hover {
   transform: translateY(-2px);
   box-shadow: var(--shadow-lg);
-  background: var(--luxury-champagne-gold);
+  background: var(--luxury-velvet-black);
+  color: var(--luxury-ivory);
   text-decoration: none;
 }
 
@@ -578,11 +579,11 @@
 }
 
 .pricingGrid {
-  gap: var(--space-lg);
+  gap: var(--space-md);
   margin-bottom: var(--space-2xl);
   align-items: stretch;
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  grid-template-columns: repeat(5, 1fr);
   justify-content: center;
   max-width: 1400px;
   margin-left: auto;
@@ -592,9 +593,7 @@
 .pricingCard {
   position: relative;
   background-color: var(--bg-card);
-  min-width: 240px;
-  max-width: 280px;
-  margin: 0 auto;
+  width: 100%;
   transition: all var(--transition-normal);
   height: 100%;
   display: flex;
@@ -602,11 +601,110 @@
   padding: var(--space-xl) var(--space-lg) var(--space-lg) var(--space-lg);
   border: 2px solid var(--border-color);
   overflow: visible;
+  border-radius: var(--radius-lg);
 }
 
 .pricingCard.popular {
   border: 2px solid var(--luxury-champagne-gold);
   transform: scale(1.02);
+}
+
+/* Couleurs distinctives par plan */
+.pricingCard.decouverte {
+  border: 2px solid #10b981;
+  background: linear-gradient(135deg, rgba(16, 185, 129, 0.03), rgba(16, 185, 129, 0.01));
+}
+
+.pricingCard.decouverte .pricingIcon {
+  background: linear-gradient(135deg, #10b981, #059669);
+  color: white;
+}
+
+.pricingCard.decouverte .pricingPrice {
+  color: #10b981;
+}
+
+.pricingCard.essentiel {
+  border: 2px solid #3b82f6;
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.03), rgba(59, 130, 246, 0.01));
+}
+
+.pricingCard.essentiel .pricingIcon {
+  background: linear-gradient(135deg, #3b82f6, #2563eb);
+  color: white;
+}
+
+.pricingCard.essentiel .pricingPrice {
+  color: #3b82f6;
+}
+
+.pricingCard.elegant {
+  border: 2px solid var(--luxury-champagne-gold);
+  background: linear-gradient(135deg, rgba(197, 168, 128, 0.08), rgba(197, 168, 128, 0.02));
+  box-shadow: 0 4px 16px rgba(197, 168, 128, 0.2);
+}
+
+.pricingCard.elegant .pricingIcon {
+  background: linear-gradient(135deg, var(--luxury-champagne-gold), #8C775D);
+  color: var(--luxury-velvet-black);
+}
+
+.pricingCard.elegant .pricingPrice {
+  color: var(--luxury-champagne-gold);
+}
+
+.pricingCard.premium {
+  border: 2px solid #a855f7;
+  background: linear-gradient(135deg, rgba(168, 85, 247, 0.03), rgba(168, 85, 247, 0.01));
+}
+
+.pricingCard.premium .pricingIcon {
+  background: linear-gradient(135deg, #a855f7, #9333ea);
+  color: white;
+}
+
+.pricingCard.premium .pricingPrice {
+  color: #a855f7;
+}
+
+.pricingCard.luxe {
+  border: 2px solid var(--luxury-velvet-black);
+  background: linear-gradient(135deg, rgba(45, 45, 45, 0.05), rgba(45, 45, 45, 0.01));
+}
+
+.pricingCard.luxe .pricingIcon {
+  background: linear-gradient(135deg, var(--luxury-velvet-black), #1a1a1a);
+  color: var(--luxury-champagne-gold);
+}
+
+.pricingCard.luxe .pricingPrice {
+  color: var(--luxury-velvet-black);
+}
+
+/* Hover effects pour chaque couleur */
+.pricingCard.decouverte:hover {
+  box-shadow: 0 8px 24px rgba(16, 185, 129, 0.15);
+  transform: translateY(-4px);
+}
+
+.pricingCard.essentiel:hover {
+  box-shadow: 0 8px 24px rgba(59, 130, 246, 0.15);
+  transform: translateY(-4px);
+}
+
+.pricingCard.elegant:hover {
+  box-shadow: 0 8px 24px rgba(197, 168, 128, 0.25);
+  transform: translateY(-4px) scale(1.02);
+}
+
+.pricingCard.premium:hover {
+  box-shadow: 0 8px 24px rgba(168, 85, 247, 0.15);
+  transform: translateY(-4px);
+}
+
+.pricingCard.luxe:hover {
+  box-shadow: 0 8px 24px rgba(45, 45, 45, 0.2);
+  transform: translateY(-4px);
 }
 
 .popularBadge {
@@ -929,13 +1027,12 @@
 /* Tablettes */
 @media (max-width: 1024px) {
   .pricingGrid {
-    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    grid-template-columns: repeat(3, 1fr);
     gap: var(--space-md);
   }
 
   .pricingCard {
-    min-width: 220px;
-    max-width: 260px;
+    width: 100%;
   }
 }
 
@@ -1055,13 +1152,12 @@
 
   /* Pricing responsive */
   .pricingGrid {
-    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    grid-template-columns: repeat(2, 1fr);
     gap: var(--space-md);
   }
 
   .pricingCard {
-    min-width: 280px;
-    max-width: 320px;
+    width: 100%;
     padding: var(--space-lg) var(--space-md);
   }
 
@@ -1116,8 +1212,6 @@
   }
 
   .pricingCard {
-    min-width: auto;
-    max-width: none;
     width: 100%;
     padding: var(--space-md);
   }

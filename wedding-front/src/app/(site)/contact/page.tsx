@@ -13,18 +13,7 @@ export default function ContactPage() {
   return (
     <div className={styles.contactPage}>
       {/* Hero Section */}
-      <section className={styles.heroSection}>
-        <div className={styles.heroContent}>
-          <div className={styles.heroText}>
-            <h1 className={styles.heroTitle}>
-              Contactez-nous
-            </h1>
-            <p className={styles.heroDescription}>
-              Une question sur Kawepla ? Nous sommes là pour vous aider.
-            </p>
-          </div>
-        </div>
-      </section>
+
 
       {/* Main Content */}
       <section className={styles.mainSection}>

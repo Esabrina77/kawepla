@@ -99,6 +99,20 @@
   color: var(--luxury-velvet-black);
   font-size: 0.875rem;
   font-weight: 600;
+  text-decoration: none;
+  transition: color var(--transition-fast);
+}
+
+.contactText:hover {
+  color: var(--luxury-champagne-gold);
+}
+
+.contactNote {
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+  margin-top: var(--space-xs);
+  font-style: italic;
+  margin-left: calc(16px + var(--space-sm));
 }
 
 .socialSection {

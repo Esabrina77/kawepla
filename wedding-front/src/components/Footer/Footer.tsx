@@ -51,52 +51,34 @@ export function Footer() {
             </h4>
             <ul className={styles.linkList}>
               <li>
-                <button
-                  onClick={() => handleFooterLink('#accueil')}
-                  className={styles.footerLink}
-                >
+                <a href="/" className={styles.footerLink}>
                   Accueil
-                </button>
+                </a>
               </li>
               <li>
-                <button
-                  onClick={() => handleFooterLink('#fonctionnalites')}
-                  className={styles.footerLink}
-                >
-                  Fonctionnalités
-                </button>
+                <a href="/mariage" className={styles.footerLink}>
+                  Mariage
+                </a>
               </li>
               <li>
-                <button
-                  onClick={() => handleFooterLink('#témoignages')}
-                  className={styles.footerLink}
-                >
-                  Témoignages
-                </button>
-              </li>
-              <li>
-                <button
-                  onClick={() => handleFooterLink('#tarifs')}
-                  className={styles.footerLink}
-                >
-                  Tarifs
-                </button>
-              </li>
-              <li>
-                <button
-                  onClick={() => handleFooterLink('#faq')}
-                  className={styles.footerLink}
-                >
+                <a href="/faq" className={styles.footerLink}>
                   FAQ
-                </button>
+                </a>
               </li>
               <li>
-                <button
-                  onClick={() => handleFooterLink('#contact')}
-                  className={styles.footerLink}
-                >
+                <a href="/contact" className={styles.footerLink}>
                   Contact
-                </button>
+                </a>
+              </li>
+              <li>
+                <a href="/auth/register" className={styles.footerLink}>
+                  Créer un compte
+                </a>
+              </li>
+              <li>
+                <a href="/auth/login" className={styles.footerLink}>
+                  Se connecter
+                </a>
               </li>
             </ul>
           </div>
@@ -108,16 +90,13 @@ export function Footer() {
             </h4>
             <div className={styles.contactItem}>
               <Mail className={styles.contactIcon} size={16} />
-              <span className={styles.contactText}>kawepla.kaporelo@gmail.com</span>
+              <a href="mailto:kawepla.kaporelo@gmail.com" className={styles.contactText}>
+                kawepla.kaporelo@gmail.com
+              </a>
             </div>
-            <div className={styles.contactItem}>
-              <Phone className={styles.contactIcon} size={16} />
-              <span className={styles.contactText}>+33 1 23 45 67 89</span>
-            </div>
-            <div className={styles.contactItem}>
-              <MapPin className={styles.contactIcon} size={16} />
-              <span className={styles.contactText}>123 Rue de l'Amour, 75001 Paris</span>
-            </div>
+            <p className={styles.contactNote}>
+              Service disponible par mail
+            </p>
           </div>
 
           {/* Réseaux sociaux */}
@@ -126,14 +105,9 @@ export function Footer() {
               Suivez-nous
             </h4>
             <div className={styles.socialLinks}>
-              <a href="#" className={styles.socialLink} aria-label="Facebook">
-                <Facebook size={20} />
-              </a>
+
               <a href="#" className={styles.socialLink} aria-label="Instagram">
                 <Instagram size={20} />
-              </a>
-              <a href="#" className={styles.socialLink} aria-label="Twitter">
-                <Twitter size={20} />
               </a>
             </div>
           </div>

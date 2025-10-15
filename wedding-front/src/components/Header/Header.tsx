@@ -20,11 +20,10 @@ export function Header({ onNavigate }: HeaderProps) {
   const { user, isAuthenticated, isLoading } = useAuth();
 
   const navItems = [
-    { label: "Accueil", href: "#accueil" },
+    { label: "Accueil", href: "/" },
     { label: "Fonctionnalités", href: "#fonctionnalites" },
-    { label: "Témoignages", href: "#témoignages" },
     { label: "Tarifs", href: "#tarifs" },
-    { label: "FAQ", href: "#faq" },
+    { label: "FAQ", href: "/faq" },
     { label: "Contact", href: "/contact" },
   ];
 

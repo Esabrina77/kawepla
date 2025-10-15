@@ -8,10 +8,13 @@ Sitemap: https://kawepla.kaporelo.com/sitemap.xml
 Crawl-delay: 1
 
 # Pages importantes à indexer en priorité
+Allow: /
+Allow: /faq
+Allow: /mariage
 Allow: /auth/login
 Allow: /auth/register
 Allow: /contact
-Allow: /help
+
 
 # Pages privées à ne pas indexer
 Disallow: /client/

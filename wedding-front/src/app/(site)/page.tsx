@@ -53,7 +53,8 @@ export default function HomePage() {
       popular: false,
       savings: null,
       features: SITE_CONFIG.plans.decouverte.features,
-      limits: SITE_CONFIG.plans.decouverte.limits
+      limits: SITE_CONFIG.plans.decouverte.limits,
+      colorClass: 'decouverte'
     },
     {
       name: SITE_CONFIG.plans.essentiel.nom,
@@ -67,7 +68,8 @@ export default function HomePage() {
       popular: false,
       savings: null,
       features: SITE_CONFIG.plans.essentiel.features,
-      limits: SITE_CONFIG.plans.essentiel.limits
+      limits: SITE_CONFIG.plans.essentiel.limits,
+      colorClass: 'essentiel'
     },
     {
       name: SITE_CONFIG.plans.elegant.nom,
@@ -81,7 +83,8 @@ export default function HomePage() {
       popular: true,
       savings: null,
       features: SITE_CONFIG.plans.elegant.features,
-      limits: SITE_CONFIG.plans.elegant.limits
+      limits: SITE_CONFIG.plans.elegant.limits,
+      colorClass: 'elegant'
     },
     {
       name: SITE_CONFIG.plans.premium.nom,
@@ -95,7 +98,8 @@ export default function HomePage() {
       popular: false,
       savings: null,
       features: SITE_CONFIG.plans.premium.features,
-      limits: SITE_CONFIG.plans.premium.limits
+      limits: SITE_CONFIG.plans.premium.limits,
+      colorClass: 'premium'
     },
     {
       name: SITE_CONFIG.plans.luxe.nom,
@@ -109,7 +113,8 @@ export default function HomePage() {
       popular: false,
       savings: null,
       features: SITE_CONFIG.plans.luxe.features,
-      limits: SITE_CONFIG.plans.luxe.limits
+      limits: SITE_CONFIG.plans.luxe.limits,
+      colorClass: 'luxe'
     }
   ];
 
@@ -402,7 +407,7 @@ export default function HomePage() {
 
           <div className={`grid grid-5 ${styles.pricingGrid}`}>
             {realPlans.map((plan, index) => (
-              <div key={index} className={`card animate-scale-in ${styles.pricingCard} ${plan.popular ? styles.popular : ''}`} style={{
+              <div key={index} className={`card animate-scale-in ${styles.pricingCard} ${plan.popular ? styles.popular : ''} ${styles[plan.colorClass]}`} style={{
                 animationDelay: `${index * 0.1}s`
               }}>
                 {plan.popular && (
@@ -452,95 +457,13 @@ export default function HomePage() {
             ))}
           </div>
 
-          {/* ROI Calculator */}
-          <div className={`card ${styles.roiCalculator}`}>
-            <h3 className={`heading-3 text-center mb-lg ${styles.roiTitle}`}>
-              <Calculator className="w-6 h-6" style={{ marginRight: '8px' }} />
-              Calculez vos économies
-            </h3>
-            <div className={styles.roiContent}>
-              <div className={styles.roiItem}>
-                <span>Organisation traditionnelle complète:</span>
-                <span className={styles.roiPrice}>{SITE_CONFIG.roi.organisationTraditionnelle}</span>
-              </div>
-              <div className={styles.roiSubItems}>
-                <div className={styles.roiSubItem}>
-                  <span>• Invitations papier + impression</span>
-                  <span>{SITE_CONFIG.roi.details.invitationsPapier}</span>
-                </div>
-                <div className={styles.roiSubItem}>
-                  <span>• Photographe pour album</span>
-                  <span>{SITE_CONFIG.roi.details.photographe}</span>
-                </div>
-                <div className={styles.roiSubItem}>
-                  <span>• Coordinateur événement</span>
-                  <span>{SITE_CONFIG.roi.details.coordinateur}</span>
-                </div>
-                <div className={styles.roiSubItem}>
-                  <span>• Recherche prestataires</span>
-                  <span>{SITE_CONFIG.roi.details.prestataires}</span>
-                </div>
-              </div>
-              <div className={styles.roiItem}>
-                <span>Avec Kawepla (plan Élégant):</span>
-                <span className={styles.roiPrice}>{SITE_CONFIG.roi.avecKawepla}</span>
-              </div>
-              <div className={styles.roiTotal}>
-                <span>Économies totales:</span>
-                <span className={styles.roiSavings}>{SITE_CONFIG.roi.economies}</span>
-              </div>
-            </div>
-          </div>
         </div>
       </section>
 
-      {/* FAQ Anti-objections */}
-      <section id="faq" className={`section ${styles.faqSection}`}>
-        <div className="container">
-          <div className="text-center mb-xl">
-            <h2 className={`heading-2 ${styles.sectionTitle}`}>
-              Questions <span className={styles.sectionTitleAccent}>fréquentes</span>
-            </h2>
-            <p className={`text-large ${styles.sectionDescription}`}>
-              Tout ce que vous devez savoir sur Kawepla
-            </p>
-          </div>
 
-          <div className={`grid grid-2 ${styles.faqGrid}`}>
-            {faqs.map((faq, index) => (
-              <div key={index} className={`card animate-fade-in-up ${styles.faqCard}`} style={{
-                animationDelay: `${index * 0.1}s`
-              }}>
-                <h3 className={`heading-3 ${styles.faqQuestion}`}>
-                  {faq.question}
-                </h3>
-                <p className={`text-body ${styles.faqAnswer}`}>
-                  {faq.reponse}
-                </p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
 
       {/* CTA Final Simple */}
-      <section className={`section ${styles.ctaSection}`}>
-        <div className={`container text-center ${styles.ctaContent}`}>
-          <h2 className={`heading-2 mb-lg ${styles.ctaTitle}`}>
-            Prêt à organiser votre événement ?
-          </h2>
-          <p className={`text-large mb-xl ${styles.ctaDescription}`}>
-            Créez votre première invitation gratuitement
-          </p>
-          
-          <div className={`flex flex-center gap-lg ${styles.ctaButtons}`}>
-            <a href="/auth/login" className={`btn ${styles.ctaPrimaryButton}`}>
-              <Rocket style={{ marginRight: '8px', width: '20px', height: '20px' }} />
-              Commencer gratuitement
-            </a>
-          </div>
-        </div>
-      </section>
+
     </div>
   );
 }

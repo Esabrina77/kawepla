@@ -511,6 +511,8 @@ export class InvitationService {
    * Récupérer une invitation spécifique avec tous les détails (pour l'admin).
    */
   static async getInvitationByIdAdmin(id: string) {
+    console.log('🔵 SERVICE - getInvitationByIdAdmin appelé avec ID:', id);
+    
     const invitation = await prisma.invitation.findUnique({
       where: { id },
       include: {
@@ -533,6 +535,17 @@ export class InvitationService {
         }
       }
     });
+
+    console.log('🔵 SERVICE - Résultat Prisma:');
+    console.log('  - Invitation trouvée?', !!invitation);
+    if (invitation) {
+      console.log('  - eventTitle:', invitation.eventTitle);
+      console.log('  - Design présent?', !!invitation.design);
+      if (invitation.design) {
+        console.log('  - Design ID:', invitation.design.id);
+        console.log('  - Design keys:', Object.keys(invitation.design));
+      }
+    }
 
     if (!invitation) {
       throw new Error('Invitation non trouvée');
