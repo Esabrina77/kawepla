@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import styles from './Sidebar.module.css';
@@ -92,8 +92,20 @@ export const SuperAdminSidebar = () => {
   const basePath = pathname?.split('/').slice(0, 3).join('/');
 
   const toggleSidebar = () => {
-    setIsCollapsed(!isCollapsed);
+    const newState = !isCollapsed;
+    setIsCollapsed(newState);
+    // Mettre à jour l'attribut data sur le body pour le CSS
+    if (typeof document !== 'undefined') {
+      document.body.setAttribute('data-sidebar-collapsed', String(newState));
+    }
   };
+
+  // Initialiser l'attribut data sur le body
+  useEffect(() => {
+    if (typeof document !== 'undefined') {
+      document.body.setAttribute('data-sidebar-collapsed', String(isCollapsed));
+    }
+  }, [isCollapsed]);
 
   const toggleMobileMenu = () => {
     setShowMobileMenu(!showMobileMenu);

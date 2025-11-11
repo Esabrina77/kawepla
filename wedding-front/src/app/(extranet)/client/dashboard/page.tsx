@@ -5,27 +5,31 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useInvitations } from '@/hooks/useInvitations';
 import { useGuests } from '@/hooks/useGuests';
-import { LimitsIndicator } from '@/components/LimitsIndicator/LimitsIndicator';
+import { useAuth } from '@/hooks/useAuth';
+import { stripeApi } from '@/lib/api/stripe';
 import { 
   Users, 
   Mail, 
   CheckCircle, 
   XCircle, 
   Clock, 
-  BarChart3,
-  TrendingUp,
-  CalendarRange,
   Link as LinkIcon,
   Plus,
   MessageSquare,
-  ChevronDown
+  ChevronDown,
+  Bell,
+  UserPlus,
+  ListChecks
 } from 'lucide-react';
+import { FloatingThemeToggle } from '@/components/FloatingThemeToggle';
 import styles from './dashboard.module.css';
 
 export default function DashboardPage() {
   const router = useRouter();
+  const { user } = useAuth();
   const { invitations, loading: loadingInvitations } = useInvitations();
   const [selectedInvitationId, setSelectedInvitationId] = useState<string>('');
+  const [limits, setLimits] = useState<{ usage: any; limits: any } | null>(null);
 
   // Vérification d'authentification
   useEffect(() => {
@@ -35,6 +39,21 @@ export default function DashboardPage() {
       return;
     }
   }, [router]);
+
+  // Charger les limites
+  useEffect(() => {
+    const loadLimits = async () => {
+      try {
+        const limitsData = await stripeApi.getUserLimitsAndUsage();
+        setLimits(limitsData);
+      } catch (error) {
+        console.error('Erreur chargement limites:', error);
+      }
+    };
+    if (user) {
+      loadLimits();
+    }
+  }, [user]);
 
   // Trouver l'invitation sélectionnée ou la première disponible
   const selectedInvitation = invitations.find(inv => inv.id === selectedInvitationId) || invitations[0];
@@ -69,24 +88,21 @@ export default function DashboardPage() {
   const quickActions = [
     {
       title: 'Créer une invitation',
-      description: 'Commencez par créer votre première invitation',
-      icon: 'Plus',
-      path: '/client/invitations',
-      color: 'primary'
+      description: 'Commencer un nouvel événement',
+      icon: Plus,
+      path: '/client/invitations'
     },
     {
       title: 'Ajouter des invités',
-      description: 'Importez ou ajoutez vos invités',
-      icon: 'Users',
-      path: '/client/guests',
-      color: 'secondary'
+      description: 'Élargir votre liste d\'invités',
+      icon: UserPlus,
+      path: '/client/guests'
     },
     {
       title: 'Voir mes réponses',
-      description: 'Consultez les réponses de vos invités',
-      icon: 'MessageSquare',
-      path: '/client/messages',
-      color: 'tertiary'
+      description: 'Consulter les statuts RSVP',
+      icon: ListChecks,
+      path: '/client/messages'
     }
   ];
 
@@ -115,120 +131,157 @@ export default function DashboardPage() {
     );
   }
 
+  // Calculer les pourcentages pour les barres de progression
+  const invitationsPercent = limits ? Math.min(100, (limits.usage?.invitations || 0) / (limits.limits?.invitations || 1) * 100) : 0;
+  const guestsPercent = limits ? Math.min(100, (limits.usage?.guests || 0) / (limits.limits?.guests || 1) * 100) : 0;
+  const photosPercent = limits ? Math.min(100, (limits.usage?.photos || 0) / (limits.limits?.photos || 1) * 100) : 0;
+
   return (
     <div className={styles.dashboard}>
-      {/* Header Section */}
-      <div className={styles.headerSection}>
-        <div className={styles.badge}>
-          <BarChart3 style={{ width: '16px', height: '16px' }} />
-          Tableau de bord
+      {/* Header Sticky */}
+      <header className={styles.header}>
+        <div className={styles.headerLeft}>
+          <div className={styles.userAvatar}>
+            {user?.firstName?.[0] || 'U'}{user?.lastName?.[0] || ''}
+          </div>
+          <h2 className={styles.greeting}>
+            Bonjour {user?.firstName || 'Utilisateur'}
+          </h2>
         </div>
-        
-        <h1 className={styles.title}>
-          Bienvenue sur votre <span className={styles.titleAccent}>tableau de bord</span>
-        </h1>
-        
-        <p className={styles.subtitle}>
-          Gérez vos invitations et suivez vos statistiques en temps réel
+        <div className={styles.themeToggleWrapper}>
+          <FloatingThemeToggle variant="inline" size={20} />
+        </div>
+      </header>
+
+      <main className={styles.main}>
+        {/* Page Title */}
+        <h1 className={styles.pageTitle}>Tableau de bord</h1>
+
+        {/* Limites d'abonnement - Section inline */}
+        {limits && (
+          <section className={styles.limitsSection}>
+            <div className={styles.limitRow}>
+              <div className={styles.limitHeader}>
+                <p className={styles.limitLabel}>Invitations</p>
+                <p className={styles.limitValue}>
+                  {limits.usage?.invitations || 0} / {limits.limits?.invitations || 0}
+                </p>
+              </div>
+              <div className={styles.progressBar}>
+                <div 
+                  className={styles.progressFill} 
+                  style={{ width: `${invitationsPercent}%` }}
+                />
+              </div>
+            </div>
+            <div className={styles.limitRow}>
+              <div className={styles.limitHeader}>
+                <p className={styles.limitLabel}>Invités</p>
+                <p className={styles.limitValue}>
+                  {limits.usage?.guests || 0} / {limits.limits?.guests || 0}
+                </p>
+              </div>
+              <div className={styles.progressBar}>
+                <div 
+                  className={styles.progressFill} 
+                  style={{ width: `${guestsPercent}%` }}
+                />
+              </div>
+            </div>
+            <div className={styles.limitRow}>
+              <div className={styles.limitHeader}>
+                <p className={styles.limitLabel}>Photos</p>
+                <p className={styles.limitValue}>
+                  {limits.usage?.photos || 0} / {limits.limits?.photos || 0}
         </p>
       </div>
+              <div className={styles.progressBar}>
+                <div 
+                  className={`${styles.progressFill} ${styles.secondary}`}
+                  style={{ width: `${photosPercent}%` }}
+                />
+              </div>
+            </div>
+          </section>
+        )}
 
-      {/* Affichage des limites d'abonnement */}
-              <LimitsIndicator />
-
-      {/* Section Statistiques */}
-      {selectedInvitation && selectedInvitationId && (
-        <section className={styles.statsSection}>
-          <div className={styles.sectionHeader}>
-            <h2 className={styles.sectionTitle}>
-              <BarChart3 style={{ width: '20px', height: '20px' }} />
-              Statistiques de l'invitation
-            </h2>
-            
-            {/* Sélecteur d'invitation si plusieurs invitations */}
-            {invitations.length > 1 && (
-              <div className={styles.invitationSelector}>
+      {/* Sélecteur d'événement */}
+      {invitations.length > 0 && (
+        <div className={styles.eventSelector}>
                 <select
                   value={selectedInvitationId}
                   onChange={(e) => setSelectedInvitationId(e.target.value)}
-                  className={styles.invitationSelect}
+            className={styles.eventSelect}
                 >
                   {invitations.map(invitation => (
                     <option key={invitation.id} value={invitation.id}>
                       {invitation.eventTitle}
                       {invitation.eventDate && ` - ${new Date(invitation.eventDate).toLocaleDateString('fr-FR')}`}
-                      {invitation.status === 'PUBLISHED' ? ' ✅' : ' 📝'}
                     </option>
                   ))}
                 </select>
-                <ChevronDown style={{ width: '16px', height: '16px' }} className={styles.selectIcon} />
+          <ChevronDown className={styles.selectIcon} size={20} />
               </div>
             )}
             
-            <p className={styles.sectionSubtitle}>
-              {selectedInvitation.eventTitle} - {selectedInvitation.eventDate ? new Date(selectedInvitation.eventDate).toLocaleDateString('fr-FR') : 'Date non définie'}
-            </p>
-          </div>
+      {/* Section Statistiques */}
+      {selectedInvitation && selectedInvitationId && (
+        <section className={styles.statsSection}>
+          <h2 className={styles.sectionTitle}>Statistiques de l'événement</h2>
           
           <div className={styles.statsGrid}>
-            <div className={`${styles.statCard} ${styles.total}`}>
-              <div className={styles.statIcon}>
-                <Users style={{ width: '20px', height: '20px' }} />
+            {/* Total invités */}
+            <div className={styles.statCard}>
+              <div className={styles.statIconWrapper}>
+                <Users size={20} />
               </div>
-              <div className={styles.statContent}>
                 <div className={styles.statValue}>{guests.length}</div>
                 <div className={styles.statLabel}>Total invités</div>
-              </div>
             </div>
             
-            <div className={`${styles.statCard} ${styles.email}`}>
-              <div className={styles.statIcon}>
-                <Mail style={{ width: '20px', height: '20px' }} />
+            {/* Via email */}
+            <div className={styles.statCard}>
+              <div className={styles.statIconWrapper}>
+                <Mail size={20} />
               </div>
-              <div className={styles.statContent}>
                 <div className={styles.statValue}>{guestsWithEmails.length}</div>
-                <div className={styles.statLabel}>Via mail</div>
-              </div>
+              <div className={styles.statLabel}>Via email</div>
             </div>
             
-            <div className={`${styles.statCard} ${styles.link}`}>
-              <div className={styles.statIcon}>
-                <LinkIcon style={{ width: '20px', height: '20px' }} />
+            {/* Via lien */}
+            <div className={styles.statCard}>
+              <div className={styles.statIconWrapper}>
+                <LinkIcon size={20} />
               </div>
-              <div className={styles.statContent}>
                 <div className={styles.statValue}>{guestsViaLink.length}</div>
                 <div className={styles.statLabel}>Via lien</div>
-              </div>
             </div>
             
-            <div className={`${styles.statCard} ${styles.confirmed}`}>
-              <div className={styles.statIcon}>
-                <CheckCircle style={{ width: '20px', height: '20px' }} />
+            {/* Confirmés */}
+            <div className={styles.statCard}>
+              <div className={`${styles.statIconWrapper} ${styles.success}`}>
+                <CheckCircle size={20} />
               </div>
-              <div className={styles.statContent}>
                 <div className={styles.statValue}>{confirmedGuests.length}</div>
                 <div className={styles.statLabel}>Confirmés</div>
-              </div>
             </div>
             
-            <div className={`${styles.statCard} ${styles.declined}`}>
-              <div className={styles.statIcon}>
-                <XCircle style={{ width: '20px', height: '20px' }} />
+            {/* Refusés */}
+            <div className={styles.statCard}>
+              <div className={`${styles.statIconWrapper} ${styles.error}`}>
+                <XCircle size={20} />
               </div>
-              <div className={styles.statContent}>
                 <div className={styles.statValue}>{declinedGuests.length}</div>
                 <div className={styles.statLabel}>Refusés</div>
-              </div>
             </div>
             
-            <div className={`${styles.statCard} ${styles.pending}`}>
-              <div className={styles.statIcon}>
-                <Clock style={{ width: '20px', height: '20px' }} />
+            {/* En attente */}
+            <div className={styles.statCard}>
+              <div className={`${styles.statIconWrapper} ${styles.warning}`}>
+                <Clock size={20} />
               </div>
-              <div className={styles.statContent}>
                 <div className={styles.statValue}>{pendingGuests.length}</div>
                 <div className={styles.statLabel}>En attente</div>
-              </div>
             </div>
           </div>
         </section>
@@ -239,31 +292,32 @@ export default function DashboardPage() {
         <h2 className={styles.sectionTitle}>Actions rapides</h2>
         <div className={styles.actionsGrid}>
           {quickActions.map((action, index) => {
-            const IconComponent = action.icon === 'Plus' ? Plus : 
-                                 action.icon === 'Users' ? Users : 
-                                 action.icon === 'MessageSquare' ? MessageSquare : null;
+              const IconComponent = action.icon;
             
             return (
               <Link
                 key={index}
                 href={action.path}
-                className={`${styles.actionCard} ${styles[action.color]}`}
+                  className={styles.actionCard}
               >
-                <div className={styles.actionIcon}>
-                  {IconComponent && <IconComponent style={{ width: '20px', height: '20px' }} />}
+                  <div className={styles.actionLeft}>
+                    <div className={styles.actionIconWrapper}>
+                      <IconComponent size={24} />
                 </div>
                 <div className={styles.actionContent}>
-                  <h3>{action.title}</h3>
-                  <p>{action.description}</p>
+                      <div className={styles.actionTitle}>{action.title}</div>
+                      <div className={styles.actionDescription}>{action.description}</div>
+                    </div>
                 </div>
                 <div className={styles.actionArrow}>
-                  →
+                    <ChevronDown size={20} style={{ transform: 'rotate(-90deg)' }} />
                 </div>
               </Link>
             );
           })}
         </div>
       </section>
+      </main>
 
       <style jsx>{`
         @keyframes spin {

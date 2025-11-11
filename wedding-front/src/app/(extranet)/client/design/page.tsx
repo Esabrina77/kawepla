@@ -2,26 +2,19 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import { HeaderMobile } from '@/components/HeaderMobile';
 import { useDesigns } from '@/hooks/useDesigns';
 import { Design } from '@/types';
 import { TemplateEngine, getPreviewDataByType } from '@/lib/templateEngine';
 import { 
   Palette, 
-  Search, 
-  Filter, 
-  Eye, 
-  CheckCircle, 
-  Sparkles,
-  Crown,
-  Star
+  Crown
 } from 'lucide-react';
 import styles from './design.module.css';
 
 export default function ClientDesignPage() {
   const router = useRouter();
   const { designs, loading, error } = useDesigns();
-  const [searchTerm, setSearchTerm] = useState<string>('');
-  const [selectedFilter, setSelectedFilter] = useState<string>('all');
   const [returnTo, setReturnTo] = useState<string | null>(null);
 
   // Vérifier si on vient de la page invitations
@@ -37,35 +30,6 @@ export default function ClientDesignPage() {
   const getPreviewData = (design: Design) => {
     return getPreviewDataByType(design.category || 'event');
   };
-
-  // Filtrer les designs
-  const filteredDesigns = designs.filter(design => {
-    // Filtre par recherche (nom, description, tags)
-    const searchMatch = searchTerm === '' || 
-      design.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      design.description?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      design.tags?.some(tag => tag.toLowerCase().includes(searchTerm.toLowerCase()));
-    
-    // Filtre par catégorie/type
-    const filterMatch = selectedFilter === 'all' || 
-      design.category === selectedFilter ||
-      (selectedFilter === 'premium' && design.isPremium) ||
-      (selectedFilter === 'free' && !design.isPremium);
-    
-    return searchMatch && filterMatch;
-  });
-
-  // Obtenir toutes les catégories uniques pour le select
-  const categories = ['all', ...new Set(designs.map(d => d.category).filter(Boolean) as string[])];
-  
-  // Options pour le filtre
-  const filterOptions = [
-
-    ...categories.filter(cat => cat !== 'all').map(cat => ({
-      value: cat,
-      label: cat.charAt(0).toUpperCase() + cat.slice(1)
-    }))
-  ];
 
   const handlePreviewClick = (designId: string) => {
     router.push(`/client/design/${designId}`);
@@ -83,10 +47,13 @@ export default function ClientDesignPage() {
 
   if (loading) {
     return (
+      <div className={styles.designPage}>
+        <HeaderMobile title="Designs" />
       <div className={styles.loadingContainer}>
-        <div style={{ textAlign: 'center' }}>
+          <div className={styles.loadingContent}>
           <div className={styles.loadingSpinner}></div>
-          <p>Chargement des designs...</p>
+            <p>Chargement...</p>
+          </div>
         </div>
       </div>
     );
@@ -94,9 +61,12 @@ export default function ClientDesignPage() {
 
   if (error) {
     return (
+      <div className={styles.designPage}>
+        <HeaderMobile title="Designs" />
       <div className={styles.errorContainer}>
-        <div style={{ textAlign: 'center' }}>
+          <div className={styles.errorContent}>
           <p>Erreur: {error}</p>
+          </div>
         </div>
       </div>
     );
@@ -104,135 +74,72 @@ export default function ClientDesignPage() {
 
   return (
     <div className={styles.designPage}>
-      {/* Header Section */}
-      <div className={styles.headerSection}>
-        <div className={styles.badge}>
-          <Palette style={{ width: '16px', height: '16px' }} />
-          {returnTo === 'invitations' ? 'Sélection de design' : 'Galerie de designs'}
-        </div>
-        
-        <h1 className={styles.title}>
-          Nos <span className={styles.titleAccent}>design</span>
-        </h1>
-        
-        <p className={styles.subtitle}>
-          {returnTo === 'invitations' 
-            ? 'Sélectionnez le design parfait pour votre invitation d\'événement' 
-            : 'Découvrez notre collection de designs élégants et personnalisables'
-          }
-        </p>
-
-        {returnTo === 'invitations' && (
-          <div className={styles.returnInfo}>
-            <p>
-              👈 Vous serez redirigé vers la création d'invitation après avoir choisi un design
-            </p>
-          </div>
-        )}
-      </div>
-
-      {/* Filtres */}
-      <div className={styles.filtersContainer}>
-        <div className={styles.searchContainer}>
-          <Search className={styles.searchIcon} />
-          <input
-            type="text"
-            placeholder="Rechercher un design..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className={styles.searchInput}
-          />
-        </div>
-
-        <div className={styles.filterContainer}>
-          <Filter className={styles.filterIcon} />
-          <select
-            value={selectedFilter}
-            onChange={(e) => setSelectedFilter(e.target.value)}
-            className={styles.filterSelect}
-          >
-            {filterOptions.map(option => (
-              <option key={option.value} value={option.value}>
-                {option.label}
-              </option>
-            ))}
-          </select>
-        </div>
-      </div>
-
+      <HeaderMobile title="Designs" />
+      
+      <main className={styles.main}>
       {/* Grille des designs */}
+        {designs.length > 0 ? (
       <div className={styles.designsGrid}>
-        {filteredDesigns.map((design) => (
+            {designs.map((design) => (
           <div key={design.id} className={styles.designCard}>
             {/* Badge Premium */}
             {design.isPremium && (
               <div className={styles.premiumBadge}>
-                <Crown style={{ width: '12px', height: '12px' }} />
+                    <Crown size={12} />
                 Premium
               </div>
             )}
 
             {/* Preview */}
-            <div className={styles.previewContainer}>
+                <div className={styles.designImageWrapper}>
               {design.template && design.styles && design.variables ? (
                 <div 
-                  className={styles.previewContent}
+                      className={styles.designPreview}
                   dangerouslySetInnerHTML={{
                     __html: new TemplateEngine().render(design, getPreviewData(design))
                   }}
                 />
               ) : (
-                <div className={styles.previewPlaceholder}>
-                  <Palette style={{ width: '48px', height: '48px', marginBottom: 'var(--space-sm)' }} />
+                    <div className={styles.designPlaceholder}>
+                      <Palette size={48} />
                   <h3>{design.name}</h3>
-                  <p>Aperçu non disponible</p>
                 </div>
               )}
             </div>
             
             {/* Info */}
-            <div className={styles.designInfo}>
-              <h3 className={styles.designTitle}>
-                {design.name}
-              </h3>
-              
-              <p className={styles.designDescription}>
-                {design.description}
-              </p>
-              
+                <div className={styles.designContent}>
               {design.category && (
-                <span className={styles.categoryBadge}>
+                    <span className={styles.designType}>
                   {design.category}
                 </span>
               )}
               
-              {design.tags && design.tags.length > 0 && (
-                <div className={styles.tagsContainer}>
-                  {design.tags.map(tag => (
-                    <span key={tag} className={styles.tag}>
-                      {tag}
-                    </span>
-                  ))}
-                </div>
+                  <p className={styles.designTitle}>
+                    {design.name}
+                  </p>
+                  
+                  {design.description && (
+                    <p className={styles.designDetail}>
+                      {design.description}
+                    </p>
               )}
               
               {/* Actions */}
-              <div className={styles.actionsContainer}>
+                  <div className={styles.designActions}>
                 <button
                   onClick={() => handlePreviewClick(design.id)}
-                  className={styles.previewButton}
+                      className={styles.designActionButton}
                 >
-                  <Eye style={{ width: '14px', height: '14px' }} />
-                  Aperçu
+                      Voir
                 </button>
                 
                 {returnTo === 'invitations' && (
                   <button
                     onClick={() => handleChooseDesign(design.id)}
-                    className={styles.chooseButton}
+                        className={`${styles.designActionButton} ${styles.chooseButton}`}
                   >
-                    <CheckCircle style={{ width: '14px', height: '14px' }} />
-                    Choisir ce design
+                        Choisir
                   </button>
                 )}
               </div>
@@ -240,15 +147,14 @@ export default function ClientDesignPage() {
           </div>
         ))}
       </div>
-
-      {/* Empty State */}
-      {filteredDesigns.length === 0 && (
+        ) : (
         <div className={styles.emptyState}>
-          <Palette style={{ width: '64px', height: '64px', marginBottom: 'var(--space-md)' }} />
-          <h3>Aucun design trouvé</h3>
-          <p>Essayez de modifier vos critères de recherche</p>
+            <Palette size={64} />
+            <h3>Aucun design disponible</h3>
+            <p>Les designs seront bientôt disponibles</p>
         </div>
       )}
+      </main>
     </div>
   );
 } 

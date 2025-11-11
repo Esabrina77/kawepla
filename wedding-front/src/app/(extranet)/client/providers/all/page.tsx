@@ -2,250 +2,197 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { useProviderSearch, useServiceCategories } from '@/hooks/useProviders';
-import { 
-  Search, 
-  MapPin, 
-  Star, 
-  Users, 
-  Camera
-} from 'lucide-react';
+import { useProviderSearch } from '@/hooks/useProviders';
+import { HeaderMobile } from '@/components/HeaderMobile';
+import { Search, Star, UtensilsCrossed, Camera, Music, Flower2, Calendar, Palette, Building2 } from 'lucide-react';
 import styles from './providers.module.css';
 
 export default function ProvidersPage() {
   const router = useRouter();
-  const { providers, loading, error, searchProviders, searchByLocation, getCurrentLocationAndSearch } = useProviderSearch();
-  const { categories } = useServiceCategories();
+  const { providers, loading, error, searchProviders } = useProviderSearch();
   
-  const [searchParams, setSearchParams] = useState({
-    categoryId: '',
-    eventType: '',
-    minRating: 0,
-    maxPrice: '',
-    radius: 25,
-    searchTerm: ''
-  });
-  
-  const [locationPermission, setLocationPermission] = useState<'granted' | 'denied' | 'pending'>('pending');
+  const [searchTerm, setSearchTerm] = useState('');
 
   useEffect(() => {
-    // Essayer de charger les providers par défaut
     loadDefaultProviders();
   }, []);
 
-
   const loadDefaultProviders = async () => {
     try {
-      // Charger tous les prestataires par défaut (sans géolocalisation)
       await searchProviders({
-        categoryId: searchParams.categoryId || undefined,
-        minRating: searchParams.minRating || undefined,
-        limit: 50 // Limite élevée pour récupérer tous les prestataires
+        limit: 50
       });
-      
-      setLocationPermission('denied'); // Pas de géolocalisation par défaut
     } catch (error) {
       console.error('Erreur lors du chargement des prestataires:', error);
-      setLocationPermission('denied');
     }
   };
 
   const handleSearch = async () => {
     try {
-      // Charger tous les prestataires puis filtrer côté client
       await searchProviders({
-        categoryId: searchParams.categoryId || undefined,
-        minRating: searchParams.minRating || undefined,
-        limit: 100 // Augmenter la limite pour avoir plus de résultats à filtrer
+        limit: 100
       });
     } catch (error) {
       console.error('Erreur lors de la recherche:', error);
     }
   };
 
-  const formatPrice = (price: number, priceType: string) => {
-    switch (priceType) {
-      case 'hourly':
-        return `${price}€/h`;
-      case 'daily':
-        return `${price}€/jour`;
-      case 'package':
-        return `À partir de ${price}€`;
-      default:
-        return `${price}€`;
-    }
+  const getCategoryIcon = (categoryName?: string) => {
+    const icons: Record<string, React.ReactNode> = {
+      'Traiteur': <UtensilsCrossed size={14} />,
+      'Photographe': <Camera size={14} />,
+      'DJ': <Music size={14} />,
+      'Fleuriste': <Flower2 size={14} />,
+      'Salle': <Calendar size={14} />,
+      'Décoration': <Palette size={14} />,
+    };
+    return icons[categoryName || ''] || <Building2 size={14} />;
   };
 
-  const getDistanceText = (distance?: number) => {
-    if (!distance) return '';
-    return distance < 1 ? `${Math.round(distance * 1000)}m` : `${distance}km`;
-  };
+  const filteredProviders = providers.filter(provider => {
+    if (!searchTerm.trim()) return true;
+    const term = searchTerm.toLowerCase();
+    return (
+      provider.businessName.toLowerCase().includes(term) ||
+      provider.category?.name.toLowerCase().includes(term) ||
+      provider.displayCity.toLowerCase().includes(term) ||
+      provider.description?.toLowerCase().includes(term)
+    );
+  });
 
   if (loading) {
     return (
+      <div className={styles.providersPage}>
+        <HeaderMobile title="Prestataires" />
       <div className={styles.loadingContainer}>
-        <div style={{ textAlign: 'center' }}>
+          <div className={styles.loadingContent}>
           <div className={styles.loadingSpinner}></div>
           <p>Recherche de prestataires...</p>
+          </div>
         </div>
       </div>
     );
   }
 
   return (
-    <div className={styles.providersContainer}>
-      {/* Header Section */}
-      <div className={styles.headerSection}>
-        <div className={styles.badge}>
-          <Users style={{ width: '16px', height: '16px' }} />
-          Prestataires professionnels
-        </div>
-        
-        <h1 className={styles.title}>
-          Trouvez votre <span className={styles.titleAccent}>prestataire idéal</span>
-        </h1>
-        
-        <p className={styles.subtitle}>
-          Découvrez les meilleurs professionnels pour votre événement
-        </p>
+    <div className={styles.providersPage}>
+      <HeaderMobile title="Prestataires" />
+      
+      <main className={styles.main}>
+        {/* Search Section - Sticky */}
+        <div className={styles.searchSection}>
+          <div className={styles.searchContainer}>
+            <div className={styles.searchWrapper}>
+              <div className={styles.searchIconWrapper}>
+                <Search size={20} />
       </div>
-
-      {/* Filtres */}
-      <div className={styles.filtersContainer}>
-        <div className={styles.searchContainer}>
-          <Search className={styles.searchIcon} />
           <input
             type="text"
+                className={styles.searchInput}
             placeholder="Rechercher par ville ou prestataire..."
-            value={searchParams.searchTerm}
-            onChange={(e) => setSearchParams(prev => ({ ...prev, searchTerm: e.target.value }))}
-            className={styles.searchInput}
-          />
- 
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') {
+                    handleSearch();
+                  }
+                }}
+              />
+            </div>
+          </div>
+          {searchTerm.trim() && filteredProviders.length > 0 && (
+            <p className={styles.resultsCount}>
+              {filteredProviders.length} prestataire{filteredProviders.length > 1 ? 's' : ''} trouvé{filteredProviders.length > 1 ? 's' : ''}
+            </p>
+          )}
         </div>
         
-        <button onClick={handleSearch} className={styles.searchButton}>
-          <Search size={16} />
-          Rechercher
-        </button>
-      </div>
-
-
-      {/* Résultats */}
-      <div className={styles.resultsSection}>
+        {/* Results */}
         {error && (
-          <div className={styles.errorMessage}>
+          <div className={styles.errorContainer}>
+            <div className={styles.errorContent}>
             <p>❌ {error}</p>
             <button onClick={loadDefaultProviders}>Réessayer</button>
+            </div>
           </div>
         )}
 
-        {providers.length === 0 && !loading && !error && (
+        {filteredProviders.length === 0 && !loading && !error && (
           <div className={styles.emptyState}>
             <h3>Aucun prestataire trouvé</h3>
             <p>Essayez de modifier vos critères de recherche</p>
           </div>
         )}
 
-        {providers.length > 0 && searchParams.searchTerm.trim() && (
-          <div className={styles.resultsCount}>
-            {(() => {
-              const filteredProviders = providers.filter(provider => {
-                const searchTerm = searchParams.searchTerm.toLowerCase();
-                return (
-                  provider.businessName.toLowerCase().includes(searchTerm) ||
-                  provider.category?.name.toLowerCase().includes(searchTerm) ||
-                  provider.displayCity.toLowerCase().includes(searchTerm) ||
-                  provider.description?.toLowerCase().includes(searchTerm)
-                );
-              });
-              return `${filteredProviders.length} prestataire${filteredProviders.length > 1 ? 's' : ''} trouvé${filteredProviders.length > 1 ? 's' : ''}`;
-            })()}
-          </div>
-        )}
-
-        <div className={styles.providersGrid}>
-          {providers
-            .filter(provider => {
-              if (!searchParams.searchTerm.trim()) return true;
-              const searchTerm = searchParams.searchTerm.toLowerCase();
+        {filteredProviders.length > 0 && (
+          <div className={styles.providersList}>
+            {filteredProviders.map((provider) => {
+              const services = (provider as any).services || [];
+              const categoryName = provider.category?.name || '';
+              
               return (
-                provider.businessName.toLowerCase().includes(searchTerm) ||
-                provider.category?.name.toLowerCase().includes(searchTerm) ||
-                provider.displayCity.toLowerCase().includes(searchTerm) ||
-                provider.description?.toLowerCase().includes(searchTerm)
-              );
-            })
-            .map((provider) => (
             <div key={provider.id} className={styles.providerCard}>
+                  {/* Provider Image */}
+                  <div 
+                    className={styles.providerImage}
+                    style={{
+                      backgroundImage: provider.profilePhoto 
+                        ? `url(${provider.profilePhoto})` 
+                        : 'none',
+                      backgroundSize: 'cover',
+                      backgroundPosition: 'center',
+                      backgroundRepeat: 'no-repeat'
+                    }}
+                  />
+
+                  {/* Provider Content */}
+                  <div className={styles.providerContent}>
+                    {/* Header */}
               <div className={styles.providerHeader}>
-                <div className={styles.providerPhoto}>
-                  {provider.profilePhoto ? (
-                    <img src={provider.profilePhoto} alt={provider.businessName} />
-                  ) : (
-                    <div className={styles.photoPlaceholder}>
-                      <Camera size={24} />
+                      <div className={styles.providerTitleRow}>
+                        <h3 className={styles.providerName}>{provider.businessName}</h3>
+                        {categoryName && (
+                          <div className={styles.categoryBadge}>
+                            {getCategoryIcon(categoryName)}
+                            <span>{categoryName}</span>
                     </div>
                   )}
                 </div>
-                
-                <div className={styles.providerInfo}>
-                  <h3>{provider.businessName}</h3>
-                  <div className={styles.category}>
-                    {provider.category?.icon} {provider.category?.name}
-                  </div>
-                  <div className={styles.location}>
-                    <MapPin size={14} />
-                    {provider.displayCity}
-                  </div>
+                      <p className={styles.providerDescription}>
+                        {provider.displayCity} - {provider.description || 'Prestataire professionnel pour vos événements.'}
+                      </p>
+                      <div className={styles.ratingRow}>
+                        <Star className={styles.starIcon} size={16} fill="currentColor" />
+                        <span className={styles.ratingValue}>
+                          {provider.rating.toFixed(1)}
+                        </span>
+                        <span>({provider.reviewCount} avis)</span>
                 </div>
               </div>
 
-              <div className={styles.providerContent}>
-                <p className={styles.description}>
-                  {provider.description?.substring(0, 120)}
-                  {provider.description && provider.description.length > 120 && '...'}
-                </p>
+                    {/* Divider */}
+                    <hr className={styles.divider} />
 
-                <div className={styles.rating}>
-                  <div className={styles.stars}>
-                    {[...Array(5)].map((_, i) => (
-                      <Star
-                        key={i}
-                        size={14}
-                        className={i < Math.floor(provider.rating) ? styles.filled : styles.empty}
-                      />
-                    ))}
-                  </div>
-                  <span className={styles.ratingText}>
-                    {provider.rating.toFixed(1)} ({provider.reviewCount} avis)
-                  </span>
-                </div>
-
-                {(provider as any).services && (provider as any).services.length > 0 && (
-                  <div className={styles.services}>
-                    <h4>Services disponibles :</h4>
-                    <div className={styles.serviceList}>
-                      {(provider as any).services.slice(0, 2).map((service: any) => (
-                        <div key={service.id} className={styles.serviceItem}>
+                    {/* Services */}
+                    {services.length > 0 && (
+                      <div className={styles.servicesList}>
+                        {services.slice(0, 2).map((service: any, index: number) => (
+                          <div key={service.id || index} className={styles.serviceItem}>
                           <span className={styles.serviceName}>{service.name}</span>
                           <span className={styles.servicePrice}>
-                            {formatPrice(service.price, service.priceType)}
+                              {service.price}€
                           </span>
                         </div>
                       ))}
-                      {(provider as any).services.length > 2 && (
+                        {services.length > 2 && (
                         <div className={styles.moreServices}>
-                          +{(provider as any).services.length - 2} autres services
+                            +{services.length - 2} autres services
                         </div>
                       )}
-                    </div>
                   </div>
                 )}
-              </div>
-
-              <div className={styles.providerActions}>
                
+                    {/* View Button */}
                 <button 
                   className={styles.viewButton}
                   onClick={() => router.push(`/client/providers/${provider.id}`)}
@@ -254,9 +201,11 @@ export default function ProvidersPage() {
                 </button>
               </div>
             </div>
-          ))}
+              );
+            })}
         </div>
-      </div>
+        )}
+      </main>
     </div>
   );
 }

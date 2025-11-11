@@ -12,63 +12,84 @@
 .phoneInputContainer :global(.phone-input-field) {
   width: 100% !important;
   padding: 0.75rem 1rem 0.75rem 3.5rem !important;
-  border: 1px solid #dee2e6 !important;
-  border-radius: 10px !important;
-  font-size: 0.875rem !important;
-  color: #2c3e50 !important;
-  background-color: #f8f9fa !important;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
-  height: 44px !important;
+  border: 1px solid rgba(74, 74, 74, 0.5) !important;
+  border-radius: 0.5rem !important;
+  font-size: 1rem !important;
+  color: var(--text-primary) !important;
+  background-color: var(--bg-primary) !important;
+  transition: border-color var(--transition-normal) !important;
+  height: auto !important;
+  min-height: 44px !important;
   box-sizing: border-box !important;
-  font-family: 'Poppins', sans-serif !important;
+  font-family: var(--font-sans) !important;
+  outline: none !important;
+}
+
+[data-theme="dark"] .phoneInputContainer :global(.phone-input-field) {
+  border-color: rgba(74, 74, 74, 0.5) !important;
+}
+
+.phoneInputContainer :global(.phone-input-field:hover:not(:disabled)) {
+  border-color: rgba(165, 136, 102, 0.4) !important;
 }
 
 .phoneInputContainer :global(.phone-input-field:focus) {
-  border-color: #d4af37 !important;
-  box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.15) !important;
+  border-color: var(--luxury-champagne-gold) !important;
+  box-shadow: 0 0 0 2px rgba(165, 136, 102, 0.2) !important;
   outline: none !important;
-  background-color: white !important;
+  background-color: var(--bg-primary) !important;
 }
 
 .phoneInputContainer :global(.phone-input-field::placeholder) {
-  color: #6c757d !important;
-  font-style: italic !important;
-  font-weight: 300 !important;
+  color: var(--text-secondary) !important;
+  opacity: 0.6 !important;
 }
 
 .phoneInputContainer :global(.phone-input-button) {
   background: transparent !important;
   border: none !important;
-  border-right: 1px solid #dee2e6 !important;
-  border-radius: 10px 0 0 10px !important;
+  border-right: 1px solid rgba(74, 74, 74, 0.5) !important;
+  border-radius: 0.5rem 0 0 0.5rem !important;
   padding: 0 0.75rem !important;
-  height: 44px !important;
+  height: 100% !important;
+  min-height: 44px !important;
   display: flex !important;
   align-items: center !important;
   justify-content: center !important;
   cursor: pointer !important;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  transition: background-color var(--transition-normal) !important;
+}
+
+[data-theme="dark"] .phoneInputContainer :global(.phone-input-button) {
+  border-right-color: rgba(74, 74, 74, 0.5) !important;
 }
 
 .phoneInputContainer :global(.phone-input-button:hover) {
-  background-color: #e9ecef !important;
+  background-color: rgba(165, 136, 102, 0.1) !important;
 }
 
 .phoneInputContainer :global(.phone-input-button:focus) {
   outline: none !important;
-  background-color: #d4af37 !important;
-  color: white !important;
+  background-color: var(--luxury-champagne-gold) !important;
+  color: var(--luxury-velvet-black) !important;
+}
+
+[data-theme="dark"] .phoneInputContainer :global(.phone-input-button:focus) {
+  color: var(--text-primary) !important;
 }
 
 .phoneInputContainer :global(.phone-input-dropdown) {
-  background: white !important;
-  border: 1px solid #dee2e6 !important;
-  border-radius: 12px !important;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12) !important;
+  background: var(--bg-card) !important;
+  border: 1px solid rgba(74, 74, 74, 0.5) !important;
+  border-radius: 0.5rem !important;
+  box-shadow: var(--shadow-lg) !important;
   z-index: 1000 !important;
   max-height: 220px !important;
   overflow-y: auto !important;
-  backdrop-filter: blur(10px) !important;
+}
+
+[data-theme="dark"] .phoneInputContainer :global(.phone-input-dropdown) {
+  border-color: rgba(74, 74, 74, 0.5) !important;
 }
 
 .phoneInputContainer :global(.phone-input-dropdown .country) {
@@ -76,19 +97,27 @@
   cursor: pointer !important;
   display: flex !important;
   align-items: center !important;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
-  border-bottom: 1px solid #f8f9fa !important;
+  transition: background-color var(--transition-normal) !important;
+  border-bottom: 1px solid rgba(74, 74, 74, 0.2) !important;
+  color: var(--text-primary) !important;
+}
+
+[data-theme="dark"] .phoneInputContainer :global(.phone-input-dropdown .country) {
+  border-bottom-color: rgba(74, 74, 74, 0.5) !important;
 }
 
 .phoneInputContainer :global(.phone-input-dropdown .country:hover) {
-  background-color: #f8f9fa !important;
-  transform: translateX(2px) !important;
+  background-color: rgba(165, 136, 102, 0.1) !important;
 }
 
 .phoneInputContainer :global(.phone-input-dropdown .country.highlight) {
-  background-color: #d4af37 !important;
-  color: white !important;
+  background-color: var(--luxury-champagne-gold) !important;
+  color: var(--luxury-velvet-black) !important;
   font-weight: 600 !important;
+}
+
+[data-theme="dark"] .phoneInputContainer :global(.phone-input-dropdown .country.highlight) {
+  color: var(--text-primary) !important;
 }
 
 .phoneInputContainer :global(.phone-input-dropdown .country .flag) {
@@ -102,62 +131,65 @@
   margin-right: 0.75rem !important;
   flex: 1 !important;
   font-weight: 500 !important;
-  color: #2c3e50 !important;
+  color: var(--text-primary) !important;
 }
 
 .phoneInputContainer :global(.phone-input-dropdown .country .dial-code) {
-  color: #6c757d !important;
+  color: var(--text-secondary) !important;
   font-size: 0.875rem !important;
   font-weight: 400 !important;
 }
 
-.phoneInputContainer .phoneInputContainer :global(.phone-input-search) {
+.phoneInputContainer :global(.phone-input-search) {
   padding: 0.75rem 1rem !important;
   border: none !important;
-  border-bottom: 1px solid #dee2e6 !important;
+  border-bottom: 1px solid rgba(74, 74, 74, 0.2) !important;
   width: 100% !important;
   font-size: 0.875rem !important;
-  color: #2c3e50 !important;
-  background-color: #f8f9fa !important;
-  font-family: 'Poppins', sans-serif !important;
+  color: var(--text-primary) !important;
+  background-color: var(--bg-secondary) !important;
+  font-family: var(--font-sans) !important;
+}
+
+[data-theme="dark"] .phoneInputContainer :global(.phone-input-search) {
+  border-bottom-color: rgba(74, 74, 74, 0.5) !important;
 }
 
 .phoneInputContainer :global(.phone-input-search:focus) {
   outline: none !important;
-  background-color: white !important;
-  border-bottom-color: #d4af37 !important;
-  box-shadow: 0 2px 0 0 #d4af37 !important;
+  background-color: var(--bg-primary) !important;
+  border-bottom-color: var(--luxury-champagne-gold) !important;
+  box-shadow: 0 2px 0 0 var(--luxury-champagne-gold) !important;
 }
 
 .phoneInputContainer :global(.phone-input-search::placeholder) {
-  color: #6c757d !important;
-  font-style: italic !important;
-  font-weight: 300 !important;
+  color: var(--text-secondary) !important;
+  opacity: 0.6 !important;
 }
 
 /* Styles pour les états d'erreur */
 .phoneInputContainer :global(.phone-input-field.error) {
-  border-color: #dc3545 !important;
-  background-color: #fff5f5 !important;
+  border-color: var(--alert-error) !important;
+  background-color: var(--bg-error) !important;
 }
 
 .phoneInputContainer :global(.phone-input-field.error:focus) {
-  border-color: #dc3545 !important;
-  box-shadow: 0 0 0 3px rgba(220, 53, 69, 0.15) !important;
+  border-color: var(--alert-error) !important;
+  box-shadow: 0 0 0 2px rgba(239, 68, 68, 0.2) !important;
 }
 
 /* Styles pour les états désactivés */
 .phoneInputContainer :global(.phone-input-field:disabled) {
-  background-color: #e9ecef !important;
+  background-color: var(--bg-secondary) !important;
   cursor: not-allowed !important;
-  opacity: 0.6 !important;
-  color: #6c757d !important;
+  opacity: 0.5 !important;
+  color: var(--text-secondary) !important;
 }
 
 .phoneInputContainer :global(.phone-input-button:disabled) {
-  background-color: #e9ecef !important;
+  background-color: var(--bg-secondary) !important;
   cursor: not-allowed !important;
-  opacity: 0.6 !important;
+  opacity: 0.5 !important;
 }
 
 /* Responsive */
@@ -191,31 +223,3 @@
     transition: none !important;
   }
 }
-
-/* Dark mode support */
-@media (prefers-color-scheme: dark) {
-  .phoneInputContainer :global(.phone-input-field) {
-    background-color: #2c3e50 !important;
-    color: #f8f9fa !important;
-    border-color: #495057 !important;
-  }
-  
-  .phoneInputContainer :global(.phone-input-field:focus) {
-    background-color: #343a40 !important;
-    border-color: #d4af37 !important;
-  }
-  
-  .phoneInputContainer :global(.phone-input-dropdown) {
-    background-color: #2c3e50 !important;
-    border-color: #495057 !important;
-  }
-  
-  .phoneInputContainer :global(.phone-input-dropdown .country) {
-    color: #f8f9fa !important;
-    border-bottom-color: #495057 !important;
-  }
-  
-  .phoneInputContainer :global(.phone-input-dropdown .country:hover) {
-    background-color: #343a40 !important;
-  }
-} 

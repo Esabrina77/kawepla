@@ -10,11 +10,9 @@ Crawl-delay: 1
 # Pages importantes à indexer en priorité
 Allow: /
 Allow: /faq
-Allow: /mariage
+Allow: /help
 Allow: /auth/login
 Allow: /auth/register
-Allow: /contact
-
 
 # Pages privées à ne pas indexer
 Disallow: /client/
@@ -23,6 +21,8 @@ Disallow: /api/
 Disallow: /_next/
 Disallow: /admin/
 Disallow: /provider/
+Disallow: /rsvp/
+Disallow: /share-album/
 
 # Fichiers techniques à ignorer
 Disallow: /sw.js

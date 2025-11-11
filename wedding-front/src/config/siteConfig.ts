@@ -4,7 +4,7 @@
 export const SITE_CONFIG = {
   // === STATISTIQUES SITE ===
   stats: {
-    organisateursSatisfaits: "210+",
+    organisateursSatisfaits: "82",
     invitationsEnvoyees: "3,000+",
     tauxReponse: "92%",
     economiesMoyennes: "200€"
@@ -12,7 +12,7 @@ export const SITE_CONFIG = {
 
   // === TEXTE HERO ===
   hero: {
-    badge: "Rejoignez 210 organisateurs heureux",
+    badge: "Rejoignez 82 organisateurs heureux",
     titre: "Organisez votre événement de rêve en 10 minutes",
     description: "Plus jamais de stress avec vos invitations ! Créez des invitations numériques élégantes, gérez vos invités et suivez les réponses en temps réel.",
     economieHighlight: "Économisez +200€ en moyenne vs les invitations papier."
@@ -21,8 +21,8 @@ export const SITE_CONFIG = {
   // === TÉMOIGNAGES ===
   testimonials: {
     titre: "Ils nous font confiance",
-    sousTitre: "Plus de 210 organisateurs satisfaits à travers la France",
-    cta: "Rejoignez 210 organisateurs qui ont dit OUI à Kawepla"
+    sousTitre: "Plus de 82 organisateurs satisfaits à travers la France",
+    cta: "Rejoignez 82 organisateurs qui ont dit OUI à Kawepla"
   },
 
   // === ROI CALCULATOR ===
@@ -214,7 +214,7 @@ export const SITE_CONFIG = {
   // === MÉTADONNÉES SEO ===
   seo: {
     titre: "Kawepla - Plateforme complète pour organiser vos événements",
-    description: "Plus de 210 organisateurs nous font confiance ! Organisez tous vos événements avec Kawepla : invitations numériques, gestion des invités, albums photos, messagerie et prestataires. Gratuit à tester.",
+    description: "Plus de 82 organisateurs nous font confiance ! Organisez tous vos événements avec Kawepla : invitations numériques, gestion des invités, albums photos, messagerie et prestataires. Gratuit à tester.",
     keywords: "organisation événement, plateforme événement, invitation événement, événement numérique, RSVP événement, gestion invités événement, invitation mariage, invitation anniversaire, invitation baptême, invitation communion, prestataires événement, album photos événement, messagerie événement, organisation événement complète"
   }
 };

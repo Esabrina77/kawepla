@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="fr"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Profil Utilisateur</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet"/>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24;
+        }
+    </style>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "primary": "#A58866",
+              "background-light": "#f7f7f6",
+              "background-dark": "#121212",
+              "accent-error": "#E8C0C0",
+              "text-secondary": "#4A4A4A",
+              "input-bg": "#2A2A2A"
+            },
+            fontFamily: {
+              "display": ["Inter", "sans-serif"]
+            },
+            borderRadius: {"DEFAULT": "0.5rem", "lg": "0.75rem", "xl": "1rem", "full": "9999px"},
+          },
+        },
+      }
+    </script>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="font-display bg-background-dark text-white">
+<div class="relative flex h-screen w-full flex-col overflow-y-auto">
+<main class="flex-grow px-4 pt-8 pb-28">
+<!-- Profile Header -->
+<div class="flex w-full flex-col items-center gap-4 mb-10">
+<div class="relative flex h-28 w-28 items-center justify-center rounded-full bg-primary text-4xl font-bold text-white" data-alt="Avatar with user initials PN">
+<span>PN</span>
+</div>
+<div class="flex flex-col items-center justify-center">
+<h1 class="text-2xl font-bold tracking-tight text-white">Prénom Nom</h1>
+<p class="text-base font-normal text-white/60">prenom.nom@email.com</p>
+</div>
+</div>
+<!-- Profile Form -->
+<div class="flex flex-col gap-4">
+<!-- First Name Field -->
+<div class="relative flex flex-col">
+<label class="mb-2 text-sm font-medium text-white/80" for="firstname">Prénom</label>
+<div class="relative">
+<span class="material-symbols-outlined pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-primary">person</span>
+<input class="form-input h-14 w-full rounded-lg border border-text-secondary/50 bg-input-bg pl-10 pr-4 text-white placeholder:text-text-secondary focus:border-primary focus:ring-1 focus:ring-primary" id="firstname" type="text" value="Prénom"/>
+</div>
+</div>
+<!-- Last Name Field -->
+<div class="relative flex flex-col">
+<label class="mb-2 text-sm font-medium text-white/80" for="lastname">Nom</label>
+<div class="relative">
+<span class="material-symbols-outlined pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-primary">person</span>
+<input class="form-input h-14 w-full rounded-lg border border-text-secondary/50 bg-input-bg pl-10 pr-4 text-white placeholder:text-text-secondary focus:border-primary focus:ring-1 focus:ring-primary" id="lastname" type="text" value="Nom"/>
+</div>
+</div>
+<!-- Email Field -->
+<div class="relative flex flex-col">
+<label class="mb-2 text-sm font-medium text-white/80" for="email">Email</label>
+<div class="relative">
+<span class="material-symbols-outlined pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-text-secondary">mail</span>
+<input class="form-input h-14 w-full cursor-not-allowed rounded-lg border border-text-secondary/50 bg-input-bg/50 pl-10 pr-4 text-text-secondary placeholder:text-text-secondary" disabled="" id="email" type="email" value="prenom.nom@email.com"/>
+</div>
+<p class="mt-2 text-xs text-text-secondary">L'email ne peut pas être modifié</p>
+</div>
+<!-- Phone Field -->
+<div class="relative flex flex-col">
+<label class="mb-2 text-sm font-medium text-white/80" for="phone">Téléphone</label>
+<div class="relative">
+<span class="material-symbols-outlined pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-primary">phone</span>
+<input class="form-input h-14 w-full rounded-lg border border-text-secondary/50 bg-input-bg pl-10 pr-4 text-white placeholder:text-text-secondary focus:border-primary focus:ring-1 focus:ring-primary" id="phone" placeholder="+33 6 12 34 56 78" type="tel"/>
+</div>
+</div>
+</div>
+<!-- Save Button -->
+<div class="mt-8">
+<button class="flex h-14 w-full items-center justify-center rounded-lg bg-primary text-base font-bold text-white transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:bg-text-secondary/50 disabled:text-white/60">
+                    Enregistrer les modifications
+                </button>
+</div>
+</main>
+<!-- Fixed Bottom Navigation Bar -->
+<nav class="fixed bottom-0 left-0 z-10 w-full border-t border-text-secondary/30 bg-background-dark">
+<div class="mx-auto flex h-20 max-w-md items-center justify-around px-4">
+<a class="flex flex-col items-center gap-1 text-white/60" href="#">
+<span class="material-symbols-outlined">home</span>
+<span class="text-xs">Accueil</span>
+</a>
+<a class="flex flex-col items-center gap-1 text-white/60" href="#">
+<span class="material-symbols-outlined">calendar_month</span>
+<span class="text-xs">Agenda</span>
+</a>
+<a class="flex flex-col items-center gap-1 text-primary" href="#">
+<span class="material-symbols-outlined">account_circle</span>
+<span class="text-xs">Profil</span>
+</a>
+<a class="flex flex-col items-center gap-1 text-white/60" href="#">
+<span class="material-symbols-outlined">more_horiz</span>
+<span class="text-xs">Plus</span>
+</a>
+</div>
+</nav>
+</div>
+</body></html>

@@ -2,468 +2,428 @@
 
 import React from 'react';
 import { 
-  Palette, Camera, Users, BarChart3, CheckCircle, ArrowRight, Star, Sparkles, 
-  Mail, Smartphone, Heart, Crown, Check, MessageCircle, Phone, MapPin, Clock, 
-  Facebook, Instagram, Twitter, HelpCircle, Shield, FileText, Settings, 
-  Calendar, Gift, Music, Globe, Lock, Zap, Award, Users2, Share2, Bell, 
-  TrendingUp, ShieldCheck, Clock4, Tablet, Monitor, X, AlertTriangle, 
-  DollarSign, Timer, Target, Rocket, GiftIcon, CameraIcon, MessageSquare,
-  ThumbsUp, Award as AwardIcon, Globe as GlobeIcon, Zap as ZapIcon, Calculator,
-  Eye, Building2, UserCheck, Image, MessageSquare as MessageSquareIcon
+  Mail, Users, CheckCircle, Camera, Building2, 
+  Bell, Smartphone, BarChart3, Star, Rocket, 
+  Zap, Check, Crown, Heart, Shield, HelpCircle,
+  ArrowRight, Clock, X, AlertTriangle
 } from "lucide-react";
 
-
-import { GuaranteeBadge } from '@/components/GuaranteeBadge/GuaranteeBadge';
+import Image from 'next/image';
 import { SITE_CONFIG } from '@/config/siteConfig';
 import styles from './page.module.css';
 
 export default function HomePage() {
-  // Fonctionnalités basées sur le siteConfig avec icônes
-  const featuresWithIcons = SITE_CONFIG.features.map((feature, index) => {
-    const icons = [
-      <Mail className="w-5 h-5" />,
-      <Users className="w-5 h-5" />,
-      <CheckCircle className="w-5 h-5" />,
-      <Camera className="w-5 h-5" />,
-      <MessageCircle className="w-5 h-5" />,
-      <Building2 className="w-5 h-5" />,
-      <Bell className="w-5 h-5" />,
-      <Smartphone className="w-5 h-5" />,
-      <BarChart3 className="w-5 h-5" />
-    ];
-    
-    return {
-      icon: icons[index] || <Star className="w-5 h-5" />,
-      title: feature.titre,
-      description: feature.description
-    };
-  });
+  // Fonctionnalités différenciantes (les 3 principales)
+  const keyFeatures = [
+    {
+      icon: <Mail className="w-8 h-8" />,
+      title: "Invitations élégantes",
+      description: "Créez des invitations personnalisées en quelques minutes",
+      benefit: "Gagnez des heures de création"
+    },
+    {
+      icon: <Users className="w-8 h-8" />,
+      title: "Gestion automatique",
+      description: "Suivez les réponses et préférences en temps réel",
+      benefit: "Fini les relances manuelles"
+    },
+    {
+      icon: <Camera className="w-8 h-8" />,
+      title: "Tout centralisé",
+      description: "Invitations, photos, messages, prestataires en un seul endroit",
+      benefit: "Organisation simplifiée"
+    }
+  ];
 
-  // Plans réels basés sur le backend StripeService
+  // Autres fonctionnalités (moins mises en avant)
+  const otherFeatures = [
+    { icon: <CheckCircle />, title: "Réponses automatiques", description: "Formulaire sécurisé avec confirmation instantanée" },
+    { icon: <Building2 />, title: "Réseau de prestataires", description: "Trouvez et réservez directement sur la plateforme" },
+    { icon: <Bell />, title: "Notifications temps réel", description: "Restez informé de chaque réponse" },
+    { icon: <Smartphone />, title: "Application mobile", description: "Gérez depuis n'importe où" },
+    { icon: <BarChart3 />, title: "Statistiques détaillées", description: "Tableau de bord complet avec analytics" }
+  ];
+
+  // Plans tarifaires (simplifiés)
   const realPlans = [
     {
       name: SITE_CONFIG.plans.decouverte.nom,
       price: SITE_CONFIG.plans.decouverte.prix,
-      originalPrice: null,
       period: SITE_CONFIG.plans.decouverte.periode,
       description: SITE_CONFIG.plans.decouverte.description,
-      icon: <Heart style={{ width: '24px', height: '24px' }} />,
       badge: SITE_CONFIG.plans.decouverte.badge,
       current: true,
-      popular: false,
-      savings: null,
-      features: SITE_CONFIG.plans.decouverte.features,
-      limits: SITE_CONFIG.plans.decouverte.limits,
+      features: SITE_CONFIG.plans.decouverte.features.slice(0, 4),
       colorClass: 'decouverte'
-    },
-    {
-      name: SITE_CONFIG.plans.essentiel.nom,
-      price: SITE_CONFIG.plans.essentiel.prix,
-      originalPrice: null,
-      period: SITE_CONFIG.plans.essentiel.periode,
-      description: SITE_CONFIG.plans.essentiel.description,
-      icon: <Check style={{ width: '24px', height: '24px' }} />,
-      badge: null,
-      current: false,
-      popular: false,
-      savings: null,
-      features: SITE_CONFIG.plans.essentiel.features,
-      limits: SITE_CONFIG.plans.essentiel.limits,
-      colorClass: 'essentiel'
     },
     {
       name: SITE_CONFIG.plans.elegant.nom,
       price: SITE_CONFIG.plans.elegant.prix,
-      originalPrice: null,
       period: SITE_CONFIG.plans.elegant.periode,
       description: SITE_CONFIG.plans.elegant.description,
-      icon: <Star style={{ width: '24px', height: '24px' }} />,
       badge: SITE_CONFIG.plans.elegant.badge,
-      current: false,
       popular: true,
-      savings: null,
-      features: SITE_CONFIG.plans.elegant.features,
-      limits: SITE_CONFIG.plans.elegant.limits,
+      features: SITE_CONFIG.plans.elegant.features.slice(0, 4),
       colorClass: 'elegant'
     },
     {
       name: SITE_CONFIG.plans.premium.nom,
       price: SITE_CONFIG.plans.premium.prix,
-      originalPrice: null,
       period: SITE_CONFIG.plans.premium.periode,
       description: SITE_CONFIG.plans.premium.description,
-      icon: <Crown style={{ width: '24px', height: '24px' }} />,
-      badge: null,
-      current: false,
-      popular: false,
-      savings: null,
-      features: SITE_CONFIG.plans.premium.features,
-      limits: SITE_CONFIG.plans.premium.limits,
+      features: SITE_CONFIG.plans.premium.features.slice(0, 4),
       colorClass: 'premium'
-    },
-    {
-      name: SITE_CONFIG.plans.luxe.nom,
-      price: SITE_CONFIG.plans.luxe.prix,
-      originalPrice: null,
-      period: SITE_CONFIG.plans.luxe.periode,
-      description: SITE_CONFIG.plans.luxe.description,
-      icon: <Crown style={{ width: '24px', height: '24px' }} />,
-      badge: null,
-      current: false,
-      popular: false,
-      savings: null,
-      features: SITE_CONFIG.plans.luxe.features,
-      limits: SITE_CONFIG.plans.luxe.limits,
-      colorClass: 'luxe'
     }
   ];
 
   const testimonials = [
     {
       name: "Claire & Antoine",
-      text: "Kawepla a révolutionné notre organisation ! Invitations, réponses automatiques, photos, messages... Tout centralisé. Nos invités ont adoré la simplicité et nous avons économisé des heures de travail.",
+      text: "Kawepla a révolutionné notre organisation ! Tout centralisé, nos invités ont adoré la simplicité.",
       rating: 5,
       location: "Mariage à Lyon",
       photo: "/images/testimonials/claire-antoine.jpg",
-      guests: 120,
-      savings: "500€",
-      eventType: "Mariage"
+      guests: 120
     },
     {
       name: "Marie & Jean",
-      text: "La plateforme est incroyable ! Nous avons trouvé nos prestataires directement sur Kawepla, géré tous nos invités et partagé nos photos. Une solution complète qui nous a fait gagner un temps fou.",
+      text: "La plateforme est incroyable ! Nous avons trouvé nos prestataires directement et géré tous nos invités.",
       rating: 5,
       location: "Anniversaire à Paris",
       photo: "/images/testimonials/marie-jean.jpg",
-      guests: 85,
-      savings: "300€",
-      eventType: "Anniversaire"
+      guests: 85
     },
     {
       name: "Emma & Lucas",
-      text: "Le tableau de bord est parfait pour suivre tout en temps réel. Plus de 200 invitations envoyées, 95% de réponses. Magique !",
+      text: "Le tableau de bord est parfait pour suivre tout en temps réel. Plus de 200 invitations, 95% de réponses.",
       rating: 5,
-      location: "Événement corporatif à Bordeaux",
+      location: "Événement corporatif",
       photo: "/images/testimonials/emma-lucas.jpg",
-      guests: 200,
-      savings: "800€",
-      eventType: "Événement corporatif"
+      guests: 200
     }
   ];
 
-  const stats = [
-    { number: SITE_CONFIG.stats.organisateursSatisfaits, label: "Organisateurs satisfaits", icon: <Heart /> },
-    { number: SITE_CONFIG.stats.invitationsEnvoyees, label: "Invitations envoyées", icon: <Mail /> },
-    { number: SITE_CONFIG.stats.tauxReponse, label: "Taux de réponse", icon: <CheckCircle /> },
-    { number: SITE_CONFIG.stats.economiesMoyennes, label: "Économies moyennes", icon: <DollarSign /> }
-  ];
+  const faqs = SITE_CONFIG.faq.slice(0, 4);
 
-  const problems = [
-    {
-      icon: <X className="w-8 h-8" />,
-      title: "Outils éparpillés",
-      description: "Invitations ici, photos là, messages ailleurs... Rien n'est centralisé"
-    },
-    {
-      icon: <AlertTriangle className="w-8 h-8" />,
-      title: "Perte de temps précieux",
-      description: "Appels téléphoniques, relances, gestion manuelle de tout"
-    },
-    {
-      icon: <Clock className="w-8 h-8" />,
-      title: "Coordination impossible",
-      description: "Impossible de savoir qui vient, quand, avec qui, et où trouver les prestataires"
+  // Structured Data JSON-LD pour le SEO
+  const organizationSchema = {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    "name": "Kawepla",
+    "url": "https://kawepla.kaporelo.com",
+    "logo": "https://kawepla.kaporelo.com/images/logo.png",
+    "description": SITE_CONFIG.seo.description,
+    "sameAs": [],
+    "contactPoint": {
+      "@type": "ContactPoint",
+      "email": "kawepla.kaporelo@gmail.com",
+      "contactType": "customer service",
+      "availableLanguage": "French"
     }
-  ];
+  };
 
-  const solutions = [
-    {
-      icon: <CheckCircle className="w-8 h-8" />,
-      title: "Plateforme tout-en-un",
-      description: "Invitations, RSVP, photos, messages, prestataires... Tout centralisé"
-    },
-    {
-      icon: <Zap className="w-8 h-8" />,
-      title: "Organisation simplifiée",
-      description: "Interface intuitive, automatisation intelligente, gain de temps garanti"
-    },
-    {
-      icon: <BarChart3 className="w-8 h-8" />,
-      title: "Suivi en temps réel",
-      description: "Tableau de bord complet, analytics détaillées, coordination parfaite"
+  const websiteSchema = {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    "name": "Kawepla",
+    "url": "https://kawepla.kaporelo.com",
+    "description": SITE_CONFIG.seo.description,
+    "potentialAction": {
+      "@type": "SearchAction",
+      "target": "https://kawepla.kaporelo.com/search?q={search_term_string}",
+      "query-input": "required name=search_term_string"
     }
-  ];
+  };
 
-  const faqs = SITE_CONFIG.faq;
+  const softwareApplicationSchema = {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    "name": "Kawepla",
+    "applicationCategory": "EventManagementApplication",
+    "operatingSystem": "Web",
+    "offers": {
+      "@type": "Offer",
+      "price": "0",
+      "priceCurrency": "EUR"
+    },
+    "aggregateRating": {
+      "@type": "AggregateRating",
+      "ratingValue": "4.9",
+      "ratingCount": "82"
+    }
+  };
+
+  const faqSchema = {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": faqs.map(faq => ({
+      "@type": "Question",
+      "name": faq.question,
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": faq.reponse
+      }
+    }))
+  };
 
   return (
     <div className={styles.page}>
-      {/* Hero Section Optimisé */}
-      <section id="accueil" className={`section ${styles.heroSection}`}>
-        <div className={styles.heroPattern}></div>
-        
-        <div className={`container text-center ${styles.heroContent}`}>
-          <div className="mb-lg">
-            <span className={`badge ${styles.badge}`}>
-              <Sparkles style={{ width: '16px', height: '16px', marginRight: '8px' }} />
-              {SITE_CONFIG.hero.badge}
-            </span>
-          </div>
+      {/* Structured Data pour le SEO */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationSchema) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteSchema) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(softwareApplicationSchema) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }}
+      />
+      {/* ============================================
+          1. HERO - Titre accrocheur + CTA visible
+          ============================================ */}
+      <section className={styles.heroSection}>
+        <div className={styles.heroContainer}>
+          <div className={styles.heroContent}>
+            <h1 className={styles.heroTitle}>
+              Organisez vos événements
+              <br />
+              <span className={styles.heroTitleAccent}>sans stress</span>
+            </h1>
+            
+            <p className={styles.heroSubtitle}>
+              La plateforme tout-en-un pour créer vos invitations, gérer vos invités et partager vos moments.
+            </p>
 
-          <h1 className={`heading-hero mb-lg ${styles.heroTitle}`}>
-            <span>Kawepla - La plateforme complète</span>
-            <br />
-            <span className={styles.heroTitleAccent}>pour organiser vos événements</span>
-          </h1>
-          
-          <p className={`text-large mb-xl ${styles.heroDescription}`}>
-            Invitations numériques, gestion des invités, albums photos, messagerie, prestataires... 
-            <strong>Tout ce dont vous avez besoin pour un événement parfait en un seul endroit.</strong>
-          </p>
+            <div className={styles.heroCTA}>
+              <a href="/auth/login" className={styles.ctaPrimary}>
+                <Rocket className={styles.ctaIcon} />
+                Essayez gratuitement
+              </a>
+              <a href="#comment-ca-marche" className={styles.ctaSecondary}>
+                Voir comment ça marche
+                <ArrowRight className={styles.arrowIcon} />
+              </a>
+            </div>
 
-          {/* Social Proof Immédiat */}
-          <div className={`mb-xl ${styles.socialProof}`}>
-            <div className={styles.statsRow}>
-              {stats.map((stat, index) => (
-                <div key={index} className={styles.statItem}>
-                  <div className={styles.statIcon}>{stat.icon}</div>
-                  <div className={styles.statNumber}>{stat.number}</div>
-                  <div className={styles.statLabel}>{stat.label}</div>
-                </div>
-              ))}
+            <div className={styles.heroTrust}>
+              <Shield className={styles.trustIcon} />
+              <span>82 organisateurs nous font confiance</span>
             </div>
           </div>
 
-          <div className={`flex flex-center gap-lg mb-xl ${styles.heroButtons}`}>
-            <a href="/auth/login" className={`btn ${styles.ctaPrimary}`}>
-              <Rocket style={{ marginRight: '8px', width: '20px', height: '20px' }} />
-              Organiser mon événement gratuitement
-            </a>
-            {/* <PWAInstallButton /> */}
-          </div>
-
-          <div style={{ maxWidth: '1000px', margin: '0 auto', position: 'relative' }}>
-            <img 
-              src="/images/events.jpg"
-              alt="Exemple d'invitation d'événement numérique Kawepla"
-              className={styles.heroImage}
-              onError={(e) => {
-                e.currentTarget.src = '/images/hero.png';
-              }}
-            />
+          {/* Image de l'application */}
+          <div className={styles.heroVisual}>
+            <div className={styles.appImageWrapper}>
+              <Image
+                src="/images/app-pic.png"
+                alt="Interface Kawepla - Application de gestion d'événements"
+                width={400}
+                height={600}
+                className={styles.appImage}
+                priority
+              />
+            </div>
           </div>
         </div>
       </section>
 
-      {/* Section Problème/Solution */}
-      <section className={`section ${styles.problemSolutionSection}`}>
-        <div className="container">
-          <div className="text-center mb-xl">
-            <h2 className={`heading-2 ${styles.sectionTitle}`}>
-              Fini le <span className={styles.sectionTitleAccent}>stress</span> de l'organisation !
-          </h2>
-            <p className={`text-large ${styles.sectionDescription}`}>
-              Découvrez comment Kawepla révolutionne l'organisation d'événements avec une solution tout-en-un
-            </p>
-          </div>
-
-          <div className={`grid grid-2 ${styles.problemSolutionGrid}`}>
-            <div className={styles.problemsColumn}>
-              <h3 className={`heading-3 mb-lg ${styles.columnTitle}`}>
-                <X className="w-6 h-6" style={{ marginRight: '8px' }} />
-                Les problèmes traditionnels
-              </h3>
-              {problems.map((problem, index) => (
-                <div key={index} className={styles.problemCard}>
-                  <div className={styles.problemIcon}>
-                    {problem.icon}
-                  </div>
-                  <div>
-                    <h4 className={styles.problemTitle}>{problem.title}</h4>
-                    <p className={styles.problemDescription}>{problem.description}</p>
-                  </div>
-                </div>
-              ))}
-        </div>
-        
-            <div className={styles.solutionsColumn}>
-              <h3 className={`heading-3 mb-lg ${styles.columnTitle}`}>
-                <CheckCircle className="w-6 h-6" style={{ marginRight: '8px' }} />
-                La solution Kawepla
-              </h3>
-              {solutions.map((solution, index) => (
-                <div key={index} className={styles.solutionCard}>
-                  <div className={styles.solutionIcon}>
-                    {solution.icon}
-                    </div>
-                  <div>
-                    <h4 className={styles.solutionTitle}>{solution.title}</h4>
-                    <p className={styles.solutionDescription}>{solution.description}</p>
-                  </div>
-                </div>
-              ))}
-              </div>
-          </div>
-        </div>
-      </section>
-
-
-
-      {/* Fonctionnalités - Version Minimaliste */}
-      <section id="fonctionnalites" className={`section ${styles.featuresSection}`}>
-        <div className="container">
-          <div className="text-center mb-xl">
-            <h2 className={`heading-2 ${styles.sectionTitle}`}>
-              Tout ce dont vous avez besoin
-              </h2>
-            <p className={`text-large ${styles.sectionDescription}`}>
-              Une plateforme complète pour organiser vos événements
+      {/* ============================================
+          2. SOLUTION - Toutes les fonctionnalités ensemble
+          ============================================ */}
+      <section id="comment-ca-marche" className={styles.solutionSection}>
+        <div className={styles.container}>
+          <div className={styles.sectionHeader}>
+            <h2 className={styles.sectionTitle}>
+              Une solution <span className={styles.sectionTitleAccent}>tout-en-un</span>
+            </h2>
+            <p className={styles.sectionDescription}>
+              Créez vos invitations, gérez vos invités, partagez vos photos et trouvez vos prestataires en un seul endroit.
             </p>
           </div>
 
           <div className={styles.featuresGrid}>
-            {featuresWithIcons.map((feature, index) => (
-              <div key={index} className={styles.featureItem}>
-                <div className={styles.featureIcon}>
-                  {feature.icon}
+            {keyFeatures.map((feature, index) => (
+              <div 
+                key={index} 
+                className={`${styles.solutionCard} ${styles.animateCard}`}
+                style={{ animationDelay: `${index * 0.1}s` }}
+              >
+                <div className={styles.solutionIcon}>{feature.icon}</div>
+                <h3 className={styles.solutionTitle}>{feature.title}</h3>
+                <p className={styles.solutionDescription}>{feature.description}</p>
+                <div className={styles.solutionBenefit}>{feature.benefit}</div>
+              </div>
+            ))}
+            {otherFeatures.map((feature, index) => (
+              <div 
+                key={`other-${index}`} 
+                className={`${styles.featureCard} ${styles.animateCard}`}
+                style={{ animationDelay: `${(keyFeatures.length + index) * 0.1}s` }}
+              >
+                <div className={styles.featureIcon}>{feature.icon}</div>
+                <h3 className={styles.featureTitle}>{feature.title}</h3>
+                <p className={styles.featureDescription}>{feature.description}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ============================================
+          4. PREUVES SOCIALES - Témoignages + Chiffres
+          ============================================ */}
+      <section className={styles.testimonialsSection}>
+        <div className={styles.container}>
+          <div className={styles.sectionHeader}>
+            <h2 className={styles.sectionTitle}>
+              Ils nous font <span className={styles.sectionTitleAccent}>confiance</span>
+            </h2>
+            <p className={styles.sectionDescription}>
+              82 organisateurs satisfaits à travers la France
+            </p>
+          </div>
+
+          <div className={styles.testimonialsGrid}>
+            {testimonials.map((testimonial, index) => (
+              <div key={index} className={styles.testimonialCard}>
+                <div className={styles.testimonialHeader}>
+                  <img 
+                    src={testimonial.photo} 
+                    alt={testimonial.name}
+                    className={styles.testimonialPhoto}
+                    onError={(e) => {
+                      e.currentTarget.src = '/images/testimonials.png';
+                    }}
+                  />
+                  <div className={styles.testimonialInfo}>
+                    <div className={styles.testimonialName}>{testimonial.name}</div>
+                    <div className={styles.testimonialLocation}>{testimonial.location}</div>
                   </div>
-                <div className={styles.featureContent}>
-                  <h3>{feature.title}</h3>
-                  <p>{feature.description}</p>
+                </div>
+                
+                <div className={styles.testimonialRating}>
+                  {[...Array(testimonial.rating)].map((_, i) => (
+                    <Star key={i} className={styles.starIcon} />
+                  ))}
+                </div>
+                
+                <p className={styles.testimonialText}>"{testimonial.text}"</p>
+                
+                <div className={styles.testimonialStats}>
+                  {testimonial.guests} invités
                 </div>
               </div>
             ))}
           </div>
-            </div>
-          </section>
+        </div>
+      </section>
 
-      {/* Témoignages avec photos */}
-      <section id="témoignages" className={`section ${styles.testimonialsSection}`}>
-            <div className="container">
-              <div className="text-center mb-xl">
-                <h2 className={`heading-2 ${styles.sectionTitle}`}>
-              {SITE_CONFIG.testimonials.titre} <span className={styles.sectionTitleAccent}>confiance</span>
-                </h2>
-                <p className={`text-large ${styles.sectionDescription}`}>
-              {SITE_CONFIG.testimonials.sousTitre}
-                </p>
-              </div>
-
-              <div className="grid grid-3">
-            {testimonials.map((testimonial, index) => (
-              <div key={index} className={`card animate-fade-in-up ${styles.testimonialCard}`} style={{
-                animationDelay: `${index * 0.2}s`
-              }}>
-                    <div className={styles.testimonialHeader}>
-                  <img 
-                    src={testimonial.photo} 
-                         alt={testimonial.name}
-                         className={styles.testimonialPhoto}
-                    onError={(e) => {
-                      e.currentTarget.src = '/images/testimonials.png';
-                    }}
-                       />
-                      <div className={styles.testimonialInfo}>
-                        <div className={styles.testimonialName}>
-                          {testimonial.name}
-                        </div>
-                        <div className={styles.testimonialLocation}>
-                      {testimonial.location}
-                    </div>
-                    <div className={styles.testimonialStats}>
-                      <span>{testimonial.guests} invités</span>
-                      <span>•</span>
-                      <span>Économie: {testimonial.savings}</span>
-                        </div>
-                      </div>
-                    </div>
-                      
-                    <div style={{ marginBottom: 'var(--space-md)' }}>
-                  {[...Array(testimonial.rating)].map((_, i) => (
-                    <Star key={i} className={styles.starIcon} />
-                      ))}
-                    </div>
-                <p className={`text-body ${styles.testimonialText}`}>
-                      "{testimonial.text}"
-                    </p>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </section>
-
-      {/* Pricing Optimisé */}
-      <section id="tarifs" className={`section ${styles.pricingSection}`}>
-        <div className={styles.pricingBackground}></div>
-        <div className={`container ${styles.pricingContent}`}>
-          <div className="text-center mb-xl">
-            <h2 className={`heading-2 ${styles.sectionTitle}`}>
+      {/* ============================================
+          5. TARIFS - Simplifiés
+          ============================================ */}
+      <section className={styles.pricingSection} id="tarifs">
+        <div className={styles.container}>
+          <div className={styles.sectionHeader}>
+            <h2 className={styles.sectionTitle}>
               Des tarifs <span className={styles.sectionTitleAccent}>adaptés</span>
             </h2>
-            <p className={`text-large ${styles.sectionDescription}`}>
+            <p className={styles.sectionDescription}>
               Commencez gratuitement, payez seulement quand vous êtes prêt
             </p>
           </div>
 
-          <div className={`grid grid-5 ${styles.pricingGrid}`}>
+          <div className={styles.pricingGrid}>
             {realPlans.map((plan, index) => (
-              <div key={index} className={`card animate-scale-in ${styles.pricingCard} ${plan.popular ? styles.popular : ''} ${styles[plan.colorClass]}`} style={{
-                animationDelay: `${index * 0.1}s`
-              }}>
+              <div key={index} className={`${styles.pricingCard} ${plan.popular ? styles.popular : ''} ${styles[plan.colorClass]}`}>
                 {plan.popular && (
-                  <div className={styles.popularBadge}>
-                    {plan.badge}
-                  </div>
+                  <div className={styles.popularBadge}>{plan.badge}</div>
                 )}
                 
-                <div style={{ textAlign: 'center', marginBottom: 'var(--space-lg)' }}>
-                  <div className={styles.pricingIcon}>
-                    {plan.icon}
+                <div className={styles.pricingHeader}>
+                  <h3 className={styles.pricingTitle}>{plan.name}</h3>
+                  <div className={styles.pricingPrice}>
+                    <span className={styles.price}>{plan.price}</span>
+                    <span className={styles.period}>/{plan.period}</span>
                   </div>
-                  <h3 className={`heading-3 ${styles.pricingTitle}`}>{plan.name}</h3>
-                  <div style={{ marginBottom: 'var(--space-sm)' }}>
-                    <span className={styles.pricingPrice}>
-                      {plan.price}
-                    </span>
-                    <span className={styles.pricingPeriod}>
-                      /{plan.period}
-                    </span>
-                  </div>
-                  <p className={`text-body ${styles.pricingDescription}`}>
-                    {plan.description}
-                  </p>
+                  <p className={styles.pricingDescription}>{plan.description}</p>
                 </div>
 
-                <div style={{ flex: 1 }}>
-                  <ul className={styles.pricingFeatures}>
-                    {plan.features.map((feature, featureIndex) => (
-                      <li key={featureIndex} className={styles.pricingFeature}>
-                        <Check className={styles.checkIcon} />
-                        {feature}
-                      </li>
-                    ))}
-                  </ul>
-                </div>
+                <ul className={styles.pricingFeatures}>
+                  {plan.features.map((feature, featureIndex) => (
+                    <li key={featureIndex} className={styles.pricingFeature}>
+                      <Check className={styles.checkIcon} />
+                      {feature}
+                    </li>
+                  ))}
+                </ul>
 
-                <div style={{ marginTop: 'var(--space-lg)' }}>
-                  <a 
-                    href={plan.current ? "/auth/login" : "#"} 
-                    className={`${plan.current ? "btn btn-primary" : "btn btn-outline"} ${styles.pricingButton}`}
-                  >
-                    {plan.current ? "Commencer gratuitement" : "Choisir ce plan"}
-                  </a>
-                </div>
+                <a 
+                  href={plan.current ? "/auth/login" : "#"} 
+                  className={`${styles.pricingButton} ${plan.current ? styles.buttonPrimary : styles.buttonSecondary}`}
+                >
+                  {plan.current ? "Commencer gratuitement" : "Choisir ce plan"}
+                </a>
               </div>
             ))}
           </div>
-
         </div>
       </section>
 
+      {/* ============================================
+          6. FAQ - Réassurance
+          ============================================ */}
+      <section className={styles.faqSection}>
+        <div className={styles.container}>
+          <div className={styles.sectionHeader}>
+            <h2 className={styles.sectionTitle}>
+              Questions <span className={styles.sectionTitleAccent}>fréquentes</span>
+            </h2>
+          </div>
 
+          <div className={styles.faqGrid}>
+            {faqs.map((faq, index) => (
+              <div key={index} className={styles.faqCard}>
+                <h3 className={styles.faqQuestion}>
+                  <HelpCircle className={styles.faqIcon} />
+                  {faq.question}
+                </h3>
+                <p className={styles.faqAnswer}>{faq.reponse}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
 
-      {/* CTA Final Simple */}
-
+      {/* ============================================
+          7. CTA FINAL - Simple et clair
+          ============================================ */}
+      <section className={styles.ctaSection}>
+        <div className={styles.container}>
+          <div className={styles.ctaContent}>
+            <h2 className={styles.ctaTitle}>
+              Prêt à organiser votre événement ?
+            </h2>
+            <p className={styles.ctaDescription}>
+              Rejoignez les 82 organisateurs qui nous font confiance
+            </p>
+            <a href="/auth/login" className={styles.ctaButton}>
+              <Rocket className={styles.ctaIcon} />
+              Commencer gratuitement
+            </a>
+            <div className={styles.ctaTrust}>
+              <Shield className={styles.trustIcon} />
+              <span>Gratuit à vie • Sans engagement • Support inclus</span>
+            </div>
+          </div>
+        </div>
+      </section>
     </div>
   );
 }

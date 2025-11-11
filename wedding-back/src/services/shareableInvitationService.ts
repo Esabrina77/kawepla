@@ -328,8 +328,6 @@ export class ShareableInvitationService {
           status: guest.rsvp.status,
           numberOfGuests: guest.rsvp.numberOfGuests,
           message: guest.rsvp.message,
-          attendingCeremony: guest.rsvp.attendingCeremony,
-          attendingReception: guest.rsvp.attendingReception,
           respondedAt: guest.rsvp.respondedAt,
           plusOne: guest.plusOne,
           plusOneName: guest.plusOneName,

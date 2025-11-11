@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html class="dark" lang="fr"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Tableau de bord Événementiel</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet"/>
+<style>::-webkit-scrollbar {
+        width: 8px;
+      }
+      ::-webkit-scrollbar-track {
+        background: #1c1916;
+      }
+      ::-webkit-scrollbar-thumb {
+        background: #a48765;
+        border-radius: 4px;
+      }
+      ::-webkit-scrollbar-thumb:hover {
+        background: #b59876;
+      }
+    </style>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "primary": "#a48765", // Corresponds to #A58866
+              "secondary": "#E8C0C0",
+              "background-light": "#f7f7f6",
+              "background-dark": "#1c1916", // Corresponds to #121212 but using the theme
+              "card-dark": "#2a2724", // A slightly lighter grey than background, maps to #4A4A4A concept
+              "card-light": "#ffffff",
+              "text-light": "#1c1916",
+              "text-dark": "#ffffff",
+              "text-muted-dark": "#9ca3af",
+              "text-muted-light": "#6b7280"
+            },
+            fontFamily: {
+              "display": ["Inter", "sans-serif"]
+            },
+            borderRadius: {"DEFAULT": "0.5rem", "lg": "0.75rem", "xl": "1rem", "full": "9999px"},
+          },
+        },
+      }
+    </script>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background-light dark:bg-background-dark font-display text-text-light dark:text-text-dark antialiased">
+<div class="relative flex h-auto min-h-screen w-full flex-col">
+<header class="sticky top-0 z-10 flex items-center justify-between bg-background-light/80 p-4 backdrop-blur-sm dark:bg-background-dark/80">
+<div class="flex items-center gap-4">
+<img class="h-10 w-10 rounded-full object-cover" data-alt="User profile picture" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDgNznU6dP5oHyncYVm3-W1F03_kUfP0elywm7yFZKvvhkuDRlubbImJu4pI6s7ix6g4alMJb-hJoFIqdwQcj8yzCmwoXuxUZCj5eNeV4ZcYcrq4DFfVDjtsR61CfCm-Z1hkimlao3E7LCa-rwL-tEYMQsyRMm_fsi01eOvE3GzMOtBAp97LVSkzip-APwBJ2vnwhGdBesELAe_jdBrBh7Kdf6rKCNxXjq7gpDnglRtNbIFB28gpWuD7TA9g93-F33y4gyXHPp5MbdS"/>
+<h2 class="text-lg font-bold leading-tight tracking-tight text-text-light dark:text-text-dark">Bonjour Marie,</h2>
+</div>
+<button class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-card-light dark:bg-card-dark">
+<span class="material-symbols-outlined text-text-muted-light dark:text-text-muted-dark">notifications</span>
+</button>
+</header>
+<main class="flex-1 px-4 pb-28">
+<h1 class="tracking-light text-3xl font-bold leading-tight pt-4 pb-6 text-text-light dark:text-text-dark">Tableau de bord</h1>
+<section class="mb-8 flex flex-col gap-4 rounded-xl bg-card-light p-4 dark:bg-card-dark">
+<div class="flex flex-col gap-3">
+<div class="flex items-center justify-between gap-6">
+<p class="text-sm font-medium leading-normal text-text-light dark:text-text-dark">Invitations</p>
+<p class="text-xs font-normal leading-normal text-text-muted-light dark:text-text-muted-dark">2 / 5</p>
+</div>
+<div class="h-2 rounded-full bg-background-light dark:bg-background-dark">
+<div class="h-2 rounded-full bg-primary" style="width: 40%;"></div>
+</div>
+</div>
+<div class="flex flex-col gap-3">
+<div class="flex items-center justify-between gap-6">
+<p class="text-sm font-medium leading-normal text-text-light dark:text-text-dark">Invités</p>
+<p class="text-xs font-normal leading-normal text-text-muted-light dark:text-text-muted-dark">150 / 200</p>
+</div>
+<div class="h-2 rounded-full bg-background-light dark:bg-background-dark">
+<div class="h-2 rounded-full bg-primary" style="width: 75%;"></div>
+</div>
+</div>
+<div class="flex flex-col gap-3">
+<div class="flex items-center justify-between gap-6">
+<p class="text-sm font-medium leading-normal text-text-light dark:text-text-dark">Photos</p>
+<p class="text-xs font-normal leading-normal text-text-muted-light dark:text-text-muted-dark">78 / 100</p>
+</div>
+<div class="h-2 rounded-full bg-background-light dark:bg-background-dark">
+<div class="h-2 rounded-full bg-secondary" style="width: 78%;"></div>
+</div>
+</div>
+</section>
+<section class="mb-8">
+<div class="relative">
+<select class="w-full appearance-none rounded-lg border-none bg-card-light py-3 pl-4 pr-10 text-base text-text-light focus:outline-none focus:ring-2 focus:ring-primary dark:bg-card-dark dark:text-text-dark">
+<option>Mariage Hélène &amp; Paul - 12/08/2024</option>
+<option>Anniversaire de Jean - 05/09/2024</option>
+<option>Événement Corpo - 21/10/2024</option>
+</select>
+<div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3">
+<span class="material-symbols-outlined text-text-muted-light dark:text-text-muted-dark">expand_more</span>
+</div>
+</div>
+</section>
+<section class="mb-8">
+<h3 class="mb-4 text-xl font-semibold text-text-light dark:text-text-dark">Statistiques de l'événement</h3>
+<div class="grid grid-cols-2 gap-4">
+<div class="flex flex-col items-start gap-2 rounded-xl bg-card-light p-4 dark:bg-card-dark">
+<div class="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/20 text-primary">
+<span class="material-symbols-outlined">groups</span>
+</div>
+<p class="text-2xl font-bold">200</p>
+<p class="text-xs text-text-muted-light dark:text-text-muted-dark">Total invités</p>
+</div>
+<div class="flex flex-col items-start gap-2 rounded-xl bg-card-light p-4 dark:bg-card-dark">
+<div class="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/20 text-primary">
+<span class="material-symbols-outlined">mail</span>
+</div>
+<p class="text-2xl font-bold">180</p>
+<p class="text-xs text-text-muted-light dark:text-text-muted-dark">Via email</p>
+</div>
+<div class="flex flex-col items-start gap-2 rounded-xl bg-card-light p-4 dark:bg-card-dark">
+<div class="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/20 text-primary">
+<span class="material-symbols-outlined">link</span>
+</div>
+<p class="text-2xl font-bold">20</p>
+<p class="text-xs text-text-muted-light dark:text-text-muted-dark">Via lien</p>
+</div>
+<div class="flex flex-col items-start gap-2 rounded-xl bg-card-light p-4 dark:bg-card-dark">
+<div class="flex h-10 w-10 items-center justify-center rounded-lg bg-green-500/20 text-green-500">
+<span class="material-symbols-outlined">check_circle</span>
+</div>
+<p class="text-2xl font-bold">150</p>
+<p class="text-xs text-text-muted-light dark:text-text-muted-dark">Confirmés</p>
+</div>
+<div class="flex flex-col items-start gap-2 rounded-xl bg-card-light p-4 dark:bg-card-dark">
+<div class="flex h-10 w-10 items-center justify-center rounded-lg bg-red-500/20 text-red-500">
+<span class="material-symbols-outlined">cancel</span>
+</div>
+<p class="text-2xl font-bold">12</p>
+<p class="text-xs text-text-muted-light dark:text-text-muted-dark">Refusés</p>
+</div>
+<div class="flex flex-col items-start gap-2 rounded-xl bg-card-light p-4 dark:bg-card-dark">
+<div class="flex h-10 w-10 items-center justify-center rounded-lg bg-yellow-500/20 text-yellow-500">
+<span class="material-symbols-outlined">pending</span>
+</div>
+<p class="text-2xl font-bold">38</p>
+<p class="text-xs text-text-muted-light dark:text-text-muted-dark">En attente</p>
+</div>
+</div>
+</section>
+<section>
+<h3 class="mb-4 text-xl font-semibold text-text-light dark:text-text-dark">Actions rapides</h3>
+<div class="flex flex-col gap-4">
+<a class="flex items-center justify-between rounded-xl bg-card-light p-4 transition-transform active:scale-95 dark:bg-card-dark" href="#">
+<div class="flex items-center gap-4">
+<div class="flex h-12 w-12 items-center justify-center rounded-lg bg-primary text-white">
+<span class="material-symbols-outlined">add_circle</span>
+</div>
+<div>
+<p class="font-semibold">Créer une invitation</p>
+<p class="text-sm text-text-muted-light dark:text-text-muted-dark">Commencer un nouvel événement</p>
+</div>
+</div>
+<span class="material-symbols-outlined text-text-muted-light dark:text-text-muted-dark">chevron_right</span>
+</a>
+<a class="flex items-center justify-between rounded-xl bg-card-light p-4 transition-transform active:scale-95 dark:bg-card-dark" href="#">
+<div class="flex items-center gap-4">
+<div class="flex h-12 w-12 items-center justify-center rounded-lg bg-primary text-white">
+<span class="material-symbols-outlined">person_add</span>
+</div>
+<div>
+<p class="font-semibold">Ajouter des invités</p>
+<p class="text-sm text-text-muted-light dark:text-text-muted-dark">Élargir votre liste d'invités</p>
+</div>
+</div>
+<span class="material-symbols-outlined text-text-muted-light dark:text-text-muted-dark">chevron_right</span>
+</a>
+<a class="flex items-center justify-between rounded-xl bg-card-light p-4 transition-transform active:scale-95 dark:bg-card-dark" href="#">
+<div class="flex items-center gap-4">
+<div class="flex h-12 w-12 items-center justify-center rounded-lg bg-primary text-white">
+<span class="material-symbols-outlined">playlist_add_check</span>
+</div>
+<div>
+<p class="font-semibold">Voir mes réponses</p>
+<p class="text-sm text-text-muted-light dark:text-text-muted-dark">Consulter les statuts RSVP</p>
+</div>
+</div>
+<span class="material-symbols-outlined text-text-muted-light dark:text-text-muted-dark">chevron_right</span>
+</a>
+</div>
+</section>
+</main>
+<nav class="fixed bottom-0 left-0 right-0 z-20 flex h-[75px] justify-around border-t border-card-light/10 bg-background-light/80 backdrop-blur-sm dark:border-card-dark/50 dark:bg-background-dark/80">
+<a class="flex flex-col items-center justify-center gap-1 text-primary" href="#">
+<span class="material-symbols-outlined">dashboard</span>
+<span class="text-xs font-medium">Tableau de bord</span>
+</a>
+<a class="flex flex-col items-center justify-center gap-1 text-text-muted-light dark:text-text-muted-dark" href="#">
+<span class="material-symbols-outlined">add_circle</span>
+<span class="text-xs font-medium">Créer</span>
+</a>
+<a class="flex flex-col items-center justify-center gap-1 text-text-muted-light dark:text-text-muted-dark" href="#">
+<span class="material-symbols-outlined">group</span>
+<span class="text-xs font-medium">Invités</span>
+</a>
+<button class="flex flex-col items-center justify-center gap-1 text-text-muted-light dark:text-text-muted-dark peer" type="button">
+<span class="material-symbols-outlined">menu</span>
+<span class="text-xs font-medium">Plus</span>
+</button>
+<div class="fixed inset-0 z-30 hidden bg-black/50 peer-focus:block"></div>
+<div class="fixed bottom-0 left-0 right-0 z-40 hidden translate-y-full rounded-t-xl bg-card-light transition-transform duration-300 ease-in-out peer-focus:block peer-focus:translate-y-0 dark:bg-card-dark">
+<div class="p-4">
+<button class="absolute top-4 right-4 flex h-8 w-8 items-center justify-center rounded-full bg-background-light dark:bg-background-dark">
+<span class="material-symbols-outlined text-lg">close</span>
+</button>
+<h3 class="text-lg font-semibold text-center mb-4">Menu</h3>
+</div>
+<div class="flex flex-col">
+<a class="flex items-center gap-4 px-6 py-4 text-text-light hover:bg-background-light dark:text-text-dark dark:hover:bg-background-dark" href="#">
+<span class="material-symbols-outlined text-primary">home</span>
+<span>Accueil</span>
+</a>
+<a class="flex items-center gap-4 px-6 py-4 text-text-light hover:bg-background-light dark:text-text-dark dark:hover:bg-background-dark" href="#">
+<span class="material-symbols-outlined text-primary">design_services</span>
+<span>Design</span>
+</a>
+<a class="flex items-center gap-4 px-6 py-4 text-text-light hover:bg-background-light dark:text-text-dark dark:hover:bg-background-dark" href="#">
+<span class="material-symbols-outlined text-primary">checklist</span>
+<span>Réponses Invitations</span>
+</a>
+<a class="flex items-center gap-4 px-6 py-4 text-text-light hover:bg-background-light dark:text-text-dark dark:hover:bg-background-dark" href="#">
+<span class="material-symbols-outlined text-primary">store</span>
+<span>Prestataires</span>
+</a>
+<a class="flex items-center gap-4 px-6 py-4 text-text-light hover:bg-background-light dark:text-text-dark dark:hover:bg-background-dark" href="#">
+<span class="material-symbols-outlined text-primary">photo_album</span>
+<span>Albums Photos</span>
+</a>
+<a class="flex items-center gap-4 px-6 py-4 text-text-light hover:bg-background-light dark:text-text-dark dark:hover:bg-background-dark" href="#">
+<span class="material-symbols-outlined text-primary">receipt_long</span>
+<span>Facturation</span>
+</a>
+</div>
+<div class="p-6">
+<button class="flex w-full items-center justify-center gap-2 rounded-lg bg-red-500/20 py-3 font-semibold text-red-500">
+<span class="material-symbols-outlined">logout</span>
+<span>Se déconnecter</span>
+</button>
+</div>
+</div>
+</nav>
+</div>
+
+</body></html>

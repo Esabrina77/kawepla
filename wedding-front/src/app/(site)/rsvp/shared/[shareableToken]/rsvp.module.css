@@ -15,6 +15,7 @@
 
 /* Mobile uniquement - invitation et formulaire prennent toute la largeur */
 @media (max-width: 767px) {
+  
   .rsvpLayout {
     grid-template-columns: 1fr;
     gap: var(--space-lg);
@@ -164,72 +165,148 @@
   border: 1px solid var(--border-color);
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-lg);
+  transition: transform var(--transition-normal), box-shadow var(--transition-normal);
+  padding: var(--space-xl);
+}
+
+.formCard:hover {
+  box-shadow: var(--shadow-xl);
 }
 
 .formContent {
-  padding: var(--space-xl);
+  animation: fadeInUp 0.4s ease-out;
 }
 
 .formTitle {
   text-align: center;
-  margin-bottom: var(--space-lg);
+  margin-bottom: var(--space-xl);
   color: var(--text-primary);
+  font-size: 1.75rem;
+  font-weight: 600;
+  letter-spacing: -0.02em;
 }
 
 .form {
   display: flex;
   flex-direction: column;
-  gap: var(--space-lg);
+  gap: 1.5rem;
+}
+
+@media (min-width: 768px) {
+  .form {
+    gap: 1.25rem;
+  }
 }
 
 .formSection {
   display: flex;
   flex-direction: column;
-  gap: var(--space-md);
+  gap: 0.75rem;
+}
+
+.formGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+@media (min-width: 768px) {
+  .formGroup {
+    gap: 0.5rem;
+  }
+}
+
+.formField {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
 }
 
 .sectionLabel {
   display: block;
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin: 0;
+  font-family: var(--font-sans);
+}
+
+.formLabel {
   font-size: 0.875rem;
   font-weight: 500;
   color: var(--text-primary);
-  margin-bottom: var(--space-md);
+  font-family: var(--font-sans);
 }
 
 .inputGrid {
   display: grid;
   grid-template-columns: 1fr;
-  gap: var(--space-md);
+  gap: 0.75rem;
+}
+
+.formRow {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
 }
 
 @media (min-width: 768px) {
   .inputGrid {
     grid-template-columns: 1fr 1fr;
   }
+  
+  .formRow {
+    flex-direction: row;
+  }
 }
 
 .textInput {
   width: 100%;
-  padding: var(--space-md);
+  padding: 0.75rem;
   font-size: 1rem;
-  border: 2px solid var(--border-color);
-  border-radius: var(--radius-md);
-  transition: all var(--transition-normal);
-  background: var(--bg-card);
+  border: 1px solid rgba(74, 74, 74, 0.5);
+  border-radius: 0.5rem;
+  transition: border-color var(--transition-normal);
+  background: var(--bg-primary);
   color: var(--text-primary);
+  font-family: var(--font-sans);
+  outline: none;
+}
+
+[data-theme="dark"] .textInput {
+  border-color: rgba(74, 74, 74, 0.5);
+}
+
+.textInput::placeholder {
+  color: var(--text-secondary);
+  opacity: 0.6;
+}
+
+.textInput:hover:not(:disabled) {
+  border-color: rgba(165, 136, 102, 0.4);
 }
 
 .textInput:focus {
-  outline: none;
-  border-color: var(--color-primary);
-  box-shadow: 0 0 0 3px rgba(197, 168, 128, 0.15);
-  background: var(--bg-card);
+  border-color: var(--luxury-champagne-gold);
+  box-shadow: 0 0 0 2px rgba(165, 136, 102, 0.2);
+}
+
+.textInput:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }
 
 .responseButtons {
   display: flex;
   flex-direction: column;
-  gap: var(--space-md);
+  gap: 0.75rem;
+}
+
+@media (min-width: 768px) {
+  .responseButtons {
+    flex-direction: row;
+    gap: 1rem;
+  }
 }
 
 .responseButton {
@@ -237,7 +314,87 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: var(--space-sm);
+  gap: 0.5rem;
+  padding: 1rem 1.5rem;
+  font-weight: 600;
+  font-size: 1rem;
+  transition: all var(--transition-normal);
+  border-radius: 0.5rem;
+  border: 2px solid transparent;
+  position: relative;
+  overflow: hidden;
+  cursor: pointer;
+}
+
+/* Bouton "Je serai présent(e)" - Vert */
+.responseButton.confirmed {
+  background: #10b981;
+  color: white;
+  border-color: #10b981;
+}
+
+.responseButton.confirmed:hover {
+  background: #059669;
+  border-color: #059669;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+}
+
+.responseButton.confirmed:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 6px rgba(16, 185, 129, 0.2);
+}
+
+/* Bouton "Je ne pourrai pas venir" - Rouge */
+.responseButton.declined {
+  background: #ef4444;
+  color: white;
+  border-color: #ef4444;
+}
+
+.responseButton.declined:hover {
+  background: #dc2626;
+  border-color: #dc2626;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+}
+
+.responseButton.declined:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 6px rgba(239, 68, 68, 0.2);
+}
+
+/* État non sélectionné - Gris avec bordure */
+.responseButton.outline {
+  background: transparent;
+  color: var(--text-primary);
+  border-color: rgba(74, 74, 74, 0.5);
+}
+
+[data-theme="dark"] .responseButton.outline {
+  border-color: rgba(74, 74, 74, 0.5);
+  background: var(--bg-secondary);
+}
+
+.responseButton.outline:hover {
+  background: var(--bg-secondary);
+  border-color: rgba(74, 74, 74, 0.7);
+}
+
+.responseButton.outline.confirmed:hover {
+  background: rgba(16, 185, 129, 0.1);
+  border-color: #10b981;
+  color: #10b981;
+}
+
+.responseButton.outline.declined:hover {
+  background: rgba(239, 68, 68, 0.1);
+  border-color: #ef4444;
+  color: #ef4444;
+}
+
+.responseButton:active {
+  transform: scale(0.98);
 }
 
 .checkboxGroup {
@@ -261,7 +418,7 @@
 }
 
 .plusOneSection {
-  margin-top: var(--space-md);
+  margin-top: 0.5rem;
 }
 
 .plusOneLabel {
@@ -271,31 +428,52 @@
   font-size: 0.875rem;
   font-weight: 500;
   color: var(--text-primary);
-  margin-bottom: var(--space-sm);
-  gap: var(--space-sm);
+  margin: 0;
+  gap: 0.5rem;
+  font-family: var(--font-sans);
 }
 
 .textarea {
   width: 100%;
-  padding: var(--space-md);
+  padding: 0.75rem;
   font-size: 1rem;
-  border: 2px solid var(--border-color);
-  border-radius: var(--radius-md);
-  transition: all var(--transition-normal);
-  background: var(--bg-card);
+  border: 1px solid rgba(74, 74, 74, 0.5);
+  border-radius: 0.5rem;
+  transition: border-color var(--transition-normal);
+  background: var(--bg-primary);
   color: var(--text-primary);
-  resize: none;
-  min-height: 120px;
+  resize: vertical;
+  min-height: 4rem;
+  font-family: var(--font-sans);
+  outline: none;
+}
+
+[data-theme="dark"] .textarea {
+  border-color: rgba(74, 74, 74, 0.5);
+}
+
+.textarea::placeholder {
+  color: var(--text-secondary);
+  opacity: 0.6;
+}
+
+.textarea:hover:not(:disabled) {
+  border-color: rgba(165, 136, 102, 0.4);
 }
 
 .textarea:focus {
-  outline: none;
-  border-color: var(--color-primary);
-  box-shadow: 0 0 0 3px rgba(197, 168, 128, 0.15);
+  border-color: var(--luxury-champagne-gold);
+  box-shadow: 0 0 0 2px rgba(165, 136, 102, 0.2);
 }
 
 .dietaryTextarea {
-  min-height: 80px;
+  min-height: 60px;
+}
+
+@media (min-width: 768px) {
+  .dietaryTextarea {
+    min-height: 50px;
+  }
 }
 
 .errorMessage {
@@ -312,6 +490,25 @@
   width: 100%;
   height: 56px;
   font-size: 1.125rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  transition: all var(--transition-normal);
+  position: relative;
+  overflow: hidden;
+}
+
+.submitButton:not(:disabled):hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(197, 168, 128, 0.3);
+}
+
+.submitButton:not(:disabled):active {
+  transform: translateY(0);
+}
+
+.submitButton:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
 }
 
 .securityNotice {
@@ -354,124 +551,219 @@
 
 .responseStatus {
   text-align: center;
-  padding: var(--space-xl);
+  padding: 2rem;
+  animation: fadeInUp 0.5s ease-out;
 }
 
 .responseTitle {
   color: var(--text-primary);
-  margin-bottom: var(--space-lg);
+  margin-bottom: 1.5rem;
+  font-size: 1.75rem;
+  font-weight: 600;
+  letter-spacing: -0.02em;
 }
 
 .statusIcon {
-  width: 5rem;
-  height: 5rem;
+  width: 80px;
+  height: 80px;
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  margin: 0 auto var(--space-lg);
-  font-size: 2.5rem;
+  margin: 0 auto 1.5rem;
+  animation: scaleIn 0.6s ease-out;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+  transition: all var(--transition-normal);
+  position: relative;
+}
+
+.statusIcon:hover {
+  transform: scale(1.05);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.2);
+}
+
+.statusIcon svg {
+  width: 48px;
+  height: 48px;
+  color: white;
+  display: block;
+  margin: 0;
+  padding: 0;
+  flex-shrink: 0;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  animation: pulse 2s infinite;
 }
 
 .statusConfirmed {
-  background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-secondary) 100%);
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
 }
 
 .statusDeclined {
-  background: linear-gradient(135deg, var(--bg-error) 0%, #f5c6cb 100%);
+  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
 }
 
 .guestWelcome {
-  margin-bottom: var(--space-lg);
+  margin-bottom: 1.5rem;
 }
 
 .guestName {
   color: var(--text-primary);
-  margin-bottom: var(--space-sm);
+  margin-bottom: 1rem;
+  font-size: 1.5rem;
+  font-weight: 700;
+  line-height: 1.3;
 }
 
 .photoContainer {
-  margin-bottom: var(--space-md);
+  margin-bottom: 1rem;
+  animation: fadeInUp 0.5s ease-out 0.1s both;
 }
 
 .guestPhoto {
-  width: 80px;
-  height: 80px;
+  width: 100px;
+  height: 100px;
   border-radius: 50%;
   object-fit: cover;
-  margin: 0 auto var(--space-md);
-  border: 2px solid var(--border-color);
+  margin: 0 auto 1rem;
+  border: 3px solid rgba(74, 74, 74, 0.2);
   cursor: pointer;
-  transition: opacity var(--transition-normal);
+  transition: all var(--transition-normal);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
 .guestPhoto:hover {
-  opacity: 0.8;
+  transform: scale(1.05);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+  border-color: var(--luxury-champagne-gold);
 }
 
 .statusMessage {
-  font-size: 1.125rem;
-  font-weight: 600;
-  margin-bottom: var(--space-md);
+  font-size: 1.25rem;
+  font-weight: 700;
+  margin-bottom: 1.5rem;
+  line-height: 1.5;
+  padding: 1.5rem;
+  border-radius: 1rem;
+  animation: fadeInUp 0.5s ease-out 0.2s both;
 }
 
 .statusMessageConfirmed {
-  color: var(--color-primary);
+  color: #10b981;
+  background: linear-gradient(135deg, rgba(16, 185, 129, 0.08) 0%, rgba(5, 150, 105, 0.05) 100%);
+  border: 2px solid rgba(16, 185, 129, 0.2);
 }
 
 .statusMessageDeclined {
-  color: var(--error-color);
+  color: #ef4444;
+  background: linear-gradient(135deg, rgba(239, 68, 68, 0.08) 0%, rgba(220, 38, 38, 0.05) 100%);
+  border: 2px solid rgba(239, 68, 68, 0.2);
 }
 
 .detailList {
-  background: rgba(197, 168, 128, 0.1);
-  border-radius: var(--radius-md);
-  padding: var(--space-md);
-  margin: var(--space-md) 0;
+  background: var(--bg-primary);
+  border: 1px solid rgba(74, 74, 74, 0.2);
+  border-radius: 0.75rem;
+  padding: 1rem;
+  margin: 1.5rem 0;
+  animation: fadeInUp 0.5s ease-out 0.3s both;
+  transition: all var(--transition-normal);
+}
+
+.detailList.confirmed {
+  border-color: rgba(16, 185, 129, 0.3);
+  background: rgba(16, 185, 129, 0.05);
+}
+
+.detailList.confirmed:hover {
+  border-color: rgba(16, 185, 129, 0.5);
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.2);
 }
 
 .detailItem {
   display: flex;
   align-items: center;
-  gap: var(--space-sm);
-  margin-bottom: var(--space-sm);
+  gap: 0.75rem;
+  margin-bottom: 0.75rem;
   color: var(--text-primary);
+  padding: 0.5rem 0;
 }
 
 .detailItem:last-child {
   margin-bottom: 0;
 }
 
+.detailItem svg {
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+}
+
+.detailItem.confirmed svg {
+  color: #10b981;
+}
+
+.detailItem.declined svg {
+  color: #ef4444;
+}
+
 .messageBox {
-  margin-top: var(--space-md);
+  margin-top: 1.5rem;
+  background: var(--bg-secondary);
+  border-left: 4px solid var(--luxury-champagne-gold);
+  padding: 1.25rem;
+  border-radius: 0.75rem;
+  animation: fadeInUp 0.5s ease-out 0.4s both;
+  transition: all var(--transition-normal);
+}
+
+.messageBox:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  transform: translateX(4px);
 }
 
 .messageHeader {
   color: var(--text-primary);
-  margin-bottom: var(--space-sm);
+  margin-bottom: 0.75rem;
   display: flex;
   align-items: center;
-  gap: var(--space-sm);
+  gap: 0.5rem;
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.messageHeader svg {
+  width: 18px;
+  height: 18px;
+  color: var(--luxury-champagne-gold);
+  flex-shrink: 0;
 }
 
 .messageContent {
   font-style: italic;
   color: var(--text-secondary);
+  line-height: 1.6;
+  font-size: 0.95rem;
 }
 
 .responseDate {
   font-size: 0.875rem;
   color: var(--text-secondary);
+  margin-top: 1.5rem;
+  padding-top: 1rem;
+  border-top: 1px solid rgba(74, 74, 74, 0.2);
 }
 
 @keyframes pulse {
   0%, 100% {
-    opacity: 1;
-    transform: scale(1);
+    opacity: 0.9;
+    transform: translate(-50%, -50%) scale(1);
   }
   50% {
-    opacity: 0.8;
-    transform: scale(1.05);
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1.05);
   }
 }
 
@@ -484,7 +776,7 @@
     font-size: 1.25rem;
   }
   
-  .formContent {
+  .formCard {
     padding: var(--space-lg);
   }
 }
@@ -519,4 +811,53 @@
   font-size: 0.875rem;
   text-align: center;
   color: var(--text-secondary);
+}
+
+/* Animations */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes scaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.8);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* Amélioration de la notice de sécurité */
+.securityNotice {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-sm);
+  background: rgba(197, 168, 128, 0.05);
+  border: 1px solid rgba(197, 168, 128, 0.15);
+  border-radius: var(--radius-md);
+  padding: var(--space-md);
+  margin-top: var(--space-lg);
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+  transition: all var(--transition-normal);
+}
+
+.securityNotice:hover {
+  background: rgba(197, 168, 128, 0.08);
+  border-color: rgba(197, 168, 128, 0.25);
+}
+
+.securityNotice svg {
+  flex-shrink: 0;
+  opacity: 0.7;
 }

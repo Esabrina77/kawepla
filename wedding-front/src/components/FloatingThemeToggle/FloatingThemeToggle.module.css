@@ -1,52 +1,70 @@
-.floatingIcon {
-  position: fixed;
-  z-index: 9999;
-  width: 56px;
-  height: 56px;
+/* Theme Toggle - Réutilisable */
+
+.themeToggle {
   display: flex;
   align-items: center;
   justify-content: center;
   border-radius: 50%;
-  cursor: grab;
-  user-select: none;
+  cursor: pointer;
   transition: all var(--transition-normal);
-  box-shadow: var(--shadow-lg);
-  backdrop-filter: blur(10px);
-  border: 2px solid var(--border-color);
-  animation: floatIn 0.5s ease-out;
-  /* Améliorer la visibilité sur tous les écrans */
+  border: 1px solid var(--border-color);
+  background: var(--bg-card);
+  color: var(--text-primary);
+  user-select: none;
   -webkit-tap-highlight-color: transparent;
-  touch-action: none;
 }
 
-.floatingIcon:active {
-  cursor: grabbing;
+.themeToggle:hover {
+  transform: scale(1.1);
+  box-shadow: var(--shadow-md);
+}
+
+.themeToggle:active {
   transform: scale(0.95);
 }
 
-.floatingIcon:hover {
-  transform: scale(1.1);
-  box-shadow: var(--shadow-xl);
-}
-
-.floatingIcon.darkMode {
-  background: rgba(51, 51, 51, 0.9);
-  color: var(--luxury-champagne-gold);
-  border-color: var(--luxury-champagne-gold);
-}
-
-.floatingIcon.lightMode {
-  background: rgba(255, 255, 255, 0.9);
-  color: var(--luxury-velvet-black);
-  border-color: var(--luxury-champagne-gold);
+.themeToggle:focus {
+  outline: 2px solid var(--luxury-champagne-gold);
+  outline-offset: 2px;
 }
 
 .icon {
   transition: transform var(--transition-fast);
 }
 
-.floatingIcon:hover .icon {
+.themeToggle:hover .icon {
   transform: rotate(180deg);
+}
+
+/* Variant Floating (pour usage fixe si nécessaire) */
+.themeToggle.floating {
+  position: fixed;
+  z-index: 9999;
+  width: 56px;
+  height: 56px;
+  box-shadow: var(--shadow-lg);
+  backdrop-filter: blur(10px);
+  border: 2px solid var(--border-color);
+  animation: floatIn 0.5s ease-out;
+}
+
+.themeToggle.floating.darkMode {
+  background: rgba(51, 51, 51, 0.9);
+  color: var(--luxury-champagne-gold);
+  border-color: var(--luxury-champagne-gold);
+}
+
+.themeToggle.floating.lightMode {
+  background: rgba(255, 255, 255, 0.9);
+  color: var(--luxury-velvet-black);
+  border-color: var(--luxury-champagne-gold);
+}
+
+/* Variant Inline (pour usage dans headers, sidebars, etc.) */
+.themeToggle.inline {
+  width: 2.5rem;
+  height: 2.5rem;
+  flex-shrink: 0;
 }
 
 /* Animation d'apparition */
@@ -63,56 +81,29 @@
 
 /* Responsive */
 @media (max-width: 768px) {
-  .floatingIcon {
+  .themeToggle.floating {
     width: 48px;
     height: 48px;
-    /* Améliorer la visibilité sur mobile */
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
     border-width: 3px;
   }
   
-  .icon {
-    width: 20px;
-    height: 20px;
+  .themeToggle.inline {
+    width: 2.25rem;
+    height: 2.25rem;
   }
 }
 
 @media (max-width: 480px) {
-  .floatingIcon {
+  .themeToggle.floating {
     width: 44px;
     height: 44px;
-    /* Zone de touch plus grande */
     min-width: 44px;
     min-height: 44px;
   }
   
-  .icon {
-    width: 18px;
-    height: 18px;
+  .themeToggle.inline {
+    width: 2rem;
+    height: 2rem;
   }
-  
-  /* Améliorer l'accessibilité tactile */
-  .floatingIcon:active {
-    transform: scale(0.9);
-  }
-}
-
-/* État de focus pour l'accessibilité */
-.floatingIcon:focus {
-  outline: 2px solid var(--luxury-champagne-gold);
-  outline-offset: 2px;
-}
-
-/* Animation de pulsation pour attirer l'attention */
-@keyframes pulse {
-  0%, 100% {
-    transform: scale(1);
-  }
-  50% {
-    transform: scale(1.05);
-  }
-}
-
-.floatingIcon.pulse {
-  animation: pulse 2s infinite;
 }

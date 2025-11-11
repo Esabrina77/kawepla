@@ -130,8 +130,6 @@ export interface GuestResponse {
 export interface CreateRSVPDto {
   status: string;
   message?: string;
-  attendingCeremony?: boolean;
-  attendingReception?: boolean;
   numberOfGuests?: number;
 }
 
@@ -139,8 +137,6 @@ export interface RSVPResponse {
   id: string;
   status: string;
   message?: string;
-  attendingCeremony: boolean;
-  attendingReception: boolean;
   numberOfGuests: number;
   respondedAt?: Date;
   createdAt: Date;

@@ -144,11 +144,20 @@ export function usePhotoAlbums(invitationId: string) {
       const response = await apiClient.put(`/photos/photos/${photoId}/approve`);
       const updatedPhoto = response as Photo;
       
-      // Mettre à jour la photo dans l'album
+      // Vérifier que le statut est bien APPROVED
+      if (updatedPhoto.status !== 'APPROVED') {
+        console.error('ERREUR: La photo approuvée n\'a pas le statut APPROVED:', updatedPhoto.status);
+        // Forcer le statut à APPROVED si ce n'est pas le cas
+        updatedPhoto.status = 'APPROVED';
+      }
+      
+      // Mettre à jour la photo dans l'album avec le statut forcé à APPROVED
       setAlbums(prev => prev.map(album => ({
         ...album,
         photos: album.photos.map(photo => 
-          photo.id === photoId ? updatedPhoto : photo
+          photo.id === photoId 
+            ? { ...updatedPhoto, status: 'APPROVED' as const }
+            : photo
         )
       })));
       

@@ -397,8 +397,6 @@ export class UserService {
             message: true,
             status: true,
             numberOfGuests: true,
-            attendingCeremony: true,
-            attendingReception: true,
             respondedAt: true,
             createdAt: true,
             guest: {
@@ -427,8 +425,6 @@ export class UserService {
         message: rsvp.message,
         status: rsvp.status,
         numberOfGuests: rsvp.numberOfGuests,
-        attendingCeremony: rsvp.attendingCeremony,
-        attendingReception: rsvp.attendingReception,
         respondedAt: rsvp.respondedAt,
         createdAt: rsvp.createdAt,
         guest: rsvp.guest,

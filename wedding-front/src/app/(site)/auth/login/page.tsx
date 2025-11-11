@@ -58,7 +58,7 @@ export default function LoginPage() {
   return (
     <div className={styles.auth}>
       <div className={styles.container}>
-        <div className={styles.authCard}>
+        <div className={`${styles.authCard} ${styles.loginCard}`}>
           <div className={styles.header}>
             <h1>Connexion</h1>
             <p>Accédez à votre espace personnel Kawepla</p>
@@ -110,16 +110,18 @@ export default function LoginPage() {
                 placeholder="••••••••"
                 disabled={isSubmitting || authLoading}
               />
+            </div>
+
+            <div className={styles.passwordOptions}>
+              <div className={styles.rememberMe}>
+                <label>
+                  <input type="checkbox" name="remember" disabled={isSubmitting || authLoading} />
+                  <span>Se souvenir de moi</span>
+                </label>
+              </div>
               <Link href="/auth/forgot-password" className={styles.forgotPassword}>
                 Mot de passe oublié ?
               </Link>
-            </div>
-
-            <div className={styles.rememberMe}>
-              <label>
-                <input type="checkbox" name="remember" disabled={isSubmitting || authLoading} />
-                <span>Se souvenir de moi</span>
-              </label>
             </div>
 
             <button

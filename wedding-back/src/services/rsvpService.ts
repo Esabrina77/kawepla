@@ -9,8 +9,6 @@ import { RSVPStatus } from '@prisma/client';
 type RSVPCreateInput = {
   status: RSVPStatus;
   message?: string;
-  attendingCeremony?: boolean;
-  attendingReception?: boolean;
   profilePhotoUrl?: string;
   plusOne?: boolean;
   plusOneName?: string;
@@ -20,8 +18,6 @@ type RSVPCreateInput = {
 type RSVPUpdateInput = {
   status?: RSVPStatus;
   message?: string;
-  attendingCeremony?: boolean;
-  attendingReception?: boolean;
   profilePhotoUrl?: string;
   plusOne?: boolean;
   plusOneName?: string;
@@ -114,8 +110,6 @@ export class RSVPService {
         status: data.status,
         numberOfGuests: numberOfGuests,
         message: data.message,
-        attendingCeremony: data.attendingCeremony ?? true,
-        attendingReception: data.attendingReception ?? true,
         profilePhotoUrl: data.profilePhotoUrl,
         guestId: guest.id,
         invitationId: guest.invitationId,

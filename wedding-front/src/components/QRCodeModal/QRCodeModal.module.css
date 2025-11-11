@@ -1,4 +1,4 @@
-/* ===== QR CODE MODAL - LUXURY DESIGN SYSTEM ===== */
+/* ===== QR CODE MODAL - Style simplifié ===== */
 
 .overlay {
   position: fixed;
@@ -6,35 +6,33 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(0, 0, 0, 0.8);
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(4px);
   display: flex;
   align-items: center;
   justify-content: center;
   z-index: 1000;
-  padding: var(--space-sm);
-  backdrop-filter: blur(4px);
+  padding: 1rem;
 }
 
 .modal {
-  background: var(--bg-card);
-  border-radius: var(--radius-xl);
-  box-shadow: var(--shadow-2xl);
-  max-width: 500px;
-  width: 100%;
-  max-height: 90vh;
-  overflow-y: auto;
+  background: var(--bg-secondary);
   border: 1px solid var(--border-color);
-  animation: modalSlideIn 0.3s ease-out;
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-xl);
+  max-width: 400px;
+  width: 100%;
+  animation: modalSlideIn 0.2s ease-out;
 }
 
 @keyframes modalSlideIn {
   from {
     opacity: 0;
-    transform: scale(0.95) translateY(-20px);
+    transform: scale(0.95);
   }
   to {
     opacity: 1;
-    transform: scale(1) translateY(0);
+    transform: scale(1);
   }
 }
 
@@ -42,178 +40,65 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: var(--space-md);
+  padding: 1rem 1.5rem;
   border-bottom: 1px solid var(--border-color);
 }
 
-.titleSection {
-  display: flex;
-  align-items: center;
-  gap: var(--space-sm);
-}
-
-.titleIcon {
-  width: 20px;
-  height: 20px;
-  color: var(--luxury-champagne-gold);
-}
-
-.titleSection h2 {
+.title {
   font-family: var(--font-sans);
-  font-size: 1.25rem;
-  font-weight: 600;
+  font-size: 1.125rem;
+  font-weight: 700;
   color: var(--text-primary);
   margin: 0;
 }
 
 .closeButton {
-  background: var(--bg-primary);
-  color: var(--text-secondary);
-  border: 1px solid var(--border-color);
-  border-radius: var(--radius-md);
-  padding: var(--space-xs);
-  cursor: pointer;
-  transition: all var(--transition-normal);
   display: flex;
   align-items: center;
   justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  background: transparent;
+  border: none;
+  color: var(--text-primary);
+  cursor: pointer;
+  border-radius: var(--radius);
+  transition: background var(--transition-normal);
 }
 
 .closeButton:hover {
-  background: var(--bg-secondary);
-  color: var(--text-primary);
-  border-color: var(--luxury-champagne-gold);
+  background: rgba(0, 0, 0, 0.05);
 }
 
-.closeIcon {
-  width: 16px;
-  height: 16px;
+[data-theme="dark"] .closeButton:hover {
+  background: rgba(255, 255, 255, 0.05);
 }
 
 .content {
-  padding: var(--space-md);
-}
-
-.description {
-  margin-bottom: var(--space-md);
-}
-
-.description p {
-  color: var(--text-secondary);
-  font-size: 0.875rem;
-  line-height: 1.5;
-  margin: 0;
-  font-family: var(--font-sans);
+  padding: 2rem 1.5rem;
 }
 
 .qrSection {
   display: flex;
   justify-content: center;
-  margin-bottom: var(--space-lg);
-}
-
-.instructions {
-  margin-bottom: var(--space-md);
-}
-
-.instructions h3 {
-  font-family: var(--font-sans);
-  font-size: 1rem;
-  font-weight: 600;
-  color: var(--text-primary);
-  margin-bottom: var(--space-sm);
-}
-
-.instructions ol {
-  color: var(--text-secondary);
-  font-size: 0.875rem;
-  line-height: 1.6;
-  margin: 0;
-  padding-left: var(--space-md);
-  font-family: var(--font-sans);
-}
-
-.instructions li {
-  margin-bottom: var(--space-xs);
-}
-
-.tips {
-  background: rgba(197, 168, 128, 0.1);
-  border: 1px solid rgba(197, 168, 128, 0.2);
-  border-radius: var(--radius-md);
-  padding: var(--space-md);
-}
-
-.tips h4 {
-  font-family: var(--font-sans);
-  font-size: 0.95rem;
-  font-weight: 600;
-  color: var(--text-primary);
-  margin-bottom: var(--space-sm);
-}
-
-.tips ul {
-  color: var(--text-secondary);
-  font-size: 0.8rem;
-  line-height: 1.5;
-  margin: 0;
-  padding-left: var(--space-md);
-  font-family: var(--font-sans);
-}
-
-.tips li {
-  margin-bottom: var(--space-xs);
-}
-
-.footer {
-  padding: var(--space-md);
-  border-top: 1px solid var(--border-color);
-  display: flex;
-  justify-content: center;
+  align-items: center;
 }
 
 /* ===== RESPONSIVE DESIGN ===== */
 @media (max-width: 768px) {
   .overlay {
-    padding: var(--space-xs);
+    padding: 0.5rem;
   }
 
   .modal {
-    max-width: 95vw;
-    max-height: 95vh;
+    max-width: 100%;
   }
 
   .header {
-    padding: var(--space-sm);
-  }
-
-  .titleSection h2 {
-    font-size: 1.125rem;
+    padding: 1rem;
   }
 
   .content {
-    padding: var(--space-sm);
-  }
-
-  .footer {
-    padding: var(--space-sm);
-  }
-}
-
-@media (max-width: 480px) {
-  .modal {
-    border-radius: var(--radius-lg);
-  }
-
-  .titleSection h2 {
-    font-size: 1rem;
-  }
-
-  .instructions h3 {
-    font-size: 0.95rem;
-  }
-
-  .tips h4 {
-    font-size: 0.9rem;
+    padding: 1.5rem 1rem;
   }
 } 

@@ -6,6 +6,7 @@ import { useRSVPMessages } from '@/hooks/useRSVPMessages';
 import { useInvitations } from '@/hooks/useInvitations';
 import { useNotifications } from '@/hooks/useNotifications';
 import { RSVPMessage } from '@/types';
+import { HeaderMobile } from '@/components/HeaderMobile';
 import styles from './messages.module.css';
 
 import { 
@@ -22,7 +23,8 @@ import {
   Users,
   Heart,
   Filter,
-  Bell
+  Bell,
+  X
 } from 'lucide-react';
 
 
@@ -60,15 +62,17 @@ export default function MessagesPage() {
     return value.toLowerCase().includes(searchTerm.toLowerCase());
   };
 
-  // Filtrer les messages par terme de recherche et exclure ceux sans message
+  // Filtrer les messages : uniquement ceux qui ont un message non vide
   const filteredMessages = messages.filter(message => {
     // Exclure les messages vides ou null
     if (!message.message || message.message.trim() === '') {
       return false;
     }
     
+    // Si pas de recherche, retourner tous les messages avec contenu
     if (!searchQuery.trim()) return true;
     
+    // Filtrer par terme de recherche
     return (
       containsSearchTerm(message.guest.firstName, searchQuery) ||
       containsSearchTerm(message.guest.lastName, searchQuery) ||
@@ -164,20 +168,7 @@ export default function MessagesPage() {
 
   return (
     <div className={styles.pageContainer}>
-      {/* Header Section */}
-      <div className={styles.header}>
-        <div className={styles.headerLeft}>
-          <h1 className={styles.title}>
-            <MessageSquare className={styles.titleIcon} />
-            Messages RSVP
-          </h1>
-          <p className={styles.subtitle}>
-            Consultez les messages et réponses de vos invités
-          </p>
-        </div>
-        
-
-      </div>
+      <HeaderMobile title="Vos Messages" />
 
       {/* Search Bar */}
       <div className={styles.searchContainer}>
@@ -195,73 +186,57 @@ export default function MessagesPage() {
 
       {/* Messages Grid */}
       <div className={styles.messagesGrid}>
-        {filteredMessages.map((message) => (
-          <div key={message.id} 
-            className={styles.messageCard}
-            onClick={() => setSelectedMessage(message)}
-          >
-            {/* Header */}
+        {filteredMessages.map((message) => {
+          const hasMessage = message.message && message.message.trim() !== '';
+          const statusClass = message.status.toLowerCase();
+          const avatarClass = `avatar${statusClass.charAt(0).toUpperCase() + statusClass.slice(1)}`;
+          
+          return (
+            <div key={message.id} className={styles.messageCard}>
+              {/* Header avec avatar, nom, email et statut */}
             <div className={styles.messageCardHeader}>
-              <div className={styles.guestAvatar}>
+                <div className={`${styles.guestAvatar} ${styles[avatarClass]}`}>
                 {getInitials(message.guest.firstName, message.guest.lastName)}
               </div>
               
               <div className={styles.guestInfo}>
-                <h3 className={styles.guestName}>
+                  <p className={styles.guestName}>
                   {message.guest.firstName} {message.guest.lastName}
-                </h3>
-                
-                <div className={styles.guestEmail}>
-                  <Mail className={styles.emailIcon} />
+                  </p>
+                  <p className={styles.guestEmail}>
                   {message.guest.email}
+                  </p>
+                </div>
+                
+                <div className={`${styles.statusBadge} ${styles[statusClass]}`}>
+                  <div className={styles.statusDot}></div>
+                  {getStatusLabel(message.status)}
                 </div>
               </div>
               
-              <div className={`${styles.statusBadge} ${styles[message.status.toLowerCase()]}`}>
-                {getStatusIcon(message.status)}
-                {getStatusLabel(message.status)}
-              </div>
-            </div>
-
-            {/* Invitation Info */}
-            <div className={styles.invitationInfo}>
-              <div className={styles.invitationTitle}>
-                <Calendar className={styles.calendarIcon} />
+              {/* Contenu : titre invitation, message, date */}
+              <div className={styles.messageContent}>
+                <p className={styles.invitationTitle}>
                 {message.invitation.eventTitle}
+                </p>
+                <p className={`${styles.messageText} ${!hasMessage ? styles.noMessage : ''}`}>
+                  {hasMessage ? message.message : 'Aucun message'}
+                </p>
+                <p className={styles.messageDate}>
+                  {formatDate(message.createdAt)}
+                </p>
               </div>
-            </div>
 
-            {/* Message */}
-            <div className={styles.messageContent}>
-              <p className={styles.messageText}>
-                "{truncateText(message.message)}"
-              </p>
-              {message.message.length > 30 && (
-                <div className={styles.messageIndicator}>
-                  <span>Cliquez pour voir plus</span>
-                </div>
-              )}
-            </div>
-
-            {/* Footer */}
-            <div className={styles.messageFooter}>
-              <span className={styles.messageDate}>
-                {formatDate(message.createdAt)}
-              </span>
-              
+              {/* Bouton Voir détails */}
               <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setSelectedMessage(message);
-                }}
+                onClick={() => setSelectedMessage(message)}
                 className={styles.viewDetailsButton}
               >
-                <Eye className={styles.viewDetailsIcon} />
-                Voir détails
+                Voir détail du message
               </button>
             </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
 
       {/* Empty State */}
@@ -282,84 +257,105 @@ export default function MessagesPage() {
 
       {/* Modal pour les détails */}
       {selectedMessage && (
-        <div className={styles.modalOverlay}
-        onClick={() => setSelectedMessage(null)}
-        >
-          <div className={styles.modalContent}
-          onClick={(e) => e.stopPropagation()}
-          >
+        <div className={styles.modalOverlay} onClick={() => setSelectedMessage(null)}>
+          <div className={styles.modalContent} onClick={(e) => e.stopPropagation()}>
+            {/* Modal Header */}
+            <div className={styles.modalHeader}>
+              <h2 className={styles.modalTitle}>Détail du message</h2>
             <button
               onClick={() => setSelectedMessage(null)}
               className={styles.modalCloseButton}
             >
-              ×
+                <X size={20} />
             </button>
-
-            <div className={styles.modalHeader}>
-              <div className={styles.modalGuestAvatar}>
-                {getInitials(selectedMessage.guest.firstName, selectedMessage.guest.lastName)}
               </div>
               
-              <div className={styles.modalGuestInfo}>
-                <h2>
+            {/* Modal Body */}
+            <div className={styles.modalBody}>
+              <div className={styles.modalDetailRow}>
+                <span className={styles.modalDetailLabel}>Nom complet</span>
+                <span className={styles.modalDetailValue}>
                   {selectedMessage.guest.firstName} {selectedMessage.guest.lastName}
-                </h2>
+                </span>
+              </div>
                 
-                <div className={styles.modalGuestEmail}>
-                  <Mail style={{ width: '16px', height: '16px' }} />
+              <div className={styles.modalDetailRow}>
+                <span className={styles.modalDetailLabel}>Email</span>
+                <span className={`${styles.modalDetailValue} ${styles.modalEmail}`}>
                   {selectedMessage.guest.email}
+                </span>
                 </div>
                 
                 {selectedMessage.guest.phone && (
-                  <div className={styles.modalGuestPhone}>
-                    <Phone style={{ width: '14px', height: '14px' }} />
+                <div className={styles.modalDetailRow}>
+                  <span className={styles.modalDetailLabel}>Téléphone</span>
+                  <span className={styles.modalDetailValue}>
                     {selectedMessage.guest.phone}
+                  </span>
                   </div>
                 )}
                 
-                {selectedMessage.guest.plusOne && selectedMessage.guest.plusOneName && (
-                  <div className={styles.modalGuestPlusOne}>
-                    <Users style={{ width: '14px', height: '14px' }} />
-                    Accompagnant: {selectedMessage.guest.plusOneName}
+              <div className={styles.modalDivider}></div>
+
+              <div className={styles.modalDetailRow}>
+                <span className={styles.modalDetailLabel}>Statut RSVP</span>
+                <span className={styles.modalDetailValue}>
+                  {getStatusLabel(selectedMessage.status)} {selectedMessage.status === 'CONFIRMED' && '✅'}
+                </span>
+              </div>
+
+              <div className={styles.modalDetailRow}>
+                <span className={styles.modalDetailLabel}>Titre invitation</span>
+                <span className={styles.modalDetailValue}>
+                  {selectedMessage.invitation.eventTitle}
+                </span>
+              </div>
+
+              <div className={styles.modalMessageSection}>
+                <span className={styles.modalDetailLabel}>Message</span>
+                <div className={styles.modalMessageBox}>
+                  {selectedMessage.message && selectedMessage.message.trim() !== '' 
+                    ? selectedMessage.message 
+                    : 'Aucun message'}
+                </div>
+              </div>
+
+              <div className={styles.modalDivider}></div>
+
+              {selectedMessage.guest.plusOne && (
+                <div className={styles.modalDetailRow}>
+                  <span className={styles.modalDetailLabel}>Accompagnants</span>
+                  <span className={styles.modalDetailValue}>
+                    {selectedMessage.guest.plusOneName ? '1' : '0'}
+                  </span>
                   </div>
                 )}
                 
                 {selectedMessage.guest.dietaryRestrictions && (
-                  <div className={styles.modalGuestDietary}>
-                    <Heart style={{ width: '14px', height: '14px' }} />
-                    Restrictions: {selectedMessage.guest.dietaryRestrictions}
+                <div className={styles.modalMessageSection}>
+                  <span className={styles.modalDetailLabel}>Restrictions alimentaires</span>
+                  <p className={styles.modalDetailValue}>
+                    {selectedMessage.guest.dietaryRestrictions}
+                  </p>
                   </div>
                 )}
-              </div>
-            </div>
 
-            <div className={styles.modalInvitationInfo}>
-              <h3 className={styles.modalInvitationTitle}>
-                {selectedMessage.invitation.eventTitle}
-              </h3>
-              
-              <div className={styles.modalInvitationDate}>
-                <Calendar style={{ width: '14px', height: '14px' }} />
+              <div className={styles.modalDetailRow}>
+                <span className={styles.modalDetailLabel}>Répondu le</span>
+                <span className={styles.modalDetailValue}>
                 {formatDate(selectedMessage.createdAt)}
+                </span>
               </div>
             </div>
 
-            {selectedMessage.message && (
-              <div className={styles.modalSection}>
-                <h4 className={styles.modalSectionTitle}>
-                  Message de l'invité
-                </h4>
-                <div className={styles.modalMessageText}>
-                  "{selectedMessage.message}"
-                </div>
-              </div>
-            )}
-
-            <div className={styles.modalStatusSection} style={{ color: getStatusColor(selectedMessage.status) }}>
-              {getStatusIcon(selectedMessage.status)}
-              <span className={styles.modalStatusText}>
-                Statut : {getStatusLabel(selectedMessage.status)}
-              </span>
+            {/* Modal Footer */}
+            <div className={styles.modalFooter}>
+              <button
+                onClick={() => setSelectedMessage(null)}
+                className={styles.modalCloseButtonMain}
+              >
+                Fermer
+              </button>
             </div>
           </div>
         </div>

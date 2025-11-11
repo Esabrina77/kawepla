@@ -7,6 +7,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/hooks/useAuth";
+import { FloatingThemeToggle } from "@/components/FloatingThemeToggle";
 import styles from './Header.module.css';
 
 interface HeaderProps {
@@ -21,10 +22,9 @@ export function Header({ onNavigate }: HeaderProps) {
 
   const navItems = [
     { label: "Accueil", href: "/" },
-    { label: "Fonctionnalités", href: "#fonctionnalites" },
+    { label: "Comment ça marche", href: "#comment-ca-marche" },
     { label: "Tarifs", href: "#tarifs" },
     { label: "FAQ", href: "/faq" },
-    { label: "Contact", href: "/contact" },
   ];
 
   const handleSmoothScroll = (href: string) => {
@@ -80,8 +80,8 @@ export function Header({ onNavigate }: HeaderProps) {
               <Image
                 src="/images/logo.png"
                 alt="Kawepla Logo"
-                width={80}
-                height={80}
+                width={150}
+                height={120}
                 className={`logo-image ${styles.logoImage}`}
                 priority
               />
@@ -104,19 +104,23 @@ export function Header({ onNavigate }: HeaderProps) {
 
         {/* Desktop CTA */}
         <div className={styles.ctaSection}>
+          <FloatingThemeToggle variant="inline" size={20} className={styles.desktopThemeToggle} />
           <Link href={getDashboardLink()} className={styles.signupButton}>
             {getButtonText()}
           </Link>
         </div>
 
-        {/* Mobile Menu Button */}
-        <button
-          onClick={() => setIsMenuOpen(!isMenuOpen)}
-          className={styles.mobileMenuButton}
-          aria-label="Menu"
-        >
-          {isMenuOpen ? <X size={24} /> : <Menu size={24} />}
-        </button>
+        {/* Mobile Menu Button with Theme Toggle */}
+        <div className={styles.mobileMenuSection}>
+          <FloatingThemeToggle variant="inline" size={20} className={styles.mobileThemeToggle} />
+          <button
+            onClick={() => setIsMenuOpen(!isMenuOpen)}
+            className={styles.mobileMenuButton}
+            aria-label="Menu"
+          >
+            {isMenuOpen ? <X size={24} /> : <Menu size={24} />}
+          </button>
+        </div>
       </div>
 
       {/* Mobile Navigation */}

@@ -44,8 +44,6 @@ export default function RSVPPage() {
   const [formData, setFormData] = useState({
     status: 'PENDING' as 'PENDING' | 'CONFIRMED' | 'DECLINED',
     message: '',
-    attendingCeremony: true,
-    attendingReception: true,
     profilePhotoUrl: '',
     plusOne: false,
     plusOneName: '',
@@ -87,12 +85,10 @@ export default function RSVPPage() {
           setFormData({
             status: statusData.status,
             message: statusData.message || '',
-            attendingCeremony: statusData.attendingCeremony ?? true,
-            attendingReception: statusData.attendingReception ?? true,
             profilePhotoUrl: statusData.profilePhotoUrl || '',
-          plusOne: statusData.guest?.plusOne || false,
-          plusOneName: statusData.guest?.plusOneName || '',
-          dietaryRestrictions: statusData.guest?.dietaryRestrictions || ''
+            plusOne: statusData.plusOne || false,
+            plusOneName: statusData.plusOneName || '',
+            dietaryRestrictions: statusData.dietaryRestrictions || ''
           });
           // Si une réponse existe déjà, afficher la réponse au lieu du formulaire
           setShowExistingResponse(true);
@@ -312,13 +308,13 @@ export default function RSVPPage() {
                       rsvpStatus?.status === 'CONFIRMED' ? styles.statusIconConfirmed : styles.statusIconDeclined
                     }`}>
                       {rsvpStatus?.status === 'CONFIRMED' ? (
-                        <CheckCircle style={{ width: '40px', height: '40px' }} />
+                        <CheckCircle />
                       ) : (
-                        <XCircle style={{ width: '40px', height: '40px' }} />
+                        <XCircle />
                       )}
                     </div>
                     
-                    <h3 className={styles.statusTitle}>
+                    <h3 className={`${styles.statusTitle} ${rsvpStatus?.status === 'CONFIRMED' ? styles.confirmed : styles.declined}`}>
                       {rsvpStatus?.status === 'CONFIRMED' ? 
                         'Vous avez confirmé votre présence' : 
                         'Vous avez décliné l\'invitation'
@@ -326,27 +322,18 @@ export default function RSVPPage() {
                     </h3>
                     
                     {rsvpStatus?.status === 'CONFIRMED' && (
-                      <div className={styles.detailsList}>
-                        <div className={styles.detailItem}>
-                          <Users style={{ width: '16px', height: '16px', color: 'var(--color-primary)' }} />
-                          <span>{rsvpStatus?.guest?.plusOne ? '2 personnes' : '1 personne'}</span>
+                      <div className={`${styles.detailsList} ${styles.confirmed}`}>
+                        <div className={`${styles.detailItem} ${styles.confirmed}`}>
+                          <Users />
+                          <span>
+                            {rsvpStatus?.numberOfGuests || (rsvpStatus?.plusOne ? 2 : 1)} 
+                            {(rsvpStatus?.numberOfGuests || (rsvpStatus?.plusOne ? 2 : 1)) === 1 ? ' personne' : ' personnes'}
+                          </span>
                         </div>
-                        {rsvpStatus?.guest?.plusOne && rsvpStatus?.guest?.plusOneName && (
-                          <div className={styles.detailItem}>
-                            <Users style={{ width: '16px', height: '16px', color: 'var(--color-primary)' }} />
-                            <span>Accompagnant: {rsvpStatus.guest.plusOneName}</span>
-                          </div>
-                        )}
-                        {rsvpStatus?.attendingCeremony && (
-                          <div className={styles.detailItem}>
-                            <Heart style={{ width: '16px', height: '16px', color: 'var(--color-primary)' }} />
-                            <span>Présent(e) à la cérémonie</span>
-                          </div>
-                        )}
-                        {rsvpStatus?.attendingReception && (
-                          <div className={styles.detailItem}>
-                            <Wine style={{ width: '16px', height: '16px', color: 'var(--color-primary)' }} />
-                            <span>Présent(e) à la réception</span>
+                        {rsvpStatus?.plusOne && rsvpStatus?.plusOneName && (
+                          <div className={`${styles.detailItem} ${styles.confirmed}`}>
+                            <Users />
+                            <span>Accompagnant: {rsvpStatus.plusOneName}</span>
                           </div>
                         )}
                       </div>
@@ -355,7 +342,7 @@ export default function RSVPPage() {
                     {rsvpStatus?.message && (
                       <div className={styles.messageBox}>
                         <h4 className={styles.messageTitle}>
-                          <MessageCircle style={{ width: '16px', height: '16px' }} />
+                          <MessageCircle />
                           Votre message:
                         </h4>
                         <p className={styles.messageText}>"{rsvpStatus.message}"</p>
@@ -384,18 +371,18 @@ export default function RSVPPage() {
                   <div className={styles.responseButtons}>
                     <button
                       type="button"
-                      className={`${formData.status === 'CONFIRMED' ? 'btn btn-primary' : 'btn btn-outline'} ${styles.responseButton}`}
+                      className={`${styles.responseButton} ${formData.status === 'CONFIRMED' ? styles.confirmed : styles.outline}`}
                       onClick={() => setFormData(prev => ({ ...prev, status: 'CONFIRMED' }))}
                     >
-                      <CheckCircle style={{ width: '16px', height: '16px' }} />
+                      <CheckCircle style={{ width: '18px', height: '18px' }} />
                       Je serai présent(e)
                     </button>
                     <button
                       type="button"
-                      className={`${formData.status === 'DECLINED' ? 'btn btn-secondary' : 'btn btn-outline'} ${styles.responseButton}`}
+                      className={`${styles.responseButton} ${formData.status === 'DECLINED' ? styles.declined : styles.outline}`}
                       onClick={() => setFormData(prev => ({ ...prev, status: 'DECLINED' }))}
                     >
-                      <XCircle style={{ width: '16px', height: '16px' }} />
+                      <XCircle style={{ width: '18px', height: '18px' }} />
                       Je ne pourrai pas venir
                     </button>
                   </div>
@@ -403,37 +390,6 @@ export default function RSVPPage() {
 
                 {formData.status === 'CONFIRMED' && (
                   <>
-                    <div className={styles.checkboxGroup}>
-                      <div>
-                        <label className={styles.checkboxLabel}>
-                          <input
-                            type="checkbox"
-                            name="attendingCeremony"
-                            checked={formData.attendingCeremony}
-                            onChange={handleInputChange}
-                            className={styles.checkbox}
-                          />
-                          <span>
-                            Je serai présent(e) à la cérémonie
-                          </span>
-                        </label>
-                      </div>
-                      <div>
-                        <label className={styles.checkboxLabel}>
-                          <input
-                            type="checkbox"
-                            name="attendingReception"
-                            checked={formData.attendingReception}
-                            onChange={handleInputChange}
-                            className={styles.checkbox}
-                          />
-                          <span>
-                            Je serai présent(e) à la réception
-                          </span>
-                        </label>
-                      </div>
-                    </div>
-
                         {/* Section accompagnant */}
                         <div>
                           <label className={styles.plusOneLabel}>

@@ -8,22 +8,39 @@
   padding: var(--space-md);
   position: relative;
   overflow: hidden;
-  background: var(--bg-primary);
+  background: linear-gradient(-45deg, #c5a885d2, #ffffff);
+  background-size: 600% 600%;
+  animation: gradient 30s ease infinite;
   color: var(--text-primary);
   transition: all var(--transition-normal);
 }
 
-.auth::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background-image: url('https://images.pexels.com/photos/26741261/pexels-photo-26741261.jpeg');
-  background-size: cover;
-  background-position: center;
-  background-repeat: no-repeat;
-  filter: blur(1px);
-  opacity: 0.4;
-  z-index: 0;
+/* Animation du dégradé - mouvement fluide comme des vagues */
+@keyframes gradient {
+  0% {
+    background-position: 0% 50%;
+  }
+  25% {
+    background-position: 50% 100%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  75% {
+    background-position: 50% 0%;
+  }
+  90% {
+    background-position: 0% 50%;
+  }
+  100% {
+    background-position: 50% 0%;
+  }
+}
+
+/* Support du mode sombre avec couleurs adaptées */
+[data-theme="dark"] .auth {
+  background: linear-gradient(-45deg, #1c1916,#3f3939ea);
+  background-size: 600% 600%;
 }
 
 .auth::after {
@@ -37,11 +54,29 @@
   z-index: 1;
 }
 
+/* Réduction des animations pour l'accessibilité */
+@media (prefers-reduced-motion: reduce) {
+  .auth {
+    animation-duration: 30s;
+  }
+}
+
 .container {
   position: relative;
   width: 100%;
   max-width: 500px;
   z-index: 3;
+}
+
+/* Container plus large pour register sur desktop */
+.registerContainer {
+  max-width: 500px;
+}
+
+@media (min-width: 1024px) {
+  .registerContainer {
+    max-width: 900px;
+  }
 }
 
 .authCard {
@@ -54,15 +89,35 @@
   transition: all var(--transition-normal);
 }
 
+/* Page de login spécifique - plus compacte */
+.loginCard {
+  padding: var(--space-xl);
+}
+
 .header {
   text-align: center;
   margin-bottom: var(--space-3xl);
+}
+
+/* Header plus compact pour login */
+.loginCard .header {
+  margin-bottom: var(--space-lg);
+}
+
+/* Header encore plus compact pour register */
+.registerCard .header {
+  margin-bottom: var(--space-md);
 }
 
 .iconContainer {
   margin-bottom: var(--space-lg);
   display: flex;
   justify-content: center;
+}
+
+/* IconContainer plus compact pour loginCard */
+.loginCard .iconContainer {
+  margin-bottom: var(--space-md);
 }
 
 .header h1 {
@@ -76,11 +131,36 @@
   font-weight: 400;
 }
 
+/* Titre plus compact pour login */
+.loginCard .header h1 {
+  font-size: 2rem;
+  margin-bottom: var(--space-sm);
+}
+
+/* Titre encore plus compact pour register */
+.registerCard .header h1 {
+  font-size: 1.75rem;
+  margin-bottom: 0.5rem;
+}
+
 .description {
   font-size: 1.125rem;
   color: var(--text-secondary);
   line-height: 1.6;
   margin-bottom: var(--space-md);
+}
+
+/* Description plus compacte pour login */
+.loginCard .header p {
+  font-size: 0.875rem;
+  margin-bottom: 0;
+}
+
+/* Description encore plus compacte pour register */
+.registerCard .header p {
+  font-size: 0.8125rem;
+  margin-bottom: 0;
+  line-height: 1.4;
 }
 
 .emailHighlight {
@@ -95,10 +175,96 @@
   margin-bottom: var(--space-xl);
 }
 
+/* Formulaire de login plus compact */
+.loginCard .form {
+  gap: var(--space-md);
+  margin-bottom: var(--space-md);
+}
+
+/* Formulaire register encore plus compact */
+.loginCard .form:has(.userTypeSelector) {
+  gap: var(--space-sm);
+}
+
+/* Layout register en 2 colonnes sur desktop */
+.registerLayout {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-lg);
+}
+
+@media (min-width: 1024px) {
+  .registerLayout {
+    flex-direction: row;
+    gap: var(--space-xl);
+    align-items: flex-start;
+  }
+}
+
+.registerLeftColumn {
+  display: flex;
+  flex-direction: column;
+}
+
+@media (min-width: 1024px) {
+  .registerLeftColumn {
+    flex: 0 0 280px;
+    position: sticky;
+    top: var(--space-md);
+  }
+}
+
+.registerRightColumn {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+  flex: 1;
+}
+
+@media (min-width: 1024px) {
+  .registerRightColumn {
+    gap: var(--space-xs);
+  }
+}
+
+/* UserTypeOptions en colonne sur desktop pour register */
+@media (min-width: 1024px) {
+  .registerLeftColumn .userTypeSelector {
+    margin-bottom: 0;
+  }
+  
+  .registerLeftColumn .userTypeOptions {
+    flex-direction: column;
+    gap: var(--space-sm);
+  }
+  
+  .registerLeftColumn .userTypeOption {
+    width: 100%;
+    padding: var(--space-md);
+  }
+  
+  .registerLeftColumn .userTypeSelector h3 {
+    font-size: 0.875rem;
+    margin-bottom: var(--space-sm);
+    text-align: left;
+  }
+}
+
 .formRow {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: var(--space-md);
+}
+
+/* FormRow plus compact pour loginCard */
+.loginCard .formRow {
+  gap: var(--space-sm);
+}
+
+/* FormRow encore plus compact pour register */
+.registerRightColumn .formRow {
+  gap: var(--space-xs);
+  margin-bottom: 0;
 }
 
 .formGroup {
@@ -107,10 +273,37 @@
   gap: var(--space-sm);
 }
 
+/* FormGroup plus compact pour loginCard */
+.loginCard .formGroup {
+  gap: 0.5rem;
+}
+
+/* FormGroup encore plus compact pour register */
+.loginCard .form:has(.userTypeSelector) .formGroup {
+  gap: 0.375rem;
+}
+
+/* FormGroup encore plus compact pour registerRightColumn */
+.registerRightColumn .formGroup {
+  gap: 0.25rem;
+}
+
 .formGroup label {
   font-size: 1rem;
   font-weight: 600;
   color: var(--text-primary);
+}
+
+/* Label plus compact pour login */
+.loginCard .formGroup label {
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+/* Label encore plus compact pour register */
+.registerRightColumn .formGroup label {
+  font-size: 0.8125rem;
+  font-weight: 500;
 }
 
 .inputLabel {
@@ -148,6 +341,13 @@
   font-weight: 600;
 }
 
+/* Code input plus compact pour loginCard */
+.loginCard .codeInput {
+  padding: 0.875rem 1rem 0.875rem calc(1rem + 24px);
+  font-size: 1rem;
+  height: 3.5rem;
+}
+
 .codeInput:focus {
   outline: none;
   border-color: var(--color-primary);
@@ -178,6 +378,11 @@
   margin-bottom: var(--space-lg);
 }
 
+/* Sélecteur plus compact pour loginCard */
+.loginCard .userTypeSelector {
+  margin-bottom: var(--space-sm);
+}
+
 .userTypeSelector h3 {
   font-size: 1.125rem;
   font-weight: 600;
@@ -186,9 +391,21 @@
   text-align: center;
 }
 
+/* Titre plus compact pour loginCard */
+.loginCard .userTypeSelector h3 {
+  font-size: 0.875rem;
+  margin-bottom: var(--space-xs);
+  font-weight: 500;
+}
+
 .userTypeOptions {
   display: flex;
   gap: var(--space-md);
+}
+
+/* Gap réduit pour loginCard */
+.loginCard .userTypeOptions {
+  gap: var(--space-sm);
 }
 
 .userTypeOption {
@@ -200,6 +417,12 @@
   transition: all var(--transition-normal);
   background: var(--bg-card);
   position: relative;
+}
+
+/* Option plus compacte pour loginCard */
+.loginCard .userTypeOption {
+  padding: var(--space-sm) var(--space-xs);
+  border-radius: var(--radius-md);
 }
 
 .userTypeOption:hover {
@@ -228,9 +451,20 @@
   gap: var(--space-sm);
 }
 
+/* Content plus compact pour loginCard */
+.loginCard .userTypeContent {
+  gap: 0.25rem;
+}
+
 .userTypeIcon {
   font-size: 2rem;
   margin-bottom: var(--space-xs);
+}
+
+/* Icône plus petite pour loginCard */
+.loginCard .userTypeIcon {
+  font-size: 1.25rem;
+  margin-bottom: 0;
 }
 
 .userTypeText {
@@ -239,16 +473,33 @@
   gap: var(--space-xs);
 }
 
+/* Text plus compact pour loginCard */
+.loginCard .userTypeText {
+  gap: 0.125rem;
+}
+
 .userTypeText strong {
   font-size: 1.125rem;
   font-weight: 600;
   color: var(--text-primary);
 }
 
+/* Strong plus petit pour loginCard */
+.loginCard .userTypeText strong {
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
 .userTypeText span {
   font-size: 0.875rem;
   color: var(--text-secondary);
   line-height: 1.4;
+}
+
+/* Span plus petit pour loginCard */
+.loginCard .userTypeText span {
+  font-size: 0.75rem;
+  line-height: 1.2;
 }
 
 .formGroup input {
@@ -261,6 +512,19 @@
   background: var(--bg-primary);
   color: var(--text-primary);
   font-family: var(--font-sans);
+}
+
+/* Input plus compact pour login */
+.loginCard .formGroup input {
+  padding: 0.875rem 1rem;
+  height: 3.5rem;
+}
+
+/* Input encore plus compact pour register */
+.registerRightColumn .formGroup input {
+  padding: 0.75rem 0.875rem;
+  height: 3rem;
+  font-size: 0.9375rem;
 }
 
 .formGroup input:focus {
@@ -287,6 +551,19 @@
   font-size: 0.875rem;
   color: var(--text-secondary);
   margin-top: var(--space-xs);
+}
+
+/* PasswordHint plus compact pour loginCard */
+.loginCard .passwordHint {
+  font-size: 0.75rem;
+  margin-top: 0.25rem;
+}
+
+/* PasswordHint encore plus compact pour register */
+.registerRightColumn .passwordHint {
+  font-size: 0.6875rem;
+  margin-top: 0.125rem;
+  line-height: 1.3;
 }
 
 .passwordInput {
@@ -316,6 +593,11 @@
   margin-top: var(--space-sm);
 }
 
+/* ValidationItem plus compact pour loginCard */
+.loginCard .validationItem {
+  margin-top: 0.5rem;
+}
+
 .validationIcon {
   display: flex;
   align-items: center;
@@ -338,11 +620,27 @@
   color: var(--text-secondary);
 }
 
+/* ValidationText plus compact pour loginCard */
+.loginCard .validationText {
+  font-size: 0.75rem;
+}
+
 .terms {
   display: flex;
   align-items: flex-start;
   gap: var(--space-sm);
   margin-bottom: var(--space-lg);
+}
+
+/* Terms plus compact pour loginCard */
+.loginCard .terms {
+  margin-bottom: var(--space-md);
+}
+
+/* Terms encore plus compact pour register */
+.registerRightColumn .terms {
+  margin-bottom: var(--space-xs);
+  margin-top: -0.25rem;
 }
 
 .terms label {
@@ -419,6 +717,21 @@
   width: 100%;
 }
 
+/* Bouton plus compact pour login */
+.loginCard .submitButton {
+  height: 3.5rem;
+  font-size: 1rem;
+  margin-top: var(--space-sm);
+}
+
+/* Bouton encore plus compact pour register */
+.registerRightColumn .submitButton {
+  height: 3rem;
+  font-size: 0.9375rem;
+  margin-top: var(--space-xs);
+  padding: 0.75rem 1.5rem;
+}
+
 .submitButton:hover:not(:disabled) {
   background: var(--luxury-champagne-gold);
   transform: translateY(-2px);
@@ -464,9 +777,25 @@
   align-items: center;
 }
 
+/* ActionsContainer plus compact pour loginCard */
+.loginCard .actionsContainer {
+  margin-bottom: var(--space-md);
+  gap: var(--space-sm);
+}
+
 .footer {
   text-align: center;
   margin-top: var(--space-lg);
+}
+
+/* Footer plus compact pour login */
+.loginCard .footer {
+  margin-top: var(--space-md);
+}
+
+/* Footer encore plus compact pour register */
+.registerRightColumn .footer {
+  margin-top: var(--space-xs);
 }
 
 .footer p {
@@ -496,6 +825,14 @@
   gap: var(--space-xs);
 }
 
+.passwordOptions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: -0.5rem;
+  margin-bottom: 0.5rem;
+}
+
 .forgotPassword:hover {
   color: var(--luxury-champagne-gold);
 }
@@ -504,6 +841,7 @@
   display: flex;
   align-items: center;
   gap: var(--space-sm);
+  margin-top: -0.5rem;
 }
 
 .rememberMe label {
@@ -595,6 +933,13 @@
   align-items: center;
   justify-content: center;
   gap: var(--space-sm);
+}
+
+/* MessageBox plus compact pour loginCard */
+.loginCard .messageBox {
+  padding: var(--space-sm) var(--space-md);
+  margin-bottom: var(--space-md);
+  font-size: 0.875rem;
 }
 
 .messageBox.success {

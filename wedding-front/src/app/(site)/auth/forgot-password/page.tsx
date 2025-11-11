@@ -37,7 +37,7 @@ export default function ForgotPasswordPage() {
     return (
       <div className={styles.auth}>
         <div className={styles.container}>
-          <div className={styles.authCard}>
+          <div className={`${styles.authCard} ${styles.loginCard}`}>
             <div className={styles.header}>
               <CheckCircle size={48} className={styles.iconSuccess} />
               <h1>Email envoyé</h1>
@@ -60,7 +60,7 @@ export default function ForgotPasswordPage() {
   return (
     <div className={styles.auth}>
       <div className={styles.container}>
-        <div className={styles.authCard}>
+        <div className={`${styles.authCard} ${styles.loginCard}`}>
           <div className={styles.header}>
             <Mail size={48} className={styles.icon} />
             <h1>Mot de passe oublié</h1>

@@ -1,18 +1,9 @@
-import { Metadata } from 'next';
-import Link from 'next/link';
-import { ChevronDown, MessageCircle, Mail, Phone } from 'lucide-react';
-import styles from './faq.module.css';
+'use client';
 
-export const metadata: Metadata = {
-  title: 'FAQ - Questions Fréquentes | Kawepla',
-  description: 'Toutes les réponses à vos questions sur Kawepla : plateforme gratuite d\'invitations événement, gestion invités, RSVP en ligne. Support 7j/7.',
-  keywords: 'faq kawepla, questions invitations, aide plateforme événement, support kawepla, comment utiliser kawepla',
-  openGraph: {
-    title: 'FAQ - Questions Fréquentes | Kawepla',
-    description: 'Toutes les réponses à vos questions sur Kawepla',
-    url: 'https://kawepla.kaporelo.com/faq',
-  },
-};
+import React, { useState } from 'react';
+import Link from 'next/link';
+import { ChevronDown, Mail, HelpCircle, Rocket } from 'lucide-react';
+import styles from './faq.module.css';
 
 const faqCategories = [
   {
@@ -28,7 +19,7 @@ const faqCategories = [
       },
       {
         question: 'Quels types d\'événements puis-je organiser ?',
-        answer: 'Kawepla s\'adapte à tous vos événements : mariages, anniversaires, baptêmes, communions, bar/bat mitzvah, baby showers, soirées d\'entreprise, et tout autre événement nécessitant des invitations et une gestion d\'invités.',
+        answer: 'Kawepla s\'adapte à tous vos événements : mariages, anniversaires, baptêmes, communions, baby showers, soirées d\'entreprise, et tout autre événement nécessitant des invitations et une gestion d\'invités.',
       },
       {
         question: 'Ai-je besoin de compétences techniques ?',
@@ -44,12 +35,8 @@ const faqCategories = [
         answer: '1. Inscrivez-vous gratuitement. 2. Choisissez un design parmi notre bibliothèque. 3. Personnalisez le texte, la date, le lieu. 4. Ajoutez vos invités. 5. Envoyez ! Le tout en moins de 10 minutes.',
       },
       {
-        question: 'Puis-je personnaliser le design ?',
-        answer: 'Oui ! Choisissez parmi nos designs prédéfinis (Plus de 15 modèles disponibles) et personnalisez les couleurs, textes, photos. Les plans Premium et Prestige offrent encore plus d\'options de personnalisation.',
-      },
-      {
         question: 'Comment envoyer les invitations ?',
-        answer: 'Chaque invité reçoit un lien unique par email ou SMS. Il peut également scanner un QR code. Vous pouvez aussi partager un lien public pour que vos invités se pré-enregistrent.',
+        answer: 'Chaque invité reçoit un lien unique par email ou vous pouvez aussi partager un lien partageable pour que chaque invité s\'enregistre lui-même.',
       },
       {
         question: 'Les invités doivent-ils créer un compte ?',
@@ -66,15 +53,15 @@ const faqCategories = [
       },
       {
         question: 'Comment suivre les réponses (RSVP) ?',
-        answer: 'Votre tableau de bord affiche en temps réel qui a confirmé, décliné ou n\'a pas encore répondu. Vous recevez aussi des notifications instantanées à chaque nouvelle réponse.',
+        answer: 'Votre tableau de bord affiche en temps réel qui a confirmé, décliné ou n\'a pas encore répondu.',
       },
       {
         question: 'Puis-je relancer les invités qui n\'ont pas répondu ?',
-        answer: 'Oui ! Un simple clic permet d\'envoyer un rappel automatique aux invités qui n\'ont pas encore confirmé leur présence.',
+        answer: 'Oui ! Vous pouvez envoyer un rappel aux invités qui n\'ont pas encore confirmé leur présence.',
       },
       {
         question: 'Combien d\'invités puis-je inviter ?',
-        answer: 'Plan Découverte : 30 invités. Plan Essentiel : 100 invités. Plan Premium : 250 invités. Plan Prestige : 500+ invités. Contactez-nous pour des événements plus importants.',
+        answer: 'Plan Découverte : 30 invités. Contactez-nous pour des événements plus importants.',
       },
     ],
   },
@@ -87,11 +74,11 @@ const faqCategories = [
       },
       {
         question: 'Puis-je trouver des prestataires ?',
-        answer: 'Oui ! Notre annuaire de prestataires vous permet de trouver des photographes, traiteurs, DJ, décorateurs et bien plus. Les prestataires peuvent vous contacter directement via la plateforme.',
+        answer: 'Oui ! Notre annuaire de prestataires vous permet de trouver des photographes, traiteurs, DJ, décorateurs et bien plus. Vous pouvez les contacter directement via la plateforme.',
       },
       {
         question: 'Les données sont-elles sécurisées ?',
-        answer: 'Absolument. Kawepla est conforme RGPD. Vos données sont chiffrées, hébergées en Europe, et ne sont jamais partagées avec des tiers. Vous pouvez supprimer votre compte et toutes vos données à tout moment.',
+        answer: 'Absolument. Kawepla est conforme RGPD. Vos données sont chiffrées et ne sont jamais partagées avec des tiers.',
       },
     ],
   },
@@ -100,15 +87,15 @@ const faqCategories = [
     questions: [
       {
         question: 'Quels sont les moyens de paiement acceptés ?',
-        answer: 'Nous acceptons les cartes bancaires (Visa, Mastercard, American Express), PayPal, et virements bancaires. Paiement sécurisé 100%.',
+        answer: 'Stripe gère tous les paiements de manière sécurisée.',
       },
       {
-        question: 'Puis-je changer de plan à tout moment ?',
-        answer: 'Oui ! Passez au plan supérieur à tout moment. Si vous passez d\'un plan gratuit à payant, vous ne payez que la différence au prorata.',
+        question: 'Puis-je acheter plusieurs packs ?',
+        answer: 'Oui ! Vous achetez le package qui vous convient et vous pouvez en cumuler plusieurs selon vos besoins.',
       },
       {
         question: 'Y a-t-il des frais cachés ?',
-        answer: 'Aucun frais caché. Le prix affiché est le prix final. Pas de frais de transaction, pas de commission sur les RSVP.',
+        answer: 'Aucun frais caché. Le prix affiché est le prix final.',
       },
       {
         question: 'Puis-je annuler mon abonnement ?',
@@ -121,32 +108,33 @@ const faqCategories = [
     questions: [
       {
         question: 'Comment contacter le support ?',
-        answer: 'Support par email 7j/7',
+        answer: 'Support par email 7j/7 à kawepla.kaporelo@gmail.com',
       },
       {
         question: 'Proposez-vous des formations ?',
-        answer: 'Oui ! Nous offrons des tutoriels vidéo gratuits. ',
+        answer: 'Oui ! Nous offrons des tutoriels vidéo gratuits.',
       },
       {
         question: 'Puis-je obtenir de l\'aide pour créer mon événement ?',
-        answer: 'Absolument ! Notre équipe peut vous accompagner dans la création de votre invitation (plan Prestige uniquement). Contactez-nous pour plus d\'informations.',
+        answer: 'Absolument ! Notre équipe peut vous accompagner dans la création de votre invitation (plan Premium uniquement). Contactez-nous pour plus d\'informations.',
       },
     ],
   },
 ];
 
 export default function FAQPage() {
+  const [openCategory, setOpenCategory] = useState<string | null>(null);
+
   return (
     <div className={styles.faqPage}>
       {/* Hero Section */}
       <section className={styles.hero}>
         <div className={styles.heroContent}>
           <h1 className={styles.title}>
-            Foire Aux Questions
+            Questions <span className={styles.titleAccent}>fréquentes</span>
           </h1>
           <p className={styles.subtitle}>
-            Toutes les réponses à vos questions sur Kawepla.<br />
-            Vous ne trouvez pas votre réponse ? <Link href="/contact">Contactez-nous !</Link>
+            Toutes les réponses à vos questions sur Kawepla
           </p>
         </div>
       </section>
@@ -156,7 +144,10 @@ export default function FAQPage() {
         <div className={styles.container}>
           {faqCategories.map((category, index) => (
             <div key={index} className={styles.category}>
-              <h2 className={styles.categoryTitle}>{category.category}</h2>
+              <h2 className={styles.categoryTitle}>
+                <HelpCircle className={styles.categoryIcon} />
+                {category.category}
+              </h2>
               <div className={styles.questions}>
                 {category.questions.map((item, qIndex) => (
                   <details key={qIndex} className={styles.questionItem}>
@@ -178,41 +169,22 @@ export default function FAQPage() {
       {/* CTA Section */}
       <section className={styles.ctaSection}>
         <div className={styles.ctaContent}>
-          <h2>Vous avez d'autres questions ?</h2>
-          <p>Notre équipe est là pour vous aider 7j/7</p>
+          <h2 className={styles.ctaTitle}>Vous avez d'autres questions ?</h2>
+          <p className={styles.ctaDescription}>
+            Notre équipe est là pour vous aider 7j/7
+          </p>
           <div className={styles.ctaButtons}>
-            <Link href="/contact" className={styles.ctaButton}>
-              <Mail />
+            <a href="mailto:kawepla.kaporelo@gmail.com" className={styles.ctaButton}>
+              <Mail className={styles.ctaIcon} />
               Nous contacter
-            </Link>
+            </a>
             <Link href="/auth/register" className={styles.ctaButtonSecondary}>
+              <Rocket className={styles.ctaIcon} />
               Essayer gratuitement
             </Link>
           </div>
         </div>
       </section>
-
-      {/* SEO Content */}
-      <section className={styles.seoContent}>
-        <div className={styles.container}>
-          <h2>Kawepla : La plateforme complète pour vos événements</h2>
-          <p>
-            <strong>Kawepla</strong> est la solution idéale pour organiser tous vos événements sans stress. 
-            Que vous prépariez un <strong>mariage</strong>, un <strong>anniversaire</strong>, un <strong>baptême</strong> 
-            ou tout autre événement, notre plateforme gratuite vous accompagne de A à Z.
-          </p>
-          <p>
-            Créez des <strong>invitations numériques élégantes</strong>, gérez vos invités en temps réel, 
-            suivez les <strong>RSVP</strong>, partagez des photos et communiquez facilement avec tous vos participants. 
-            Plus de 210 organisateurs nous font déjà confiance pour leurs événements.
-          </p>
-          <p>
-            Notre <strong>plan gratuit</strong> vous permet de découvrir toutes les fonctionnalités essentielles 
-            sans engagement. Inscrivez-vous en 2 minutes et créez votre première invitation dès aujourd'hui !
-          </p>
-        </div>
-      </section>
     </div>
   );
 }
-

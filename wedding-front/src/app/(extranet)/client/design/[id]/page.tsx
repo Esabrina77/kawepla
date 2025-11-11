@@ -2,10 +2,11 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter, useParams } from 'next/navigation';
+import { HeaderMobile } from '@/components/HeaderMobile';
 import { useDesigns } from '@/hooks/useDesigns';
 import { Design } from '@/types';
 import { TemplateEngine, getPreviewDataByType } from '@/lib/templateEngine';
-import { Palette, ArrowLeft, Crown } from 'lucide-react';
+import { Palette, Crown } from 'lucide-react';
 import styles from './design-detail.module.css';
 
 export default function DesignDetailPage() {
@@ -52,41 +53,44 @@ export default function DesignDetailPage() {
   };
 
   if (loading) {
-    return <div className={styles.loading}>Chargement du design...</div>;
+    return (
+      <div className={styles.designDetailPage}>
+        <HeaderMobile title="Détail du design" />
+        <div className={styles.loadingContainer}>
+          <div className={styles.loadingContent}>
+            <div className={styles.loadingSpinner}></div>
+            <p>Chargement...</p>
+          </div>
+        </div>
+      </div>
+    );
   }
 
   if (error || !design) {
     return (
-      <div className={styles.error}>
-        <div className={styles.errorMessage}>{error || 'Design non trouvé'}</div>
+      <div className={styles.designDetailPage}>
+        <HeaderMobile title="Détail du design" />
+        <div className={styles.errorContainer}>
+          <div className={styles.errorContent}>
+            <p className={styles.errorMessage}>{error || 'Design non trouvé'}</p>
         <button
-          onClick={() => router.back()}
+              onClick={() => router.push('/client/design')}
           className={styles.backButton}
         >
           Retour aux designs
         </button>
+          </div>
+        </div>
       </div>
     );
   }
 
   return (
     <div className={styles.designDetailPage}>
-      <div className={styles.header}>
-        <button
-          onClick={() => router.back()}
-          className={styles.backButton}
-        >
-          <ArrowLeft style={{ width: '16px', height: '16px' }} />
-          Retour aux designs
-        </button>
-        
-        <div className={styles.badge}>
-          <Palette style={{ width: '16px', height: '16px' }} />
-          {design.name}
-        </div>
-      </div>
+      <HeaderMobile title={design.name} />
 
-      <div className={styles.content}>
+      <main className={styles.main}>
+        {/* Preview Section - Full Page */}
         <div className={styles.previewSection}>
           <div className={styles.previewContainer}>
             <div 
@@ -99,56 +103,34 @@ export default function DesignDetailPage() {
           </div>
         </div>
 
+        {/* Info Section - Compact */}
         <div className={styles.infoSection}>
-          <div className={styles.designInfo}>
-            <h2>Détails du design</h2>
-            <p>{design.description}</p>
-            
+          <div className={styles.infoHeader}>
             {design.category && (
-              <div className={styles.metadata}>
-                <span className={styles.label}>Catégorie:</span>
-                <span className={styles.category}>{design.category}</span>
-              </div>
+              <span className={styles.designType}>
+                {design.category}
+              </span>
             )}
-            
-            {design.tags && design.tags.length > 0 && (
-              <div className={styles.metadata}>
-                <span className={styles.label}>Tags:</span>
-                <div className={styles.tags}>
-                  {design.tags.map((tag: string) => (
-                    <span key={tag} className={styles.tag}>{tag}</span>
-                  ))}
-                </div>
-              </div>
-            )}
-            
             {design.isPremium && (
-              <div className={styles.premium}>
-                <Crown style={{ width: '14px', height: '14px' }} />
-                <span>Design Premium</span>
+              <div className={styles.premiumBadge}>
+                <Crown size={12} />
+                Premium
               </div>
             )}
           </div>
 
-          <div className={styles.actionSection}>
+          <h2 className={styles.designTitle}>{design.name}</h2>
+
+          {/* Action Button */}
             <button 
               onClick={handleSelectDesign}
               className={styles.selectButton}
             >
-              <Palette style={{ width: '16px', height: '16px' }} />
+            <Palette size={18} />
               Utiliser ce design
             </button>
-            
-            <div className={styles.description}>
-              <p>
-                Cliquez sur "Utiliser ce design" pour créer votre invitation personnalisée 
-                avec ce template. Vous pourrez ensuite personnaliser tous les textes, 
-                dates et informations selon votre événement.
-              </p>
-            </div>
-          </div>
         </div>
-      </div>
+      </main>
     </div>
   );
 } 

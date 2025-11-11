@@ -1,277 +1,345 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import Link from 'next/link';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
+import { useRouter } from 'next/navigation';
+import { HeaderMobile } from '@/components/HeaderMobile';
 import { useGuests } from '@/hooks/useGuests';
 import { useInvitations } from '@/hooks/useInvitations';
-import { Button } from '@/components/ui/button';
-import { LimitsIndicator } from '@/components/LimitsIndicator/LimitsIndicator';
 import { apiClient } from '@/lib/api/apiClient';
+import { stripeApi } from '@/lib/api/stripe';
+import { Guest } from '@/types';
 import { 
-  Users,
   Plus,
+  Upload,
   Search,
-  Filter,
-  Eye,
-  Edit,
+  ChevronDown,
+  Bell,
+  Send,
   Trash2,
-  Mail,
-  Phone,
-  UserPlus,
+  User,
+  X,
   FileText,
   Download,
-  Upload,
-  CheckCircle,
-  XCircle,
-  Clock,
-  Star,
-  Crown,
-  Link2,
   Copy,
-  RefreshCw,
   Share2,
-  HelpCircle,
-  AlertTriangle,
-  Loader
+  CheckCircle,
+  AlertCircle,
+  RefreshCw
 } from 'lucide-react';
 import styles from './guests.module.css';
 
-// Composant Modal personnalisé
-interface ModalProps {
+// Modal pour ajouter un invité
+function AddGuestModal({ 
+  isOpen, 
+  onClose, 
+  onCreate, 
+  invitationId 
+}: { 
   isOpen: boolean;
   onClose: () => void;
-  title: string;
-  message: string;
-  type?: 'success' | 'error' | 'warning' | 'info';
-  showConfirm?: boolean;
-  onConfirm?: () => void;
-  confirmText?: string;
-  cancelText?: string;
-}
+  onCreate: () => void;
+  invitationId: string;
+}) {
+  const [formData, setFormData] = useState({
+    firstName: '',
+    lastName: '',
+    email: '',
+    phone: '',
+    isVIP: false,
+    plusOne: false,
+    plusOneName: '',
+    dietaryRestrictions: ''
+  });
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-function CustomModal({
-  isOpen,
-  onClose,
-  title,
-  message,
-  type = 'info',
-  showConfirm = false,
-  onConfirm,
-  confirmText = 'Confirmer',
-  cancelText = 'Annuler'
-}: ModalProps) {
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError(null);
+    setLoading(true);
+
+    try {
+      await apiClient.post(`/invitations/${invitationId}/guests`, {
+        firstName: formData.firstName,
+        lastName: formData.lastName,
+        email: formData.email || undefined,
+        phone: formData.phone || undefined,
+        isVIP: formData.isVIP,
+        plusOne: formData.plusOne,
+        plusOneName: formData.plusOneName || undefined,
+        dietaryRestrictions: formData.dietaryRestrictions || undefined
+      });
+      
+      onCreate();
+      onClose();
+      setFormData({
+        firstName: '',
+        lastName: '',
+        email: '',
+        phone: '',
+        isVIP: false,
+        plusOne: false,
+        plusOneName: '',
+        dietaryRestrictions: ''
+      });
+    } catch (err: any) {
+      setError(err.message || 'Erreur lors de la création de l\'invité');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   if (!isOpen) return null;
 
-  const getIcon = () => {
-    switch (type) {
-      case 'success': return <CheckCircle className={styles.customModalIcon} style={{ color: '#22c55e' }} />;
-      case 'error': return <XCircle className={styles.customModalIcon} style={{ color: '#dc3545' }} />;
-      case 'warning': return <AlertTriangle className={styles.customModalIcon} style={{ color: '#f59e0b' }} />;
-      default: return <HelpCircle className={styles.customModalIcon} style={{ color: '#3b82f6' }} />;
-    }
-  };
-
   return (
-    <div className={styles.customModal} onClick={onClose}>
-      <div className={styles.customModalContent} onClick={(e) => e.stopPropagation()}>
-        <div className={`${styles.customModalHeader} ${styles[type]}`}>
-          <h3 className={`${styles.customModalTitle} ${styles[type]}`}>
-            {getIcon()} {title}
-          </h3>
-          <button
-            onClick={onClose}
-            className={styles.customModalCloseButton}
-          >
-            ×
+    <div className={styles.modalOverlay} onClick={onClose}>
+      <div className={styles.modalContent} onClick={(e) => e.stopPropagation()}>
+        <div className={styles.modalHeader}>
+          <h2>Ajouter un invité</h2>
+          <button onClick={onClose} className={styles.modalClose}>
+            <X size={24} />
           </button>
         </div>
-        <div className={styles.customModalBody}>
-          <p className={styles.customModalMessage}>{message}</p>
+        <form onSubmit={handleSubmit} className={styles.modalBody}>
+          {error && (
+            <div className={styles.modalError}>
+              <AlertCircle size={16} />
+              {error}
         </div>
-        <div className={styles.customModalFooter}>
-          {showConfirm ? (
-            <>
-              <Button
-                onClick={() => {
-                  onConfirm?.();
-                  onClose();
-                }}
-                variant="primary"
-                size="sm"
-              >
-                {confirmText}
-              </Button>
-              <Button onClick={onClose} variant="outline" size="sm">
-                {cancelText}
-              </Button>
-            </>
-          ) : (
-            <Button onClick={onClose} variant="primary" size="sm">
-              OK
-            </Button>
           )}
+          <div className={styles.formGroup}>
+            <label>Prénom *</label>
+            <input
+              type="text"
+              required
+              value={formData.firstName}
+              onChange={(e) => setFormData({ ...formData, firstName: e.target.value })}
+            />
         </div>
-      </div>
-    </div>
-  );
-}
-
-// Hook pour récupérer les invitations et permettre la sélection
-function useInvitationSelection() {
-  const { invitations, loading } = useInvitations();
-  const [selectedInvitationId, setSelectedInvitationId] = useState<string | null>(null);
-  
-  // Sélectionner automatiquement la première invitation publiée, sinon la première
-  useEffect(() => {
-    if (invitations.length > 0 && !selectedInvitationId) {
-      const publishedInvitation = invitations.find(inv => inv.status === 'PUBLISHED');
-      const defaultInvitation = publishedInvitation || invitations[0];
-      setSelectedInvitationId(defaultInvitation.id);
-    }
-  }, [invitations, selectedInvitationId]);
-
-  const selectedInvitation = invitations.find(inv => inv.id === selectedInvitationId);
-
-  return { 
-    invitations,
-    selectedInvitationId, 
-    setSelectedInvitationId,
-    selectedInvitation,
-    loading
-  };
-}
-
-export default function GuestsPage() {
-  const {
-    invitations,
-    selectedInvitationId,
-    setSelectedInvitationId,
-    selectedInvitation,
-    loading: loadingInvitations
-  } = useInvitationSelection();
-
-  if (loadingInvitations) {
-    return (
-      <div className={styles.loadingContainer}>
-        <div className={styles.loadingText}>
-          <div className={styles.loadingSpinner}></div>
-          <p>Chargement des invitations...</p>
-        </div>
-      </div>
-    );
-  }
-
-  if (invitations.length === 0) {
-    return (
-      <div className={styles.emptyStateContainer}>
-        <div className={styles.emptyStateContent}>
-          <Users className={styles.emptyStateIcon} />
-          <h2 className={styles.emptyStateTitle}>
-            Aucune invitation créée
-          </h2>
-          <p className={styles.emptyStateDescription}>
-            Vous devez d'abord créer une invitation avant de pouvoir gérer vos invités.
-          </p>
-          <Link href="/client/invitations">
-            <Button variant="primary" size="sm">
-              Créer une invitation
-            </Button>
-          </Link>
-        </div>
-      </div>
-    );
-  }
-
-  if (!selectedInvitationId || !selectedInvitation) {
-    return (
-      <div className={styles.loadingContainer}>
-        <div className={styles.loadingText}>
-          <p>Sélection de l'invitation...</p>
-        </div>
-      </div>
-    );
-  }
-
-  return (
-    <div className={styles.pageContainer}>
-      {/* Header Section */}
-      <div className={styles.headerSection}>
-        <div className={styles.headerBadge}>
-          <Users style={{ width: '16px', height: '16px' }} />
-          Gestion des invités
-        </div>
-
-        <h1 className={styles.headerTitle}>
-          Vos <span className={styles.headerTitleAccent}>invités</span>
-        </h1>
-
-        <p className={styles.headerSubtitle}>
-          Gérez vos invités et suivez leurs réponses en temps réel
-        </p>
-
-        {/* Limits Indicator */}
-        <LimitsIndicator invitationId={selectedInvitationId} />
-      </div>
-
-      {/* Sélecteur d'invitation si plusieurs */}
-      {invitations.length > 1 && (
-        <div className={styles.invitationSelectorContainer}>
-          <div className={styles.invitationSelectorCard}>
-            <h3 className={styles.invitationSelectorTitle}>
-              <FileText style={{ width: '20px', height: '20px' }} />
-              Sélectionner l'invitation à gérer
-            </h3>
-            <select
-              value={selectedInvitationId}
-              onChange={(e) => setSelectedInvitationId(e.target.value)}
-              className={styles.invitationSelect}
-            >
-              {invitations.map(invitation => (
-                <option key={invitation.id} value={invitation.id}>
-                  {invitation.eventTitle}
-                  {invitation.eventDate && ` - ${new Date(invitation.eventDate).toLocaleDateString('fr-FR')}`}
-                  {invitation.status === 'PUBLISHED' ? ' ✅ Publiée' : ' 📝 Brouillon'}
-                </option>
-              ))}
-            </select>
+          <div className={styles.formGroup}>
+            <label>Nom *</label>
+            <input
+              type="text"
+              required
+              value={formData.lastName}
+              onChange={(e) => setFormData({ ...formData, lastName: e.target.value })}
+            />
           </div>
-        </div>
-      )}
-
-      {/* Avertissement si l'invitation est en draft */}
-      {selectedInvitation && selectedInvitation.status === 'DRAFT' && (
-        <div className={styles.draftWarning}>
-          <div className={styles.draftWarningContent}>
-            <AlertTriangle style={{ width: '20px', height: '20px' }} />
-            <div className={styles.draftWarningText}>
-              <h3>Invitation en brouillon</h3>
-              <p>Cette invitation n'est pas encore publiée. Publiez-la d'abord pour pouvoir gérer les invités et partager des liens.</p>
+          <div className={styles.formGroup}>
+            <label>Email</label>
+            <input
+              type="email"
+              value={formData.email}
+              onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+            />
+          </div>
+          <div className={styles.formGroup}>
+            <label>Téléphone</label>
+            <input
+              type="tel"
+              value={formData.phone}
+              onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+            />
+          </div>
+          <div className={styles.formGroup}>
+            <label className={styles.checkboxLabel}>
+              <input
+                type="checkbox"
+                checked={formData.isVIP}
+                onChange={(e) => setFormData({ ...formData, isVIP: e.target.checked })}
+              />
+              Invité VIP
+            </label>
+          </div>
+          <div className={styles.formGroup}>
+            <label className={styles.checkboxLabel}>
+              <input
+                type="checkbox"
+                checked={formData.plusOne}
+                onChange={(e) => setFormData({ ...formData, plusOne: e.target.checked })}
+              />
+              Accompagnant
+            </label>
+          </div>
+          {formData.plusOne && (
+            <div className={styles.formGroup}>
+              <label>Nom de l'accompagnant</label>
+              <input
+                type="text"
+                value={formData.plusOneName}
+                onChange={(e) => setFormData({ ...formData, plusOneName: e.target.value })}
+              />
             </div>
-            <Link href={`/client/invitations/${selectedInvitation.id}`}>
-              <Button variant="primary" size="sm">
-                Publier l'invitation
-              </Button>
-            </Link>
+          )}
+          <div className={styles.formGroup}>
+            <label>Restrictions alimentaires</label>
+            <textarea
+              value={formData.dietaryRestrictions}
+              onChange={(e) => setFormData({ ...formData, dietaryRestrictions: e.target.value })}
+              rows={3}
+            />
           </div>
-        </div>
-      )}
-
-      {/* Contenu principal - masqué si invitation en draft */}
-      {selectedInvitation && selectedInvitation.status === 'PUBLISHED' && (
-        <GuestsList invitationId={selectedInvitationId} invitation={selectedInvitation} />
-      )}
-
-      <style jsx>{`
-        @keyframes spin {
-          0% { transform: rotate(0deg); }
-          100% { transform: rotate(360deg); }
-        }
-      `}</style>
+          <div className={styles.modalFooter}>
+            <button type="button" onClick={onClose} className={styles.modalButtonSecondary}>
+              Annuler
+            </button>
+            <button type="submit" className={styles.modalButtonPrimary} disabled={loading}>
+              {loading ? 'Création...' : 'Créer'}
+            </button>
+          </div>
+        </form>
+      </div>
     </div>
   );
 }
 
-// Composant pour gérer les liens partageables
+// Modal pour l'import en masse
+function BulkImportModal({ 
+  isOpen, 
+  onClose, 
+  onImport, 
+  invitationId,
+  previewImport,
+  bulkImport,
+  downloadTemplate
+}: { 
+  isOpen: boolean; 
+  onClose: () => void; 
+  onImport: () => void;
+  invitationId: string;
+  previewImport: (file: File) => Promise<any>;
+  bulkImport: (file: File) => Promise<any>;
+  downloadTemplate: (format: 'csv' | 'txt') => Promise<void>;
+}) {
+  const [file, setFile] = useState<File | null>(null);
+  const [preview, setPreview] = useState<any>(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [importing, setImporting] = useState(false);
+
+  const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const selectedFile = e.target.files?.[0];
+    if (!selectedFile) return;
+
+    setFile(selectedFile);
+    setError(null);
+    setPreview(null);
+
+    try {
+      setLoading(true);
+      const previewData = await previewImport(selectedFile);
+      setPreview(previewData);
+    } catch (err: any) {
+      setError(err.message || 'Erreur lors de la prévisualisation');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleImport = async () => {
+    if (!file) return;
+
+    try {
+      setImporting(true);
+      setError(null);
+      const result = await bulkImport(file);
+      onImport();
+      onClose();
+      setFile(null);
+      setPreview(null);
+    } catch (err: any) {
+      setError(err.message || 'Erreur lors de l\'import');
+    } finally {
+      setImporting(false);
+  }
+  };
+
+  if (!isOpen) return null;
+
+    return (
+    <div className={styles.modalOverlay} onClick={onClose}>
+      <div className={styles.modalContent} onClick={(e) => e.stopPropagation()}>
+        <div className={styles.modalHeader}>
+          <h2>Import en masse</h2>
+          <button onClick={onClose} className={styles.modalClose}>
+            <X size={24} />
+          </button>
+        </div>
+        <div className={styles.modalBody}>
+          {error && (
+            <div className={styles.modalError}>
+              <AlertCircle size={16} />
+              {error}
+      </div>
+          )}
+          <div className={styles.formGroup}>
+            <label>Télécharger un template</label>
+            <div className={styles.templateButtons}>
+              <button
+                type="button"
+                onClick={() => downloadTemplate('csv')}
+                className={styles.templateButton}
+              >
+                <Download size={16} />
+                Template CSV
+              </button>
+              <button
+                type="button"
+                onClick={() => downloadTemplate('txt')}
+                className={styles.templateButton}
+              >
+                <Download size={16} />
+                Template TXT
+              </button>
+        </div>
+      </div>
+          <div className={styles.formGroup}>
+            <label>Fichier à importer *</label>
+            <input
+              type="file"
+              accept=".csv,.txt"
+              onChange={handleFileSelect}
+              disabled={loading}
+            />
+          </div>
+          {loading && <p>Prévisualisation en cours...</p>}
+          {preview && (
+            <div className={styles.previewSection}>
+              <h3>Prévisualisation</h3>
+              <p>Total: {preview.totalRows || preview.totalGuests} lignes</p>
+              <p>Valides: {preview.validRows || preview.validGuests?.length || 0}</p>
+              {preview.errors && preview.errors.length > 0 && (
+                <div className={styles.previewErrors}>
+                  <p>Erreurs: {preview.errors.length}</p>
+                  <ul>
+                    {preview.errors.slice(0, 5).map((err: any, idx: number) => (
+                      <li key={idx}>Ligne {err.row || err.line}: {err.error}</li>
+              ))}
+                  </ul>
+          </div>
+              )}
+        </div>
+      )}
+          <div className={styles.modalFooter}>
+            <button type="button" onClick={onClose} className={styles.modalButtonSecondary}>
+              Annuler
+            </button>
+            <button
+              type="button"
+              onClick={handleImport}
+              className={styles.modalButtonPrimary}
+              disabled={!file || !preview || importing}
+            >
+              {importing ? 'Import en cours...' : 'Importer'}
+            </button>
+            </div>
+          </div>
+        </div>
+    </div>
+  );
+}
+
+// Composant pour gérer le lien partageable
 function ShareableLinkManager({ invitationId }: { invitationId: string }) {
   const [shareableLink, setShareableLink] = useState<{
     url: string;
@@ -281,55 +349,43 @@ function ShareableLinkManager({ invitationId }: { invitationId: string }) {
     remainingGuests: number;
   } | null>(null);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  // Charger les statistiques du lien partageable existant
   useEffect(() => {
+    fetchShareableStats();
+  }, [invitationId]);
+
     const fetchShareableStats = async () => {
       try {
         const response = await apiClient.get(`/invitations/${invitationId}/shareable-stats`) as any;
-        console.log('Shareable stats response:', response); // Debug
-
-        // Le backend renvoie directement l'objet, pas dans response.data
-        const stats = response;
-
-        if (stats && stats.shareableEnabled && stats.shareableUrl) {
+      if (response && response.shareableEnabled && response.shareableUrl) {
           setShareableLink({
-            url: stats.shareableUrl,
-            maxUses: stats.shareableMaxUses || 0,
-            usedCount: stats.shareableUsedCount || 0,
-            expiresAt: stats.shareableExpiresAt ? new Date(stats.shareableExpiresAt) : undefined,
-            remainingGuests: stats.remainingGuests || 0
+          url: response.shareableUrl,
+          maxUses: response.shareableMaxUses || 0,
+          usedCount: response.shareableUsedCount || 0,
+          expiresAt: response.shareableExpiresAt ? new Date(response.shareableExpiresAt) : undefined,
+          remainingGuests: response.remainingGuests || 0
           });
         }
       } catch (error) {
-        console.error('Erreur lors de la récupération des statistiques:', error);
         // L'endpoint n'existe peut-être pas, on continue sans erreur
       }
     };
 
-    fetchShareableStats();
-  }, [invitationId]);
-
   const generateShareableLink = async () => {
     try {
       setLoading(true);
+      setError(null);
       const response = await apiClient.post(`/invitations/${invitationId}/generate-shareable-link`, {}) as any;
-
-      console.log('Response from API:', response); // Debug
-
-      // Le backend renvoie directement l'objet, pas dans response.data
-      const backendResponse = response;
       setShareableLink({
-        url: backendResponse.shareableUrl,
-        maxUses: backendResponse.maxUses || 0,
-        usedCount: backendResponse.usedCount || 0,
-        expiresAt: backendResponse.expiresAt ? new Date(backendResponse.expiresAt) : undefined,
-        remainingGuests: backendResponse.remainingGuests || 0
+        url: response.shareableUrl,
+        maxUses: response.maxUses || 0,
+        usedCount: response.usedCount || 0,
+        expiresAt: response.expiresAt ? new Date(response.expiresAt) : undefined,
+        remainingGuests: response.remainingGuests || 0
       });
-    } catch (error) {
-      console.error('Erreur lors de la génération du lien:', error);
-      // Afficher une notification d'erreur à l'utilisateur
-      alert('Erreur lors de la génération du lien partageable. Veuillez réessayer.');
+    } catch (err: any) {
+      setError(err.message || 'Erreur lors de la génération du lien');
     } finally {
       setLoading(false);
     }
@@ -338,28 +394,23 @@ function ShareableLinkManager({ invitationId }: { invitationId: string }) {
   const regenerateShareableLink = async () => {
     try {
       setLoading(true);
+      setError(null);
       const response = await apiClient.post(`/invitations/${invitationId}/generate-shareable-link`, {}) as any;
-
-      console.log('Regenerate response:', response); // Debug
-
-      // Le backend renvoie directement l'objet, pas dans response.data
-      const backendResponse = response;
       const newLink = {
-        url: backendResponse.shareableUrl,
-        maxUses: backendResponse.maxUses || 0,
-        usedCount: backendResponse.usedCount || 0,
-        expiresAt: backendResponse.expiresAt ? new Date(backendResponse.expiresAt) : undefined,
-        remainingGuests: backendResponse.remainingGuests || 0
+        url: response.shareableUrl,
+        maxUses: response.maxUses || 0,
+        usedCount: response.usedCount || 0,
+        expiresAt: response.expiresAt ? new Date(response.expiresAt) : undefined,
+        remainingGuests: response.remainingGuests || 0
       };
       setShareableLink(newLink);
       return newLink.url;
-    } catch (error) {
-      console.error('Erreur lors de la régénération du lien:', error);
-      alert('Erreur lors de la régénération du lien partageable. Veuillez réessayer.');
+    } catch (err: any) {
+      setError(err.message || 'Erreur lors de la régénération du lien');
+      return null;
     } finally {
       setLoading(false);
     }
-    return null;
   };
 
   const copyToClipboard = async () => {
@@ -367,17 +418,16 @@ function ShareableLinkManager({ invitationId }: { invitationId: string }) {
       const newUrl = await regenerateShareableLink();
       if (newUrl) {
         await navigator.clipboard.writeText(newUrl);
-        // On pourrait ajouter une notification de succès ici
+        // Lien copié silencieusement sans alerte
       }
-    } catch (error) {
-      console.error('Erreur lors de la copie:', error);
+    } catch (err) {
+      console.error('Erreur lors de la copie:', err);
     }
   };
 
   const shareLink = async (url: string) => {
     const message = `Vous êtes invité à notre événement ! Cliquez sur ce lien pour confirmer votre présence : ${url}`;
 
-    // Utiliser l'API Web Share si disponible
     if (navigator.share) {
       try {
         await navigator.share({
@@ -386,1147 +436,663 @@ function ShareableLinkManager({ invitationId }: { invitationId: string }) {
           url: url
         });
         await regenerateShareableLink();
-      } catch (error) {
-        console.log('Partage annulé ou erreur:', error);
+      } catch (err) {
+        console.log('Partage annulé ou erreur:', err);
       }
     } else {
-      // Fallback : copier dans le presse-papier
       try {
         await navigator.clipboard.writeText(message);
-        alert('Le message d\'invitation a été copié dans le presse-papier !');
+        // Message copié silencieusement sans alerte
         await regenerateShareableLink();
-      } catch (error) {
-        console.error('Erreur lors de la copie:', error);
+      } catch (err) {
+        console.error('Erreur lors de la copie:', err);
       }
     }
   };
 
+  if (!shareableLink) {
   return (
-    <div className={styles.shareableContent}>
-      <div className={styles.shareableHeader}>
-        <h2>🔗 Lien partageable</h2>
-        <p>Partagez un lien unique à chaque invité</p>
-      </div>
-
-      {!shareableLink ? (
-        <div className={styles.generateSection}>
-          <p>Créez un lien unique que vous pouvez partager avec vos invités.</p>
-          <Button
+      <div className={styles.shareableSection}>
+        <p>Aucun lien partageable généré</p>
+        <button
             onClick={generateShareableLink}
-            variant="primary"
-            size="sm"
+          className={styles.shareableButton}
             disabled={loading}
           >
-            {loading ? <Loader className={styles.spinIcon} /> : <Link2 className={styles.buttonIcon} />} Générer un lien partageable
-          </Button>
+          {loading ? 'Génération...' : 'Générer un lien partageable'}
+        </button>
+        {error && <p className={styles.shareableError}>{error}</p>}
         </div>
-      ) : (
-        <div className={styles.shareableLinkInfo}>
-          {/* Explication importante sur l'utilisation */}
-          <div className={styles.importantNotice}>
-            <div className={styles.noticeIcon}><HelpCircle className={styles.infoIcon} /></div>
-            <div className={styles.noticeContent}>
-              <strong>Partagez ce lien avec votre invité.</strong> Chaque lien est personnel et permet de répondre facilement à l'invitation.
-              <br />
-              <span className={styles.timeLimitNotice}>
-                ⏰ <strong>Durée limitée :</strong> Chaque lien expire après 20 minutes. Si votre invité ne l'utilise pas à temps, vous devrez l'envoyer un nouveau.
-              </span>
-            </div>
+    );
+  }
+
+  return (
+    <div className={styles.shareableSection}>
+      <div className={styles.shareableInfo}>
+        <p className={styles.shareableLabel}>Lien partageable</p>
+        <div className={styles.shareableUrl}>
+          <input type="text" value={shareableLink.url} readOnly />
+          <button onClick={copyToClipboard} className={styles.shareableCopyButton}>
+            <Copy size={16} />
+          </button>
           </div>
-
-          <div className={styles.linkDisplay}>
-            <input
-              type="text"
-              value={shareableLink.url}
-              readOnly
-              className={styles.linkInput}
-              placeholder="Le lien partageable apparaîtra ici..."
-            />
-            <Button
-              onClick={copyToClipboard}
-              variant="outline"
-              size="sm"
-              className={styles.copyButton}
-            >
-              <Copy className={styles.buttonIcon} /> Copier le lien
-            </Button>
-          </div>
-
-          {/* <div className={styles.shareStats}>
-            <div className={styles.usageStats}>
-              <div className={styles.usageCount}>
-                <span>Utilisé {shareableLink.usedCount} fois</span>
+        <div className={styles.shareableStats}>
+          <p>Utilisé: {shareableLink.usedCount}/{shareableLink.maxUses}</p>
+          <p>⏰ Le lien a une durée de 10 min avant d'être invalide</p>
               </div>
-              <div className={styles.remainingCount}>
-                <span>{shareableLink.remainingGuests} invités restants</span>
               </div>
-            </div>
-          </div> */}
-
-          <div className={styles.shareButtons}>
-            <Button
+      <div className={styles.shareableActions}>
+        <button 
               onClick={regenerateShareableLink}
-              variant="primary"
-              size="sm"
+          className={styles.shareableButton}
               disabled={loading}
             >
-              <RefreshCw className={styles.buttonIcon} /> Générer un nouveau lien
-            </Button>
-            <Button
+          <RefreshCw size={16} />
+          {loading ? 'Génération...' : 'Générer un nouveau lien'}
+        </button>
+        <button 
               onClick={() => shareLink(shareableLink.url)}
-              variant="outline"
-              size="sm"
+          className={styles.shareableButtonSecondary}
             >
-              <Share2 className={styles.buttonIcon} /> Partager
-            </Button>
+          <Share2 size={16} />
+          Partager
+        </button>
+        <button 
+          onClick={copyToClipboard} 
+          className={styles.shareableButtonSecondary}
+        >
+          <Copy size={16} />
+          Copier
+        </button>
           </div>
-        </div>
-      )}
     </div>
   );
 }
 
-function GuestsList({ invitationId, invitation }: { invitationId: string, invitation: any }) {
+export default function GuestsPage() {
+  const router = useRouter();
+  const { invitations, loading: loadingInvitations } = useInvitations();
+  const [limits, setLimits] = useState<{ usage: any; limits: any } | null>(null);
+  const [selectedInvitationId, setSelectedInvitationId] = useState<string>('');
+  
+  // Sélectionner automatiquement la première invitation publiée ou la première invitation
+  useEffect(() => {
+    if (invitations.length > 0 && !selectedInvitationId) {
+      const publishedInvitation = invitations.find(inv => inv.status === 'PUBLISHED');
+      setSelectedInvitationId(publishedInvitation?.id || invitations[0].id);
+    }
+  }, [invitations, selectedInvitationId]);
+
+  const selectedInvitation = invitations.find(inv => inv.id === selectedInvitationId);
+
   const {
     guests,
-    loading,
-    error,
-    createGuest,
-    updateGuest,
+    loading: loadingGuests, 
+    fetchGuests,
     deleteGuest,
-    fetchGuests
-  } = useGuests(invitationId);
+    sendInvitation,
+    sendReminder,
+    sendBulkInvitations,
+    previewImport,
+    bulkImport,
+    downloadTemplate
+  } = useGuests(selectedInvitationId);
 
-  const [showAddForm, setShowAddForm] = useState(false);
-  const [sendingEmails, setSendingEmails] = useState(false);
-  const [emailResults, setEmailResults] = useState<any>(null);
-  const [showBulkImport, setShowBulkImport] = useState(false);
-  const [importPreview, setImportPreview] = useState<any>(null);
-  const [importFile, setImportFile] = useState<File | null>(null);
-  const [importing, setImporting] = useState(false);
+  const [invitationType, setInvitationType] = useState<'email' | 'shareable'>('email');
   const [searchQuery, setSearchQuery] = useState('');
+  const [rsvpFilter, setRsvpFilter] = useState<'all' | 'CONFIRMED' | 'PENDING' | 'DECLINED'>('all');
+  const [typeFilter, setTypeFilter] = useState<'all' | 'PERSONAL' | 'SHAREABLE'>('all');
+  const [showAddModal, setShowAddModal] = useState(false);
+  const [showImportModal, setShowImportModal] = useState(false);
+  const [showRsvpFilter, setShowRsvpFilter] = useState(false);
+  const [showTypeFilter, setShowTypeFilter] = useState(false);
+  const rsvpFilterRef = useRef<HTMLDivElement>(null);
+  const typeFilterRef = useRef<HTMLDivElement>(null);
 
-  // Charger les invités au montage du composant
+  // Fermer les dropdowns quand on clique en dehors
   useEffect(() => {
-    if (invitationId) {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (rsvpFilterRef.current && !rsvpFilterRef.current.contains(event.target as Node)) {
+        setShowRsvpFilter(false);
+      }
+      if (typeFilterRef.current && !typeFilterRef.current.contains(event.target as Node)) {
+        setShowTypeFilter(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
+
+  // Charger les limites
+  useEffect(() => {
+    const loadLimits = async () => {
+      try {
+        const limitsData = await stripeApi.getUserLimitsAndUsage();
+        setLimits(limitsData);
+    } catch (error) {
+        console.error('Erreur chargement limites:', error);
+      }
+    };
+    loadLimits();
+  }, []);
+
+  useEffect(() => {
+    if (selectedInvitationId) {
       fetchGuests();
     }
-  }, [invitationId, fetchGuests]);
+  }, [selectedInvitationId, fetchGuests]);
 
-  // États pour les modals
-  const [modal, setModal] = useState<{
-    isOpen: boolean;
-    title: string;
-    message: string;
-    type: 'success' | 'error' | 'warning' | 'info';
-    showConfirm?: boolean;
-    onConfirm?: () => void;
-    confirmText?: string;
-    cancelText?: string;
-  }>({
-    isOpen: false,
-    title: '',
-    message: '',
-    type: 'info'
-  });
+  // Filtrer les invités
+  const filteredGuests = useMemo(() => {
+    return guests.filter(guest => {
+      // Recherche
+      if (searchQuery) {
+        const query = searchQuery.toLowerCase();
+        const fullName = `${guest.firstName} ${guest.lastName}`.toLowerCase();
+        const email = guest.email?.toLowerCase() || '';
+        const phone = guest.phone?.toLowerCase() || '';
+        
+        if (!fullName.includes(query) && !email.includes(query) && !phone.includes(query)) {
+          return false;
+        }
+      }
 
-  // Fonctions utilitaires pour les modals
-  const showModal = (
-    title: string,
-    message: string,
-    type: 'success' | 'error' | 'warning' | 'info' = 'info',
-    options?: {
-      showConfirm?: boolean;
-      onConfirm?: () => void;
-      confirmText?: string;
-      cancelText?: string;
+      // Filtre RSVP
+      if (rsvpFilter !== 'all') {
+        // Pour "PENDING", inclure les invités sans RSVP (considérés comme "pending")
+        if (rsvpFilter === 'PENDING') {
+          if (guest.rsvp && guest.rsvp.status !== 'PENDING') {
+            return false;
+          }
+      } else {
+          // Pour CONFIRMED et DECLINED, vérifier le statut exact
+          if (guest.rsvp?.status !== rsvpFilter) {
+            return false;
+          }
+        }
+      }
+
+      // Filtre Type
+      if (typeFilter !== 'all') {
+        if (guest.invitationType !== typeFilter) {
+          return false;
+        }
+      }
+
+      return true;
+    });
+  }, [guests, searchQuery, rsvpFilter, typeFilter]);
+
+  // Calculer le nombre d'invités sans réponse
+  const pendingGuestsCount = useMemo(() => {
+    return guests.filter(guest => !guest.rsvp || guest.rsvp.status === 'PENDING').length;
+  }, [guests]);
+
+  const handleAddGuest = () => {
+    setShowAddModal(true);
+  };
+
+  const handleBulkImport = () => {
+    setShowImportModal(true);
+  };
+
+  const handleSendInvitation = async (guestId: string) => {
+    const success = await sendInvitation(guestId);
+    if (success) {
+      await fetchGuests();
     }
-  ) => {
-    setModal({
-      isOpen: true,
-      title,
-      message,
-      type,
-      ...options
+  };
+
+  const handleSendReminder = async (guestId: string) => {
+    const success = await sendReminder(guestId);
+    if (success) {
+      await fetchGuests();
+    }
+  };
+
+  const handleDeleteGuest = async (guestId: string) => {
+    if (confirm('Êtes-vous sûr de vouloir supprimer cet invité ?')) {
+      const success = await deleteGuest(guestId);
+      if (success) {
+        await fetchGuests();
+      }
+    }
+  };
+
+  // Envoyer les invitations à tous les invités sans réponse
+  const handleSendInvitationsToPending = async () => {
+    // Filtrer les invités qui n'ont pas encore répondu (pas de RSVP ou RSVP.status === 'PENDING')
+    const pendingGuests = guests.filter(guest => {
+      return !guest.rsvp || guest.rsvp.status === 'PENDING';
+    });
+
+    if (pendingGuests.length === 0) {
+      alert('Tous les invités ont déjà répondu à l\'invitation.');
+      return;
+    }
+
+    if (!confirm(`Envoyer l'invitation à ${pendingGuests.length} invité(s) sans réponse ?`)) {
+      return;
+    }
+
+          try {
+      const guestIds = pendingGuests.map(guest => guest.id);
+      const result = await sendBulkInvitations(guestIds);
+      
+      if (result.failed && result.failed.length > 0) {
+        alert(`Invitations envoyées : ${result.sent.length}\nÉchecs : ${result.failed.length}`);
+      } else {
+        alert(`Invitations envoyées avec succès à ${result.sent.length} invité(s).`);
+      }
+      
+      await fetchGuests();
+    } catch (error: any) {
+      alert(`Erreur lors de l'envoi : ${error.message || 'Une erreur est survenue'}`);
+          }
+  };
+
+  const getRSVPStatus = (guest: Guest) => {
+    if (!guest.rsvp) return 'pending';
+      switch (guest.rsvp.status) {
+      case 'CONFIRMED':
+        return 'confirmed';
+      case 'DECLINED':
+        return 'rejected';
+      default:
+        return 'pending';
+      }
+  };
+
+  const formatDate = (dateString?: string) => {
+    if (!dateString) return '';
+    return new Date(dateString).toLocaleDateString('fr-FR', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric'
     });
   };
 
-  const closeModal = () => {
-    setModal(prev => ({ ...prev, isOpen: false }));
-  };
-
-  const [formData, setFormData] = useState({
-    firstName: '',
-    lastName: '',
-    email: '',
-    phone: '',
-    isVIP: false
-  });
-
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    const { name, value, type } = e.target;
-    const checked = (e.target as HTMLInputElement).checked;
-    setFormData(prev => ({
-      ...prev,
-      [name]: type === 'checkbox' ? checked : value
-    }));
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    // Validation côté client selon les règles du backend
-    if (!formData.firstName || formData.firstName.trim().length < 2) {
-      showModal('Erreur de validation', 'Le prénom est requis (minimum 2 caractères)', 'error');
-      return;
-    }
-    if (!formData.lastName || formData.lastName.trim().length < 2) {
-      showModal('Erreur de validation', 'Le nom est requis (minimum 2 caractères)', 'error');
-      return;
-    }
-    
-    // Au moins un moyen de contact requis
-    const hasEmail = formData.email && formData.email.trim();
-    const hasPhone = formData.phone && formData.phone.trim();
-    if (!hasEmail && !hasPhone) {
-      showModal('Erreur de validation', 'Au moins un email ou un téléphone est requis', 'error');
-      return;
-    }
-
-    // Validation email si fourni
-    if (hasEmail) {
-      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-      if (!emailRegex.test(formData.email.trim())) {
-        showModal('Erreur de validation', 'Format d\'email invalide', 'error');
-        return;
-      }
-
-      // Vérifier l'unicité de l'email
-      const emailExists = guests.some(guest =>
-        guest.email && guest.email.toLowerCase() === formData.email.trim().toLowerCase()
-      );
-      if (emailExists) {
-        showModal('Erreur de validation', 'Cet email est déjà utilisé par un autre invité', 'error');
-        return;
-      }
-    }
-
-    // Validation téléphone si fourni
-    if (hasPhone) {
-      const phoneRegex = /^[\+]?[0-9\s\-\(\)]{8,}$/;
-      if (!phoneRegex.test(formData.phone.trim())) {
-        showModal('Erreur de validation', 'Format de téléphone invalide (minimum 8 caractères, chiffres/espaces/+/-/() autorisés)', 'error');
-        return;
-      }
-    }
-    
-    try {
-      await createGuest(formData);
-      setFormData({
-        firstName: '',
-        lastName: '',
-        email: '',
-        phone: '',
-        isVIP: false
-      });
-      setShowAddForm(false);
-      showModal('Succès', 'Invité ajouté avec succès !', 'success');
-    } catch (error) {
-      console.error('Erreur lors de la création de l\'invité:', error);
-      // Vérifier si l'erreur vient d'un email dupliqué
-      const errorMessage = error instanceof Error ? error.message : 'Erreur lors de la création de l\'invité';
-      if (errorMessage.toLowerCase().includes('email') && errorMessage.toLowerCase().includes('unique')) {
-        showModal('Erreur', 'Cet email est déjà utilisé par un autre invité', 'error');
-      } else {
-        showModal('Erreur', errorMessage, 'error');
-      }
-    }
-  };
-
-  // Cette fonction n'est plus utilisée - remplacée par handleFilePreview
-  // const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-  //   const file = e.target.files?.[0];
-  //   if (!file) return;
-  //   // Logique remplacée par le système de prévisualisation
-  // };
-
-  const handleDeleteGuest = async (guestId: string) => {
-    showModal(
-      'Confirmation de suppression',
-      'Êtes-vous sûr de vouloir supprimer cet invité ?',
-      'warning',
-      {
-        showConfirm: true,
-        confirmText: 'Supprimer',
-        cancelText: 'Annuler',
-        onConfirm: async () => {
-          try {
-            await deleteGuest(guestId);
-            showModal('Succès', 'Invité supprimé avec succès', 'success');
-          } catch (error) {
-            console.error('Erreur lors de la suppression de l\'invité:', error);
-            showModal('Erreur', 'Erreur lors de la suppression de l\'invité', 'error');
-          }
-        }
-      }
-    );
-  };
-
-
-
-  // Envoyer une invitation à un invité spécifique
-  const sendInvitationToGuest = async (guestId: string) => {
-    try {
-      await apiClient.post(`/guests/${guestId}/send-invitation`);
-      showModal('Succès', 'Invitation envoyée avec succès !', 'success');
-      // Recharger la liste des invités pour mettre à jour les statuts
-      window.location.reload();
-    } catch (error) {
-      console.error('Erreur lors de l\'envoi de l\'invitation:', error);
-      const errorMessage = error instanceof Error ? error.message : 'Erreur lors de l\'envoi de l\'invitation';
-
-      // Messages d'erreur plus spécifiques
-      if (errorMessage.toLowerCase().includes('email')) {
-        showModal('Erreur d\'email', 'Problème avec l\'adresse email de cet invité', 'error');
-      } else if (errorMessage.toLowerCase().includes('published')) {
-        showModal('Erreur', 'L\'invitation doit être publiée avant d\'envoyer les emails', 'error');
-      } else {
-        showModal('Erreur', errorMessage, 'error');
-      }
-    }
-  };
-
-  // Envoyer un rappel à un invité
-  const sendReminderToGuest = async (guestId: string) => {
-    try {
-      await apiClient.post(`/guests/${guestId}/send-reminder`);
-      showModal('Succès', 'Rappel envoyé avec succès !', 'success');
-    } catch (error) {
-      console.error('Erreur lors de l\'envoi du rappel:', error);
-      const errorMessage = error instanceof Error ? error.message : 'Erreur lors de l\'envoi du rappel';
-
-      // Messages d'erreur plus spécifiques
-      if (errorMessage.toLowerCase().includes('email')) {
-        showModal('Erreur d\'email', 'Problème avec l\'adresse email de cet invité', 'error');
-      } else if (errorMessage.toLowerCase().includes('répondu')) {
-        showModal('Information', 'Cet invité a déjà répondu à l\'invitation', 'info');
-      } else {
-        showModal('Erreur', errorMessage, 'error');
-      }
-    }
-  };
-
-  // Envoyer toutes les invitations
-  const sendAllInvitations = async () => {
-    showModal(
-      'Confirmation d\'envoi',
-      'Êtes-vous sûr de vouloir envoyer toutes les invitations par email ?',
-      'warning',
-      {
-        showConfirm: true,
-        confirmText: 'Envoyer',
-        cancelText: 'Annuler',
-        onConfirm: async () => {
-          setSendingEmails(true);
-          try {
-            const response = await apiClient.post<{
-              sent: number;
-              failed: Array<{ guestId: string; guestName: string; error: string }>;
-            }>(`/invitations/${invitationId}/guests/send-all`);
-            setEmailResults(response);
-
-            let message = '';
-            let type: 'success' | 'warning' | 'error' = 'success';
-
-            if (response.sent > 0) {
-              message = `✅ ${response.sent} invitation(s) envoyée(s) avec succès !`;
-            }
-
-            if (response.failed.length > 0) {
-              message += `\n❌ ${response.failed.length} échec(s) d'envoi:`;
-
-              // Regrouper les erreurs par type
-              const errorsByType = response.failed.reduce((acc, failure) => {
-                const errorType = failure.error.toLowerCase().includes('email') ? 'email' : 'autre';
-                if (!acc[errorType]) acc[errorType] = [];
-                acc[errorType].push(failure);
-                return acc;
-              }, {} as Record<string, typeof response.failed>);
-
-              // Afficher les erreurs d'email
-              if (errorsByType.email) {
-                message += '\n\n📧 Problèmes d\'email:';
-                errorsByType.email.forEach(failure => {
-                  message += `\n• ${failure.guestName}: ${failure.error}`;
-                });
-              }
-
-              // Afficher les autres erreurs
-              if (errorsByType.autre) {
-                message += '\n\n⚠️ Autres erreurs:';
-                errorsByType.autre.forEach(failure => {
-                  message += `\n• ${failure.guestName}: ${failure.error}`;
-                });
-              }
-
-              type = response.sent > 0 ? 'warning' : 'error';
-            }
-
-            showModal(
-              response.sent > 0 ? 'Envoi terminé' : 'Échec de l\'envoi',
-              message,
-              type
-            );
-
-            // Recharger la liste des invités
-            window.location.reload();
-          } catch (error) {
-            console.error('Erreur lors de l\'envoi des invitations:', error);
-            const errorMessage = error instanceof Error ? error.message : 'Erreur lors de l\'envoi des invitations';
-            showModal('Erreur', errorMessage, 'error');
-          } finally {
-            setSendingEmails(false);
-          }
-        }
-      }
-    );
-  };
-
-  // Prévisualiser un fichier d'import
-  const handleFilePreview = async (file: File) => {
-    if (!file) return;
-
-    const formData = new FormData();
-    formData.append('file', file);
-
-    try {
-      const response = await apiClient.postFormData<{
-        totalGuests: number;
-        validGuests: number;
-        errors: Array<{ line: number; error: string }>;
-        preview: Array<{ firstName: string; lastName: string; email: string; isVIP?: boolean; plusOne?: boolean }>;
-      }>(`/invitations/${invitationId}/guests/preview-import`, formData);
-
-      setImportPreview(response);
-      setImportFile(file);
-
-      // Afficher les erreurs de prévisualisation si présentes
-      if (response.errors && response.errors.length > 0) {
-        const duplicateEmails = response.errors.filter(err =>
-          err.error.toLowerCase().includes('email') &&
-          (err.error.toLowerCase().includes('déjà utilisé') || err.error.toLowerCase().includes('plusieurs fois'))
-        );
-
-        const otherErrors = response.errors.filter(err =>
-          !err.error.toLowerCase().includes('email') ||
-          (!err.error.toLowerCase().includes('déjà utilisé') && !err.error.toLowerCase().includes('plusieurs fois'))
-        );
-
-        let errorMessage = `${response.errors.length} erreur(s) détectée(s) dans le fichier:\n\n`;
-
-        if (duplicateEmails.length > 0) {
-          errorMessage += '📧 Emails en doublon:\n';
-          duplicateEmails.forEach(err => {
-            errorMessage += `• Ligne ${err.line}: ${err.error}\n`;
-          });
-        }
-
-        if (otherErrors.length > 0) {
-          errorMessage += '\n⚠️ Autres erreurs:\n';
-          otherErrors.forEach(err => {
-            errorMessage += `• Ligne ${err.line}: ${err.error}\n`;
-          });
-        }
-
-        errorMessage += `\nSeuls ${response.validGuests} invité(s) sur ${response.totalGuests} pourront être importés.`;
-
-        showModal(
-          'Erreurs détectées dans le fichier',
-          errorMessage,
-          'warning'
-        );
-      }
-    } catch (error) {
-      console.error('Erreur lors de la prévisualisation:', error);
-      const errorMessage = error instanceof Error ? error.message : 'Erreur lors de la prévisualisation du fichier';
-      showModal('Erreur', errorMessage, 'error');
-    }
-  };
-
-  // Confirmer l'import
-  const confirmImport = async () => {
-    if (!importFile) return;
-
-    setImporting(true);
-    const formData = new FormData();
-    formData.append('file', importFile);
-
-    try {
-      const response = await apiClient.postFormData<{
-        imported: number;
-        failed: number;
-        errors: Array<{ line: number; error: string; data?: any }>;
-      }>(`/invitations/${invitationId}/guests/bulk-import`, formData);
-
-      // Préparer le message de résultat
-      let message = '';
-      let type: 'success' | 'warning' | 'error' = 'success';
-
-      if (response.imported > 0) {
-        message = `✅ ${response.imported} invité(s) importé(s) avec succès !`;
-      }
-
-      if (response.failed > 0) {
-        message += `\n❌ ${response.failed} invité(s) n'ont pas pu être importés.`;
-        type = response.imported > 0 ? 'warning' : 'error';
-      }
-
-      // Afficher les erreurs détaillées
-      if (response.errors && response.errors.length > 0) {
-        const duplicateEmails = response.errors.filter(err =>
-          err.error.toLowerCase().includes('email') &&
-          (err.error.toLowerCase().includes('déjà utilisé') || err.error.toLowerCase().includes('plusieurs fois'))
-        );
-
-        const otherErrors = response.errors.filter(err =>
-          !err.error.toLowerCase().includes('email') ||
-          (!err.error.toLowerCase().includes('déjà utilisé') && !err.error.toLowerCase().includes('plusieurs fois'))
-        );
-
-        let errorDetails = '';
-
-        if (duplicateEmails.length > 0) {
-          errorDetails += '\n\n📧 Emails en doublon:\n';
-          duplicateEmails.forEach(err => {
-            errorDetails += `• Ligne ${err.line}: ${err.error}\n`;
-          });
-        }
-
-        if (otherErrors.length > 0) {
-          errorDetails += '\n\n⚠️ Autres erreurs:\n';
-          otherErrors.forEach(err => {
-            errorDetails += `• Ligne ${err.line}: ${err.error}\n`;
-          });
-        }
-
-        message += errorDetails;
-      }
-
-      showModal(
-        response.imported > 0 ? 'Import terminé' : 'Échec de l\'import',
-        message,
-        type
-      );
-
-      // Réinitialiser et recharger seulement si au moins un invité a été importé
-      if (response.imported > 0) {
-        setImportPreview(null);
-        setImportFile(null);
-        setShowBulkImport(false);
-        window.location.reload();
-      }
-    } catch (error) {
-      console.error('Erreur lors de l\'import:', error);
-      const errorMessage = error instanceof Error ? error.message : 'Erreur lors de l\'import';
-      showModal('Erreur', errorMessage, 'error');
-    } finally {
-      setImporting(false);
-    }
-  };
-
-  // Télécharger un template
-  const downloadTemplate = (format: 'csv' | 'txt') => {
-    let content = '';
-    let filename = '';
-    let mimeType = '';
-
-    switch (format) {
-      case 'csv':
-        content = 'firstName,lastName,email,phone,isVIP\n' +
-          'Jean,Dupont,jean.dupont@email.com,0123456789,false\n' +
-          'Sophie,Martin,sophie.martin@email.com,0987654321,true\n' +
-          'Pierre,Blanc,pierre.blanc@email.com,0987654321,false';
-        filename = 'template_invites.csv';
-        mimeType = 'text/csv';
-        break;
-
-      case 'txt':
-        content = 'Jean,Dupont,jean.dupont@email.com,0123456789,false\n' +
-          'Sophie,Martin,sophie.martin@email.com,0987654321,true\n' +
-          'Pierre,Blanc,pierre.blanc@email.com,0987654321,false';
-        filename = 'template_invites.txt';
-        mimeType = 'text/plain';
-        break;
-    }
-
-    // Créer un blob avec le contenu
-    const blob = new Blob([content], { type: mimeType });
-    const url = URL.createObjectURL(blob);
-
-    // Créer un lien de téléchargement
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = filename;
-    document.body.appendChild(link);
-    link.click();
-
-    // Nettoyer
-    document.body.removeChild(link);
-    URL.revokeObjectURL(url);
-  };
-
-  // Envoi en masse après import
-  const bulkSendAfterImport = async (guestIds?: string[]) => {
-    showModal(
-      'Confirmation d\'envoi en masse',
-      'Envoyer les invitations à tous les invités importés ?',
-      'warning',
-      {
-        showConfirm: true,
-        confirmText: 'Envoyer',
-        cancelText: 'Annuler',
-        onConfirm: async () => {
-          setSendingEmails(true);
-          try {
-            const response = await apiClient.post<{
-              sent: number;
-              failed: Array<{ guestId: string; guestName: string; error: string }>;
-              skipped: Array<{ guestId: string; guestName: string; reason: string }>;
-            }>(`/invitations/${invitationId}/guests/bulk-send`, {
-              guestIds
-            });
-
-            let message = '';
-            let type: 'success' | 'warning' | 'error' = 'success';
-
-            if (response.sent > 0) {
-              message = `✅ ${response.sent} invitation(s) envoyée(s) avec succès !`;
-            }
-
-            if (response.skipped && response.skipped.length > 0) {
-              message += `\n⏭️ ${response.skipped.length} invité(s) ignoré(s):`;
-              response.skipped.forEach(skip => {
-                message += `\n• ${skip.guestName}: ${skip.reason}`;
-              });
-            }
-
-            if (response.failed && response.failed.length > 0) {
-              message += `\n❌ ${response.failed.length} échec(s) d'envoi:`;
-              response.failed.forEach(failure => {
-                message += `\n• ${failure.guestName}: ${failure.error}`;
-              });
-              type = response.sent > 0 ? 'warning' : 'error';
-            }
-
-            showModal(
-              response.sent > 0 ? 'Envoi terminé' : 'Échec de l\'envoi',
-              message,
-              type
-            );
-
-            window.location.reload();
-          } catch (error) {
-            console.error('Erreur lors de l\'envoi en masse:', error);
-            const errorMessage = error instanceof Error ? error.message : 'Erreur lors de l\'envoi';
-            showModal('Erreur', errorMessage, 'error');
-          } finally {
-            setSendingEmails(false);
-          }
-        }
-      }
-    );
-  };
-
-  const getGuestStatus = (guest: any) => {
-    if (guest.rsvp) {
-      switch (guest.rsvp.status) {
-        case 'CONFIRMED': return 'Confirmé';
-        case 'DECLINED': return 'Refusé';
-        default: return 'En attente';
-      }
-    }
-    return 'Pas de réponse';
-  };
-
-  const getGuestStatusColor = (guest: any) => {
-    if (guest.rsvp) {
-      switch (guest.rsvp.status) {
-        case 'CONFIRMED': return '#4CAF50';
-        case 'DECLINED': return '#f44336';
-        default: return '#ff9800';
-      }
-    }
-    return '#9e9e9e';
-  };
-
-  if (loading) {
-    return <div>Chargement...</div>;
-  }
-
-  if (error) {
-    return <div>Une erreur est survenue</div>;
-  }
-
-  const canSendEmails = invitation?.status === 'PUBLISHED';
-  const guestsWithEmails = guests.filter(g => g.email);
-
-  // Filtrer les invités selon la recherche
-  const filteredGuests = guests.filter(guest => {
-    if (!searchQuery.trim()) return true;
-
-    const query = searchQuery.toLowerCase().trim();
-    const fullName = `${guest.firstName} ${guest.lastName}`.toLowerCase();
-    const email = guest.email?.toLowerCase() || '';
-    const phone = guest.phone?.toLowerCase() || '';
-
+  if (loadingInvitations) {
     return (
-      fullName.includes(query) ||
-      email.includes(query) ||
-      phone.includes(query)
+      <div className={styles.guestsPage}>
+        <HeaderMobile title="Vos invités" />
+        <div className={styles.loadingContainer}>
+          <div className={styles.loadingContent}>
+            <div className={styles.loadingSpinner}></div>
+            <p>Chargement...</p>
+          </div>
+        </div>
+      </div>
     );
-  });
+  }
+
+  if (!selectedInvitationId || !selectedInvitation) {
+    return (
+      <div className={styles.guestsPage}>
+        <HeaderMobile title="Vos invités" />
+        <div className={styles.errorContainer}>
+          <div className={styles.errorContent}>
+            <h2>Aucune invitation</h2>
+            <p>Créez d'abord une invitation pour gérer vos invités.</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className={styles.guestsPage}>
-      <div className={styles.header}>
-        <h1>Envoi par email</h1>
-        <div className={styles.actions}>
-          <Button
-            onClick={() => setShowAddForm(true)}
-            variant="primary"
-            size="sm"
-          >
-            ➕ Ajouter un invité
-          </Button>
-          <Button
-            onClick={() => setShowBulkImport(true)}
-            variant="outline"
-            size="sm"
-          >
-            📂 Import en masse
-          </Button>
-        </div>
-      </div>
-
+      <HeaderMobile title="Vos invités" />
       
-      {showAddForm && (
-        <div className={styles.addFormContainer}>
-          <div className={styles.addFormCard}>
-            <div className={styles.formHeader}>
-              <h2>➕ Ajouter un invité</h2>
+      <main className={styles.main}>
+        {/* Sélecteur d'invitation */}
+        {invitations.length > 0 && (
+          <div className={styles.invitationSection}>
+            <label className={styles.invitationLabel}>
+              <p className={styles.invitationLabelText}>Invitation</p>
+              <select 
+                value={selectedInvitationId}
+                onChange={(e) => setSelectedInvitationId(e.target.value)}
+                className={styles.invitationSelect}
+              >
+                {invitations.map(invitation => (
+                  <option key={invitation.id} value={invitation.id}>
+                    {invitation.eventTitle}{invitation.eventDate ? ` - ${formatDate(invitation.eventDate)}` : ''}
+                  </option>
+                ))}
+              </select>
+            </label>
+        </div>
+        )}
+      
+        {/* Limits Section - Nombre d'invités avec barre de progression */}
+        {limits && (
+          <div className={styles.limitsSection}>
+            <div className={styles.limitsHeader}>
+              <p className={styles.limitsLabel}>Invités</p>
+              <p className={styles.limitsValue}>
+                {limits.usage?.guests || 0} / {limits.limits?.guests || 0}
+              </p>
               </div>
-            <form onSubmit={handleSubmit}>
-              <div className={styles.formGrid}>
-                <div className={styles.formField}>
-                  <label>Prénom *</label>
-                <input
-                  type="text"
-                  name="firstName"
-                    placeholder="Prénom (min. 2 caractères)"
-                  value={formData.firstName}
-                  onChange={handleInputChange}
-                  required
-                    minLength={2}
-                    className={styles.formInput}
+            <div className={styles.limitsProgressBar}>
+              <div 
+                className={styles.limitsProgressFill}
+                style={{ width: `${Math.min(100, (limits.usage?.guests || 0) / (limits.limits?.guests || 1) * 100)}%` }}
                     />
                   </div>
-                <div className={styles.formField}>
-                  <label>Nom *</label>
-                <input
-                  type="text"
-                  name="lastName"
-                    placeholder="Nom (min. 2 caractères)"
-                  value={formData.lastName}
-                  onChange={handleInputChange}
-                  required
-                    minLength={2}
-                    className={styles.formInput}
-                    />
                   </div>
-                <div className={styles.formField}>
-                  <label>Email</label>
+        )}
+
+        {/* Invitation Type Toggle */}
+        <div className={styles.invitationTypeSection}>
+          <div className={styles.invitationTypeToggle}>
+            <label className={styles.toggleOption}>
                 <input
-                  type="email"
-                  name="email"
-                    placeholder="Email (requis si pas de téléphone)"
-                  value={formData.email}
-                  onChange={handleInputChange}
-                    className={styles.formInput}
+                type="radio"
+                name="invitation_type"
+                value="email"
+                checked={invitationType === 'email'}
+                onChange={() => setInvitationType('email')}
                   />
-                </div>
-                <div className={styles.formField}>
-                  <label>Téléphone</label>
+              <span>Envoi par email</span>
+            </label>
+            <label className={styles.toggleOption}>
                 <input
-                  type="tel"
-                  name="phone"
-                    placeholder="Téléphone (requis si pas d'email)"
-                  value={formData.phone}
-                  onChange={handleInputChange}
-                    pattern="[\+]?[0-9\s\-\(\)]{8,}"
-                    title="Minimum 8 caractères, chiffres/espaces/+/-/() autorisés"
-                    className={styles.formInput}
-                  />
+                type="radio"
+                name="invitation_type"
+                value="shareable"
+                checked={invitationType === 'shareable'}
+                onChange={() => setInvitationType('shareable')}
+              />
+              <span>Lien partageable</span>
+            </label>
                 </div>
-                <div className={styles.formField}>
-                  <div className={styles.checkboxField}>
-                    <input
-                      type="checkbox"
-                      name="isVIP"
-                      checked={formData.isVIP}
-                      onChange={handleInputChange}
-                    />
-                    <label>⭐ Invité VIP</label>
                 </div>
+
+        {/* Shareable Link Manager */}
+        {invitationType === 'shareable' && selectedInvitation && (
+          <ShareableLinkManager invitationId={selectedInvitation.id} />
+        )}
+
+        {/* Actions Section */}
+        <div className={styles.actionsSection}>
+          <div className={styles.actionsRow}>
+            <button 
+              className={`${styles.actionButton} ${styles.primary}`}
+              onClick={handleAddGuest}
+            >
+              <Plus size={20} />
+              <span>Ajouter un invité</span>
+            </button>
+            <button 
+              className={`${styles.actionButton} ${styles.secondary}`}
+              onClick={handleBulkImport}
+            >
+              <Upload size={20} />
+              <span>Import en masse</span>
+            </button>
               </div>
+          {/* Bouton pour envoyer à tous les invités sans réponse */}
+          {pendingGuestsCount > 0 && (
+            <div className={styles.bulkSendSection}>
+              <button 
+                className={`${styles.actionButton} ${styles.bulkSend}`}
+                onClick={handleSendInvitationsToPending}
+                disabled={loadingGuests}
+              >
+                <Send size={20} />
+                <span>
+                  Envoyer à tous les invités sans réponse ({pendingGuestsCount})
+                </span>
+              </button>
               </div>
-              <div className={styles.formActions}>
-                <Button type="submit" variant="primary" size="sm">
-                  ✅ Ajouter l'invité
-                </Button>
-                <Button type="button" variant="outline" size="sm" onClick={() => setShowAddForm(false)}>
-                  Annuler
-                </Button>
+          )}
               </div>
-            </form>
+
+        {/* Search and Filters */}
+        <div className={styles.searchFiltersSection}>
+          <div className={styles.searchContainer}>
+            <div className={styles.searchWrapper}>
+              <Search size={20} className={styles.searchIcon} />
+              <input
+                type="search"
+                className={styles.searchInput}
+                placeholder="Rechercher un invité..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+              />
           </div>
         </div>
-      )}
-
-
-      {/* Section lien partageable */}
-      <ShareableLinkManager invitationId={invitationId} />
-
-      {/* Modal d'import en masse */}
-      {showBulkImport && (
-        <div
-          className={styles.modal}
-          onClick={(e) => {
-            // Fermer le modal si on clique sur l'overlay (pas sur le contenu)
-            if (e.target === e.currentTarget) {
-              setShowBulkImport(false);
-              setImportPreview(null);
-              setImportFile(null);
-            }
+          <div className={styles.filtersRow}>
+            <div className={styles.filterDropdown} ref={rsvpFilterRef}>
+              <button 
+                className={`${styles.filterButton} ${rsvpFilter !== 'all' ? styles.filterActive : ''}`}
+                onClick={() => {
+                  setShowRsvpFilter(!showRsvpFilter);
+                  setShowTypeFilter(false);
           }}
         >
-          <div className={styles.modalContent}>
-            <div className={styles.modalHeader}>
-              <h2>📂 Import en masse d'invités</h2>
+                <span>Statut RSVP</span>
+                <ChevronDown size={16} className={showRsvpFilter ? styles.chevronUp : ''} />
+              </button>
+              {showRsvpFilter && (
+                <div className={styles.filterDropdownMenu}>
                 <button
-                className={styles.closeButton}
+                    className={`${styles.filterOption} ${rsvpFilter === 'all' ? styles.filterOptionActive : ''}`}
                 onClick={() => {
-                  setShowBulkImport(false);
-                  setImportPreview(null);
-                  setImportFile(null);
+                      setRsvpFilter('all');
+                      setShowRsvpFilter(false);
                   }}
                 >
-                  ✕
+                    Tous
                 </button>
-              </div>
-              
-            <div className={styles.modalBody}>
-              {!importPreview ? (
-                <div className={styles.importStep}>
-                  <h3>📋 1. Téléchargez un template</h3>
-                  <div className={styles.templateButtons}>
-                    <Button onClick={() => downloadTemplate('csv')} variant="outline" size="sm">
-                      📄 Template CSV
-                    </Button>
-                    <Button onClick={() => downloadTemplate('txt')} variant="outline" size="sm">
-                      📄 Template TXT
-                    </Button>
-                  </div>
-                
-                  <h3>📝 2. Remplissez le fichier</h3>
-                  <div className={styles.formatInfo}>
-                    <h4>📋 Règles de validation :</h4>
-                    <ul>
-                      <li><strong>Prénom et Nom :</strong> Obligatoires, minimum 2 caractères chacun</li>
-                      <li><strong>Email :</strong> OBLIGATOIRE pour l'import en masse (les invitations seront envoyées par email)</li>
-                      <li><strong>Téléphone :</strong> Optionnel, minimum 8 caractères, chiffres/espaces/+/-/() autorisés</li>
-                      <li><strong>isVIP :</strong> true/false ou 1/0</li>
-                    </ul>
-
-                    <h4>💡 Format CSV (recommandé) :</h4>
-                    <code>firstName,lastName,email,phone,isVIP</code>
-                    <p><em>Note: La première ligne d'en-têtes est automatiquement ignorée</em></p>
-
-                    <h4>📝 Format TXT :</h4>
-                    <code>Prénom,Nom,email,téléphone,isVIP</code>
-                    <p><em>Chaque ligne = un invité, valeurs séparées par des virgules</em></p>
-
-                    <h4>⚠️ Exemples valides :</h4>
-                    <ul>
-                      <li>✅ Avec email seul : <code>Jean,Dupont,jean@email.com,,false</code></li>
-                      <li>✅ Avec email et téléphone : <code>Paul,Durand,paul@email.com,+33612345678,false</code></li>
-                      <li>✅ Invité VIP : <code>Sophie,Martin,sophie@email.com,0987654321,true</code></li>
-                      <li>❌ Sans email : <code>Pierre,Blanc,,0987654321,false</code></li>
-                    </ul>
-                  </div>
-
-                  <h3>📤 3. Uploadez votre fichier</h3>
-                  <div className={styles.uploadArea}>
-                  <input
-                    type="file"
-                      accept=".csv,.txt"
-                      onChange={(e) => {
-                        const file = e.target.files?.[0];
-                        if (file) handleFilePreview(file);
-                      }}
-                    style={{ display: 'none' }}
-                      id="bulkUpload"
-                    />
-                    <Button
-                      onClick={() => document.getElementById('bulkUpload')?.click()}
-                      variant="primary"
-                      size="sm"
-                    >
-                      📤 Choisir un fichier
-                    </Button>
-                    <p>Formats supportés: CSV, TXT (max 5MB)</p>
+                  <button
+                    className={`${styles.filterOption} ${rsvpFilter === 'CONFIRMED' ? styles.filterOptionActive : ''}`}
+                    onClick={() => {
+                      setRsvpFilter('CONFIRMED');
+                      setShowRsvpFilter(false);
+                    }}
+                  >
+                    Confirmé
+                  </button>
+                  <button
+                    className={`${styles.filterOption} ${rsvpFilter === 'PENDING' ? styles.filterOptionActive : ''}`}
+                    onClick={() => {
+                      setRsvpFilter('PENDING');
+                      setShowRsvpFilter(false);
+                    }}
+                  >
+                    En attente
+                  </button>
+                  <button
+                    className={`${styles.filterOption} ${rsvpFilter === 'DECLINED' ? styles.filterOptionActive : ''}`}
+                    onClick={() => {
+                      setRsvpFilter('DECLINED');
+                      setShowRsvpFilter(false);
+                    }}
+                  >
+                    Refusé
+                  </button>
                 </div>
-                </div>
-              ) : (
-                <div className={styles.previewStep}>
-                  <h3>👀 Prévisualisation de l'import</h3>
-
-                  <div className={styles.previewStats}>
-                    <div className={styles.statItem}>
-                      <span>✅ Invités valides</span>
-                      <strong>{importPreview.validGuests || importPreview.totalGuests}</strong>
-            </div>
-                    <div className={styles.statItem}>
-                      <span>❌ Erreurs</span>
-                      <strong>{importPreview.errors.length}</strong>
-              </div>
-            </div>
-
-                  {importPreview.errors.length > 0 && (
-                    <div className={styles.errors}>
-                      <h4>❌ Erreurs détectées :</h4>
-                      <div className={styles.errorList}>
-                        {importPreview.errors.slice(0, 5).map((error: any, index: number) => (
-                          <div key={index} className={styles.errorItem}>
-                            <strong>Ligne {error.line}:</strong> {error.error}
-                          </div>
-                        ))}
-                        {importPreview.errors.length > 5 && (
-                          <p>... et {importPreview.errors.length - 5} autres erreurs</p>
                         )}
           </div>
-                  </div>
-                )}
-
-                  {importPreview.preview.length > 0 && (
-                    <div className={styles.preview}>
-                      <h4>👥 Aperçu des invités (10 premiers) :</h4>
-                      <div className={styles.previewList}>
-                        {importPreview.preview.map((guest: any, index: number) => (
-                          <div key={index} className={styles.previewItem}>
-                            <strong>{guest.firstName} {guest.lastName}</strong>
-                            <span>{guest.email}</span>
-                            {guest.isVIP && <span className={styles.vipBadge}>⭐ VIP</span>}
-            </div>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-
-                  <div className={styles.previewActions}>
-                    <Button
-                      onClick={confirmImport}
-                      variant="primary"
-                      size="sm"
-                      disabled={importing || (importPreview.validGuests || importPreview.totalGuests) === 0}
-                    >
-                      {importing ? '⏳ Import en cours...' : `✅ Confirmer l'import (${importPreview.validGuests || importPreview.totalGuests} invités)`}
-                    </Button>
-                    <Button
+            <div className={styles.filterDropdown} ref={typeFilterRef}>
+              <button 
+                className={`${styles.filterButton} ${typeFilter !== 'all' ? styles.filterActive : ''}`}
+                onClick={() => {
+                  setShowTypeFilter(!showTypeFilter);
+                  setShowRsvpFilter(false);
+                }}
+              >
+                <span>Type</span>
+                <ChevronDown size={16} className={showTypeFilter ? styles.chevronUp : ''} />
+              </button>
+              {showTypeFilter && (
+                <div className={styles.filterDropdownMenu}>
+                  <button
+                    className={`${styles.filterOption} ${typeFilter === 'all' ? styles.filterOptionActive : ''}`}
                       onClick={() => {
-                        setImportPreview(null);
-                        setImportFile(null);
+                      setTypeFilter('all');
+                      setShowTypeFilter(false);
                       }}
-                      variant="outline"
-                      size="sm"
-                    >
-                      🔄 Choisir un autre fichier
-                    </Button>
-                  </div>
+                  >
+                    Tous
+                  </button>
+                  <button
+                    className={`${styles.filterOption} ${typeFilter === 'PERSONAL' ? styles.filterOptionActive : ''}`}
+                    onClick={() => {
+                      setTypeFilter('PERSONAL');
+                      setShowTypeFilter(false);
+                    }}
+                  >
+                    Email
+                  </button>
+                  <button
+                    className={`${styles.filterOption} ${typeFilter === 'SHAREABLE' ? styles.filterOptionActive : ''}`}
+                    onClick={() => {
+                      setTypeFilter('SHAREABLE');
+                      setShowTypeFilter(false);
+                    }}
+                  >
+                    Lien partageable
+                  </button>
                 </div>
               )}
             </div>
           </div>
         </div>
-      )}
 
-      {!canSendEmails && (
-        <div className={styles.warning}>
-          <div className={styles.emptyState}>
-            <h3>⚠️ Invitation non publiée</h3>
-            <p>Vous devez publier votre invitation avant de pouvoir envoyer des emails aux invités.</p>
-            <Link href="/client/invitations">
-              <Button variant="primary" size="sm">Publier l'invitation</Button>
-            </Link>
-          </div>
-        </div>
-      )}
-
-      {/* Section de recherche moderne */}
-      <div className={styles.searchSection}>
-        <div className={styles.searchHeader}>
-          <h2>🔍 Rechercher un invité</h2>
-          <input
-            type="text"
-            placeholder="Nom, email, téléphone..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className={styles.searchInput}
-          />
-        </div>
-      </div>
-
-
+        {/* Guests List */}
       <div className={styles.guestsList}>
-        <div className={styles.guestsListHeader}>
-          <h2>👥 Liste des invités ({searchQuery ? `${filteredGuests.length} sur ${guests.length}` : guests.length})</h2>
-          {canSendEmails && (
-            <div className={styles.bulkActions}>
-              {(() => {
-                const guestsWithoutInvitation = guests.filter(g => g.email && !g.invitationSentAt && !g.rsvp);
-                return guestsWithoutInvitation.length > 0 && (
-                  <Button
-                    onClick={sendAllInvitations}
-                    variant="primary"
-                    size="sm"
-                    disabled={sendingEmails}
-                    className={styles.shakeButton}
-                  >
-                    {sendingEmails ? (
-                      <>
-                        <Loader className={styles.spinIcon} /> Envoi en cours...
-                      </>
-                    ) : (
-                      <>
-                        📧 Envoyer aux invités en attente ({guestsWithoutInvitation.length})
-                      </>
-                    )}
-                  </Button>
-                );
-              })()}
+          {loadingGuests ? (
+            <div className={styles.loadingContainer}>
+              <div className={styles.loadingSpinner}></div>
             </div>
-          )}
+          ) : filteredGuests.length === 0 ? (
+            <div className={styles.emptyState}>
+              <User size={48} />
+              <h3>Aucun invité trouvé</h3>
+              <p>
+                {searchQuery || rsvpFilter !== 'all' || typeFilter !== 'all'
+                  ? 'Aucun invité ne correspond à vos critères de recherche.'
+                  : 'Commencez par ajouter vos premiers invités.'}
+              </p>
         </div>
-        <div className={styles.guestsGrid}>
-          {filteredGuests.map(guest => (
+          ) : (
+            filteredGuests.map((guest) => {
+              const rsvpStatus = getRSVPStatus(guest);
+              const hasRSVP = !!guest.rsvp;
+              
+              return (
             <div key={guest.id} className={styles.guestCard}>
               <div className={styles.guestHeader}>
-                <h3>
+                    <div className={styles.guestInfo}>
+                      <div className={styles.guestNameRow}>
+                        <p className={styles.guestName}>
                   {guest.firstName} {guest.lastName}
-                  {guest.isVIP && <span className={styles.vipBadge}>⭐ VIP</span>}
-              </h3>
-                <div
-                  className={styles.statusBadge}
-                  style={{ backgroundColor: getGuestStatusColor(guest) }}
-                >
-                  {getGuestStatus(guest)}
+                        </p>
+                        {guest.isVIP && (
+                          <span className={styles.vipBadge}>VIP</span>
+                        )}
                 </div>
+                      <span className={`${styles.rsvpStatus} ${styles[rsvpStatus]}`}>
+                        {rsvpStatus === 'confirmed' && 'Confirmé'}
+                        {rsvpStatus === 'pending' && 'En attente'}
+                        {rsvpStatus === 'rejected' && 'Refusé'}
+                      </span>
+                      {guest.email && (
+                        <p className={styles.guestContact}>{guest.email}</p>
+                      )}
+                      {guest.phone && (
+                        <p className={styles.guestContact}>{guest.phone}</p>
+                      )}
               </div>
-
-              <div className={styles.guestDetails}>
-                {guest.profilePhotoUrl && (
-                  <div className={styles.profilePhoto}>
+                    {guest.profilePhotoUrl ? (
                     <img 
                       src={guest.profilePhotoUrl} 
-                      alt={`Photo de ${guest.firstName} ${guest.lastName}`}
-                      className={styles.photoThumbnail}
+                        alt={`${guest.firstName} ${guest.lastName}`}
+                        className={styles.guestAvatar}
                     />
+                    ) : (
+                      <div className={styles.guestAvatar}>
+                        <User size={24} />
                   </div>
                 )}
-                {guest.email && <p>📧 {guest.email}</p>}
-                {guest.phone && <p>📞 {guest.phone}</p>}
-                {guest.plusOne && guest.plusOneName && (
-                  <p>👥 Accompagnant: {guest.plusOneName}</p>
+                  </div>
+
+                  {(guest.plusOneName || guest.dietaryRestrictions || guest.invitationSentAt) && (
+                    <div className={styles.guestDetails}>
+                      {guest.plusOneName && (
+                        <p className={styles.guestDetailItem}>
+                          Accompagnant : {guest.plusOneName}
+                        </p>
                 )}
                 {guest.dietaryRestrictions && (
-                  <p>🥗 Restrictions: {guest.dietaryRestrictions}</p>
+                        <p className={styles.guestDetailItem}>
+                          Restrictions : {guest.dietaryRestrictions}
+                        </p>
                 )}
                 {guest.invitationSentAt && (
-                  <p className={styles.sentDate}>
-                    ✅ Invitation envoyée le {new Date(guest.invitationSentAt).toLocaleDateString('fr-FR')}
-                  </p>
-                )}
-                {guest.usedAt && (
-                  <p className={styles.usedDate}>
-                    🔗 Lien utilisé le {new Date(guest.usedAt).toLocaleDateString('fr-FR')}
+                        <p className={styles.guestDate}>
+                          Invitation envoyée le {formatDate(guest.invitationSentAt)}
                   </p>
                 )}
               </div>
+                  )}
 
               <div className={styles.guestActions}>
-                {canSendEmails && guest.email && (
-                  <div className={styles.emailActions}>
-                    {!guest.invitationSentAt && !guest.usedAt && !guest.rsvp && (
-                      <Button
-                        onClick={() => sendInvitationToGuest(guest.id)}
-                        variant="primary"
-                        size="sm"
+                    {/* Bouton Rappel uniquement pour les invités en attente qui ont déjà reçu une invitation */}
+                    {rsvpStatus === 'pending' && guest.invitationSentAt ? (
+                      <button
+                        className={`${styles.guestActionButton} ${styles.reminder}`}
+                        onClick={() => handleSendReminder(guest.id)}
                       >
-                        📧 Envoyer invitation
-                      </Button>
-                    )}
-                    {guest.invitationSentAt && !guest.usedAt && !guest.rsvp && (
-                      <Button
-                        onClick={() => sendReminderToGuest(guest.id)}
-                        variant="outline"
-                        size="sm"
+                        <Bell size={18} />
+                        <span>Rappel</span>
+                      </button>
+                    ) : /* Bouton Envoyer l'invitation pour les invités sans réponse */
+                    !hasRSVP || rsvpStatus === 'pending' ? (
+                      <button
+                        className={`${styles.guestActionButton} ${styles.send}`}
+                        onClick={() => handleSendInvitation(guest.id)}
                       >
-                        🔔 Envoyer rappel
-                      </Button>
-                    )}
-        </div>
-                )}
-                <Button
+                        <Send size={18} />
+                        <span>Envoyer l'invitation</span>
+                      </button>
+                    ) : /* Pas de bouton d'action pour les invités qui ont déjà répondu (confirmé ou décliné) */
+                    null}
+                    <button
+                      className={`${styles.guestActionButton} ${styles.delete}`}
                   onClick={() => handleDeleteGuest(guest.id)}
-                  variant="secondary"
-                  size="sm"
                 >
-                  🗑️ Supprimer
-                </Button>
+                      Retirer
+                    </button>
       </div>
         </div>
-          ))}
-
-          {filteredGuests.length === 0 && guests.length > 0 && (
-            <div className={styles.emptyState}>
-              <h3>🔍 Aucun invité trouvé</h3>
-              <p>Aucun invité ne correspond à votre recherche "{searchQuery}".</p>
-              <Button onClick={() => setSearchQuery('')} variant="primary" size="sm">
-                🔄 Effacer la recherche
-              </Button>
-        </div>
-      )}
-
-          {guests.length === 0 && (
-            <div className={styles.emptyState}>
-              <h3>👥 Aucun invité ajouté</h3>
-              <p>Commencez par ajouter vos premiers invités pour pouvoir envoyer les invitations.</p>
-
-            </div>
+              );
+            })
           )}
-        </div>
-      </div>
+            </div>
+      </main>
 
-      {/* Modal personnalisé */}
-      <CustomModal
-        isOpen={modal.isOpen}
-        onClose={closeModal}
-        title={modal.title}
-        message={modal.message}
-        type={modal.type}
-        showConfirm={modal.showConfirm}
-        onConfirm={modal.onConfirm}
-        confirmText={modal.confirmText}
-        cancelText={modal.cancelText}
+      {/* Modals */}
+      <AddGuestModal
+        isOpen={showAddModal}
+        onClose={() => setShowAddModal(false)}
+        onCreate={fetchGuests}
+        invitationId={selectedInvitationId}
+      />
+      <BulkImportModal
+        isOpen={showImportModal}
+        onClose={() => setShowImportModal(false)}
+        onImport={fetchGuests}
+        invitationId={selectedInvitationId}
+        previewImport={previewImport}
+        bulkImport={bulkImport}
+        downloadTemplate={downloadTemplate}
       />
     </div>
   );

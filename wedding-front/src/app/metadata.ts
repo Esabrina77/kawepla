@@ -8,6 +8,7 @@ const metadata: Metadata = {
   authors: [{ name: 'Kawepla Team' }],
   creator: 'Kawepla',
   publisher: 'Kawepla',
+  applicationName: 'Kawepla',
   formatDetection: {
     email: false,
     address: false,
@@ -24,7 +25,7 @@ const metadata: Metadata = {
     siteName: 'Kawepla',
     images: [
       {
-        url: '/images/og-image.jpg',
+        url: '/images/logo.png',
         width: 1200,
         height: 630,
         alt: 'Kawepla - Plateforme d\'invitations d\'événements numériques',
@@ -37,10 +38,12 @@ const metadata: Metadata = {
     card: 'summary_large_image',
     title: SITE_CONFIG.seo.titre,
     description: SITE_CONFIG.seo.description,
-    images: ['/images/twitter-image.jpg'],
+    images: ['/images/logo.png'],
+    creator: '@kawepla',
   },
   manifest: '/manifest.json',
   themeColor: '#D4B895',
+  colorScheme: 'light',
   robots: {
     index: true,
     follow: true,
@@ -63,8 +66,8 @@ const metadata: Metadata = {
   },
   verification: {
     google: 'iLofx6S2vdlLlPQzyPedkFKg8QJriArtaPM65SzmL2s',
-  
-  },  
+  },
+  category: 'Event Management',
 };
 
-export default metadata; 
+export default metadata;

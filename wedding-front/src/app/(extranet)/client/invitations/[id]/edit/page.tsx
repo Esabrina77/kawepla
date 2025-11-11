@@ -2,12 +2,11 @@
 
 import { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
+import { HeaderMobile } from '@/components/HeaderMobile';
 import { useInvitations } from '@/hooks/useInvitations';
 import { useDesigns } from '@/hooks/useDesigns';
 import { TemplateEngine } from '@/lib/templateEngine';
 import { 
-  CalendarRange, 
-  Edit, 
   Save,
   X,
   AlertTriangle,
@@ -170,16 +169,31 @@ export default function InvitationEditPage() {
   };
 
   if (loading) {
-    return <div className={styles.loading}>Chargement de l'invitation...</div>;
+    return (
+      <div className={styles.editPage}>
+        <HeaderMobile title="Modifier l'invitation" />
+        <div className={styles.loadingContainer}>
+          <div className={styles.loadingContent}>
+            <div className={styles.loadingSpinner}></div>
+            <p>Chargement...</p>
+          </div>
+        </div>
+      </div>
+    );
   }
 
   if (!invitation) {
     return (
-      <div className={styles.error}>
-        <h2>Invitation non trouvée</h2>
-        <button onClick={() => router.push('/client/invitations')}>
-          Retour aux invitations
-        </button>
+      <div className={styles.editPage}>
+        <HeaderMobile title="Modifier l'invitation" />
+        <div className={styles.errorContainer}>
+          <div className={styles.errorContent}>
+            <h2>Invitation non trouvée</h2>
+            <button onClick={() => router.push('/client/invitations')} className={styles.backButton}>
+              Retour aux invitations
+            </button>
+          </div>
+        </div>
       </div>
     );
   }
@@ -213,24 +227,16 @@ export default function InvitationEditPage() {
         </div>
       )}
 
-      <div className={styles.header}>
-        <button 
-          className={styles.backButton}
-          onClick={() => router.push(`/client/invitations/${invitation.id}`)}
-        >
-          ← Retour
-        </button>
-        <h1>Modifier l'invitation - {invitation.eventTitle || 'Invitation sans titre'}</h1>
-      </div>
-
-      <div className={styles.editContainer}>
-        <div className={styles.formSection}>
-          <form onSubmit={handleSave} className={styles.form}>
+      <HeaderMobile title={`Modifier - ${invitation.eventTitle || 'Invitation'}`} />
+      
+      <main className={styles.main}>
+        <div className={styles.editContainer}>
+          <div className={styles.formSection}>
+            <form onSubmit={handleSave} className={styles.form}>
             {/* Type d'événement */}
             <div className={styles.formGroup}>
-              <h3>Type d'événement</h3>
+              <h3>Type d'événement *</h3>
               <div className={styles.formField}>
-                <label className={styles.formLabel}>Type *</label>
                 <select
                   value={formData.eventType}
                   onChange={(e) => setFormData(prev => ({ ...prev, eventType: e.target.value as any }))}
@@ -251,9 +257,8 @@ export default function InvitationEditPage() {
 
             {/* 1. Titre de l'événement (affiché en premier dans l'invitation) */}
             <div className={styles.formGroup}>
-              <h3>1. Titre de l'événement</h3>
+              <h3>1. Titre de l'événement *</h3>
               <div className={styles.formField}>
-                <label className={styles.formLabel}>Titre *</label>
                 <input
                   type="text"
                   value={formData.eventTitle}
@@ -267,9 +272,8 @@ export default function InvitationEditPage() {
 
             {/* 2. Texte personnalisé (affiché en deuxième dans l'invitation) */}
             <div className={styles.formGroup}>
-              <h3>2. Message personnalisé</h3>
+              <h3>2. Message personnalisé (optionnel)</h3>
               <div className={styles.formField}>
-                <label className={styles.formLabel}>Texte d'invitation (optionnel)</label>
                 <textarea
                   value={formData.customText}
                   onChange={(e) => setFormData(prev => ({ ...prev, customText: e.target.value }))}
@@ -282,10 +286,10 @@ export default function InvitationEditPage() {
 
             {/* 3. Date et heure (affichées en troisième et quatrième dans l'invitation) */}
             <div className={styles.formGroup}>
-              <h3>3. Date et heure</h3>
+              <h3>3. Date et heure *</h3>
               <div className={styles.formRow}>
                 <div className={styles.formField}>
-                  <label className={styles.formLabel}>Date de l'événement *</label>
+                  <label className={styles.formLabel}>Date</label>
                   <input
                     type="date"
                     value={formData.eventDate}
@@ -295,7 +299,7 @@ export default function InvitationEditPage() {
                   />
                 </div>
                 <div className={styles.formField}>
-                  <label className={styles.formLabel}>Heure (optionnel)</label>
+                  <label className={styles.formLabel}>Heure</label>
                   <input
                     type="time"
                     value={formData.eventTime}
@@ -308,9 +312,8 @@ export default function InvitationEditPage() {
 
             {/* 4. Lieu (affiché en cinquième dans l'invitation) */}
             <div className={styles.formGroup}>
-              <h3>4. Lieu de l'événement</h3>
+              <h3>4. Lieu de l'événement *</h3>
               <div className={styles.formField}>
-                <label className={styles.formLabel}>Lieu complet *</label>
                 <input
                   type="text"
                   value={formData.location}
@@ -324,9 +327,8 @@ export default function InvitationEditPage() {
 
             {/* 5. Informations complémentaires (affichées en dernier dans l'invitation) */}
             <div className={styles.formGroup}>
-              <h3>5. Informations complémentaires</h3>
+              <h3>5. Détails supplémentaires (optionnel)</h3>
               <div className={styles.formField}>
-                <label className={styles.formLabel}>Détails supplémentaires (optionnel)</label>
                 <textarea
                   value={formData.moreInfo}
                   onChange={(e) => setFormData(prev => ({ ...prev, moreInfo: e.target.value }))}
@@ -337,37 +339,37 @@ export default function InvitationEditPage() {
               </div>
             </div>
 
-            <div className={styles.formActions}>
-              <button 
-                type="button"
-                className={styles.cancelButton}
-                onClick={() => router.push(`/client/invitations/${invitation.id}`)}
-              >
-                <X style={{ width: '16px', height: '16px' }} />
-                Annuler
-              </button>
-              <button 
-                type="submit"
-                className={styles.saveButton}
-              >
-                <Save style={{ width: '16px', height: '16px' }} />
-                Sauvegarder
-              </button>
-            </div>
-          </form>
-        </div>
+              <div className={styles.formActions}>
+                <button 
+                  type="button"
+                  className={styles.cancelButton}
+                  onClick={() => router.push(`/client/invitations/${invitation.id}`)}
+                >
+                  <X size={18} />
+                  Annuler
+                </button>
+                <button 
+                  type="submit"
+                  className={styles.saveButton}
+                >
+                  <Save size={18} />
+                  Sauvegarder
+                </button>
+              </div>
+            </form>
+          </div>
 
-        <div className={styles.previewSection}>
-          <div className={styles.previewContainer}>
-            <h3>Aperçu en temps réel</h3>
-            <div 
-              className={styles.previewContent}
-              dangerouslySetInnerHTML={{ __html: getPreviewHtml() }}
-              key={`preview-edit-${invitation?.id}-${formData.eventTitle}-${formData.eventDate}`}
-            />
+          <div className={styles.previewSection}>
+            <div className={styles.previewContainer}>
+              <div 
+                className={styles.previewContent}
+                dangerouslySetInnerHTML={{ __html: getPreviewHtml() }}
+                key={`preview-edit-${invitation?.id}-${formData.eventTitle}-${formData.eventDate}`}
+              />
+            </div>
           </div>
         </div>
-      </div>
+      </main>
     </div>
   );
 } 

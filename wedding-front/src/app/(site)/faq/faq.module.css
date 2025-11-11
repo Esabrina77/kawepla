@@ -1,15 +1,19 @@
-/* ===== FAQ PAGE - LUXURY DESIGN SYSTEM ===== */
-
+/* ============================================
+   FAQ PAGE
+   ============================================ */
 .faqPage {
   background: var(--bg-primary);
   min-height: 100vh;
 }
 
-/* Hero Section */
+/* ============================================
+   HERO SECTION
+   ============================================ */
 .hero {
-  background: linear-gradient(135deg, var(--luxury-champagne-gold) 0%, var(--luxury-rose-quartz) 100%);
-  padding: var(--space-3xl) var(--space-lg);
+  background: var(--bg-card);
+  padding: var(--space-2xl) var(--space-lg);
   text-align: center;
+  border-bottom: 1px solid var(--border-color);
 }
 
 .heroContent {
@@ -18,76 +22,83 @@
 }
 
 .title {
-  font-family: var(--font-sans);
-  font-size: clamp(2rem, 5vw, 3.5rem);
+  font-size: 2.5rem;
   font-weight: 700;
-  color: white;
-  margin-bottom: var(--space-md);
+  color: var(--luxury-velvet-black);
+  margin-bottom: var(--space-sm);
   line-height: 1.2;
 }
 
+.titleAccent {
+  color: var(--luxury-champagne-gold);
+}
+
 .subtitle {
-  font-size: clamp(1rem, 2vw, 1.25rem);
-  color: rgba(255, 255, 255, 0.95);
+  font-size: 1.125rem;
+  color: var(--text-secondary);
   line-height: 1.6;
 }
 
-.subtitle a {
-  color: white;
-  text-decoration: underline;
-  font-weight: 600;
-}
-
-.subtitle a:hover {
-  text-decoration: none;
-}
-
-/* FAQ Content */
+/* ============================================
+   FAQ CONTENT
+   ============================================ */
 .faqContent {
-  padding: var(--space-3xl) var(--space-lg);
+  padding: var(--space-2xl) var(--space-lg);
 }
 
 .container {
-  max-width: 1000px;
+  max-width: 900px;
   margin: 0 auto;
 }
 
 .category {
-  margin-bottom: var(--space-3xl);
+  margin-bottom: var(--space-xl);
 }
 
 .categoryTitle {
-  font-family: var(--font-sans);
-  font-size: 1.75rem;
-  font-weight: 700;
-  color: var(--luxury-champagne-gold);
-  margin-bottom: var(--space-xl);
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: var(--space-md);
   padding-bottom: var(--space-sm);
-  border-bottom: 3px solid var(--luxury-champagne-gold);
+  border-bottom: 2px solid var(--border-color);
+}
+
+.categoryIcon {
+  width: 24px;
+  height: 24px;
+  color: var(--luxury-champagne-gold);
 }
 
 .questions {
   display: flex;
   flex-direction: column;
-  gap: var(--space-md);
+  gap: var(--space-sm);
 }
 
 .questionItem {
   background: var(--bg-card);
   border: 1px solid var(--border-color);
-  border-radius: var(--radius-lg);
-  padding: var(--space-lg);
+  border-radius: var(--radius-md);
+  padding: var(--space-md);
   transition: all var(--transition-normal);
 }
 
 .questionItem:hover {
-  box-shadow: var(--shadow-md);
   border-color: var(--luxury-champagne-gold);
+  box-shadow: var(--shadow-sm);
 }
 
 .questionItem[open] {
   border-color: var(--luxury-champagne-gold);
-  box-shadow: var(--shadow-lg);
+  box-shadow: var(--shadow-sm);
+}
+
+.questionItem[open] .icon {
+  transform: rotate(180deg);
 }
 
 .question {
@@ -95,8 +106,7 @@
   align-items: center;
   justify-content: space-between;
   gap: var(--space-md);
-  font-family: var(--font-sans);
-  font-size: 1.125rem;
+  font-size: 1rem;
   font-weight: 600;
   color: var(--text-primary);
   cursor: pointer;
@@ -110,57 +120,56 @@
 
 .question span {
   flex: 1;
+  line-height: 1.5;
 }
 
 .icon {
-  width: 24px;
-  height: 24px;
+  width: 20px;
+  height: 20px;
   color: var(--luxury-champagne-gold);
   transition: transform var(--transition-normal);
   flex-shrink: 0;
 }
 
-.questionItem[open] .icon {
-  transform: rotate(180deg);
-}
-
 .answer {
-  margin-top: var(--space-lg);
-  padding-top: var(--space-lg);
+  margin-top: var(--space-md);
+  padding-top: var(--space-md);
   border-top: 1px solid var(--border-color);
 }
 
 .answer p {
-  font-size: 1rem;
-  line-height: 1.7;
+  font-size: 0.875rem;
+  line-height: 1.6;
   color: var(--text-secondary);
   margin: 0;
 }
 
-/* CTA Section */
+/* ============================================
+   CTA SECTION
+   ============================================ */
 .ctaSection {
-  background: var(--bg-secondary);
-  padding: var(--space-3xl) var(--space-lg);
+  background: var(--bg-card);
+  padding: var(--space-2xl) var(--space-lg);
   text-align: center;
+  border-top: 1px solid var(--border-color);
 }
 
 .ctaContent {
-  max-width: 700px;
+  max-width: 600px;
   margin: 0 auto;
 }
 
-.ctaContent h2 {
-  font-family: var(--font-sans);
-  font-size: clamp(1.75rem, 4vw, 2.5rem);
+.ctaTitle {
+  font-size: 2rem;
   font-weight: 700;
-  color: var(--text-primary);
-  margin-bottom: var(--space-md);
+  color: var(--luxury-velvet-black);
+  margin-bottom: var(--space-sm);
 }
 
-.ctaContent p {
-  font-size: 1.125rem;
+.ctaDescription {
+  font-size: 1rem;
   color: var(--text-secondary);
-  margin-bottom: var(--space-xl);
+  margin-bottom: var(--space-lg);
 }
 
 .ctaButtons {
@@ -173,12 +182,12 @@
 .ctaButton {
   display: inline-flex;
   align-items: center;
-  gap: var(--space-sm);
-  padding: var(--space-md) var(--space-xl);
-  background: var(--luxury-champagne-gold);
-  color: var(--luxury-velvet-black);
+  gap: var(--space-xs);
+  padding: var(--space-sm) var(--space-lg);
+  background: var(--luxury-velvet-black);
+  color: var(--luxury-ivory);
   border-radius: var(--radius-md);
-  font-size: 1rem;
+  font-size: 0.9375rem;
   font-weight: 600;
   text-decoration: none;
   transition: all var(--transition-normal);
@@ -186,76 +195,87 @@
 }
 
 .ctaButton:hover {
-  background: #8C775D;
-  transform: translateY(-2px);
+  background: var(--luxury-burgundy);
+  transform: translateY(-1px);
   box-shadow: var(--shadow-md);
 }
 
 .ctaButtonSecondary {
   display: inline-flex;
   align-items: center;
-  gap: var(--space-sm);
-  padding: var(--space-md) var(--space-xl);
+  gap: var(--space-xs);
+  padding: var(--space-sm) var(--space-lg);
   background: transparent;
-  color: var(--text-primary);
-  border: 2px solid var(--luxury-champagne-gold);
+  color: var(--luxury-velvet-black);
+  border: 2px solid var(--border-color);
   border-radius: var(--radius-md);
-  font-size: 1rem;
+  font-size: 0.9375rem;
   font-weight: 600;
   text-decoration: none;
   transition: all var(--transition-normal);
 }
 
 .ctaButtonSecondary:hover {
-  background: var(--luxury-champagne-gold);
-  color: var(--luxury-velvet-black);
-  transform: translateY(-2px);
-}
-
-/* SEO Content */
-.seoContent {
-  padding: var(--space-3xl) var(--space-lg);
-  background: white;
-}
-
-.seoContent h2 {
-  font-family: var(--font-sans);
-  font-size: 1.75rem;
-  font-weight: 700;
-  color: var(--text-primary);
-  margin-bottom: var(--space-lg);
-  text-align: center;
-}
-
-.seoContent p {
-  font-size: 1rem;
-  line-height: 1.8;
-  color: var(--text-secondary);
-  margin-bottom: var(--space-md);
-  text-align: justify;
-}
-
-.seoContent strong {
+  border-color: var(--luxury-champagne-gold);
   color: var(--luxury-champagne-gold);
-  font-weight: 600;
 }
 
-/* Responsive */
+.ctaIcon {
+  width: 18px;
+  height: 18px;
+}
+
+/* ============================================
+   RESPONSIVE
+   ============================================ */
 @media (max-width: 768px) {
   .hero {
-    padding: var(--space-2xl) var(--space-md);
+    padding: var(--space-xl) var(--space-md);
+  }
+
+  .title {
+    font-size: 2rem;
+  }
+
+  .subtitle {
+    font-size: 1rem;
   }
 
   .faqContent {
-    padding: var(--space-2xl) var(--space-md);
+    padding: var(--space-xl) var(--space-md);
+  }
+
+  .category {
+    margin-bottom: var(--space-lg);
+  }
+
+  .categoryTitle {
+    font-size: 1.25rem;
+    margin-bottom: var(--space-sm);
   }
 
   .questionItem {
-    padding: var(--space-md);
+    padding: var(--space-sm) var(--space-md);
   }
 
   .question {
-    font-size: 1rem;
+    font-size: 0.9375rem;
+  }
+
+  .answer p {
+    font-size: 0.8125rem;
+  }
+
+  .ctaSection {
+    padding: var(--space-xl) var(--space-md);
+  }
+
+  .ctaTitle {
+    font-size: 1.75rem;
+  }
+
+  .ctaDescription {
+    font-size: 0.9375rem;
   }
 
   .ctaButtons {
@@ -270,3 +290,12 @@
   }
 }
 
+@media (max-width: 480px) {
+  .title {
+    font-size: 1.75rem;
+  }
+
+  .ctaTitle {
+    font-size: 1.5rem;
+  }
+}

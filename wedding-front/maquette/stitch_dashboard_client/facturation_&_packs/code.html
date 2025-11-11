@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html class="dark" lang="fr"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Facturation &amp; Packs d'achat</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet"/>
+<style>
+    body {
+      font-family: 'Inter', sans-serif;
+    }
+  </style>
+<script>
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            "primary": "#A58866",
+            "background-light": "#F7F7F6",
+            "background-dark": "#121212",
+            "card-dark": "#4A4A4A",
+            "highlight-dark": "#E8C0C0"
+          },
+          fontFamily: {
+            "display": ["Inter", "sans-serif"]
+          },
+          borderRadius: {
+            "DEFAULT": "0.5rem",
+            "lg": "0.75rem",
+            "xl": "1rem",
+            "full": "9999px"
+          },
+        },
+      },
+    }
+  </script>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background-dark font-display text-white">
+<div class="relative flex min-h-screen w-full flex-col">
+<header class="flex items-center p-4 pb-2 justify-between sticky top-0 bg-background-dark/80 backdrop-blur-sm z-10">
+<div class="flex size-10 shrink-0 items-center justify-center">
+<span class="material-symbols-outlined text-2xl">arrow_back</span>
+</div>
+<h1 class="text-white text-lg font-bold leading-tight tracking-[-0.015em] flex-1 text-center">Facturation &amp; Packs d'achat</h1>
+<div class="size-10 shrink-0"></div> 
+</header>
+<main class="flex-1 p-4 pb-28">
+<section class="bg-card-dark rounded-xl p-5 mb-8">
+<h2 class="text-lg font-bold leading-tight tracking-[-0.015em] mb-5">Votre statut actuel</h2>
+<div class="space-y-4">
+<div class="flex items-center gap-4 justify-between">
+<div class="flex items-center gap-4">
+<div class="flex items-center justify-center rounded-lg bg-[#33312e] shrink-0 size-10">
+<span class="material-symbols-outlined text-2xl">package_2</span>
+</div>
+<p class="text-base font-medium leading-normal flex-1 truncate">Pack ELEGANT</p>
+</div>
+<div class="shrink-0">
+<span class="text-sm font-semibold bg-gray-600/50 text-white px-2.5 py-1 rounded-full">x2</span>
+</div>
+</div>
+<div class="flex items-center gap-4 justify-between">
+<div class="flex items-center gap-4">
+<div class="flex items-center justify-center rounded-lg bg-[#33312e] shrink-0 size-10">
+<span class="material-symbols-outlined text-2xl">package_2</span>
+</div>
+<p class="text-base font-medium leading-normal flex-1 truncate">Pack ROYAL</p>
+</div>
+<div class="shrink-0">
+<span class="text-sm font-semibold bg-gray-600/50 text-white px-2.5 py-1 rounded-full">x1</span>
+</div>
+</div>
+</div>
+<hr class="border-gray-500/50 my-6"/>
+<h3 class="text-md font-semibold leading-tight tracking-[-0.015em] mb-5">Limites actuelles</h3>
+<div class="space-y-5">
+<div class="flex flex-col gap-2">
+<div class="flex gap-4 justify-between items-end">
+<p class="text-base font-medium leading-normal">Invitations</p>
+<p class="text-sm font-normal leading-normal text-gray-300">750 / 1000</p>
+</div>
+<div class="w-full bg-gray-600/50 rounded-full h-2">
+<div class="bg-primary h-2 rounded-full" style="width: 75%;"></div>
+</div>
+</div>
+<div class="flex flex-col gap-2">
+<div class="flex gap-4 justify-between items-end">
+<p class="text-base font-medium leading-normal">Invités</p>
+<p class="text-sm font-normal leading-normal text-gray-300">450 / 500</p>
+</div>
+<div class="w-full bg-gray-600/50 rounded-full h-2">
+<div class="bg-primary h-2 rounded-full" style="width: 90%;"></div>
+</div>
+</div>
+<div class="flex flex-col gap-2">
+<div class="flex gap-4 justify-between items-end">
+<p class="text-base font-medium leading-normal">Photos</p>
+<p class="text-sm font-normal leading-normal text-gray-300">1200 / 2000</p>
+</div>
+<div class="w-full bg-gray-600/50 rounded-full h-2">
+<div class="bg-primary h-2 rounded-full" style="width: 60%;"></div>
+</div>
+</div>
+</div>
+<button class="mt-8 flex w-full items-center justify-center gap-2 rounded-lg bg-gray-600/50 px-6 py-3.5 text-base font-semibold text-white">
+<span class="material-symbols-outlined text-xl">history</span>
+          Voir l'historique
+        </button>
+</section>
+<section>
+<h2 class="text-lg font-bold leading-tight tracking-[-0.015em] mb-5">Upgradez votre expérience</h2>
+<div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+<div class="bg-card-dark rounded-xl p-5 flex flex-col">
+<h3 class="text-xl font-bold text-white mb-2">FREE</h3>
+<p class="text-2xl font-bold text-white mb-4">Gratuit</p>
+<ul class="space-y-2 text-sm text-gray-300 mb-6 flex-grow">
+<li class="flex items-center gap-2"><span class="material-symbols-outlined text-primary text-base">check_circle</span> 10 Invitations</li>
+<li class="flex items-center gap-2"><span class="material-symbols-outlined text-primary text-base">check_circle</span> 10 Invités</li>
+<li class="flex items-center gap-2"><span class="material-symbols-outlined text-primary text-base">check_circle</span> 50 Photos</li>
+</ul>
+<button class="w-full rounded-lg bg-gray-600/50 px-6 py-3.5 text-base font-semibold text-gray-400 cursor-not-allowed" disabled="">Pack actuel</button>
+</div>
+<div class="bg-card-dark rounded-xl p-5 flex flex-col">
+<h3 class="text-xl font-bold text-white mb-2">ELEGANT</h3>
+<div class="flex items-baseline gap-2 mb-4">
+<p class="text-2xl font-bold text-white">49.99€</p>
+<p class="text-base font-medium text-gray-400 line-through">69.99€</p>
+<span class="text-xs font-bold bg-highlight-dark/20 text-highlight-dark px-2 py-1 rounded-full">-28%</span>
+</div>
+<ul class="space-y-2 text-sm text-gray-300 mb-6 flex-grow">
+<li class="flex items-center gap-2"><span class="material-symbols-outlined text-primary text-base">check_circle</span> 100 Invitations</li>
+<li class="flex items-center gap-2"><span class="material-symbols-outlined text-primary text-base">check_circle</span> 100 Invités</li>
+<li class="flex items-center gap-2"><span class="material-symbols-outlined text-primary text-base">check_circle</span> 500 Photos</li>
+</ul>
+<button class="w-full rounded-lg bg-primary px-6 py-3.5 text-base font-semibold text-white">Acheter le pack</button>
+</div>
+<div class="bg-card-dark rounded-xl p-5 flex flex-col border-2 border-primary relative overflow-hidden">
+<div class="absolute top-0 right-0 bg-primary text-white text-xs font-bold px-8 py-1.5 rotate-45 translate-x-1/4 translate-y-2.5 origin-center">POPULAIRE</div>
+<h3 class="text-xl font-bold text-white mb-2">ROYAL</h3>
+<div class="flex items-baseline gap-2 mb-4">
+<p class="text-2xl font-bold text-white">99.99€</p>
+<p class="text-base font-medium text-gray-400 line-through">149.99€</p>
+<span class="text-xs font-bold bg-highlight-dark/20 text-highlight-dark px-2 py-1 rounded-full">-33%</span>
+</div>
+<ul class="space-y-2 text-sm text-gray-300 mb-6 flex-grow">
+<li class="flex items-center gap-2"><span class="material-symbols-outlined text-primary text-base">check_circle</span> 500 Invitations</li>
+<li class="flex items-center gap-2"><span class="material-symbols-outlined text-primary text-base">check_circle</span> 500 Invités</li>
+<li class="flex items-center gap-2"><span class="material-symbols-outlined text-primary text-base">check_circle</span> 2000 Photos</li>
+</ul>
+<button class="w-full rounded-lg bg-primary px-6 py-3.5 text-base font-semibold text-white">Acheter le pack</button>
+</div>
+<div class="bg-card-dark rounded-xl p-5 flex flex-col">
+<h3 class="text-xl font-bold text-white mb-2">LUXE</h3>
+<div class="flex items-baseline gap-2 mb-4">
+<p class="text-2xl font-bold text-white">199.99€</p>
+<p class="text-base font-medium text-gray-400 line-through">299.99€</p>
+<span class="text-xs font-bold bg-highlight-dark/20 text-highlight-dark px-2 py-1 rounded-full">-33%</span>
+</div>
+<ul class="space-y-2 text-sm text-gray-300 mb-6 flex-grow">
+<li class="flex items-center gap-2"><span class="material-symbols-outlined text-primary text-base">check_circle</span> Illimité</li>
+<li class="flex items-center gap-2"><span class="material-symbols-outlined text-primary text-base">check_circle</span> Illimité</li>
+<li class="flex items-center gap-2"><span class="material-symbols-outlined text-primary text-base">check_circle</span> Illimité</li>
+</ul>
+<button class="w-full rounded-lg bg-primary px-6 py-3.5 text-base font-semibold text-white">Acheter le pack</button>
+</div>
+</div>
+</section>
+</main>
+<nav class="fixed bottom-0 left-0 right-0 h-[80px] bg-background-dark/80 backdrop-blur-sm flex justify-around items-center z-20 border-t border-card-dark/50">
+<a class="flex flex-col items-center justify-center text-primary w-1/4" href="#">
+<span class="material-symbols-outlined">dashboard</span>
+<span class="text-xs font-medium">Tableau de bord</span>
+</a>
+<a class="flex flex-col items-center justify-center text-gray-400 w-1/4" href="#">
+<span class="material-symbols-outlined">add_circle</span>
+<span class="text-xs font-medium">Créer</span>
+</a>
+<a class="flex flex-col items-center justify-center text-gray-400 w-1/4" href="#">
+<span class="material-symbols-outlined">groups</span>
+<span class="text-xs font-medium">Invités</span>
+</a>
+<button class="flex flex-col items-center justify-center text-gray-400 w-1/4">
+<span class="material-symbols-outlined">more_horiz</span>
+<span class="text-xs font-medium">Plus</span>
+</button>
+</nav>
+</div>
+
+</body></html>

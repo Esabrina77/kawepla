@@ -19,8 +19,6 @@ interface RSVPResponse {
   status: 'PENDING' | 'CONFIRMED' | 'DECLINED';
   numberOfGuests?: number;
   message?: string;
-  attendingCeremony?: boolean;
-  attendingReception?: boolean;
   profilePhotoUrl?: string;
   plusOne?: boolean;
   plusOneName?: string;
@@ -56,8 +54,6 @@ export default function SharedRSVPThankYouPage({ params }: { params: Promise<{ s
             status: parsedData.rsvp.status,
             numberOfGuests: parsedData.rsvp.numberOfGuests,
             message: parsedData.rsvp.message,
-            attendingCeremony: parsedData.rsvp.attendingCeremony,
-            attendingReception: parsedData.rsvp.attendingReception,
             plusOne: parsedData.rsvp.plusOne,
             plusOneName: parsedData.rsvp.plusOneName,
             dietaryRestrictions: parsedData.rsvp.dietaryRestrictions,
@@ -81,8 +77,6 @@ export default function SharedRSVPThankYouPage({ params }: { params: Promise<{ s
                 status: statusData.rsvp?.status || 'PENDING',
                 numberOfGuests: statusData.rsvp?.numberOfGuests,
                 message: statusData.rsvp?.message,
-                attendingCeremony: statusData.rsvp?.attendingCeremony,
-                attendingReception: statusData.rsvp?.attendingReception,
                 plusOne: statusData.rsvp?.plusOne,
                 plusOneName: statusData.rsvp?.plusOneName,
                 dietaryRestrictions: statusData.rsvp?.dietaryRestrictions,
@@ -141,12 +135,12 @@ export default function SharedRSVPThankYouPage({ params }: { params: Promise<{ s
     <div className={styles.container}>
       <div className={styles.thankYouCard}>
         <div className={styles.headerSection}>
-          <div className={styles.badge}>
+          <div className={`${styles.badge} ${status.status === 'CONFIRMED' ? styles.confirmed : styles.declined}`}>
             <CheckCircle style={{ width: '16px', height: '16px' }} />
             Confirmation RSVP
           </div>
           
-          <div className={styles.iconContainer}>
+          <div className={`${styles.iconContainer} ${status.status === 'CONFIRMED' ? styles.confirmed : styles.declined}`}>
             {status.status === 'CONFIRMED' ? (
               <CheckCircle className={styles.successIcon} />
             ) : (
@@ -155,7 +149,7 @@ export default function SharedRSVPThankYouPage({ params }: { params: Promise<{ s
           </div>
           
           <h1 className={styles.title}>
-            Merci pour votre <span className={styles.titleAccent}>réponse</span> !
+            Merci pour votre <span className={`${styles.titleAccent} ${status.status === 'CONFIRMED' ? styles.confirmed : styles.declined}`}>réponse</span> !
           </h1>
 
           {/* Affichage des informations personnelles */}
@@ -174,8 +168,8 @@ export default function SharedRSVPThankYouPage({ params }: { params: Promise<{ s
               </p>
               
               <div className={styles.detailsGrid}>
-                <div className={styles.detailItem}>
-                  <div className={styles.detailIcon}>
+                <div className={`${styles.detailItem} ${styles.confirmed}`}>
+                  <div className={`${styles.detailIcon} ${styles.confirmed}`}>
                     <Users />
                   </div>
                   <div className={styles.detailContent}>
@@ -186,29 +180,6 @@ export default function SharedRSVPThankYouPage({ params }: { params: Promise<{ s
                   </div>
                 </div>
                 
-                {status.attendingCeremony && (
-                  <div className={styles.detailItem}>
-                    <div className={styles.detailIcon}>
-                      <Heart />
-                    </div>
-                    <div className={styles.detailContent}>
-                      <span className={styles.detailValue}>cérémonie</span>
-                      <span className={styles.detailLabel}>Présent(e)</span>
-                    </div>
-                  </div>
-                )}
-                
-                {status.attendingReception && (
-                  <div className={styles.detailItem}>
-                                         <div className={styles.detailIcon}>
-                       <Wine />
-                     </div>
-                    <div className={styles.detailContent}>
-                      <span className={styles.detailValue}>réception</span>
-                      <span className={styles.detailLabel}>Présent(e)</span>
-                    </div>
-                  </div>
-                )}
               </div>
             </div>
           ) : (

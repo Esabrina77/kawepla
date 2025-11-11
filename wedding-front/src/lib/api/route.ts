@@ -12,8 +12,6 @@ export async function POST(
       status: formData.get('status') as 'CONFIRMED' | 'DECLINED' | 'PENDING',
       numberOfGuests: parseInt(formData.get('numberOfGuests') as string, 10) || 1,
       message: formData.get('message') as string,
-      attendingCeremony: formData.get('attendingCeremony') === 'on',
-      attendingReception: formData.get('attendingReception') === 'on',
       dietaryRestrictions: formData.get('dietaryRestrictions') as string,
     };
 

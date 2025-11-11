@@ -258,8 +258,6 @@ export class RSVPController {
       const rsvp = await RSVPService.createRSVP(guest.inviteToken, {
         status: validatedData.status,
         message: validatedData.message,
-        attendingCeremony: validatedData.attendingCeremony,
-        attendingReception: validatedData.attendingReception,
         profilePhotoUrl: validatedData.profilePhotoUrl,
         plusOne: validatedData.plusOne,
         plusOneName: validatedData.plusOneName,
@@ -284,9 +282,7 @@ export class RSVPController {
         rsvp: {
           status: rsvp.status,
           numberOfGuests: rsvp.numberOfGuests,
-          message: rsvp.message,
-          attendingCeremony: rsvp.attendingCeremony,
-          attendingReception: rsvp.attendingReception
+          message: rsvp.message
         },
         invitation: {
           eventTitle: invitation.eventTitle,

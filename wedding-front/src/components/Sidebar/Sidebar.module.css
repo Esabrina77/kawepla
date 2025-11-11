@@ -7,14 +7,17 @@
   bottom: 0;
   width: 280px;
   height: 100vh;
-  background: var(--bg-card);
-  border-right: 1px solid var(--border-color);
+  background: var(--bg-primary);
+  border-right: 1px solid rgba(74, 74, 74, 0.2);
   transition: all var(--transition-normal);
   display: flex;
   flex-direction: column;
   z-index: 100;
-  box-shadow: var(--shadow-xl);
-  backdrop-filter: blur(10px);
+  box-shadow: var(--shadow-sm);
+}
+
+[data-theme="dark"] .sidebar {
+  border-right-color: rgba(74, 74, 74, 0.5);
 }
 
 .sidebar.collapsed {
@@ -52,8 +55,12 @@
   align-items: center;
   justify-content: space-between;
   height: 90px;
-  background: var(--bg-secondary);
-  border-bottom: 1px solid var(--border-color);
+  background: transparent;
+  border-bottom: 1px solid rgba(74, 74, 74, 0.2);
+}
+
+[data-theme="dark"] .sidebarHeader {
+  border-bottom-color: rgba(74, 74, 74, 0.5);
 }
 
 .sidebarHeaderButtons {
@@ -90,8 +97,6 @@
 }
 
 .logoImage {
-  width: 80px;
-  height: auto;
   transition: all var(--transition-normal);
   filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
   object-fit: contain;
@@ -104,8 +109,8 @@
 .toggleButton {
   width: 32px;
   height: 32px;
-  border: 1px solid var(--border-color);
-  background: var(--bg-primary);
+  border: 1px solid rgba(74, 74, 74, 0.2);
+  background: transparent;
   cursor: pointer;
   color: var(--text-primary);
   display: flex;
@@ -115,14 +120,20 @@
   font-weight: 600;
   border-radius: var(--radius-md);
   transition: all var(--transition-normal);
-  box-shadow: var(--shadow-sm);
+}
+
+[data-theme="dark"] .toggleButton {
+  border-color: rgba(74, 74, 74, 0.5);
 }
 
 .toggleButton:hover {
-  background: var(--color-primary);
-  color: var(--color-dark);
-  transform: scale(1.05);
-  box-shadow: var(--shadow-md);
+  background: var(--luxury-champagne-gold);
+  color: var(--luxury-velvet-black);
+  border-color: var(--luxury-champagne-gold);
+}
+
+[data-theme="dark"] .toggleButton:hover {
+  color: var(--text-primary);
 }
 
 .toggleIcon {
@@ -160,25 +171,23 @@
   transition: all var(--transition-normal);
   gap: var(--space-sm);
   border: 1px solid transparent;
-  background: var(--bg-primary);
-  backdrop-filter: blur(5px);
+  background: transparent;
   position: relative;
 }
 
 .navItem:hover {
-  background: var(--color-primary);
-  color: var(--color-dark);
-  transform: translateX(4px);
-  box-shadow: var(--shadow-md);
-  border-color: var(--color-primary);
+  background: rgba(165, 136, 102, 0.1);
+  color: var(--text-primary);
 }
 
 .navItem.active {
-  background: var(--color-primary);
-  color: var(--color-dark);
-  box-shadow: var(--shadow-lg);
-  border-color: var(--color-primary);
-  transform: translateX(4px);
+  background: var(--luxury-champagne-gold);
+  color: var(--luxury-velvet-black);
+  border-color: var(--luxury-champagne-gold);
+}
+
+[data-theme="dark"] .navItem.active {
+  color: var(--text-primary);
 }
 
 /* Icons */
@@ -244,8 +253,12 @@
 /* Footer Section */
 .sidebarFooter {
   padding: var(--space-sm);
-  border-top: 1px solid var(--border-color);
-  background: var(--bg-secondary);
+  border-top: 1px solid rgba(74, 74, 74, 0.2);
+  background: transparent;
+}
+
+[data-theme="dark"] .sidebarFooter {
+  border-top-color: rgba(74, 74, 74, 0.5);
 }
 
 .footerContent {
@@ -257,9 +270,9 @@
 .logoutButton {
   width: 100%;
   height: 40px;
-  background: var(--bg-primary);
+  background: transparent;
   color: var(--text-primary);
-  border: 1px solid var(--border-color);
+  border: 1px solid rgba(74, 74, 74, 0.2);
   border-radius: var(--radius-md);
   font-size: 0.8rem;
   font-weight: 500;
@@ -270,12 +283,14 @@
   gap: var(--space-xs);
 }
 
+[data-theme="dark"] .logoutButton {
+  border-color: rgba(74, 74, 74, 0.5);
+}
+
 .logoutButton:hover {
   background: #dc3545;
   color: white;
   border-color: #dc3545;
-  transform: translateY(-1px);
-  box-shadow: var(--shadow-md);
 }
 
 .helpLink {

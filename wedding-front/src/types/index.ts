@@ -22,8 +22,6 @@ export type Guest = {
     id: string;
     status: 'PENDING' | 'CONFIRMED' | 'DECLINED';
     message?: string;
-    attendingCeremony?: boolean;
-    attendingReception?: boolean;
     respondedAt?: string;
     createdAt: string;
     updatedAt: string;
@@ -196,8 +194,6 @@ export interface RSVPMessage {
   id: string;
   message: string;
   status: 'PENDING' | 'CONFIRMED' | 'DECLINED';
-  attendingCeremony: boolean;
-  attendingReception: boolean;
   respondedAt: string | null;
   createdAt: string;
   guest: {

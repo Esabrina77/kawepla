@@ -1,0 +1,85 @@
+/* Header Mobile - Réutilisable */
+
+.header {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: var(--bg-primary);
+  backdrop-filter: blur(8px);
+  padding: 1rem;
+  padding-bottom: 0.5rem;
+}
+
+.backButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  flex-shrink: 0;
+  background: transparent;
+  border: none;
+  color: var(--text-primary);
+  cursor: pointer;
+  transition: opacity var(--transition-fast);
+}
+
+.backButton:hover {
+  opacity: 0.7;
+}
+
+.backButton:active {
+  transform: scale(0.95);
+}
+
+.pageTitle {
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  text-align: center;
+  flex: 1;
+  letter-spacing: -0.015em;
+  line-height: 1.2;
+}
+
+.headerSpacer {
+  width: 2.5rem;
+  height: 2.5rem;
+  flex-shrink: 0;
+}
+
+.themeToggleWrapper {
+  margin-right: 10px;
+  flex-shrink: 0;
+}
+
+/* Responsive */
+@media (min-width: 768px) {
+  .header {
+    padding: 1rem 2rem 0.5rem;
+  }
+  
+  .themeToggle {
+    margin-right: 0;
+  }
+}
+
+/* Desktop avec sidebar */
+@media (min-width: 769px) {
+  .header {
+    padding-left: 190px; /* Réduit de 100px pour rapprocher de la sidebar */
+    padding-right: 1rem;
+    transition: padding-left var(--transition-normal);
+  }
+}
+
+/* Desktop avec sidebar collapsed - Utilise un attribut data sur le body */
+@media (min-width: 769px) {
+  :global(body[data-sidebar-collapsed="true"]) .header {
+    padding-left: 80px; /* Aligné directement avec la sidebar collapsed */
+  }
+}
+

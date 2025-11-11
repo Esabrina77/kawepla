@@ -2,29 +2,20 @@
 
 import { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
+import { HeaderMobile } from '@/components/HeaderMobile';
 import { useInvitations } from '@/hooks/useInvitations';
 import { useDesigns } from '@/hooks/useDesigns';
 import { TemplateEngine } from '@/lib/templateEngine';
+import { Edit, Globe } from 'lucide-react';
 import styles from './invitation-detail.module.css';
 
 export default function InvitationDetailPage() {
   const params = useParams();
   const router = useRouter();
-  const { getInvitationById, updateInvitation, publishInvitation, loading } = useInvitations();
+  const { getInvitationById, publishInvitation, loading } = useInvitations();
   const { designs } = useDesigns();
   
   const [invitation, setInvitation] = useState<any>(null);
-  const [isEditing, setIsEditing] = useState(false);
-  // NOUVELLE ARCHITECTURE SIMPLIFIÉE
-  const [formData, setFormData] = useState({
-    eventTitle: '',
-    eventDate: '',
-    eventTime: '',
-    location: '',
-    eventType: 'event' as any,
-    customText: '',
-    moreInfo: ''
-  });
 
   useEffect(() => {
     if (params.id) {
@@ -36,26 +27,6 @@ export default function InvitationDetailPage() {
     const invitationData = await getInvitationById(id);
     if (invitationData) {
       setInvitation(invitationData);
-      setFormData({
-        eventTitle: invitationData.eventTitle || '',
-        eventDate: invitationData.eventDate || '',
-        eventTime: invitationData.eventTime || '',
-        location: invitationData.location || '',
-        eventType: invitationData.eventType || 'event',
-        customText: invitationData.customText || '',
-        moreInfo: invitationData.moreInfo || ''
-      });
-    }
-  };
-
-  const handleSave = async () => {
-    if (!invitation) return;
-    
-    const result = await updateInvitation(invitation.id, formData);
-    if (result) {
-      setInvitation(result);
-      setIsEditing(false);
-      // Suppression de l'alert pour éviter les problèmes avec les navigateurs
     }
   };
 
@@ -104,81 +75,41 @@ export default function InvitationDetailPage() {
   };
 
   if (loading) {
-    return <div className={styles.loading}>Chargement de l'invitation...</div>;
+    return (
+      <div className={styles.invitationDetail}>
+        <HeaderMobile title="Détail de l'invitation" />
+        <div className={styles.loadingContainer}>
+          <div className={styles.loadingContent}>
+            <div className={styles.loadingSpinner}></div>
+            <p>Chargement...</p>
+          </div>
+        </div>
+      </div>
+    );
   }
 
   if (!invitation) {
     return (
-      <div className={styles.error}>
-        <h2>Invitation non trouvée</h2>
-        <button onClick={() => router.push('/client/invitations')}>
-          Retour aux invitations
-        </button>
+      <div className={styles.invitationDetail}>
+        <HeaderMobile title="Détail de l'invitation" />
+        <div className={styles.errorContainer}>
+          <div className={styles.errorContent}>
+            <h2>Invitation non trouvée</h2>
+            <button onClick={() => router.push('/client/invitations')} className={styles.backButton}>
+              Retour aux invitations
+            </button>
+          </div>
+        </div>
       </div>
     );
   }
 
   return (
     <div className={styles.invitationDetail}>
-      <div className={styles.header}>
-        <div className={styles.headerLeft}>
-          <button 
-            className={styles.backButton}
-            onClick={() => router.push('/client/invitations')}
-          >
-            ← Retour
-          </button>
-          <div className={styles.titleSection}>
-            <h1>{invitation.eventTitle || 'Invitation sans titre'}</h1>
-            <span className={`${styles.status} ${styles[invitation.status?.toLowerCase()]}`}>
-              {invitation.status === 'PUBLISHED' ? 'Publiée' : 'Brouillon'}
-            </span>
-          </div>
-        </div>
-        
-        <div className={styles.headerActions}>
-          {!isEditing && invitation.status === 'DRAFT' && (
-            <button 
-              className={styles.editButton}
-              onClick={() => router.push(`/client/invitations/${invitation.id}/edit`)}
-            >
-              Modifier
-            </button>
-          )}
-          
-          {isEditing && (
-            <div className={styles.editActions}>
-              <button 
-                className={styles.cancelButton}
-                onClick={() => {
-                  setIsEditing(false);
-                  loadInvitation(invitation.id);
-                }}
-              >
-                Annuler
-              </button>
-              <button 
-                className={styles.saveButton}
-                onClick={handleSave}
-              >
-                Sauvegarder
-              </button>
-            </div>
-          )}
-          
-          {invitation.status === 'DRAFT' && (
-            <button 
-              className={styles.publishButton}
-              onClick={handlePublish}
-            >
-              Publier
-            </button>
-          )}
-        </div>
-      </div>
-
-      <div className={styles.content}>
-        {/* Prévisualisation de l'invitation */}
+      <HeaderMobile title={invitation.eventTitle || 'Invitation sans titre'} />
+      
+      <main className={styles.main}>
+        {/* Preview Section - Full Page */}
         <div className={styles.previewSection}>
           <div className={styles.previewContainer}>
             <div 
@@ -189,16 +120,42 @@ export default function InvitationDetailPage() {
           </div>
         </div>
 
-        {/* Section des détails (optionnelle) */}
-        <div className={styles.detailsSection}>
-          <div className={styles.infoCard}>
-            <h3>Design</h3>
-            <div className={styles.designInfo}>
-              <span className={styles.designName}>{getDesignName(invitation.designId)}</span>
-            </div>
+        {/* Info Section - Compact */}
+        <div className={styles.infoSection}>
+          <div className={styles.statusBadge}>
+            <span className={`${styles.status} ${styles[invitation.status?.toLowerCase()]}`}>
+              {invitation.status === 'PUBLISHED' ? 'Publiée' : 'Brouillon'}
+            </span>
+          </div>
+
+          <div className={styles.designInfo}>
+            <span className={styles.designLabel}>Design:</span>
+            <span className={styles.designName}>{getDesignName(invitation.designId)}</span>
+          </div>
+
+          {/* Actions */}
+          <div className={styles.actions}>
+            {invitation.status === 'DRAFT' && (
+              <>
+                <button 
+                  className={styles.actionButton}
+                  onClick={() => router.push(`/client/invitations/${invitation.id}/edit`)}
+                >
+                  <Edit size={18} />
+                  Modifier
+                </button>
+                <button 
+                  className={`${styles.actionButton} ${styles.publishButton}`}
+                  onClick={handlePublish}
+                >
+                  <Globe size={18} />
+                  Publier
+                </button>
+              </>
+            )}
           </div>
         </div>
-      </div>
+      </main>
     </div>
   );
 } 

@@ -33,14 +33,14 @@ export function Footer() {
                 <Image
                   src="/images/logo.png"
                   alt="Kawepla Logo"
-                  width={100}
-                  height={100}
+                  width={150}
+                  height={120}
                   className={`logo-image ${styles.logoImage}`}
                 />
               </div>
             </div>
             <p className={styles.description}>
-              Créez vos invitations de événement numériques et gérez vos invités en toute simplicité.
+              La plateforme tout-en-un pour créer vos invitations, gérer vos invités et partager vos moments.
             </p>
           </div>
 
@@ -56,19 +56,19 @@ export function Footer() {
                 </a>
               </li>
               <li>
-                <a href="/mariage" className={styles.footerLink}>
-                  Mariage
-                </a>
+                <button onClick={() => handleFooterLink('#comment-ca-marche')} className={styles.footerLink}>
+                  Comment ça marche
+                </button>
               </li>
               <li>
-                <a href="/faq" className={styles.footerLink}>
+                <button onClick={() => handleFooterLink('#tarifs')} className={styles.footerLink}>
+                  Tarifs
+                </button>
+              </li>
+              <li>
+                <button onClick={() => handleFooterLink('#faq')} className={styles.footerLink}>
                   FAQ
-                </a>
-              </li>
-              <li>
-                <a href="/contact" className={styles.footerLink}>
-                  Contact
-                </a>
+                </button>
               </li>
               <li>
                 <a href="/auth/register" className={styles.footerLink}>
@@ -116,7 +116,7 @@ export function Footer() {
         {/* Section inférieure */}
         <div className={styles.bottomSection}>
           <p className={styles.copyright}>
-            © 2024 Kawepla. Fait avec <Heart className={styles.heartIcon} size={16} /> en France.
+            © 2025 Kawepla. Fait avec <Heart className={styles.heartIcon} size={16} /> en France.
           </p>
           <div className={styles.legalLinks}>
             <a href="/mentions-legales" className={styles.legalLink}>

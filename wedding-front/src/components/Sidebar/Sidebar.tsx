@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import styles from './Sidebar.module.css';
@@ -84,6 +84,13 @@ const menuItems = [
     description: 'Gérez votre abonnement et facturation',
     priority: 2
   },
+  {
+    title: 'Profil',
+    path: '/client/profile',
+    icon: User,
+    description: 'Gérez votre profil',
+    priority: 2
+  },
   // {
   //   title: 'Outils',
   //   path: '/client/tools',
@@ -99,11 +106,23 @@ export const Sidebar = () => {
   const pathname = usePathname();
   const { logout, user } = useAuth();
 
+  // Initialiser l'attribut data sur le body
+  useEffect(() => {
+    if (typeof document !== 'undefined') {
+      document.body.setAttribute('data-sidebar-collapsed', String(isCollapsed));
+    }
+  }, [isCollapsed]);
+
   // Déterminer le chemin de base pour la correspondance active
   const basePath = pathname?.split('/').slice(0, 3).join('/');
 
   const toggleSidebar = () => {
-    setIsCollapsed(!isCollapsed);
+    const newState = !isCollapsed;
+    setIsCollapsed(newState);
+    // Mettre à jour l'attribut data sur le body pour le CSS
+    if (typeof document !== 'undefined') {
+      document.body.setAttribute('data-sidebar-collapsed', String(newState));
+    }
   };
 
   const toggleMobileMenu = () => {
@@ -124,8 +143,8 @@ export const Sidebar = () => {
             <NextImage 
               src="/images/logo.png" 
               alt="WeddInvite" 
-              width={100} 
-              height={100} 
+              width={130} 
+              height={90} 
               className={styles.logoImage}
               priority
             />

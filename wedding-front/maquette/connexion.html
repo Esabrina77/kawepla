@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="fr"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Connexion</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet"/>
+<style>
+        .form-checkbox:checked {
+            background-color: #a48765;
+            border-color: #a48765;
+        }
+    </style>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#a48765",
+                        "background-light": "#f7f7f6",
+                        "background-dark": "#1c1916",
+                        "custom-bg": "#121212",
+                        "custom-secondary-text": "#4A4A4A",
+                        "custom-accent-secondary": "#E8C0C0",
+                        "custom-input-bg": "#2A2A2A",
+                        "custom-input-border": "#4A4A4A",
+                    },
+                    fontFamily: {
+                        "display": ["Inter", "sans-serif"]
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                },
+            },
+        }
+    </script>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="font-display">
+<div class="relative flex h-auto min-h-screen w-full flex-col bg-custom-bg dark group/design-root overflow-x-hidden">
+<div class="flex w-full grow flex-col justify-center p-6 sm:p-8">
+<div class="mx-auto flex w-full max-w-md flex-col items-center">
+<!-- Zone Supérieure -->
+<div class="w-full flex justify-center mb-8">
+<div class="w-32 h-32 bg-center bg-no-repeat bg-contain" data-alt="Logo de l'application événementielle" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuBg75uJSiNHgN9DathtKjlg2DVxslxuhQZyDprbWn-XHCut87Znx74eJfTCXuZDtjFD1vm7KS71G-elEoZZKO-WWwWTywGGpBHaokZ2kfP7-6LMXxwZp79ohzPS6ajsHxNrRuxbB2iq-CbeQDGc-yU_sH-qD-vp4kySt1kx4qpDl-ZkgjQDCu1X87xA8h-BS2m_k2Sp66HD05inAd7yvhfSla63NMerr3FJtsnUf_Nd_ZXBAISrGyBRTLA0R385LDReDgDxCmS3gWJe");'></div>
+</div>
+<h1 class="text-white tracking-light text-[32px] font-bold leading-tight text-center pb-2">Bienvenue</h1>
+<p class="text-gray-400 text-base font-normal leading-normal pb-8 text-center">Connectez-vous pour accéder à votre espace.</p>
+<!-- Zone Centrale (Formulaire) -->
+<div class="w-full flex flex-col gap-4">
+<!-- Champ Email -->
+<div class="relative flex flex-col w-full">
+<label class="text-gray-400 text-sm font-medium leading-normal pb-2" for="email">Email</label>
+<div class="relative w-full">
+<span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-gray-400">mail</span>
+<input class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-white focus:outline-0 focus:ring-2 focus:ring-primary/50 border border-custom-input-border bg-custom-input-bg h-14 placeholder:text-gray-500 pl-12 pr-4 text-base font-normal leading-normal focus:border-primary" id="email" placeholder="entrez votre email" type="email" value=""/>
+</div>
+</div>
+<!-- Champ Mot de passe -->
+<div class="relative flex flex-col w-full">
+<label class="text-gray-400 text-sm font-medium leading-normal pb-2" for="password">Mot de passe</label>
+<div class="relative w-full">
+<span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-gray-400">lock</span>
+<input class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-white focus:outline-0 focus:ring-2 focus:ring-primary/50 border border-custom-input-border bg-custom-input-bg h-14 placeholder:text-gray-500 pl-12 pr-12 text-base font-normal leading-normal focus:border-primary" id="password" placeholder="entrez votre mot de passe" type="password" value=""/>
+<button class="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400" type="button">
+<span class="material-symbols-outlined">visibility</span>
+</button>
+</div>
+</div>
+<!-- Options -->
+<div class="flex w-full items-center justify-between mt-2">
+<label class="flex items-center gap-2 cursor-pointer">
+<input class="form-checkbox h-5 w-5 rounded border-custom-input-border bg-custom-input-bg text-primary focus:ring-primary/50" type="checkbox"/>
+<span class="text-white text-sm">Se souvenir de moi</span>
+</label>
+<a class="text-primary text-sm font-medium hover:underline" href="#">Mot de passe oublié ?</a>
+</div>
+</div>
+<!-- Zone d'Action -->
+<div class="w-full mt-8">
+<button class="flex h-14 w-full items-center justify-center gap-2 rounded-lg bg-primary px-6 text-base font-bold text-white shadow-lg transition-colors hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 focus:ring-offset-custom-bg">Se connecter</button>
+</div>
+<!-- Zone Inférieure -->
+<div class="w-full text-center mt-8">
+<p class="text-gray-400 text-sm">Pas encore de compte ? <a class="font-bold text-primary hover:underline" href="#">S'inscrire</a></p>
+</div>
+</div>
+</div>
+</div>
+</body></html>

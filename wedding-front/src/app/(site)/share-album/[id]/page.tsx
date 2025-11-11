@@ -299,79 +299,220 @@ export default function ShareAlbumPage() {
 
   return (
     <div className={styles.container}>
-      {/* En-tête explicatif */}
-      <div className={styles.headerSection}>
-        <div className={styles.badge}>
-          <Camera style={{ width: '16px', height: '16px' }} />
-          Album photos partagé
-        </div>
-        
-        <h1 className={styles.title}>
-          {album?.title}
-        </h1>
-        
-        <div className={styles.eventInfo}>
-          <span className={styles.organisateurName}>{album?.invitation.eventTitle}</span>
-          <span className={styles.separator}>•</span>
-          <span className={styles.eventDate}>
-            {new Date(album?.invitation.eventDate || '').toLocaleDateString('fr-FR', {
-              day: 'numeric',
-              month: 'long',
-              year: 'numeric'
-            })}
-          </span>
-        </div>
-
-        {/* Message d'invitation explicite */}
-        <div className={styles.invitationMessage}>
-          <div className={styles.invitationIcon}>
-            <Heart style={{ width: '24px', height: '24px' }} />
-          </div>
-          <h2 className={styles.invitationTitle}>Participez à l'album souvenir !</h2>
-          <p className={styles.invitationText}>
-            Les organisateurs vous invitent à partager vos plus belles photos de cet événement. 
-            Vos souvenirs contribueront à créer un album inoubliable pour tous les invités.
-          </p>
-        </div>
-      </div>
-
-      {/* Galerie de photos */}
-      {approvedPhotos.length > 0 && (
-        <div className={styles.photoGallery}>
-          <div className={styles.galleryHeader}>
-            <div className={styles.galleryTitle}>
-              <ImageIcon />
-              <span>Photos ({approvedPhotos.length})</span>
+      <div className={styles.desktopLayout}>
+        {/* Colonne gauche : Header + Formulaire */}
+        <div className={styles.leftColumn}>
+          {/* En-tête */}
+          <div className={styles.headerSection}>
+          
+            <h1 className={styles.title}>
+              {album?.title}
+            </h1>
+            
+            <div className={styles.eventInfo}>
+              <span className={styles.organisateurName}>{album?.invitation.eventTitle}</span>
+              <span className={styles.separator}>•</span>
+              <span className={styles.eventDate}>
+                {new Date(album?.invitation.eventDate || '').toLocaleDateString('fr-FR', {
+                  day: 'numeric',
+                  month: 'long',
+                  year: 'numeric'
+                })}
+              </span>
             </div>
           </div>
 
-          <div className={styles.photoGrid}>
-            {approvedPhotos.map((photo, index) => (
-              <div 
-                key={photo.id} 
-                className={styles.photoGridItem}
-                onClick={() => openPhotoModal(index)}
-              >
-                <img 
-                  src={getPhotoDisplayUrl(photo)} 
-                  alt={photo.caption || 'Photo du événement'} 
-                  className={styles.gridImage}
-                  onError={(e) => handleImageError(e, photo)}
+          {/* Section d'upload */}
+          <div className={styles.uploadSection}>
+            <div className={styles.uploadHeader}>
+              <h2 className={styles.uploadTitle}>Contribuez à l'album</h2>
+            </div>
+
+            {/* Messages de statut */}
+            {error && (
+              <div className={styles.errorMessage}>
+                <AlertCircle className={styles.messageIcon} />
+                <span>{error}</span>
+              </div>
+            )}
+
+            {successMessage && (
+              <div className={styles.successMessage}>
+                <CheckCircle className={styles.messageIcon} />
+                <span>{successMessage}</span>
+              </div>
+            )}
+
+            {/* Formulaire d'upload */}
+            <div className={styles.uploadForm}>
+              <div className={styles.formGroup}>
+                <label className={styles.elegantLabel}>
+                  Votre nom (optionnel)
+                </label>
+                <input
+                  type="text"
+                  value={guestName}
+                  onChange={(e) => setGuestName(e.target.value)}
+                  placeholder="Votre nom"
+                  className={styles.elegantInput}
+                  disabled={uploading}
                 />
-                <div className={styles.photoGridOverlay}>
-                  <ZoomIn className={styles.zoomIcon} />
-                  {photo.uploadedBy && (
-                    <div className={styles.photoAuthor}>
-                      <Users className={styles.authorIcon} />
-                      {photo.uploadedBy.firstName} {photo.uploadedBy.lastName}
-                    </div>
+              </div>
+
+              <div className={styles.formGroup}>
+                <label className={styles.elegantLabel}>
+                  Sélectionnez vos photos
+                </label>
+                <input
+                  type="file"
+                  multiple
+                  accept="image/*"
+                  onChange={handleFileSelect}
+                  className={styles.fileInput}
+                  disabled={uploading}
+                  id="photo-upload"
+                />
+                <label htmlFor="photo-upload" className={styles.elegantFileLabel}>
+                  <Upload className={styles.uploadIcon} />
+                  <span>Choisir des photos</span>
+                  <span className={styles.fileHint}>(max 10 photos)</span>
+                </label>
+              </div>
+
+              {/* Previews */}
+              {previews.length > 0 && (
+                <div className={styles.previewSection}>
+                  <h3 className={styles.previewTitle}>
+                    Photos sélectionnées ({previews.length})
+                  </h3>
+                  <Swiper
+                    modules={[Navigation, Pagination, Autoplay]}
+                    spaceBetween={20}
+                    slidesPerView={1}
+                    loop={true}
+                    autoplay={{
+                      delay: 3000,
+                      disableOnInteraction: false,
+                      pauseOnMouseEnter: true,
+                    }}
+                    navigation={{
+                      nextEl: '.preview-next',
+                      prevEl: '.preview-prev',
+                    }}
+                    pagination={{ 
+                      clickable: true,
+                      dynamicBullets: true,
+                    }}
+                    breakpoints={{
+                      640: { slidesPerView: 2 },
+                      768: { slidesPerView: 3 },
+                    }}
+                    className={styles.previewSwiper}
+                  >
+                    {previews.map((preview, index) => (
+                      <SwiperSlide key={index}>
+                        <div className={styles.previewItem}>
+                          <img src={preview} alt={`Preview ${index + 1}`} className={styles.previewImage} />
+                          {uploadProgress[`file-${index}`] !== undefined && (
+                            <div className={styles.progressOverlay}>
+                              <div className={styles.progressBar}>
+                                <div 
+                                  className={styles.progressFill} 
+                                  style={{ width: `${uploadProgress[`file-${index}`]}%` }}
+                                />
+                              </div>
+                              <span className={styles.progressText}>{uploadProgress[`file-${index}`]}%</span>
+                            </div>
+                          )}
+                        </div>
+                      </SwiperSlide>
+                    ))}
+                  </Swiper>
+                  <div className={styles.previewNavigation}>
+                    <button className={`${styles.navButton} preview-prev`}>
+                      <ChevronLeft />
+                    </button>
+                    <button className={`${styles.navButton} preview-next`}>
+                      <ChevronRight />
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              {/* Boutons d'action */}
+              <div className={styles.actionButtons}>
+                {selectedFiles.length > 0 && (
+                  <button
+                    onClick={clearSelection}
+                    disabled={uploading}
+                    className={styles.cancelButton}
+                  >
+                    Annuler
+                  </button>
+                )}
+                <button
+                  onClick={handleUpload}
+                  disabled={uploading || selectedFiles.length === 0}
+                  className={styles.primaryButton}
+                >
+                  {uploading ? (
+                    <>
+                      <Loader className={styles.buttonIcon} />
+                      Upload en cours...
+                    </>
+                  ) : (
+                    <>
+                      <Upload className={styles.buttonIcon} />
+                      Partager {selectedFiles.length} photo(s)
+                    </>
                   )}
+                </button>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+        {/* Colonne droite : Galerie de photos */}
+        {approvedPhotos.length > 0 && (
+          <div className={styles.rightColumn}>
+            <div className={styles.photoGallery}>
+              <div className={styles.galleryHeader}>
+                <div className={styles.galleryTitle}>
+                  <ImageIcon />
+                  <span>Photos de l'événement ({approvedPhotos.length})</span>
                 </div>
               </div>
-            ))}
+
+              <div className={styles.photoGrid}>
+                {approvedPhotos.map((photo, index) => (
+                  <div 
+                    key={photo.id} 
+                    className={styles.photoGridItem}
+                    onClick={() => openPhotoModal(index)}
+                  >
+                    <img 
+                      src={getPhotoDisplayUrl(photo)} 
+                      alt={photo.caption || 'Photo du événement'} 
+                      className={styles.gridImage}
+                      onError={(e) => handleImageError(e, photo)}
+                    />
+                    <div className={styles.photoGridOverlay}>
+                      <ZoomIn className={styles.zoomIcon} />
+                      {photo.uploadedBy && (
+                        <div className={styles.photoAuthor}>
+                          <Users className={styles.authorIcon} />
+                          {photo.uploadedBy.firstName} {photo.uploadedBy.lastName}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
           </div>
-        </div>
-      )}
+        )}
+      </div>
 
       {/* Modal de visualisation photo */}
       {selectedPhotoIndex !== null && (
@@ -469,168 +610,6 @@ export default function ShareAlbumPage() {
         </div>
       )}
 
-      {/* Section d'upload luxueuse */}
-      <div className={styles.uploadSection}>
-        <div className={styles.uploadHeader}>
-          <div className={styles.uploadIcon}>
-            <Gift className={styles.giftIcon} />
-          </div>
-          <h2 className={styles.uploadTitle}>Ajoutez vos souvenirs</h2>
-          <p className={styles.uploadSubtitle}>
-            Sélectionnez vos plus belles photos de l'événement pour enrichir l'album commun
-          </p>
-        </div>
-
-        {/* Messages de statut */}
-        {error && (
-          <div className={styles.errorMessage}>
-            <AlertCircle className={styles.messageIcon} />
-            <span>{error}</span>
-          </div>
-        )}
-
-        {successMessage && (
-          <div className={styles.successMessage}>
-            <CheckCircle className={styles.messageIcon} />
-            <span>{successMessage}</span>
-          </div>
-        )}
-
-        {/* Formulaire d'upload élégant */}
-        <div className={styles.uploadForm}>
-          <div className={styles.formGroup}>
-            <label className={styles.elegantLabel}>
-              Votre nom (optionnel)
-            </label>
-            <input
-              type="text"
-              value={guestName}
-              onChange={(e) => setGuestName(e.target.value)}
-              placeholder="Votre nom"
-              className={styles.elegantInput}
-              disabled={uploading}
-            />
-          </div>
-
-          <div className={styles.formGroup}>
-            <label className={styles.elegantLabel}>
-              Sélectionnez vos photos
-            </label>
-            <input
-              type="file"
-              multiple
-              accept="image/*"
-              onChange={handleFileSelect}
-              className={styles.fileInput}
-              disabled={uploading}
-              id="photo-upload"
-            />
-            <label htmlFor="photo-upload" className={styles.elegantFileLabel}>
-              <Upload className={styles.uploadIcon} />
-              <span>Choisir des photos</span>
-              <span className={styles.fileHint}>(max 10 photos)</span>
-            </label>
-          </div>
-
-          {/* Previews avec carousel */}
-          {previews.length > 0 && (
-            <div className={styles.previewSection}>
-              <h3 className={styles.previewTitle}>
-                Photos sélectionnées ({previews.length})
-              </h3>
-              <Swiper
-                modules={[Navigation, Pagination, Autoplay]}
-                spaceBetween={20}
-                slidesPerView={1}
-                loop={true}
-                autoplay={{
-                  delay: 3000,
-                  disableOnInteraction: false,
-                  pauseOnMouseEnter: true,
-                }}
-                navigation={{
-                  nextEl: '.preview-next',
-                  prevEl: '.preview-prev',
-                }}
-                pagination={{ 
-                  clickable: true,
-                  dynamicBullets: true,
-                }}
-                breakpoints={{
-                  640: { slidesPerView: 2 },
-                  768: { slidesPerView: 3 },
-                  1024: { slidesPerView: 4 },
-                }}
-                className={styles.previewSwiper}
-              >
-                {previews.map((preview, index) => (
-                  <SwiperSlide key={index}>
-                    <div className={styles.previewItem}>
-                      <img src={preview} alt={`Preview ${index + 1}`} className={styles.previewImage} />
-                      {uploadProgress[`file-${index}`] !== undefined && (
-                        <div className={styles.progressOverlay}>
-                          <div className={styles.progressBar}>
-                            <div 
-                              className={styles.progressFill} 
-                              style={{ width: `${uploadProgress[`file-${index}`]}%` }}
-                            />
-                          </div>
-                          <span className={styles.progressText}>{uploadProgress[`file-${index}`]}%</span>
-                        </div>
-                      )}
-                    </div>
-                  </SwiperSlide>
-                ))}
-              </Swiper>
-              <div className={styles.previewNavigation}>
-                <button className={`${styles.navButton} preview-prev`}>
-                  <ChevronLeft />
-                </button>
-                <button className={`${styles.navButton} preview-next`}>
-                  <ChevronRight />
-                </button>
-              </div>
-            </div>
-          )}
-
-          {/* Boutons d'action élégants */}
-          <div className={styles.actionButtons}>
-            {selectedFiles.length > 0 && (
-              <button
-                onClick={clearSelection}
-                disabled={uploading}
-                className={styles.cancelButton}
-              >
-                Annuler
-              </button>
-            )}
-            <button
-              onClick={handleUpload}
-              disabled={uploading || selectedFiles.length === 0}
-              className={styles.primaryButton}
-            >
-              {uploading ? (
-                <>
-                  <Loader className={styles.buttonIcon} />
-                  Upload en cours...
-                </>
-              ) : (
-                <>
-                  <Upload className={styles.buttonIcon} />
-                  Partager {selectedFiles.length} photo(s)
-                </>
-              )}
-            </button>
-          </div>
-        </div>
-      </div>
-
-      {/* Conseils compacts */}
-      <div className={styles.tipsSection}>
-        <p className={styles.tipsText}>
-          💡 <strong>Conseil :</strong> Privilégiez la qualité à la quantité. Vos photos seront validées par les organisateurs.
-        </p>
-      </div>
     </div>
   );
 } 

@@ -1,106 +1,106 @@
 .footer {
-  background: var(--bg-card);
-  color: var(--luxury-velvet-black);
+  background: var(--bg-primary);
+  color: var(--text-primary);
   border-top: 1px solid var(--border-color);
   transition: all var(--transition-normal);
 }
 
 .container {
-  padding: var(--space-3xl) var(--space-md);
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: var(--space-xl) var(--space-lg);
 }
 
 .grid {
-  margin-bottom: var(--space-2xl);
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: var(--space-lg);
+  margin-bottom: var(--space-lg);
 }
 
 .logoSection {
   display: flex;
   flex-direction: column;
-  gap: var(--space-md);
+  gap: var(--space-xs);
 }
 
 .logoContainer {
   display: flex;
+  margin-left: 35px;
   align-items: center;
-  gap: var(--space-sm);
-  margin: 10px 0 10px 20px;
+  margin-bottom: var(--space-xs);
 }
 
 .logoImage {
-  filter: brightness(1.2) contrast(1.1) saturate(1.1);
-
-  transition: all var(--transition-normal);
-}
-
-.logoImage:hover {
-  filter: brightness(1.3) contrast(1.2) saturate(1.2);
+  height: auto;
 }
 
 .description {
-  color: var(--luxury-velvet-black);
-  line-height: 1.6;
-  font-size: 1rem;
-  font-weight: 600;
+  color: var(--text-secondary);
+  line-height: 1.5;
+  font-size: 0.8125rem;
+  font-weight: 400;
 }
 
 .section {
   display: flex;
   flex-direction: column;
-  gap: var(--space-md);
+  gap: var(--space-xs);
 }
 
 .sectionTitle {
-  font-size: 1.25rem;
+  font-size: 0.9375rem;
   font-weight: 600;
-  color: var(--color-primary);
-  margin-bottom: var(--space-sm);
+  color: var(--text-primary);
+  margin-bottom: var(--space-xs);
 }
 
 .linkList {
   list-style: none;
   padding: 0;
+  margin: 0;
   display: flex;
   flex-direction: column;
-  gap: var(--space-sm);
+  gap: var(--space-xs);
 }
 
 .footerLink {
-  background: none;
-  border: none;
-  color: var(--luxury-velvet-black);
-  text-decoration: underline;
-  font-size: 1rem;
-  font-weight: 600;
+  color: var(--text-secondary);
+  text-decoration: none;
+  font-size: 0.8125rem;
+  font-weight: 400;
   transition: color var(--transition-normal);
   cursor: pointer;
-  text-align: left;
+  background: none;
+  border: none;
   padding: 0;
+  text-align: left;
 }
 
 .footerLink:hover {
-  color: var(--color-primary);
-  text-decoration: underline;
+  color: var(--luxury-champagne-gold);
 }
 
 .contactItem {
   display: flex;
   align-items: center;
-  gap: var(--space-sm);
-  margin-bottom: var(--space-sm);
-  color: var(--luxury-velvet-black);
+  gap: var(--space-xs);
+  margin-bottom: var(--space-xs);
 }
 
 .contactIcon {
-  color: var(--color-primary);
+  color: var(--luxury-champagne-gold);
   flex-shrink: 0;
+  width: 14px;
+  height: 14px;
 }
 
 .contactText {
-  color: var(--luxury-velvet-black);
-  font-size: 0.875rem;
-  font-weight: 600;
+  color: var(--text-secondary);
+  font-size: 0.8125rem;
+  font-weight: 400;
   text-decoration: none;
-  transition: color var(--transition-fast);
+  transition: color var(--transition-normal);
 }
 
 .contactText:hover {
@@ -112,28 +112,27 @@
   color: var(--text-secondary);
   margin-top: var(--space-xs);
   font-style: italic;
-  margin-left: calc(16px + var(--space-sm));
 }
 
 .socialSection {
   display: flex;
   flex-direction: column;
-  gap: var(--space-md);
+  gap: var(--space-xs);
 }
 
 .socialLinks {
   display: flex;
-  gap: var(--space-md);
+  gap: var(--space-xs);
 }
 
 .socialLink {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 40px;
-  height: 40px;
+  width: 32px;
+  height: 32px;
   border-radius: 50%;
-  background: var(--bg-secondary);
+  background: var(--bg-primary);
   color: var(--text-primary);
   text-decoration: none;
   transition: all var(--transition-normal);
@@ -141,30 +140,31 @@
 }
 
 .socialLink:hover {
-  background: var(--color-primary);
-  color: var(--color-dark);
-  transform: translateY(-2px);
-  box-shadow: var(--shadow-md);
+  background: var(--luxury-champagne-gold);
+  color: var(--luxury-velvet-black);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-sm);
+  border-color: var(--luxury-champagne-gold);
 }
 
 .bottomSection {
   border-top: 1px solid var(--border-color);
-  padding-top: var(--space-lg);
+  padding-top: var(--space-md);
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: var(--space-md);
+  gap: var(--space-sm);
   text-align: center;
 }
 
 .copyright {
-  color: var(--luxury-velvet-black);
-  font-size: 0.875rem;
-  font-weight: 600;
+  color: var(--text-secondary);
+  font-size: 0.75rem;
+  font-weight: 400;
 }
 
 .heartIcon {
-  color: var(--color-primary);
+  color: var(--luxury-champagne-gold);
   animation: heartbeat 1.5s ease-in-out infinite;
 }
 
@@ -179,46 +179,68 @@
 
 .legalLinks {
   display: flex;
-  gap: var(--space-lg);
+  gap: var(--space-md);
   flex-wrap: wrap;
   justify-content: center;
 }
 
 .legalLink {
-  color: var(--luxury-velvet-black);
-  text-decoration: underline;
-  font-size: 0.875rem;
-  font-weight: 600;
+  color: var(--text-secondary);
+  text-decoration: none;
+  font-size: 0.75rem;
+  font-weight: 400;
   transition: color var(--transition-normal);
 }
 
 .legalLink:hover {
-  color: var(--color-primary);
-  text-decoration: underline;
+  color: var(--luxury-champagne-gold);
 }
 
 /* Responsive */
+@media (max-width: 1024px) {
+  .container {
+    padding: var(--space-lg) var(--space-md);
+  }
+
+  .grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--space-md);
+    margin-bottom: var(--space-md);
+  }
+}
+
 @media (max-width: 768px) {
   .container {
-    padding: var(--space-xl) var(--space-md);
+    padding: var(--space-md) var(--space-md);
   }
 
   .grid {
     grid-template-columns: 1fr;
-    gap: var(--space-xl);
+    gap: var(--space-md);
+    margin-bottom: var(--space-md);
+  }
+
+  .logoContainer {
+    margin-bottom: 10px !important;
+    margin-left: 30px !important;
   }
 
   .logoImage {
-    width: 50px;
-    height: 50px;
+    width: 110px !important;
+    height: 100px !important;
   }
 
   .socialLinks {
-    justify-content: center;
+    justify-content: flex-start;
+  }
+
+  .bottomSection {
+    padding-top: var(--space-sm);
+    gap: var(--space-xs);
   }
 
   .legalLinks {
     flex-direction: column;
-    gap: var(--space-sm);
+    gap: var(--space-xs);
   }
 }

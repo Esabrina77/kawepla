@@ -87,6 +87,7 @@ export class PhotoAlbumService {
         thumbnailUrl = `https://via.placeholder.com/300x300/cccccc/666666?text=Thumb+${timestamp}`;
         console.log('URLs placeholder générées:', { originalUrl, compressedUrl, thumbnailUrl });
       }
+      
 
       // Sauvegarder en base de données
       const photo = await prisma.photo.create({
@@ -103,9 +104,9 @@ export class PhotoAlbumService {
           albumId,
           // uploadedById fait référence à un Guest, pas un User
           ...(uploadedByGuestId && { uploadedById: uploadedByGuestId }),
-          // Si uploadé par les mariés (User), directement approuvé
-          // Si uploadé par un invité (Guest), en attente d'approbation
-          status: uploadedByUserId ? 'APPROVED' : 'PENDING'
+          // Si uploadé par les mariés (User), directement publié (PUBLIC)
+          // Si uploadé par un invité (Guest), en attente d'approbation (PENDING)
+          status: uploadedByUserId ? 'PUBLIC' : 'PENDING'
         }
       });
 
@@ -140,13 +141,20 @@ export class PhotoAlbumService {
       throw new Error('Accès non autorisé');
     }
 
-    return await prisma.photo.update({
+    const updatedPhoto = await prisma.photo.update({
       where: { id: photoId },
       data: {
         status: 'APPROVED',
         approvedAt: new Date()
       }
     });
+
+    // S'assurer que le statut est bien APPROVED et non PUBLIC
+    if (updatedPhoto.status !== 'APPROVED') {
+      console.error('ERREUR: Le statut de la photo après approbation n\'est pas APPROVED:', updatedPhoto.status);
+    }
+
+    return updatedPhoto;
   }
 
   /**
@@ -306,6 +314,7 @@ export class PhotoAlbumService {
 
   /**
    * Récupérer les photos d'un album (pour les invités)
+   * Retourne uniquement les photos avec le statut PUBLIC (pas APPROVED)
    */
   static async getAlbumPhotosForGuest(albumId: string) {
     const album = await prisma.photoAlbum.findUnique({
@@ -320,9 +329,7 @@ export class PhotoAlbumService {
         },
         photos: {
           where: {
-            status: {
-              in: ['APPROVED', 'PUBLIC']
-            }
+            status: 'PUBLIC' // Uniquement les photos publiques, pas APPROVED
           },
           select: {
             id: true,

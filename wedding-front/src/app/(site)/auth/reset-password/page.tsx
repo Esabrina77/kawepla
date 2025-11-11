@@ -70,7 +70,7 @@ function ResetPasswordContent() {
     return (
       <div className={styles.auth}>
         <div className={styles.container}>
-          <div className={styles.authCard}>
+          <div className={`${styles.authCard} ${styles.loginCard}`}>
             <div className={styles.header}>
               <Lock size={48} className={styles.icon} />
               <h1>Mot de passe réinitialisé</h1>
@@ -95,7 +95,7 @@ function ResetPasswordContent() {
   return (
     <div className={styles.auth}>
       <div className={styles.container}>
-        <div className={styles.authCard}>
+        <div className={`${styles.authCard} ${styles.loginCard}`}>
           <div className={styles.header}>
             <Lock size={48} className={styles.icon} />
             <h1>Réinitialiser votre mot de passe</h1>
@@ -203,7 +203,7 @@ export default function ResetPasswordPage() {
     <Suspense fallback={
       <div className={styles.auth}>
         <div className={styles.container}>
-          <div className={styles.authCard}>
+          <div className={`${styles.authCard} ${styles.loginCard}`}>
             <div className={styles.header}>
               <Lock size={48} className={styles.icon} />
               <h1>Chargement...</h1>

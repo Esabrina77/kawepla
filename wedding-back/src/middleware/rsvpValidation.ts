@@ -7,8 +7,6 @@ import { z } from 'zod';
 export const rsvpSchema = z.object({
   status: z.enum(['CONFIRMED', 'DECLINED', 'PENDING']),
   message: z.string().optional(),
-  attendingCeremony: z.boolean().optional().default(true),
-  attendingReception: z.boolean().optional().default(true),
   profilePhotoUrl: z.string().optional(),
   plusOne: z.boolean().optional().default(false),
   plusOneName: z.string().optional(),
@@ -19,8 +17,6 @@ export const rsvpSchema = z.object({
 export const rsvpUpdateSchema = z.object({
   status: z.enum(['CONFIRMED', 'DECLINED', 'PENDING']).optional(),
   message: z.string().optional(),
-  attendingCeremony: z.boolean().optional(),
-  attendingReception: z.boolean().optional(),
   profilePhotoUrl: z.string().optional(),
   plusOne: z.boolean().optional(),
   plusOneName: z.string().optional(),
@@ -37,8 +33,6 @@ export const shareableRSVPSchema = z.object({
   // RSVP classique
   status: z.enum(['CONFIRMED', 'DECLINED', 'PENDING']),
   message: z.string().optional(),
-  attendingCeremony: z.boolean().optional().default(true),
-  attendingReception: z.boolean().optional().default(true),
   profilePhotoUrl: z.string().optional(),
   plusOne: z.boolean().optional().default(false),
   plusOneName: z.string().optional(),

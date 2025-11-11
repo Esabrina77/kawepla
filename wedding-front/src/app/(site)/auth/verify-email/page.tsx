@@ -69,7 +69,7 @@ function VerifyEmailContent() {
   return (
     <div className={styles.auth}>
       <div className={styles.container}>
-        <div className={styles.authCard}>
+        <div className={`${styles.authCard} ${styles.loginCard}`}>
           <div className={styles.header}>
             <div className={styles.iconContainer}>
               <Mail size={56} className={styles.icon} />
@@ -175,7 +175,7 @@ export default function VerifyEmailPage() {
     <Suspense fallback={
       <div className={styles.auth}>
         <div className={styles.container}>
-          <div className={styles.authCard}>
+          <div className={`${styles.authCard} ${styles.loginCard}`}>
             <div className={styles.header}>
               <div className={styles.iconContainer}>
                 <Mail size={56} className={styles.icon} />

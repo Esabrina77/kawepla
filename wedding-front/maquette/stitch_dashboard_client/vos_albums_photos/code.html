@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html class="dark" lang="fr"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Vos Albums Photos</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet"/>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings:
+            'FILL' 0,
+            'wght' 400,
+            'GRAD' 0,
+            'opsz' 24
+        }
+    </style>
+<script>
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#a48765",
+                        "background-light": "#f7f7f6",
+                        "background-dark": "#121212",
+                        "surface-dark": "#1c1916","border-dark": "#4a4a4a",
+                        "text-primary": "#FFFFFF",
+                        "text-secondary": "#afaba7",
+                        "accent-secondary": "#e8c0c0",
+                    },
+                    fontFamily: {
+                        "display": ["Inter", "sans-serif"]
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                },
+            },
+        }
+    </script>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background-dark font-display text-text-primary">
+<div class="relative flex h-auto min-h-screen w-full flex-col">
+<div class="sticky top-0 z-10 flex items-center bg-background-dark/80 p-4 pb-2 backdrop-blur-sm justify-between border-b border-border-dark/50">
+<div class="flex size-12 shrink-0 items-center justify-start">
+<span class="material-symbols-outlined text-text-primary text-2xl">arrow_back</span>
+</div>
+<h1 class="text-text-primary text-lg font-bold leading-tight tracking-[-0.015em] flex-1 text-center">Vos albums photos</h1>
+<div class="flex w-12 items-center justify-end">
+<button class="flex max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-full h-10 w-10 bg-transparent text-text-primary gap-2 text-base font-bold leading-normal tracking-[0.015em] min-w-0 p-0">
+<span class="material-symbols-outlined text-text-primary text-2xl">more_vert</span>
+</button>
+</div>
+</div>
+<div class="flex-1 pb-20">
+<div class="flex max-w-[480px] flex-wrap items-end gap-4 px-4 py-3">
+<label class="flex flex-col min-w-40 flex-1">
+<p class="text-text-primary text-base font-medium leading-normal pb-2">Invitation</p>
+<select class="form-select flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-text-primary focus:outline-0 focus:ring-0 focus:ring-primary/50 border border-border-dark bg-surface-dark focus:border-primary h-14 placeholder:text-text-secondary p-[15px] text-base font-normal leading-normal">
+<option selected="">Mariage de A &amp; B - 24.08.2024</option>
+<option>Anniversaire de C - 12.09.2024</option>
+</select>
+</label>
+</div>
+<div class="px-4 py-2 @container">
+<div class="flex flex-1 flex-col items-start justify-between gap-4 rounded-lg border border-border-dark bg-surface-dark p-5 @[480px]:flex-row @[480px]:items-center">
+<div class="flex flex-col gap-1">
+<p class="text-text-primary text-base font-bold leading-tight">Publiez votre invitation</p>
+<p class="text-text-secondary text-base font-normal leading-normal">Cette fonctionnalité n'est disponible qu'une fois votre invitation publiée.</p>
+</div>
+<button class="flex min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 px-4 bg-primary text-white text-sm font-medium leading-normal">
+<span class="truncate">Publier maintenant</span>
+</button>
+</div>
+</div>
+<h3 class="text-text-primary text-lg font-bold leading-tight tracking-[-0.015em] px-4 pb-2 pt-6">Comment ça marche ?</h3>
+<div class="grid grid-cols-[repeat(auto-fit,minmax(158px,1fr))] gap-3 p-4">
+<div class="flex flex-1 gap-3 rounded-lg border border-border-dark bg-surface-dark p-4 flex-col">
+<span class="material-symbols-outlined text-primary text-2xl">photo_album</span>
+<div class="flex flex-col gap-1">
+<h2 class="text-text-primary text-base font-bold leading-tight">Créez vos albums</h2>
+<p class="text-text-secondary text-sm font-normal leading-normal">Organisez par moments clés</p>
+</div>
+</div>
+<div class="flex flex-1 gap-3 rounded-lg border border-border-dark bg-surface-dark p-4 flex-col">
+<span class="material-symbols-outlined text-primary text-2xl">cloud_upload</span>
+<div class="flex flex-col gap-1">
+<h2 class="text-text-primary text-base font-bold leading-tight">Vos invités contribuent</h2>
+<p class="text-text-secondary text-sm font-normal leading-normal">Ils ajoutent leurs photos</p>
+</div>
+</div>
+<div class="flex flex-1 gap-3 rounded-lg border border-border-dark bg-surface-dark p-4 flex-col">
+<span class="material-symbols-outlined text-primary text-2xl">check_circle</span>
+<div class="flex flex-col gap-1">
+<h2 class="text-text-primary text-base font-bold leading-tight">Approuvez les photos</h2>
+<p class="text-text-secondary text-sm font-normal leading-normal">Validez chaque photo</p>
+</div>
+</div>
+<div class="flex flex-1 gap-3 rounded-lg border border-border-dark bg-surface-dark p-4 flex-col">
+<span class="material-symbols-outlined text-primary text-2xl">share</span>
+<div class="flex flex-col gap-1">
+<h2 class="text-text-primary text-base font-bold leading-tight">Partagez publiquement</h2>
+<p class="text-text-secondary text-sm font-normal leading-normal">Rendez la galerie accessible</p>
+</div>
+</div>
+</div>
+<div class="px-4 pt-6 pb-20">
+<div class="flex items-center justify-between pb-4">
+<h3 class="text-text-primary text-lg font-bold leading-tight tracking-[-0.015em]">Vos Albums</h3>
+<button class="flex min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 px-4 bg-primary text-white text-sm font-medium leading-normal gap-2">
+<span class="material-symbols-outlined text-lg">add_photo_alternate</span>
+<span class="truncate">Créer un album</span>
+</button>
+</div>
+<div class="flex flex-col gap-4">
+<div class="bg-surface-dark border border-border-dark rounded-lg p-4">
+<div class="flex justify-between items-center mb-3">
+<h4 class="text-base font-bold text-text-primary">Préparatifs</h4>
+<span class="text-sm text-text-secondary">8 photos</span>
+</div>
+<div class="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-2">
+<div class="relative aspect-square group">
+<img alt="Wedding preparations with groom's suit." class="w-full h-full object-cover rounded-md" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAYuDS04gS71hHlHfr6Z2V2T72SnOCDufSmmN6UTwXxBUXvWMCVoY7tKVMhtdQuCvaRQWh6WZQhsAxTet1UrD5ogtr0lecf4LdRgQ0OEf0f0rshG72YEJwBj_BhqQEJjat5FLBd04XIwceoCq7EZF4dUa_gLmwwPKcytzhMYzmWm93XCZMKzdlewQH8NQNxZPaHtc6nfHmQIVkFGM_smea402nTDfpIeyzgz23hSKrjYGcFyKDJ9UvwCVDrXXCrLqueJ6whnVzmQVsQ"/>
+<div class="absolute bottom-1 right-1 flex items-center gap-1 bg-green-500/80 text-white text-xs px-1.5 py-0.5 rounded-full">
+<span class="material-symbols-outlined text-xs">verified</span>
+<span>Approuvé</span>
+</div>
+</div>
+<div class="relative aspect-square group">
+<img alt="Bride's dress hanging in a bright room." class="w-full h-full object-cover rounded-md" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDlAlY3Uoksdo62e5-IZpIu5cv2cAXvQC8bOoFO0lcLHKYADF6O0u0sKwErDVDDGmwLr7JTN7cedu4oWbSBACjjeJkzE-Fir-oVzfi8arO2eg249zI9gUhf7SAHCtah_1_SUxTFJJ0p4q1wnZNMhgm0yDhoE8k7KqMxBif9wDXHtUV5SRQXjFd3EPuaSLifZne4OYjamplY72CMKbOp8UyxywFt2u24oKKo3gw-8W55KCrsNu-Zgtqs6XhP01_mXEcWFsQ5rXjaWC0q"/>
+<div class="absolute bottom-1 right-1 flex items-center gap-1 bg-accent-secondary/80 text-background-dark text-xs px-1.5 py-0.5 rounded-full">
+<span class="material-symbols-outlined text-xs">hourglass_empty</span>
+<span>En attente</span>
+</div>
+</div>
+<div class="relative aspect-square group">
+<img alt="Close-up of wedding rings on a textured surface." class="w-full h-full object-cover rounded-md" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDKQ-d38qojH7zCqjd__UWgULKPlzEs0b25rgHXLdz_tn1rUB-ojaMYjlcdFYdrRErR8zX0M06V_quqX0K_Wk3aW-BdmT4rHH9FQzX_KzA1r9Ggc6lmkf4cXXQC479uBZaZYP2czz3-3bOs5VCKQ49r02UH16lw8nm_5_IXP2gmYvdY7nrKydTfIP98KMl2Fwoe71GZa1mi_e5r6ncc-a39SzbqMgSTe9m4hxF2hift-LRgOdYQ1FhDMcVd3IimW8OPwn1z-fj6_JHk"/>
+<div class="absolute bottom-1 right-1 flex items-center gap-1 bg-green-500/80 text-white text-xs px-1.5 py-0.5 rounded-full">
+<span class="material-symbols-outlined text-xs">verified</span>
+<span>Approuvé</span>
+</div>
+</div>
+</div>
+</div>
+<div class="bg-surface-dark border border-border-dark rounded-lg p-4">
+<div class="flex justify-between items-center mb-3">
+<h4 class="text-base font-bold text-text-primary">Cérémonie</h4>
+<span class="text-sm text-text-secondary">15 photos</span>
+</div>
+<div class="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-2">
+<div class="relative aspect-square group">
+<img alt="Couple exchanging vows during outdoor wedding ceremony." class="w-full h-full object-cover rounded-md" src="https://lh3.googleusercontent.com/aida-public/AB6AXuA47cGzWSdVTcUNfW2NWfHYq4_l9nmPmZabGlTySGIhGRZLceBtqFvsMzYf7EKBBdSwoiBAeyxU7zUFvc67-xP---Hb7yDKx8LTgNZL7U_UW4r2e3xOPcdgsY1pT9mUbqDj8415ifpN1UrOMaMblAklK1SLFAc63yGikvDPJEQXfrSUSlRqFWgKhMRJfQJwz8UHkCAym5OWWW5bbwbCBFgPxA97s3PMFYcesWhpPn4pl-evZ2892O8SHJxgBHlvp8AMiOVyVeswwqFM"/>
+<div class="absolute bottom-1 right-1 flex items-center gap-1 bg-accent-secondary/80 text-background-dark text-xs px-1.5 py-0.5 rounded-full">
+<span class="material-symbols-outlined text-xs">hourglass_empty</span>
+<span>En attente</span>
+</div>
+</div>
+<div class="relative aspect-square group">
+<img alt="Wedding guests seated during the ceremony." class="w-full h-full object-cover rounded-md" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCJ3rK8H2qjvTUT6Nw9ntpMrxR3GBrhmR1PhgdOtimRa5JZF37qR1Y0Mo1VwUT1NGJMKq1vLEHv9qzlK7rvP4EEVq8zsyoOvEOuIhi9LR2Z_FgrDtrNNGI3p_AqvUpRvXcFBM0fJvXC5Mg5XgjST0A65x80CwBvRvo7Lu5tmQDj3N8le5Mb1PXM9hY0glhdFxcILQ_1VtiKUZTjrCin7liPpY3yOht-bmvgO3dyLHgMfelR9HOTmjBKzDtR1wcVpIbabsPVgj6h3eXn"/>
+<div class="absolute bottom-1 right-1 flex items-center gap-1 bg-green-500/80 text-white text-xs px-1.5 py-0.5 rounded-full">
+<span class="material-symbols-outlined text-xs">verified</span>
+<span>Approuvé</span>
+</div>
+</div>
+</div>
+</div>
+<div class="bg-surface-dark border-2 border-dashed border-border-dark rounded-lg p-8 flex flex-col items-center justify-center text-center">
+<span class="material-symbols-outlined text-5xl text-border-dark mb-4">photo_library</span>
+<h4 class="text-base font-bold text-text-primary">Aucun album créé</h4>
+<p class="text-sm text-text-secondary mt-1">Commencez par créer votre premier album pour organiser les photos de l'événement.</p>
+</div>
+</div>
+</div>
+</div>
+<div class="fixed bottom-0 left-0 right-0 z-20 h-20 border-t border-border-dark/50 bg-background-dark/80 backdrop-blur-sm">
+<div class="mx-auto flex h-full max-w-md items-center justify-around">
+<a class="flex flex-col items-center justify-center gap-1 text-primary" href="#">
+<span class="material-symbols-outlined text-2xl">dashboard</span>
+<span class="text-xs font-medium">Tableau de bord</span>
+</a>
+<a class="flex flex-col items-center justify-center gap-1 text-text-secondary" href="#">
+<span class="material-symbols-outlined text-2xl">add_circle</span>
+<span class="text-xs font-medium">Créer</span>
+</a>
+<a class="flex flex-col items-center justify-center gap-1 text-text-secondary" href="#">
+<span class="material-symbols-outlined text-2xl">group</span>
+<span class="text-xs font-medium">Invités</span>
+</a>
+<button class="flex flex-col items-center justify-center gap-1 text-text-secondary">
+<span class="material-symbols-outlined text-2xl">menu</span>
+<span class="text-xs font-medium">Plus</span>
+</button>
+</div>
+</div>
+</div>
+</body></html>

@@ -10,8 +10,9 @@
   --luxury-champagne-gold: #A58866; /* Or Brun/Mat (Couleur d'action Solide) */
   --luxury-rose-quartz: #E8C0C0;   /* Rose Poudré ÉLÉGANT et doux (Accent secondaire) */
   --luxury-pearl-gray: #4A4A4A;    /* Gris Fonctionnel (Texte secondaire/Icônes) */
-  --luxury-velvet-black: #121212;  /* Noir Profond (Texte principal) */
+  --luxury-velvet-black: rgb(0, 0, 0);  /* Noir Profond (Texte principal) */
   
+  --tw-text-opacity: 1;
   /* Couleurs principales */
   --color-primary: var(--luxury-champagne-gold);
   --color-secondary: var(--luxury-rose-quartz);
@@ -22,10 +23,11 @@
   /* Couleurs de fond et texte */
   --bg-primary: var(--luxury-ivory); /* BLANC PUR */
   --bg-secondary: #f8f8f8; /* Gris très clair pour les sections alternées */
-  --bg-card: white;
+  --bg-card: rgba(228, 221, 214, 1);
   --text-primary: var(--luxury-velvet-black);
   --text-secondary: var(--luxury-pearl-gray);
-  --text-tertiary: #9ca3af;
+  --text-tertiary: var(--luxury-pearl-gray);
+
   --border-color: #e5e7eb; /* Gris très clair pour des bordures discrètes */
   
   /* Alertes (Vert Succès unifié et moderne) */
@@ -118,19 +120,24 @@
 
 /* ===== MODE SOMBRE (Harmonisation des couleurs) ===== */
 [data-theme="dark"] {
-  --luxury-ivory: #121212;        /* Noir Profond - fond principal */
+  --luxury-ivory: rgb(28 25 22 / 0.8);        /* Noir Profond - fond principal */
   --luxury-champagne-gold: #D4B895; /* Or champagne plus clair - ACCENT (solide) */
   --luxury-rose-quartz: #e8a99a; 
   --luxury-pearl-gray: #a8a6a3; 
   --luxury-velvet-black: #f5f5f5;  /* Blanc Velours - TEXTE PRINCIPAL */
   
+
+  
+  --tw-bg-opacity: 1;
+
   /* Couleurs de fond et texte */
   --bg-primary: var(--luxury-ivory);
   --bg-secondary: #2a2a2a;
-  --bg-card: #222222;
+  --bg-card: rgb( 42 39 36 / var(--tw-bg-opacity, 1));
   --text-primary: var(--luxury-velvet-black);
   --text-secondary: #cccccc;
   --border-color: #4b5563;
+  --text-tertiary: rgb(255 255 255 / var(--tw-text-opacity, 1))
   
   /* Gradients sombres - CONSERVÉS MAIS REDÉFINIS EN SOLIDES POUR L'UX */
   --elegant-gradient: var(--luxury-champagne-gold); 

@@ -1,6 +1,6 @@
 import '@/styles/globals.css';
 import { ServiceWorkerProvider } from '@/components/ServiceWorkerProvider';
-import { FloatingThemeToggle } from '@/components/FloatingThemeToggle/FloatingThemeToggle';
+// import { FloatingThemeToggle } from '@/components/FloatingThemeToggle/FloatingThemeToggle';
 import { WebSocketNotificationsProvider } from '@/components/WebSocketNotificationsProvider';
 import siteMetadata from './metadata';
 
@@ -16,7 +16,7 @@ export default function RootLayout({
       <body suppressHydrationWarning>
         <ServiceWorkerProvider />
         <WebSocketNotificationsProvider />
-        <FloatingThemeToggle />
+    
         {children}
       </body>
     </html>

@@ -348,8 +348,6 @@ model RSVP {
   id                 String     @id @default(cuid())
   status             RSVPStatus @default(PENDING)
   message            String?
-  attendingCeremony  Boolean    @default(true)
-  attendingReception Boolean    @default(true)
   numberOfGuests     Int        @default(1)
   respondedAt        DateTime?
   createdAt          DateTime   @default(now())

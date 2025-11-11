@@ -5,8 +5,6 @@ import { Invitation, RSVPMessage } from '@/types';
 export interface RSVPResponse {
   status: 'CONFIRMED' | 'DECLINED' | 'PENDING';
   message?: string;
-  attendingCeremony?: boolean;
-  attendingReception?: boolean;
   profilePhotoUrl?: string;
   plusOne?: boolean;
   plusOneName?: string;
@@ -17,22 +15,20 @@ export interface RSVPStatus {
   id: string;
   status: 'CONFIRMED' | 'DECLINED' | 'PENDING';
   message?: string;
-  attendingCeremony: boolean;
-  attendingReception: boolean;
   numberOfGuests: number;
   profilePhotoUrl?: string;
   respondedAt?: string;
+  plusOne?: boolean;
+  plusOneName?: string;
+  dietaryRestrictions?: string;
   guest: {
     id: string;
     firstName: string;
     lastName: string;
     email?: string;
     phone?: string;
-    plusOne: boolean;
-    plusOneName?: string;
-    dietaryRestrictions?: string;
   };
-  invitation: {
+  invitation?: {
     id: string;
     eventTitle: string;
     eventType: string;
@@ -53,8 +49,6 @@ export interface ShareableRSVPRequest {
   // RSVP
   status: 'CONFIRMED' | 'DECLINED' | 'PENDING';
   message?: string;
-  attendingCeremony?: boolean;
-  attendingReception?: boolean;
   profilePhotoUrl?: string;
   plusOne?: boolean;
   plusOneName?: string;

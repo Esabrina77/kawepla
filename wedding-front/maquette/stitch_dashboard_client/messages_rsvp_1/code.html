@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html class="dark" lang="fr"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Messages RSVP</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet"/>
+<script>
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#a58866",
+                        "secondary": "#e8c0c0",
+                        "background-light": "#FFFFFF",
+                        "background-dark": "#121212",
+                        "text-light-primary": "#121212",
+                        "text-dark-primary": "#FFFFFF",
+                        "text-light-secondary": "#4A4A4A",
+                        "text-dark-secondary": "#AFAFAF",
+                    },
+                    fontFamily: {
+                        "display": ["Inter", "sans-serif"]
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                },
+            },
+        }
+    </script>
+<style>
+        body {
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+        .material-symbols-outlined {
+            font-variation-settings:
+                'FILL' 0,
+                'wght' 400,
+                'GRAD' 0,
+                'opsz' 24
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background-light dark:bg-background-dark font-display text-text-light-primary dark:text-dark-primary">
+<div class="relative min-h-screen w-full flex-col">
+<header class="sticky top-0 z-10 flex h-16 items-center justify-between border-b border-black/10 dark:border-white/10 bg-background-light/80 dark:bg-background-dark/80 px-4 backdrop-blur-sm">
+<h1 class="text-xl font-bold leading-tight tracking-tight text-text-light-primary dark:text-dark-primary">Messages RSVP</h1>
+<button class="flex h-10 w-10 cursor-pointer items-center justify-center rounded-full text-text-light-secondary dark:text-dark-secondary">
+<span class="material-symbols-outlined text-2xl">more_vert</span>
+</button>
+</header>
+<main class="flex flex-col p-4 space-y-4 pb-28"> 
+<div class="py-2">
+<label class="flex flex-col h-12 w-full">
+<div class="flex w-full flex-1 items-stretch rounded-lg h-full bg-black/5 dark:bg-white/5">
+<div class="text-text-light-secondary dark:text-dark-secondary flex items-center justify-center pl-4">
+<span class="material-symbols-outlined text-2xl">search</span>
+</div>
+<input class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-r-lg text-text-light-primary dark:text-dark-primary focus:outline-0 focus:ring-0 border-none bg-transparent h-full placeholder:text-text-light-secondary dark:placeholder:text-dark-secondary px-2 text-base font-normal leading-normal" placeholder="Rechercher par nom, email ou message..."/>
+</div>
+</label>
+</div>
+<div class="flex flex-col gap-4">
+<div class="flex flex-col gap-4 rounded-xl border border-black/10 dark:border-white/10 bg-white dark:bg-black/20 p-4">
+<div class="flex items-center gap-4">
+<div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-primary/20">
+<span class="text-xl font-bold text-primary">JD</span>
+</div>
+<div class="flex-1">
+<p class="text-base font-semibold text-text-light-primary dark:text-dark-primary">John Doe</p>
+<p class="text-sm font-normal text-text-light-secondary dark:text-dark-secondary">john.doe@email.com</p>
+</div>
+<div class="flex items-center gap-2 rounded-full bg-green-500/10 px-3 py-1 text-xs font-medium text-green-600 dark:text-green-400">
+<div class="h-2 w-2 rounded-full bg-green-500"></div>
+                            Confirmé
+                        </div>
+</div>
+<div class="flex flex-col gap-2">
+<p class="font-semibold text-text-light-primary dark:text-dark-primary">Gala Annuel 2024</p>
+<p class="text-sm font-normal text-text-light-secondary dark:text-dark-secondary line-clamp-2">Je serai présent avec grand plaisir ! Hâte de vous retrouver pour cet événement exceptionnel et de célébrer ensemble cette belle année.</p>
+<p class="pt-2 text-xs font-normal text-text-light-secondary/70 dark:text-dark-secondary/70">10/10/2024 à 14:32</p>
+</div>
+<button class="flex min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 px-4 flex-1 bg-primary text-white text-sm font-bold leading-normal tracking-[0.015em]">
+<span class="truncate">Voir détails</span>
+</button>
+</div>
+<div class="flex flex-col gap-4 rounded-xl border border-black/10 dark:border-white/10 bg-white dark:bg-black/20 p-4">
+<div class="flex items-center gap-4">
+<div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-secondary/30">
+<span class="text-xl font-bold text-red-500">AS</span>
+</div>
+<div class="flex-1">
+<p class="text-base font-semibold text-text-light-primary dark:text-dark-primary">Alice Smith</p>
+<p class="text-sm font-normal text-text-light-secondary dark:text-dark-secondary">alice.smith@email.com</p>
+</div>
+<div class="flex items-center gap-2 rounded-full bg-red-500/10 px-3 py-1 text-xs font-medium text-red-600 dark:text-red-400">
+<div class="h-2 w-2 rounded-full bg-red-500"></div>
+                            Décliné
+                        </div>
+</div>
+<div class="flex flex-col gap-2">
+<p class="font-semibold text-text-light-primary dark:text-dark-primary">Gala Annuel 2024</p>
+<p class="text-sm font-normal text-text-light-secondary dark:text-dark-secondary line-clamp-2">Malheureusement, je ne pourrai pas me joindre à vous cette année en raison d'un engagement préalable. Je vous souhaite une excellente soirée.</p>
+<p class="pt-2 text-xs font-normal text-text-light-secondary/70 dark:text-dark-secondary/70">09/10/2024 à 18:05</p>
+</div>
+<button class="flex min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 px-4 flex-1 bg-primary text-white text-sm font-bold leading-normal tracking-[0.015em]">
+<span class="truncate">Voir détails</span>
+</button>
+</div>
+<div class="flex flex-col gap-4 rounded-xl border border-black/10 dark:border-white/10 bg-white dark:bg-black/20 p-4">
+<div class="flex items-center gap-4">
+<div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-gray-500/20">
+<span class="text-xl font-bold text-gray-500">MB</span>
+</div>
+<div class="flex-1">
+<p class="text-base font-semibold text-text-light-primary dark:text-dark-primary">Marc Bernard</p>
+<p class="text-sm font-normal text-text-light-secondary dark:text-dark-secondary">marc.bernard@email.com</p>
+</div>
+<div class="flex items-center gap-2 rounded-full bg-gray-500/10 px-3 py-1 text-xs font-medium text-gray-600 dark:text-gray-400">
+<div class="h-2 w-2 rounded-full bg-gray-500"></div>
+                            En attente
+                        </div>
+</div>
+<div class="flex flex-col gap-2">
+<p class="font-semibold text-text-light-primary dark:text-dark-primary">Gala Annuel 2024</p>
+<p class="text-sm font-normal italic text-text-light-secondary dark:text-dark-secondary line-clamp-2">Aucun message</p>
+<p class="pt-2 text-xs font-normal text-text-light-secondary/70 dark:text-dark-secondary/70">08/10/2024 à 09:12</p>
+</div>
+<button class="flex min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 px-4 flex-1 bg-primary text-white text-sm font-bold leading-normal tracking-[0.015em]">
+<span class="truncate">Voir détails</span>
+</button>
+</div>
+</div>
+</main>
+</div>
+<div class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm hidden" id="modal">
+<div class="relative w-full max-w-md transform-gpu rounded-xl bg-background-light dark:bg-background-dark shadow-2xl">
+<div class="flex items-start justify-between p-4 border-b border-black/10 dark:border-white/10">
+<h2 class="text-lg font-bold text-text-light-primary dark:text-dark-primary">Détails de John Doe</h2>
+<button class="flex h-8 w-8 items-center justify-center rounded-full text-text-light-secondary dark:text-dark-secondary hover:bg-black/5 dark:hover:bg-white/5">
+<span class="material-symbols-outlined text-2xl">close</span>
+</button>
+</div>
+<div class="p-6 space-y-4">
+<div class="flex items-center gap-4">
+<div class="flex h-16 w-16 shrink-0 items-center justify-center rounded-full bg-primary/20">
+<span class="text-2xl font-bold text-primary">JD</span>
+</div>
+<div class="flex-1">
+<p class="text-xl font-semibold">John Doe</p>
+<p class="text-sm text-text-light-secondary dark:text-dark-secondary">john.doe@email.com</p>
+<p class="text-sm text-text-light-secondary dark:text-dark-secondary">+33 6 12 34 56 78</p>
+</div>
+</div>
+<div class="space-y-4 rounded-lg bg-black/5 dark:bg-white/5 p-4">
+<div class="flex justify-between items-center">
+<span class="text-sm font-medium text-text-light-secondary dark:text-dark-secondary">Statut RSVP</span>
+<div class="flex items-center gap-2 rounded-full bg-green-500/10 px-3 py-1 text-xs font-medium text-green-600 dark:text-green-400">
+<div class="h-2 w-2 rounded-full bg-green-500"></div>
+                            Confirmé
+                        </div>
+</div>
+<div class="flex justify-between items-center">
+<span class="text-sm font-medium text-text-light-secondary dark:text-dark-secondary">Accompagnant(s)</span>
+<span class="font-semibold">1 personne</span>
+</div>
+<div class="flex flex-col gap-1">
+<span class="text-sm font-medium text-text-light-secondary dark:text-dark-secondary">Restrictions alimentaires</span>
+<span class="font-semibold">Végétarien, allergies aux arachides.</span>
+</div>
+</div>
+<div>
+<h3 class="font-semibold text-text-light-primary dark:text-dark-primary mb-2">Message</h3>
+<p class="text-sm text-text-light-secondary dark:text-dark-secondary bg-black/5 dark:bg-white/5 p-3 rounded-lg">Je serai présent avec grand plaisir ! Hâte de vous retrouver pour cet événement exceptionnel et de célébrer ensemble cette belle année.</p>
+</div>
+</div>
+<div class="px-4 pb-4">
+<button class="flex w-full cursor-pointer items-center justify-center rounded-lg h-11 px-4 bg-primary text-white text-sm font-bold leading-normal">
+                    Fermer
+                </button>
+</div>
+</div>
+</div>
+<nav class="fixed bottom-0 left-0 right-0 z-20 flex h-20 items-center justify-around border-t border-black/10 bg-background-light/80 dark:border-white/10 dark:bg-background-dark/80 backdrop-blur-sm">
+<a class="flex flex-col items-center gap-1 text-text-light-secondary dark:text-dark-secondary" href="#">
+<span class="material-symbols-outlined">dashboard</span>
+<span class="text-xs font-medium">Tableau de bord</span>
+</a>
+<a class="flex flex-col items-center gap-1 text-text-light-secondary dark:text-dark-secondary" href="#">
+<span class="material-symbols-outlined">calendar_add_on</span>
+<span class="text-xs font-medium">Créer</span>
+</a>
+<a class="flex flex-col items-center gap-1 text-primary dark:text-primary" href="#">
+<span class="material-symbols-outlined">group</span>
+<span class="text-xs font-bold">Invités</span>
+</a>
+<button class="flex flex-col items-center gap-1 text-text-light-secondary dark:text-dark-secondary">
+<span class="material-symbols-outlined">menu</span>
+<span class="text-xs font-medium">Plus</span>
+</button>
+</nav>
+<div class="fixed inset-0 z-40 flex flex-col justify-end bg-black/60" id="burger-menu-modal">
+<div class="bg-background-light dark:bg-neutral-800 rounded-t-xl">
+<div class="p-4 flex justify-center">
+<div class="w-8 h-1 bg-gray-300 dark:bg-gray-600 rounded-full"></div>
+</div>
+<div class="flex flex-col p-4 space-y-2">
+<a class="flex items-center gap-4 rounded-lg p-3 hover:bg-black/5 dark:hover:bg-white/5" href="#">
+<span class="material-symbols-outlined text-text-light-secondary dark:text-dark-secondary">home</span>
+<span class="font-medium text-text-light-primary dark:text-dark-primary">Accueil</span>
+</a>
+<a class="flex items-center gap-4 rounded-lg p-3 hover:bg-black/5 dark:hover:bg-white/5" href="#">
+<span class="material-symbols-outlined text-text-light-secondary dark:text-dark-secondary">palette</span>
+<span class="font-medium text-text-light-primary dark:text-dark-primary">Design</span>
+</a>
+<a class="flex items-center gap-4 rounded-lg p-3 bg-primary/10" href="#">
+<span class="material-symbols-outlined text-primary">mail</span>
+<span class="font-bold text-primary">Réponses Invitations</span>
+</a>
+<a class="flex items-center gap-4 rounded-lg p-3 hover:bg-black/5 dark:hover:bg-white/5" href="#">
+<span class="material-symbols-outlined text-text-light-secondary dark:text-dark-secondary">local_shipping</span>
+<span class="font-medium text-text-light-primary dark:text-dark-primary">Prestataires</span>
+</a>
+<a class="flex items-center gap-4 rounded-lg p-3 hover:bg-black/5 dark:hover:bg-white/5" href="#">
+<span class="material-symbols-outlined text-text-light-secondary dark:text-dark-secondary">photo_album</span>
+<span class="font-medium text-text-light-primary dark:text-dark-primary">Albums Photos</span>
+</a>
+<a class="flex items-center gap-4 rounded-lg p-3 hover:bg-black/5 dark:hover:bg-white/5" href="#">
+<span class="material-symbols-outlined text-text-light-secondary dark:text-dark-secondary">receipt_long</span>
+<span class="font-medium text-text-light-primary dark:text-dark-primary">Facturation</span>
+</a>
+</div>
+<div class="p-4 border-t border-black/10 dark:border-white/10 mt-2">
+<button class="flex w-full cursor-pointer items-center justify-center gap-2 rounded-lg h-11 px-4 text-red-600 dark:text-red-500 text-sm font-bold leading-normal hover:bg-red-500/10">
+<span class="material-symbols-outlined">logout</span>
+                    Se déconnecter
+                </button>
+</div>
+</div>
+</div>
+
+</body></html>

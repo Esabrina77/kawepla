@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html class="dark" lang="fr"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Vos Invités</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet"/>
+<script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            "primary": "#a58866",
+            "background-light": "#f7f7f6",
+            "background-dark": "#121212",
+            "surface": "#4a4a4a",
+            "info": "#e8c0c0",
+            "success": "#5cb85c",
+            "danger": "#d9534f",
+            "warning": "#f0ad4e",
+          },
+          fontFamily: {
+            "display": ["Inter", "sans-serif"]
+          },
+          borderRadius: {
+            "DEFAULT": "0.25rem",
+            "lg": "0.5rem",
+            "xl": "0.75rem",
+            "full": "9999px"
+          },
+        },
+      },
+    }
+  </script>
+<style>
+    .material-symbols-outlined {
+      font-variation-settings:
+        'FILL' 0,
+        'wght' 400,
+        'GRAD' 0,
+        'opsz' 24
+    }
+    .material-symbols-outlined.filled {
+      font-variation-settings:
+        'FILL' 1,
+        'wght' 400,
+        'GRAD' 0,
+        'opsz' 24
+    }
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background-dark font-display text-white">
+<div class="relative flex h-auto min-h-screen w-full flex-col overflow-x-hidden pb-[75px]">
+<div class="flex items-center bg-background-dark p-4 pb-2 justify-between sticky top-0 z-10">
+<div class="text-white flex size-12 shrink-0 items-center justify-start -ml-2">
+<span class="material-symbols-outlined text-2xl">arrow_back</span>
+</div>
+<h1 class="text-white text-xl font-bold leading-tight tracking-[-0.015em] flex-1 text-center">Vos invités</h1>
+<div class="size-12 shrink-0"></div>
+</div>
+<div class="p-4 flex flex-col gap-6">
+<div class="flex flex-col gap-2">
+<div class="flex gap-6 justify-between items-baseline">
+<p class="text-white text-base font-medium leading-normal">Limite d'invitations</p>
+<p class="text-white/70 text-sm font-normal leading-normal">8/20 utilisés</p>
+</div>
+<div class="rounded-full bg-surface">
+<div class="h-2 rounded-full bg-primary" style="width: 40%;"></div>
+</div>
+</div>
+<div class="flex">
+<div class="flex h-11 flex-1 items-center justify-center rounded-lg bg-surface/50 p-1">
+<label class="flex cursor-pointer h-full grow items-center justify-center overflow-hidden rounded-md px-2 has-[:checked]:bg-[#2a2a2a] has-[:checked]:shadow-lg has-[:checked]:text-white text-white/70 text-sm font-medium leading-normal">
+<span class="truncate">Envoi par email</span>
+<input checked="" class="invisible w-0" name="invitation_type" type="radio" value="Envoi par email"/>
+</label>
+<label class="flex cursor-pointer h-full grow items-center justify-center overflow-hidden rounded-md px-2 has-[:checked]:bg-[#2a2a2a] has-[:checked]:shadow-lg has-[:checked]:text-white text-white/70 text-sm font-medium leading-normal">
+<span class="truncate">Lien partageable</span>
+<input class="invisible w-0" name="invitation_type" type="radio" value="Lien partageable"/>
+</label>
+</div>
+</div>
+</div>
+<div class="flex flex-col gap-4 px-4">
+<div class="flex flex-1 gap-3 flex-wrap justify-between">
+<button class="flex flex-1 min-w-[150px] cursor-pointer items-center justify-center gap-2 overflow-hidden rounded-lg h-12 px-4 bg-primary text-white text-sm font-bold leading-normal tracking-[0.015em]">
+<span class="material-symbols-outlined text-xl">add_circle</span>
+<span class="truncate">Ajouter un invité</span>
+</button>
+<button class="flex flex-1 min-w-[150px] cursor-pointer items-center justify-center gap-2 overflow-hidden rounded-lg h-12 px-4 bg-surface text-white text-sm font-bold leading-normal tracking-[0.015em]">
+<span class="material-symbols-outlined text-xl">upload_file</span>
+<span class="truncate">Import en masse</span>
+</button>
+</div>
+<div class="flex flex-col gap-4 pt-4">
+<div class="relative">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-white/50">search</span>
+<input class="w-full h-12 rounded-lg bg-surface border-none pl-10 pr-4 text-white placeholder-white/50 focus:ring-2 focus:ring-primary" placeholder="Rechercher un invité..." type="search"/>
+</div>
+<div class="flex gap-2">
+<button class="flex items-center justify-center gap-2 rounded-full h-9 px-4 bg-surface text-white text-sm font-medium">
+<span>Statut RSVP</span>
+<span class="material-symbols-outlined text-base">expand_more</span>
+</button>
+<button class="flex items-center justify-center gap-2 rounded-full h-9 px-4 bg-surface text-white text-sm font-medium">
+<span>Type</span>
+<span class="material-symbols-outlined text-base">expand_more</span>
+</button>
+</div>
+</div>
+<div class="flex flex-col gap-4">
+<div class="flex flex-col gap-4 rounded-xl bg-surface p-4">
+<div class="flex items-start justify-between gap-4">
+<div class="flex flex-col gap-1.5">
+<div class="flex items-center gap-2">
+<p class="text-white text-base font-bold leading-tight">Jean Dupont</p>
+<span class="rounded-full bg-primary/30 text-primary px-2 py-0.5 text-xs font-semibold">VIP</span>
+</div>
+<span class="rounded-full bg-success/20 text-success w-fit px-2 py-0.5 text-xs font-semibold">Confirmé</span>
+<p class="text-white/70 text-sm font-normal leading-normal pt-1">jean.dupont@email.com</p>
+<p class="text-white/70 text-sm font-normal leading-normal">06 12 34 56 78</p>
+</div>
+<div class="size-16 bg-center bg-no-repeat aspect-square bg-cover rounded-full flex-shrink-0" data-alt="Profile picture of Jean Dupont" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuAMHEmINhGow5qAcVe3DrjabR3nqHzKdi9RvfEnRefuRdB5IwtWKLuUjqGIiHWgrmtLvkf_oK15tu81BOmVYmF8930J1NvGQ-8rI1jLW3ayMBZBeTpSDRGGiqxd5hLanD6hwHCYBR98bpyot9WAEO5WUFl6Jit-9BYtYsGpak39-lw4VGzwGEe4QO31QVGtkc2DcNrd7otqTmxY5-AKBzk5fD71-pBPjXF81-JcJeMlguj6dgL9RKItKWPtszoC87LAIyko1_yL-h2q');"></div>
+</div>
+<div class="border-t border-white/10 pt-3 flex flex-col gap-2">
+<p class="text-white/70 text-sm">Accompagnant : Marie Dupont</p>
+<p class="text-white/70 text-sm">Restrictions : Végétarien</p>
+<p class="text-white/50 text-xs mt-1">Invitation envoyée le 12/07/2024</p>
+</div>
+<div class="flex items-center gap-2 pt-2">
+<button class="flex-1 flex min-w-[84px] cursor-pointer items-center justify-center gap-2 overflow-hidden rounded-lg h-10 px-3 bg-white/10 text-white text-sm font-medium leading-normal">
+<span class="material-symbols-outlined text-lg">notifications</span><span class="truncate">Rappel</span>
+</button>
+<button class="flex min-w-10 cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 px-3 bg-danger/20 text-danger text-sm font-medium leading-normal">
+<span class="material-symbols-outlined text-lg">delete</span>
+</button>
+</div>
+</div>
+<div class="flex flex-col gap-4 rounded-xl bg-surface p-4">
+<div class="flex items-start justify-between gap-4">
+<div class="flex flex-col gap-1.5">
+<p class="text-white text-base font-bold leading-tight">Sophie Martin</p>
+<span class="rounded-full bg-warning/20 text-warning w-fit px-2 py-0.5 text-xs font-semibold">En attente</span>
+<p class="text-white/70 text-sm font-normal leading-normal pt-1">sophie.martin@email.com</p>
+</div>
+<div class="size-16 bg-center bg-no-repeat aspect-square bg-cover rounded-full flex-shrink-0" data-alt="Profile picture of Sophie Martin" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuBHqevhR4pC5rq51g5DJcXqVHMZLN1xeeltrfCa2M1jacXHQARDsmCk2M-eCqFe2OB6S4G2BNJYv5a54MPVewo5FYhi6RbEcQa5NSpXo2BKSGtd44lFEvgrhvHkYRe5rIDIpCp5I956kpnn0o_6SGMhZKmjTEAPOX4FcVJ0tS2wNr0IjCXNJvWz_bRF4_Gx9OXFCsxkWL30TJ-PUuXNkspH4Npdx3IyLGlMKZ-v4tMDbBLA_ecjy9gLdBfAeH1D5ve-RmW99JOR84mr');"></div>
+</div>
+<div class="flex items-center gap-2 pt-4">
+<button class="flex-1 flex min-w-[84px] cursor-pointer items-center justify-center gap-2 overflow-hidden rounded-lg h-10 px-3 bg-primary/80 text-white text-sm font-medium leading-normal">
+<span class="material-symbols-outlined text-lg">send</span> <span class="truncate">Envoyer l'invitation</span>
+</button>
+<button class="flex min-w-10 cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 px-3 bg-danger/20 text-danger text-sm font-medium leading-normal">
+<span class="material-symbols-outlined text-lg">delete</span>
+</button>
+</div>
+</div>
+<div class="flex flex-col gap-4 rounded-xl bg-surface p-4">
+<div class="flex items-start justify-between gap-4">
+<div class="flex flex-col gap-1.5">
+<p class="text-white text-base font-bold leading-tight">Lucas Bernard</p>
+<span class="rounded-full bg-danger/20 text-danger w-fit px-2 py-0.5 text-xs font-semibold">Refusé</span>
+<p class="text-white/70 text-sm font-normal leading-normal pt-1">lucas.bernard@email.com</p>
+</div>
+<div class="size-16 bg-center bg-no-repeat aspect-square bg-cover rounded-full flex-shrink-0" data-alt="Profile picture of Lucas Bernard" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuAY6wXyADlEmLf4OfgphUmnszmsZkNdHA-SdNnpcmlEHsPnYTbbGPwQQyj4PFTtd1UAsXyDIlwAAhGNbG89oWVlj4SbriDfiSk2NEjkcFA2MfaOtUHgwq49EVSr-R4dkD54vBUiI-azlupFoeBAiaVdAZEIKZtctrwMdSKrgrEs2Cd8cRUaW12QR9fxawYGtCQ5QXfyZQelx3V8BOh_DBSBWgVa6rbyv5GUBUx_jg6Q1P0Crhh_gaiK7lSUewXAnHXH3NzC-tgGxBJk');"></div>
+</div>
+<div class="flex items-center gap-2 pt-4">
+<button class="flex-1 flex min-w-[84px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 px-3 bg-white/10 text-white text-sm font-medium leading-normal opacity-50" disabled="">
+<span class="truncate">Action non disponible</span>
+</button>
+<button class="flex min-w-10 cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 px-3 bg-danger/20 text-danger text-sm font-medium leading-normal">
+<span class="material-symbols-outlined text-lg">delete</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+</div>
+<nav class="fixed bottom-0 left-0 right-0 z-20 flex h-[75px] items-center justify-around border-t border-white/10 bg-background-dark/80 backdrop-blur-lg">
+<a class="flex flex-col items-center justify-center gap-1 text-white/70" href="#">
+<span class="material-symbols-outlined">dashboard</span>
+<span class="text-xs">Tableau de bord</span>
+</a>
+<a class="flex flex-col items-center justify-center gap-1 text-white/70" href="#">
+<span class="material-symbols-outlined">add_circle</span>
+<span class="text-xs">Créer</span>
+</a>
+<a class="flex flex-col items-center justify-center gap-1 text-primary" href="#">
+<span class="material-symbols-outlined filled">group</span>
+<span class="text-xs font-bold">Invités</span>
+</a>
+<a class="flex flex-col items-center justify-center gap-1 text-white/70" href="#">
+<span class="material-symbols-outlined">more_horiz</span>
+<span class="text-xs">Plus</span>
+</a>
+</nav>
+
+</body></html>
