@@ -22,7 +22,7 @@ export default function ProfilePage() {
         firstName: user.firstName || '',
         lastName: user.lastName || '',
         email: user.email || '',
-        phone: user.phone || '',
+        phone: user?.phone || '',
       });
     }
   }, [user]);

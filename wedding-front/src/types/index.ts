@@ -101,6 +101,7 @@ export interface User {
   email: string;
   firstName?: string;
   lastName?: string;
+  phone?: string;
   role: 'HOST' | 'GUEST' | 'ADMIN' | 'PROVIDER'; // HOST remplace organisateur
   serviceTier?: string;
   purchasedAt?: string;
