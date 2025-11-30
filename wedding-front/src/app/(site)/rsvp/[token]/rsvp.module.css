@@ -20,14 +20,14 @@
     gap: var(--space-lg);
     padding: 0;
   }
-  
+
   .invitationColumn,
   .formColumn {
     width: 100vw;
     margin-left: calc(-50vw + 50%);
     margin-right: calc(-50vw + 50%);
   }
-  
+
   .invitationColumn .card,
   .formColumn .card {
     border-radius: 0;
@@ -42,7 +42,7 @@
     max-width: 1400px;
     margin: 0 auto;
   }
-  
+
   .invitationColumn {
     position: sticky;
     top: 120px;
@@ -253,7 +253,7 @@
   .inputGrid {
     grid-template-columns: 1fr 1fr;
   }
-  
+
   .formRow {
     flex-direction: row;
   }
@@ -293,6 +293,18 @@
 .textInput:disabled {
   opacity: 0.5;
   cursor: not-allowed;
+}
+
+.readOnlyValue {
+  width: 100%;
+  padding: 0.75rem;
+  font-size: 1rem;
+  background: var(--bg-secondary);
+  border: 1px solid transparent;
+  border-radius: 0.5rem;
+  color: var(--text-primary);
+  font-family: var(--font-sans);
+  font-weight: 500;
 }
 
 .responseButtons {
@@ -714,10 +726,13 @@
 }
 
 @keyframes pulse {
-  0%, 100% {
+
+  0%,
+  100% {
     opacity: 0.9;
     transform: translate(-50%, -50%) scale(1);
   }
+
   50% {
     opacity: 1;
     transform: translate(-50%, -50%) scale(1.05);
@@ -728,11 +743,11 @@
   .fallbackTitle {
     font-size: 1.5rem;
   }
-  
+
   .fallbackDate {
     font-size: 1.25rem;
   }
-  
+
   .formCard {
     padding: var(--space-lg);
   }
@@ -744,6 +759,7 @@
     opacity: 0;
     transform: translateY(20px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -755,9 +771,157 @@
     opacity: 0;
     transform: scale(0.8);
   }
+
   to {
     opacity: 1;
     transform: scale(1);
   }
 }
 
+
+/* Stepper Styles */
+.stepperContainer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 2rem;
+  width: 100%;
+  max-width: 400px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.step {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  position: relative;
+  z-index: 1;
+}
+
+.stepNumber {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: var(--bg-secondary);
+  border: 2px solid var(--border-color);
+  color: var(--text-secondary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  font-size: 0.875rem;
+  transition: all var(--transition-normal);
+}
+
+.activeStep .stepNumber {
+  background: var(--color-primary);
+  border-color: var(--color-primary);
+  color: white;
+  box-shadow: 0 0 0 4px rgba(197, 168, 128, 0.2);
+}
+
+.stepLabel {
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+  font-weight: 500;
+}
+
+.activeStep .stepLabel {
+  color: var(--color-primary);
+  font-weight: 600;
+}
+
+.stepLine {
+  flex: 1;
+  height: 2px;
+  background: var(--border-color);
+  margin: 0 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.activeLine {
+  background: var(--color-primary);
+}
+
+/* Modal Styles */
+.modalOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 1rem;
+  backdrop-filter: blur(4px);
+  animation: fadeIn 0.3s ease-out;
+}
+
+.modalCard {
+  background: var(--bg-card);
+  border-radius: var(--radius-lg);
+  padding: 2rem;
+  max-width: 400px;
+  width: 100%;
+  text-align: center;
+  box-shadow: var(--shadow-xl);
+  border: 1px solid var(--border-color);
+  animation: scaleIn 0.3s ease-out;
+}
+
+.modalIcon {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background: rgba(16, 185, 129, 0.1);
+  color: #10b981;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 1.5rem;
+}
+
+.modalTitle {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 1rem;
+}
+
+.modalText {
+  color: var(--text-secondary);
+  line-height: 1.6;
+  margin-bottom: 2rem;
+}
+
+.modalButton {
+  width: 100%;
+  padding: 0.875rem;
+  background: var(--color-primary);
+  color: white;
+  border: none;
+  border-radius: 0.5rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.modalButton:hover {
+  background: var(--color-primary-dark);
+  transform: translateY(-1px);
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}

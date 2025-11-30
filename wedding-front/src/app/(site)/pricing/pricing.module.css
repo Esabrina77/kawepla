@@ -1,0 +1,220 @@
+.pricingPage {
+    background-color: var(--bg-primary);
+    min-height: 100vh;
+    padding-bottom: 80px;
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+}
+
+.header {
+    padding: 120px 0 60px;
+    text-align: center;
+    background: linear-gradient(135deg, var(--bg-secondary) 0%, var(--bg-primary) 100%);
+    position: relative;
+    overflow: hidden;
+}
+
+.title {
+    font-size: 3.5rem;
+    font-weight: 800;
+    color: var(--text-primary);
+    margin-bottom: 24px;
+}
+
+.subtitle {
+    font-size: 1.25rem;
+    color: var(--text-secondary);
+    max-width: 600px;
+    margin: 0 auto 40px;
+    line-height: 1.6;
+}
+
+.toggleContainer {
+    display: inline-flex;
+    background: var(--bg-secondary);
+    padding: 4px;
+    border-radius: 100px;
+    border: 1px solid var(--border-color);
+    margin-bottom: 40px;
+}
+
+.toggleBtn {
+    padding: 12px 32px;
+    border-radius: 100px;
+    font-weight: 600;
+    font-size: 1rem;
+    border: none;
+    background: transparent;
+    color: var(--text-secondary);
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.toggleBtn.active {
+    background: var(--color-primary);
+    color: var(--bg-primary);
+    box-shadow: var(--shadow-sm);
+}
+
+.grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 32px;
+    padding: 40px 0;
+}
+
+.card {
+    background: var(--bg-card);
+    border-radius: 24px;
+    padding: 40px;
+    border: 1px solid var(--border-color);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+}
+
+.card:hover {
+    transform: translateY(-8px);
+    box-shadow: var(--shadow-xl);
+}
+
+.card.popular {
+    border-color: var(--color-primary);
+    box-shadow: var(--shadow-lg);
+}
+
+.popularBadge {
+    position: absolute;
+    top: -12px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--color-primary);
+    color: var(--bg-primary);
+    padding: 6px 16px;
+    border-radius: 100px;
+    font-size: 0.85rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.planName {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 16px;
+}
+
+.price {
+    font-size: 3rem;
+    font-weight: 800;
+    color: var(--text-primary);
+    margin-bottom: 8px;
+    display: flex;
+    align-items: baseline;
+    gap: 4px;
+}
+
+.currency {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--text-secondary);
+}
+
+.period {
+    font-size: 1rem;
+    font-weight: 500;
+    color: var(--text-secondary);
+}
+
+.description {
+    color: var(--text-secondary);
+    margin-bottom: 32px;
+    line-height: 1.6;
+}
+
+.featuresList {
+    list-style: none;
+    padding: 0;
+    margin: 0 0 40px;
+    flex-grow: 1;
+}
+
+.featureItem {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 16px;
+    color: var(--text-primary);
+    font-size: 0.95rem;
+}
+
+.checkIcon {
+    color: var(--color-primary);
+    flex-shrink: 0;
+}
+
+.ctaButton {
+    width: 100%;
+    padding: 16px;
+    border-radius: 12px;
+    font-weight: 700;
+    text-align: center;
+    transition: all 0.3s ease;
+    text-decoration: none;
+    display: inline-block;
+}
+
+.ctaButton.primary {
+    background: var(--color-primary);
+    color: var(--bg-primary);
+    box-shadow: var(--shadow-sm);
+}
+
+.ctaButton.primary:hover {
+    background: var(--color-secondary);
+    /* Or opacity change */
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-lg);
+}
+
+.ctaButton.outline {
+    background: transparent;
+    border: 2px solid var(--border-color);
+    color: var(--text-primary);
+}
+
+.ctaButton.outline:hover {
+    border-color: var(--text-primary);
+    background: var(--bg-secondary);
+}
+
+.faqSection {
+    padding: 100px 0;
+    background: var(--bg-secondary);
+}
+
+.faqTitle {
+    text-align: center;
+    font-size: 2.5rem;
+    font-weight: 800;
+    color: var(--text-primary);
+    margin-bottom: 60px;
+}
+
+@media (max-width: 768px) {
+    .title {
+        font-size: 2.5rem;
+    }
+
+    .grid {
+        grid-template-columns: 1fr;
+        max-width: 500px;
+        margin: 0 auto;
+    }
+}

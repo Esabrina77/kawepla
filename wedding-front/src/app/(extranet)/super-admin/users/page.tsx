@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import styles from './users.module.css';
 import { useAdminUsers } from '@/hooks/useAdminUsers';
+import { HeaderMobile } from '@/components/HeaderMobile';
 import { 
   Users, 
   Search, 
@@ -81,7 +82,8 @@ export default function UsersPage() {
 
   if (loading) {
     return (
-      <div className={styles.usersContainer}>
+      <div className={styles.usersPage}>
+        <HeaderMobile title="Utilisateurs" />
         <div className={styles.loadingContainer}>
           <div className={styles.loadingSpinner}></div>
           <p>Chargement des utilisateurs...</p>
@@ -92,7 +94,8 @@ export default function UsersPage() {
 
   if (error) {
     return (
-      <div className={styles.usersContainer}>
+      <div className={styles.usersPage}>
+        <HeaderMobile title="Utilisateurs" />
         <div className={styles.errorContainer}>
           <p>Erreur: {error}</p>
         </div>
@@ -101,25 +104,13 @@ export default function UsersPage() {
   }
 
   return (
-    <div className={styles.usersContainer}>
-      {/* Header Section */}
-      <div className={styles.headerSection}>
-        <div className={styles.badge}>
-          <Users style={{ width: '16px', height: '16px' }} />
-          Gestion des utilisateurs
-        </div>
-        
-        <h1 className={styles.title}>
-          Vos <span className={styles.titleAccent}>utilisateurs</span>
-        </h1>
-        
-        <p className={styles.subtitle}>
-          Gérez les comptes et les permissions de votre plateforme Kawepla
-        </p>
-      </div>
+    <div className={styles.usersPage}>
+      <HeaderMobile title="Utilisateurs" />
+      
+      <main className={styles.main}>
 
-      {/* Filters */}
-      <div className={styles.filtersContainer}>
+        {/* Filters */}
+        <div className={styles.filtersContainer}>
         <div className={styles.searchContainer}>
           <Search className={styles.searchIcon} />
           <input
@@ -172,8 +163,8 @@ export default function UsersPage() {
         </div>
       </div>
 
-      {/* Users Grid */}
-      <div className={styles.usersGrid}>
+        {/* Users Grid */}
+        <div className={styles.usersGrid}>
         {users.map((user) => (
           <div key={user.id} className={styles.userCard}>
             {/* User Header */}
@@ -279,19 +270,20 @@ export default function UsersPage() {
         ))}
       </div>
 
-      {/* Empty State */}
-      {users.length === 0 && (
-        <div className={styles.emptyState}>
-          <Users style={{ width: '64px', height: '64px', marginBottom: 'var(--space-md)' }} />
-          <h3>Aucun utilisateur trouvé</h3>
-          <p>
-            {filters.search || filters.role || filters.isActive !== undefined
-              ? 'Aucun utilisateur ne correspond à vos critères de recherche' 
-              : 'Aucun utilisateur enregistré pour le moment'
-            }
-          </p>
-        </div>
-      )}
+        {/* Empty State */}
+        {users.length === 0 && (
+          <div className={styles.emptyState}>
+            <Users size={64} />
+            <h3>Aucun utilisateur trouvé</h3>
+            <p>
+              {filters.search || filters.role || filters.isActive !== undefined
+                ? 'Aucun utilisateur ne correspond à vos critères de recherche' 
+                : 'Aucun utilisateur enregistré pour le moment'
+              }
+            </p>
+          </div>
+        )}
+      </main>
     </div>
   );
 } 

@@ -264,13 +264,6 @@ export default function StatsPage() {
               </span>
               <span className={styles.statCount}>+{stats.invitations.thisMonth}</span>
             </div>
-            <div className={styles.statItem}>
-              <span className={styles.statLabel}>
-                <Target style={{ width: '14px', height: '14px' }} />
-                Taux de réponse
-              </span>
-              <span className={styles.statCount}>{stats.activity.conversionRate}%</span>
-            </div>
           </div>
         </div>
       </div>

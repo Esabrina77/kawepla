@@ -1,8 +1,12 @@
-import { Router } from 'express';
+import { Router, RequestHandler } from 'express';
 import { RSVPController } from '../controllers/rsvpController';
 import { ShareableInvitationService } from '../services/shareableInvitationService';
+import { publicRateLimiter } from '../middleware/rateLimiter';
 
 const router = Router();
+
+// Appliquer le rate limiter public à toutes les routes RSVP
+router.use(publicRateLimiter as RequestHandler);
 
 /**
  * @route   GET /api/rsvp/:token/invitation

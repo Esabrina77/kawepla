@@ -2,6 +2,7 @@ import { Request, Response, NextFunction } from 'express';
 import { prisma } from '../lib/prisma';
 import { AsyncRequestHandler } from '../types';
 import { UserService } from '../services/userService';
+import { InvitationService } from '../services/invitationService';
 
 export class UserController {
   static getProfile: AsyncRequestHandler = async (req, res, next) => {
@@ -70,16 +71,22 @@ export class UserController {
   static deleteProfile: AsyncRequestHandler = async (req, res, next) => {
     try {
       const userId = req.user?.id;
+      console.log('🔍 DELETE /api/users/me - userId:', userId, 'role:', req.user?.role);
+      
       if (!userId) {
+        console.log('❌ DELETE /api/users/me - Non authentifié');
         return res.status(401).json({ message: 'Non authentifié' });
       }
 
+      console.log('✅ DELETE /api/users/me - Suppression du compte pour userId:', userId);
       await prisma.user.delete({
         where: { id: userId }
       });
 
+      console.log('✅ DELETE /api/users/me - Compte supprimé avec succès');
       res.status(204).send();
     } catch (error) {
+      console.error('❌ DELETE /api/users/me - Erreur:', error);
       next(error);
     }
   };
@@ -235,9 +242,9 @@ export class UserController {
             ADMIN: users.filter((u: any) => u.role === 'ADMIN').length,
             GUEST: users.filter((u: any) => u.role === 'GUEST').length,
             PROVIDER: users.filter((u: any) => u.role === 'PROVIDER').length,
-           
+
           },
-          recentRegistrations: users.filter((u: any) => 
+          recentRegistrations: users.filter((u: any) =>
             new Date(u.createdAt) > thirtyDaysAgo
           ).length,
         },
@@ -246,7 +253,7 @@ export class UserController {
           published: invitations.filter((i: any) => i.status === 'PUBLISHED').length,
           draft: invitations.filter((i: any) => i.status === 'DRAFT').length,
           archived: invitations.filter((i: any) => i.status === 'ARCHIVED').length,
-          thisMonth: invitations.filter((i: any) => 
+          thisMonth: invitations.filter((i: any) =>
             new Date(i.createdAt) > thisMonth
           ).length,
         },
@@ -276,32 +283,8 @@ export class UserController {
         return res.status(403).json({ message: 'Accès non autorisé' });
       }
 
-      // Récupérer toutes les invitations avec les détails des utilisateurs
-      const invitations = await prisma.invitation.findMany({
-        select: {
-          id: true,
-          status: true,
-          createdAt: true,
-          updatedAt: true,
-          user: {
-            select: {
-              id: true,
-              email: true,
-              firstName: true,
-              lastName: true,
-            }
-          },
-          _count: {
-            select: {
-              guests: true,
-              rsvps: true,
-            }
-          }
-        },
-        orderBy: {
-          createdAt: 'desc'
-        }
-      });
+      // Utiliser le service pour récupérer toutes les invitations avec les données complètes (y compris design)
+      const invitations = await InvitationService.getAllInvitations();
 
       res.json(invitations);
     } catch (error) {
@@ -319,60 +302,16 @@ export class UserController {
 
       const { id } = req.params;
 
-      // Récupérer l'invitation avec tous les détails
-      const invitation = await prisma.invitation.findUnique({
-        where: { id },
-        select: {
-          id: true,
-          description: true,
-          status: true,
-          createdAt: true,
-          updatedAt: true,
-          user: {
-            select: {
-              id: true,
-              email: true,
-              firstName: true,
-              lastName: true,
-              createdAt: true,
-            }
-          },
-          guests: {
-            select: {
-              id: true,
-              firstName: true,
-              lastName: true,
-              email: true,
-              invitationSentAt: true,
-              createdAt: true,
-              rsvp: {
-                select: {
-                  id: true,
-                  status: true,
-                  respondedAt: true,
-                }
-              }
-            },
-            orderBy: {
-              createdAt: 'asc'
-            }
-          },
-          _count: {
-            select: {
-              guests: true,
-              rsvps: true,
-            }
-          }
-        }
-      });
-
-      if (!invitation) {
-        return res.status(404).json({ message: 'Invitation non trouvée' });
-      }
+      // Utiliser le service pour récupérer l'invitation avec tous les détails
+      const invitation = await InvitationService.getInvitationByIdAdmin(id);
 
       res.json(invitation);
     } catch (error) {
-      next(error);
+      if (error instanceof Error && error.message === 'Invitation non trouvée') {
+        res.status(404).json({ message: 'Invitation non trouvée' });
+      } else {
+        next(error);
+      }
     }
   };
 
@@ -386,63 +325,16 @@ export class UserController {
 
       const { id } = req.params;
 
-      // Récupérer l'invitation avec le design
-      const invitation = await prisma.invitation.findUnique({
-        where: { id },
-        include: {
-          user: {
-            select: {
-              id: true,
-              email: true,
-              firstName: true,
-              lastName: true,
-            }
-          },
-          design: {
-            select: {
-              id: true,
-              name: true,
-              template: true,
-              styles: true,
-              variables: true,
-            }
-          },
-          guests: {
-            select: {
-              id: true,
-              firstName: true,
-              lastName: true,
-              email: true,
-              invitationSentAt: true,
-              createdAt: true,
-              rsvp: {
-                select: {
-                  id: true,
-                  status: true,
-                  respondedAt: true,
-                }
-              }
-            },
-            orderBy: {
-              createdAt: 'asc'
-            }
-          },
-          _count: {
-            select: {
-              guests: true,
-              rsvps: true,
-            }
-          }
-        }
-      });
-
-      if (!invitation) {
-        return res.status(404).json({ message: 'Invitation non trouvée' });
-      }
+      // Utiliser le service pour récupérer l'invitation avec le design complet
+      const invitation = await InvitationService.getInvitationByIdAdmin(id);
 
       res.json(invitation);
     } catch (error) {
-      next(error);
+      if (error instanceof Error && error.message === 'Invitation non trouvée') {
+        res.status(404).json({ message: 'Invitation non trouvée' });
+      } else {
+        next(error);
+      }
     }
   };
 
@@ -452,7 +344,7 @@ export class UserController {
   static async getRSVPMessages(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
       const userId = (req as any).user?.id;
-      
+
       if (!userId) {
         res.status(401).json({ message: 'Non authentifié' });
         return;
@@ -484,7 +376,7 @@ export class UserController {
     try {
       const userId = (req as any).user?.id;
       const { rsvpId } = req.params;
-      
+
       if (!userId) {
         res.status(401).json({ message: 'Non authentifié' });
         return;

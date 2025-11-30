@@ -7,25 +7,52 @@ export class DesignController {
       const isAdmin = (req as any).user?.role === 'ADMIN';
       const designs = await DesignService.getAllDesigns(isAdmin);
       res.json({ designs });
-    } catch (error) {
-      res.status(500).json({ message: 'Erreur lors de la récupération des designs' });
+    } catch (error: any) {
+      console.error('Erreur getAll:', error);
+      res.status(500).json({ message: error.message || 'Erreur lors de la récupération des designs' });
     }
   }
 
   static async getByFilter(req: Request, res: Response) {
     try {
-      const { category, tags } = req.query;
+      const { tags, isTemplate, userId } = req.query;
       const isAdmin = (req as any).user?.role === 'ADMIN';
-      
+
       const filters = {
-        category: category as string | undefined,
-        tags: tags ? (Array.isArray(tags) ? tags as string[] : [tags as string]) : undefined
+        tags: tags ? (Array.isArray(tags) ? tags as string[] : [tags as string]) : undefined,
+        isTemplate: isTemplate !== undefined ? isTemplate === 'true' : undefined,
+        userId: userId as string | undefined
       };
-      
+
       const designs = await DesignService.getDesignsByFilter(filters, isAdmin);
       res.json({ designs });
     } catch (error) {
       res.status(500).json({ message: 'Erreur lors de la récupération des designs filtrés' });
+    }
+  }
+
+  // Nouvelle route : Récupérer uniquement les modèles (templates) pour la galerie
+  static async getTemplates(req: Request, res: Response) {
+    try {
+      const isAdmin = (req as any).user?.role === 'ADMIN';
+      const templates = await DesignService.getTemplates(isAdmin);
+      res.json({ designs: templates });
+    } catch (error: any) {
+      console.error('Erreur getTemplates:', error);
+      res.status(500).json({ message: error.message || 'Erreur lors de la récupération des modèles' });
+    }
+  }
+
+  // Nouvelle route : Récupérer les designs personnalisés de l'utilisateur
+  static async getUserDesigns(req: Request, res: Response) {
+    try {
+      const userId = (req as any).user?.id;
+      if (!userId) return res.status(401).json({ message: 'Non authentifié' });
+
+      const designs = await DesignService.getUserDesigns(userId);
+      res.json({ designs });
+    } catch (error) {
+      res.status(500).json({ message: 'Erreur lors de la récupération des designs personnalisés' });
     }
   }
 
@@ -43,10 +70,15 @@ export class DesignController {
   static async create(req: Request, res: Response) {
     try {
       const data = req.body;
-      const design = await DesignService.createDesign(data);
+      const userId = (req as any).user?.id;
+      const isAdmin = (req as any).user?.role === 'ADMIN';
+
+      // Si c'est un admin, il peut créer des modèles (templates)
+      // Si c'est un user, il crée un design personnalisé
+      const design = await DesignService.createDesign(data, isAdmin ? undefined : userId);
       res.status(201).json({ design });
-    } catch (error) {
-      res.status(400).json({ message: 'Erreur lors de la création du design' });
+    } catch (error: any) {
+      res.status(400).json({ message: error.message || 'Erreur lors de la création du design' });
     }
   }
 
@@ -54,10 +86,16 @@ export class DesignController {
     try {
       const id = req.params['id']!;
       const data = req.body;
-      const design = await DesignService.updateDesign(id, data);
+      const userId = (req as any).user?.id;
+      const isAdmin = (req as any).user?.role === 'ADMIN';
+
+      const design = await DesignService.updateDesign(id, data, userId, isAdmin);
       if (!design) return res.status(404).json({ message: 'Design introuvable' });
       res.json({ design });
-    } catch (error) {
+    } catch (error: any) {
+      if (error.message === 'Accès non autorisé') {
+        return res.status(403).json({ message: 'Accès non autorisé' });
+      }
       res.status(400).json({ message: 'Erreur lors de la mise à jour du design' });
     }
   }
@@ -65,9 +103,15 @@ export class DesignController {
   static async delete(req: Request, res: Response) {
     try {
       const id = req.params['id']!;
-      await DesignService.deleteDesign(id);
+      const userId = (req as any).user?.id;
+      const isAdmin = (req as any).user?.role === 'ADMIN';
+
+      await DesignService.deleteDesign(id, userId, isAdmin);
       res.status(204).send();
-    } catch (error) {
+    } catch (error: any) {
+      if (error.message === 'Accès non autorisé') {
+        return res.status(403).json({ message: 'Accès non autorisé' });
+      }
       res.status(400).json({ message: 'Erreur lors de la suppression du design' });
     }
   }

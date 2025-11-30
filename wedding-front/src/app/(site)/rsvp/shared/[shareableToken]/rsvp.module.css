@@ -15,20 +15,20 @@
 
 /* Mobile uniquement - invitation et formulaire prennent toute la largeur */
 @media (max-width: 767px) {
-  
+
   .rsvpLayout {
     grid-template-columns: 1fr;
     gap: var(--space-lg);
-    padding: 0;
+    padding: 10px;
   }
-  
+
   .invitationColumn,
   .formColumn {
-    width: 100vw;
-    margin-left: calc(-50vw + 50%);
-    margin-right: calc(-50vw + 50%);
+    width: 100%;
+    margin-left: 0;
+    margin-right: 0;
   }
-  
+
   .invitationColumn .card,
   .formColumn .card {
     border-radius: 0;
@@ -38,16 +38,128 @@
 }
 
 @media (min-width: 1024px) {
+  .container {
+    margin: 0 auto;
+    padding-top: 80px;
+    height: 100vh;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
   .rsvpLayout {
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: 40% 60%;
     max-width: 1400px;
     margin: 0 auto;
+    height: 100%;
+    align-items: center;
+    gap: 2rem;
+    padding-bottom: 2rem;
   }
-  
+
   .invitationColumn {
-    position: sticky;
-    top: 120px;
-    height: fit-content;
+    position: static;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+  }
+
+  .invitationCard {
+    transform: scale(0.75);
+    transform-origin: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .formColumn {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .formCard {
+    width: 100%;
+    max-width: 1000px;
+    /* Largeur augmentée pour le layout 2 colonnes */
+    padding: 2.5rem;
+    max-height: calc(100vh - 120px);
+    overflow-y: auto;
+    scrollbar-width: none;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .formCard::-webkit-scrollbar {
+    display: none;
+  }
+
+  .formTitle {
+    margin-bottom: 2rem;
+  }
+
+  /* Layout 2 colonnes pour le formulaire */
+  .form {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 3rem;
+    align-items: start;
+  }
+
+  /* Colonne Gauche : Vos informations */
+  .form>.formGroup:first-child {
+    grid-column: 1;
+    grid-row: 1 / span 10;
+    /* Occupe toute la hauteur à gauche */
+    border-right: 1px solid rgba(0, 0, 0, 0.1);
+    padding-right: 2rem;
+    margin: 0;
+    height: 100%;
+  }
+
+  [data-theme="dark"] .form>.formGroup:first-child {
+    border-right-color: rgba(255, 255, 255, 0.1);
+  }
+
+  /* Colonne Droite : Tout le reste (Réponse, Message, Bouton) */
+  .form> :not(:first-child) {
+    grid-column: 2;
+  }
+
+  /* Ajustement des inputs dans la colonne gauche */
+  .inputGrid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+  }
+
+  /* Ajustement de la zone photo */
+  .formGroup:first-child .formField:last-child {
+    margin-top: 1rem;
+    display: flex;
+    justify-content: center;
+  }
+
+  /* Boutons de réponse */
+  .responseButtons {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+  }
+
+  /* Zone de message */
+  .textarea {
+    min-height: 100px;
+  }
+
+  /* Bouton de soumission */
+  .submitButton {
+    margin-top: 1rem;
   }
 }
 
@@ -254,7 +366,7 @@
   .inputGrid {
     grid-template-columns: 1fr 1fr;
   }
-  
+
   .formRow {
     flex-direction: row;
   }
@@ -757,10 +869,13 @@
 }
 
 @keyframes pulse {
-  0%, 100% {
+
+  0%,
+  100% {
     opacity: 0.9;
     transform: translate(-50%, -50%) scale(1);
   }
+
   50% {
     opacity: 1;
     transform: translate(-50%, -50%) scale(1.05);
@@ -771,11 +886,11 @@
   .fallbackTitle {
     font-size: 1.5rem;
   }
-  
+
   .fallbackDate {
     font-size: 1.25rem;
   }
-  
+
   .formCard {
     padding: var(--space-lg);
   }
@@ -795,9 +910,105 @@
   background: var(--error-color);
 }
 
-.statusTitle {
-  color: var(--text-primary);
-  margin-bottom: var(--space-sm);
+
+/* Stepper Styles */
+.stepperContainer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 2rem;
+  width: 100%;
+  max-width: 400px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.step {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  position: relative;
+  z-index: 1;
+}
+
+.stepNumber {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: var(--bg-secondary);
+  border: 2px solid var(--border-color);
+  color: var(--text-secondary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  font-size: 0.875rem;
+  transition: all 0.3s ease;
+}
+
+.activeStep .stepNumber {
+  background: var(--color-primary);
+  border-color: var(--color-primary);
+  color: white;
+}
+
+.stepLabel {
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+  font-weight: 500;
+}
+
+.activeStep .stepLabel {
+  color: var(--color-primary);
+  font-weight: 600;
+}
+
+.stepLine {
+  flex: 1;
+  height: 2px;
+  background: var(--border-color);
+  margin: 0 1rem;
+  margin-bottom: 1.5rem;
+  /* Align with circle center */
+  transition: all 0.3s ease;
+}
+
+.activeLine {
+  background: var(--color-primary);
+}
+
+.stepContent {
+  animation: fadeIn 0.3s ease-out;
+  width: 100%;
+}
+
+.formActions {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 2rem;
+  gap: 1rem;
+}
+
+.nextButton,
+.prevButton {
+  min-width: 120px;
+}
+
+.nextButton {
+  margin-left: auto;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .detailsList {
@@ -819,6 +1030,7 @@
     opacity: 0;
     transform: translateY(20px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -830,6 +1042,7 @@
     opacity: 0;
     transform: scale(0.8);
   }
+
   to {
     opacity: 1;
     transform: scale(1);
@@ -860,4 +1073,83 @@
 .securityNotice svg {
   flex-shrink: 0;
   opacity: 0.7;
+}
+
+/* Security Modal Styles */
+.modalOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  animation: fadeIn 0.3s ease-out;
+  backdrop-filter: blur(4px);
+  padding: 1rem;
+}
+
+.modalCard {
+  background: var(--bg-card);
+  padding: 2rem;
+  border-radius: var(--radius-lg);
+  max-width: 400px;
+  width: 100%;
+  text-align: center;
+  box-shadow: var(--shadow-xl);
+  animation: scaleIn 0.3s ease-out;
+  border: 1px solid var(--border-color);
+}
+
+.modalIcon {
+  width: 64px;
+  height: 64px;
+  background: rgba(197, 168, 128, 0.1);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 1.5rem;
+  color: var(--luxury-champagne-gold);
+}
+
+.modalTitle {
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
+  color: var(--text-primary);
+  font-family: var(--font-heading);
+}
+
+.modalText {
+  color: var(--text-secondary);
+  margin-bottom: 2rem;
+  line-height: 1.6;
+  font-size: 1rem;
+}
+
+.modalButton {
+  width: 100%;
+  padding: 1rem;
+  background: var(--color-primary);
+  color: white;
+  border: none;
+  border-radius: var(--radius-md);
+  font-weight: 600;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.modalButton:hover {
+  background: var(--color-primary-dark);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(197, 168, 128, 0.3);
+}
+
+.modalButton:active {
+  transform: translateY(0);
 }

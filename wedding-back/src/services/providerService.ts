@@ -14,6 +14,11 @@ export interface CreateProviderProfileDto {
   // PHOTOS FIREBASE V1
   profilePhoto?: string;   // URL Firebase
   portfolio?: string[];    // URLs Firebase (max 6)
+  // RÉSEAUX SOCIAUX (au moins un obligatoire)
+  website?: string;        // Site web personnel
+  instagram?: string;      // Lien Instagram
+  tiktok?: string;         // Lien TikTok
+  facebook?: string;       // Lien Facebook
 }
 
 export interface UpdateProviderProfileDto extends Partial<CreateProviderProfileDto> {}
@@ -193,6 +198,12 @@ export class ProviderService {
       throw new Error('Catégorie de service invalide');
     }
 
+    // Vérifier qu'au moins un réseau social est fourni
+    const hasSocialNetwork = !!(data.website || data.instagram || data.tiktok || data.facebook);
+    if (!hasSocialNetwork) {
+      throw new Error('Veuillez fournir au moins un lien de réseau social (site web, Instagram, TikTok ou Facebook)');
+    }
+
     // Créer le profil (V1 SIMPLIFIÉ avec géolocalisation)
     const profile = await prisma.providerProfile.create({
       data: {
@@ -210,6 +221,11 @@ export class ProviderService {
         // PHOTOS
         profilePhoto: data.profilePhoto,
         portfolio: data.portfolio || [],
+        // RÉSEAUX SOCIAUX
+        website: data.website,
+        instagram: data.instagram,
+        tiktok: data.tiktok,
+        facebook: data.facebook,
         // V1: AUTO-ACTIVATION
         status: 'APPROVED',
         verifiedAt: new Date(),
@@ -660,12 +676,36 @@ export class ProviderService {
       }
     }
 
+    // Filtrer et mapper les données pour Prisma
+    // Mapper 'inclusions' vers 'includes' si présent
+    const prismaData: any = { ...data };
+    
+    // Si 'inclusions' est présent, le mapper vers 'includes'
+    if ('inclusions' in prismaData && prismaData.inclusions !== undefined) {
+      prismaData.includes = prismaData.inclusions;
+      delete prismaData.inclusions;
+    }
+    
+    // Supprimer les champs qui ne sont pas dans le schéma Prisma
+    const validFields = [
+      'name', 'description', 'shortDescription', 'price', 'priceType', 
+      'currency', 'minPrice', 'maxPrice', 'duration', 'capacity',
+      'includes', 'requirements', 'photos', 'videos', 'isActive', 
+      'availability', 'categoryId'
+    ];
+    
+    const filteredData: any = {};
+    for (const key of validFields) {
+      if (key in prismaData && prismaData[key] !== undefined) {
+        filteredData[key] = prismaData[key];
+      }
+    }
+    
+    filteredData.updatedAt = new Date();
+
     const updatedService = await prisma.service.update({
       where: { id: serviceId },
-      data: {
-        ...data,
-        updatedAt: new Date()
-      },
+      data: filteredData,
       include: {
         category: true,
         provider: {

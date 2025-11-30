@@ -104,6 +104,23 @@ const faqCategories = [
     ],
   },
   {
+    category: 'Pour les Prestataires',
+    questions: [
+      {
+        question: 'Comment référencer mon activité ?',
+        answer: 'Créez un compte "Prestataire" gratuitement, complétez votre profil avec vos photos et tarifs. Notre équipe validera votre profil sous 48h.',
+      },
+      {
+        question: 'Est-ce payant pour les prestataires ?',
+        answer: 'L\'inscription est gratuite. Nous prélevons une commission uniquement sur les réservations effectuées via la plateforme (si activé).',
+      },
+      {
+        question: 'Comment améliorer ma visibilité ?',
+        answer: 'Soignez vos photos, récoltez des avis positifs et répondez rapidement aux demandes. Vous pouvez aussi opter pour un badge "Vérifié".',
+      },
+    ],
+  },
+  {
     category: 'Support',
     questions: [
       {

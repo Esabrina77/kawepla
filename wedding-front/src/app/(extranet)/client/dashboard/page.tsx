@@ -7,6 +7,7 @@ import { useInvitations } from '@/hooks/useInvitations';
 import { useGuests } from '@/hooks/useGuests';
 import { useAuth } from '@/hooks/useAuth';
 import { stripeApi } from '@/lib/api/stripe';
+import { todosApi } from '@/lib/api/todos';
 import { 
   Users, 
   Mail, 
@@ -19,9 +20,11 @@ import {
   ChevronDown,
   Bell,
   UserPlus,
-  ListChecks
+  Calendar,
+  Target,
+  AlertTriangle
 } from 'lucide-react';
-import { FloatingThemeToggle } from '@/components/FloatingThemeToggle';
+import { HeaderMobile } from '@/components/HeaderMobile/HeaderMobile';
 import styles from './dashboard.module.css';
 
 export default function DashboardPage() {
@@ -29,7 +32,15 @@ export default function DashboardPage() {
   const { user } = useAuth();
   const { invitations, loading: loadingInvitations } = useInvitations();
   const [selectedInvitationId, setSelectedInvitationId] = useState<string>('');
-  const [limits, setLimits] = useState<{ usage: any; limits: any } | null>(null);
+  const [limits, setLimits] = useState<{ usage: any; limits: any; remaining: any } | null>(null);
+  const [todosStats, setTodosStats] = useState({
+    total: 0,
+    completed: 0,
+    pending: 0,
+    inProgress: 0,
+    overdue: 0,
+    progress: 0
+  });
 
   // Vérification d'authentification
   useEffect(() => {
@@ -77,6 +88,58 @@ export default function DashboardPage() {
     }
   }, [selectedInvitationId, fetchGuests]);
 
+  // Charger les statistiques des tâches pour l'événement sélectionné
+  useEffect(() => {
+    const loadTodosStats = async () => {
+      if (!selectedInvitationId) {
+        setTodosStats({
+          total: 0,
+          completed: 0,
+          pending: 0,
+          inProgress: 0,
+          overdue: 0,
+          progress: 0
+        });
+        return;
+      }
+
+      try {
+        const todos = await todosApi.getTodosByInvitation(selectedInvitationId);
+        const tasks = todos.todos || [];
+        
+        const now = new Date();
+        const getDaysUntil = (dateString: string | Date | undefined) => {
+          if (!dateString) return Infinity;
+          const date = typeof dateString === 'string' ? new Date(dateString) : dateString;
+          const diffTime = date.getTime() - now.getTime();
+          return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+        };
+
+        const completed = tasks.filter(t => t.status === 'COMPLETED').length;
+        const pending = tasks.filter(t => t.status === 'PENDING').length;
+        const inProgress = tasks.filter(t => t.status === 'IN_PROGRESS').length;
+        const overdue = tasks.filter(t => {
+          if (t.status === 'COMPLETED' || !t.dueDate) return false;
+          return getDaysUntil(t.dueDate) < 0;
+        }).length;
+        const progress = tasks.length > 0 ? (completed / tasks.length) * 100 : 0;
+
+        setTodosStats({
+          total: tasks.length,
+          completed,
+          pending,
+          inProgress,
+          overdue,
+          progress
+        });
+      } catch (error) {
+        console.error('Erreur chargement tâches:', error);
+      }
+    };
+
+    loadTodosStats();
+  }, [selectedInvitationId]);
+
   // Calculer les statistiques
   const guestsWithEmails = guests.filter((g: any) => g.invitationType === 'PERSONAL');
   const guestsViaLink = guests.filter((g: any) => g.invitationType === 'SHAREABLE');
@@ -99,10 +162,10 @@ export default function DashboardPage() {
       path: '/client/guests'
     },
     {
-      title: 'Voir mes réponses',
-      description: 'Consulter les statuts RSVP',
-      icon: ListChecks,
-      path: '/client/messages'
+      title: 'Planning & Tâches',
+      description: 'Organiser votre événement',
+      icon: Calendar,
+      path: '/client/tools/planning'
     }
   ];
 
@@ -135,23 +198,17 @@ export default function DashboardPage() {
   const invitationsPercent = limits ? Math.min(100, (limits.usage?.invitations || 0) / (limits.limits?.invitations || 1) * 100) : 0;
   const guestsPercent = limits ? Math.min(100, (limits.usage?.guests || 0) / (limits.limits?.guests || 1) * 100) : 0;
   const photosPercent = limits ? Math.min(100, (limits.usage?.photos || 0) / (limits.limits?.photos || 1) * 100) : 0;
+  const aiRequestsPercent = limits ? Math.min(100, ((limits.usage?.aiRequests || 0) / (limits.limits?.aiRequests || 1)) * 100) : 0;
+
+  // Vérifier si les limites sont atteintes
+  const isInvitationsLimitReached = limits && (limits.usage?.invitations || 0) >= (limits.limits?.invitations || 0);
+  const isGuestsLimitReached = limits && (limits.usage?.guests || 0) >= (limits.limits?.guests || 0);
+  const isPhotosLimitReached = limits && (limits.usage?.photos || 0) >= (limits.limits?.photos || 0);
+  const isAiRequestsLimitReached = limits && (limits.usage?.aiRequests || 0) >= (limits.limits?.aiRequests || 0);
 
   return (
     <div className={styles.dashboard}>
-      {/* Header Sticky */}
-      <header className={styles.header}>
-        <div className={styles.headerLeft}>
-          <div className={styles.userAvatar}>
-            {user?.firstName?.[0] || 'U'}{user?.lastName?.[0] || ''}
-          </div>
-          <h2 className={styles.greeting}>
-            Bonjour {user?.firstName || 'Utilisateur'}
-          </h2>
-        </div>
-        <div className={styles.themeToggleWrapper}>
-          <FloatingThemeToggle variant="inline" size={20} />
-        </div>
-      </header>
+      <HeaderMobile title={`Bonjour ${user?.firstName || 'Utilisateur'}`} />
 
       <main className={styles.main}>
         {/* Page Title */}
@@ -169,7 +226,7 @@ export default function DashboardPage() {
               </div>
               <div className={styles.progressBar}>
                 <div 
-                  className={styles.progressFill} 
+                  className={`${styles.progressFill} ${isInvitationsLimitReached ? styles.limitReached : ''}`}
                   style={{ width: `${invitationsPercent}%` }}
                 />
               </div>
@@ -183,7 +240,7 @@ export default function DashboardPage() {
               </div>
               <div className={styles.progressBar}>
                 <div 
-                  className={styles.progressFill} 
+                  className={`${styles.progressFill} ${isGuestsLimitReached ? styles.limitReached : ''}`}
                   style={{ width: `${guestsPercent}%` }}
                 />
               </div>
@@ -197,8 +254,25 @@ export default function DashboardPage() {
       </div>
               <div className={styles.progressBar}>
                 <div 
-                  className={`${styles.progressFill} ${styles.secondary}`}
+                  className={`${styles.progressFill} ${styles.secondary} ${isPhotosLimitReached ? styles.limitReached : ''}`}
                   style={{ width: `${photosPercent}%` }}
+                />
+              </div>
+            </div>
+            <div className={styles.limitRow}>
+              <div className={styles.limitHeader}>
+                <p className={styles.limitLabel}>Requêtes IA</p>
+                <p className={styles.limitValue}>
+                  {limits.usage?.aiRequests || 0} / {limits.limits?.aiRequests || 0}
+                </p>
+              </div>
+              <div className={styles.progressBar}>
+                <div 
+                  className={`${styles.progressFill} ${isAiRequestsLimitReached ? styles.limitReached : ''}`}
+                  style={{ 
+                    width: `${aiRequestsPercent}%`,
+                    backgroundColor: !isAiRequestsLimitReached && (limits?.remaining?.aiRequests || 0) <= 5 ? '#f59e0b' : undefined
+                  }}
                 />
               </div>
             </div>
@@ -224,6 +298,71 @@ export default function DashboardPage() {
               </div>
             )}
             
+      {/* Section Avancement de l'organisation */}
+      {selectedInvitation && selectedInvitationId && todosStats.total > 0 && (
+        <section className={styles.progressSection}>
+          <div className={styles.progressHeader}>
+            <h2 className={styles.sectionTitle}>Avancement de l'organisation</h2>
+            <Link href="/client/tools/planning" className={styles.viewAllLink}>
+              Voir le planning
+            </Link>
+          </div>
+          
+          <div className={styles.progressCard}>
+            <div className={styles.progressBarLarge}>
+              <div 
+                className={styles.progressFillLarge}
+                style={{ width: `${todosStats.progress}%` }}
+              />
+            </div>
+            <div className={styles.progressStats}>
+              <span className={styles.progressText}>
+                {todosStats.completed} sur {todosStats.total} tâches terminées
+              </span>
+              <span className={styles.progressPercent}>
+                {Math.round(todosStats.progress)}%
+              </span>
+            </div>
+          </div>
+
+          <div className={styles.statsGrid}>
+            <div className={styles.statCard}>
+              <div className={`${styles.statIconWrapper} ${styles.success}`}>
+                <CheckCircle size={20} />
+              </div>
+              <div className={styles.statValue}>{todosStats.completed}</div>
+              <div className={styles.statLabel}>Terminées</div>
+            </div>
+            
+            <div className={styles.statCard}>
+              <div className={styles.statIconWrapper}>
+                <Clock size={20} />
+              </div>
+              <div className={styles.statValue}>{todosStats.pending}</div>
+              <div className={styles.statLabel}>À faire</div>
+            </div>
+            
+            <div className={styles.statCard}>
+              <div className={styles.statIconWrapper}>
+                <Clock size={20} />
+              </div>
+              <div className={styles.statValue}>{todosStats.inProgress}</div>
+              <div className={styles.statLabel}>En cours</div>
+            </div>
+            
+            {todosStats.overdue > 0 && (
+              <div className={styles.statCard}>
+                <div className={`${styles.statIconWrapper} ${styles.error}`}>
+                  <AlertTriangle size={20} />
+                </div>
+                <div className={styles.statValue}>{todosStats.overdue}</div>
+                <div className={styles.statLabel}>En retard</div>
+              </div>
+            )}
+          </div>
+        </section>
+      )}
+
       {/* Section Statistiques */}
       {selectedInvitation && selectedInvitationId && (
         <section className={styles.statsSection}>

@@ -23,23 +23,18 @@ import {
   Settings,
   Image,
   CreditCard,
-  User
+  User,
+  Wrench
 } from 'lucide-react';
 
 const menuItems = [
+  // PRIORITÉ 1 : Actions principales (visibles sur mobile)
   {
     title: 'Tableau de bord',
     path: '/client/dashboard',
     icon: LayoutDashboard,
     description: 'Vue d\'ensemble de votre invitation',
     priority: 1
-  },
-  {
-    title: 'Design',
-    path: '/client/design',
-    icon: PaintBucket,
-    description: 'Personnalisez votre invitation',
-    priority: 2
   },
   {
     title: 'Créer l\'événement',
@@ -49,20 +44,42 @@ const menuItems = [
     priority: 1
   },
   {
+    title: 'Design',
+    path: '/client/design',
+    icon: PaintBucket,
+    description: 'Personnalisez votre invitation',
+    priority: 1
+  },
+  {
     title: 'Invités',
     path: '/client/guests',
     icon: Users,
     description: 'Gérez votre liste d\'invités et les RSVP',
     priority: 1
   },
-
   {
     title: 'Réponses Invitations',
     path: '/client/messages',
     icon: MessageSquare,
     description: 'Consultez les messages de vos invités',
-    priority: 2
+    priority: 1
   },
+  // {
+  //   title: 'Outils',
+  //   path: '/client/tools',
+  //   icon: Wrench,
+  //   description: 'Tous les outils pour organiser votre événement',
+  //   priority: 1
+  // },
+  {
+    title: 'Planning',
+    path: '/client/tools/planning',
+    icon: CalendarRange,
+    description: 'Gérez vos tâches planifiées',
+    priority: 1
+  },
+
+  // PRIORITÉ 2 : Actions secondaires (dans le menu "Plus" sur mobile)
   {
     title: 'Prestataires',
     path: '/client/providers/all',
@@ -91,13 +108,6 @@ const menuItems = [
     description: 'Gérez votre profil',
     priority: 2
   },
-  // {
-  //   title: 'Outils',
-  //   path: '/client/tools',
-  //   icon: Wrench,
-  //   description: 'Outils pour votre mariage et événement',
-  //   priority: 2
-  // },
 ];
 
 export const Sidebar = () => {
@@ -130,8 +140,14 @@ export const Sidebar = () => {
   };
 
   // Séparer les éléments pour mobile
-  const primaryItems = menuItems.filter(item => item.priority === 1);
-  const secondaryItems = menuItems.filter(item => item.priority >= 2);
+  // Sur mobile : seulement 3 icônes principales + bouton "Plus"
+  const primaryItems = menuItems.filter(item => item.priority === 1).slice(0, 3);
+  const secondaryItems = [
+    // Les autres éléments de priorité 1 non affichés
+    ...menuItems.filter(item => item.priority === 1).slice(3),
+    // Les éléments de priorité 2
+    ...menuItems.filter(item => item.priority >= 2)
+  ];
 
   return (
     <>
@@ -140,17 +156,17 @@ export const Sidebar = () => {
         {/* Header Section */}
         <div className={styles.sidebarHeader}>
           <Link href="/" data-tutorial="logo">
-            <NextImage 
-              src="/images/logo.png" 
-              alt="WeddInvite" 
-              width={130} 
-              height={90} 
+            <NextImage
+              src="/images/logo.png"
+              alt="WeddInvite"
+              width={130}
+              height={90}
               className={styles.logoImage}
               priority
             />
           </Link>
-          <button 
-            onClick={toggleSidebar} 
+          <button
+            onClick={toggleSidebar}
             className={styles.toggleButton}
             aria-label={isCollapsed ? "Développer le menu" : "Réduire le menu"}
           >
@@ -165,9 +181,8 @@ export const Sidebar = () => {
               <Link
                 key={item.path}
                 href={item.path}
-                className={`${styles.navItem} ${
-                  basePath?.includes(item.path) ? styles.active : ''
-                }`}
+                className={`${styles.navItem} ${basePath?.includes(item.path) ? styles.active : ''
+                  }`}
                 title={item.description}
               >
                 <span className={styles.icon}>
@@ -209,9 +224,8 @@ export const Sidebar = () => {
             <Link
               key={item.path}
               href={item.path}
-              className={`${styles.mobileNavItem} ${
-                basePath?.includes(item.path) ? styles.active : ''
-              }`}
+              className={`${styles.mobileNavItem} ${basePath?.includes(item.path) ? styles.active : ''
+                }`}
               title={item.title}
             >
               <span className={styles.mobileIcon}>
@@ -241,7 +255,7 @@ export const Sidebar = () => {
           <div className={styles.mobileMenuPopup} onClick={(e) => e.stopPropagation()}>
             <div className={styles.mobileMenuHeader}>
               <h3>Menu complet</h3>
-              <button 
+              <button
                 onClick={toggleMobileMenu}
                 className={styles.closeMobileMenu}
               >
@@ -269,9 +283,8 @@ export const Sidebar = () => {
                 <Link
                   key={item.path}
                   href={item.path}
-                  className={`${styles.mobileMenuItem} ${
-                    basePath?.includes(item.path) ? styles.active : ''
-                  }`}
+                  className={`${styles.mobileMenuItem} ${basePath?.includes(item.path) ? styles.active : ''
+                    }`}
                   onClick={toggleMobileMenu}
                 >
                   <span className={styles.icon}>
@@ -283,7 +296,7 @@ export const Sidebar = () => {
                   </div>
                 </Link>
               ))}
-              
+
               <div className={styles.mobileMenuFooter}>
                 <Button
                   variant="outline"

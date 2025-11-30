@@ -8,13 +8,14 @@ export class ServicePurchaseController {
    */
   static async getPlans(req: Request, res: Response) {
     try {
-      const plans = StripeService.getAllPlans();
+      const plans = await StripeService.getAllPlans();
       res.json(plans);
     } catch (error) {
       console.error('Erreur lors de la récupération des plans:', error);
       res.status(500).json({ error: 'Erreur lors de la récupération des plans' });
     }
   }
+
 
   /**
    * Créer une session de checkout (retourne l'URL de la session)
@@ -78,7 +79,7 @@ export class ServicePurchaseController {
    */
   static async getAdditionalServices(req: Request, res: Response) {
     try {
-      const services = StripeService.getAdditionalServices();
+      const services = await StripeService.getAdditionalServices();
       res.json(services);
     } catch (error) {
       console.error('Erreur lors de la récupération des services supplémentaires:', error);
@@ -175,7 +176,10 @@ export class ServicePurchaseController {
           userId: userId,
           status: 'ACTIVE'
         },
-        orderBy: { purchasedAt: 'desc' }
+        orderBy: { purchasedAt: 'desc' },
+        include: {
+          servicePack: true
+        }
       });
 
       // Calculer les limites totales
@@ -183,30 +187,36 @@ export class ServicePurchaseController {
       const currentTier = await StripeService.getUserCurrentTier(userId);
 
       // Grouper par tier pour l'affichage (exclure FREE car il est automatique)
-      const purchasesByTier = activePurchases.reduce((acc, purchase) => {
-        const tier = purchase.tier;
-        if (!acc[tier]) {
-          acc[tier] = {
-            tier,
+      const purchasesByPack = activePurchases.reduce((acc, purchase) => {
+        const key = purchase.servicePack?.id || purchase.tier || 'UNKNOWN';
+        if (!acc[key]) {
+          acc[key] = {
+            key,
+            pack: purchase.servicePack,
+            tier: purchase.tier,
             count: 0,
             purchases: []
           };
         }
-        acc[tier].count += purchase.quantity;
-        acc[tier].purchases.push(purchase);
+        acc[key].count += purchase.quantity;
+        acc[key].purchases.push(purchase);
         return acc;
       }, {} as Record<string, any>);
 
       // Calculer les limites FREE de base
-      const freeLimits = StripeService.getPlanDetails('FREE')?.limits || {
+      const freePlan = await StripeService.getPlanDetails('FREE');
+      const freePlanLimits = freePlan?.limits || {
         invitations: 1,
         guests: 30,
         photos: 20,
-        designs: 1
+        designs: 1,
+        aiRequests: 3
       };
+      // Retirer designs des limites retournées
+      const { designs: _, ...freeLimits } = freePlanLimits;
 
       res.json({
-        activePurchases: Object.values(purchasesByTier),
+        activePurchases: Object.values(purchasesByPack),
         totalLimits,
         freeLimits, // Ajouter les limites gratuites pour clarifier
         currentTier,
@@ -215,6 +225,31 @@ export class ServicePurchaseController {
     } catch (error) {
       console.error('Erreur lors de la récupération des achats actifs:', error);
       res.status(500).json({ error: 'Erreur lors de la récupération des achats actifs' });
+    }
+  }
+
+  /**
+   * Confirmer l'achat d'un service supplémentaire
+   * (Fallback si le webhook n'a pas encore été traité)
+   */
+  static async confirmAdditionalService(req: Request, res: Response) {
+    try {
+      const { serviceId, sessionId } = req.body;
+      const userId = req.user?.id;
+
+      if (!userId) {
+        return res.status(401).json({ error: 'Utilisateur non authentifié' });
+      }
+
+      if (!serviceId) {
+        return res.status(400).json({ error: 'Service ID requis' });
+      }
+
+      const result = await StripeService.applyAdditionalService(userId, serviceId, sessionId);
+      res.json(result);
+    } catch (error) {
+      console.error('Erreur lors de la confirmation du service supplémentaire:', error);
+      res.status(500).json({ error: 'Erreur lors de la confirmation du service supplémentaire' });
     }
   }
 
@@ -232,7 +267,10 @@ export class ServicePurchaseController {
       // Retourner uniquement l'historique des achats (pas les achats actifs)
       const purchaseHistory = await prisma.purchaseHistory.findMany({
         where: { userId: userId },
-        orderBy: { purchasedAt: 'desc' }
+        orderBy: { purchasedAt: 'desc' },
+        include: {
+          servicePack: true
+        }
       });
 
       const purchases = {

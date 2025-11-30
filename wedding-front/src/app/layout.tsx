@@ -6,6 +6,8 @@ import siteMetadata from './metadata';
 
 export const metadata = siteMetadata;
 
+import { ToastProvider } from '@/components/ui/toast';
+
 export default function RootLayout({
   children,
 }: {
@@ -16,9 +18,10 @@ export default function RootLayout({
       <body suppressHydrationWarning>
         <ServiceWorkerProvider />
         <WebSocketNotificationsProvider />
-    
-        {children}
+        <ToastProvider>
+          {children}
+        </ToastProvider>
       </body>
     </html>
   );
-} 
+}

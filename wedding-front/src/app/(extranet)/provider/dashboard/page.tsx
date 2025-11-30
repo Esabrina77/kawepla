@@ -1,36 +1,31 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import Link from 'next/link';
 import { useProviderProfile } from '@/hooks/useProviderProfile';
 import { useProviderServices } from '@/hooks/useProviderServices';
-import { useServiceCategories } from '@/hooks/useServiceCategories';
+import { HeaderMobile } from '@/components/HeaderMobile/HeaderMobile';
 import { 
   Star, 
-  Users, 
   Calendar, 
   Euro, 
-  TrendingUp, 
-  Eye,
   Plus,
-  MapPin,
-  Camera,
   Briefcase,
-  Clock
+  Clock,
+  ChevronDown
 } from 'lucide-react';
 import styles from './dashboard.module.css';
 
 export default function ProviderDashboard() {
   const { profile, loading: profileLoading } = useProviderProfile();
   const { services, loading: servicesLoading } = useProviderServices();
-  const { categories } = useServiceCategories();
   
   const [stats, setStats] = useState({
     totalServices: 0,
     activeServices: 0,
     totalBookings: 0,
     monthlyRevenue: 0,
-    averageRating: 0,
-    responseRate: 0
+    averageRating: 0
   });
 
   useEffect(() => {
@@ -40,16 +35,10 @@ export default function ProviderDashboard() {
         activeServices: services.filter(s => s.isActive).length,
         totalBookings: 0, // TODO: Implémenter avec les bookings
         monthlyRevenue: services.reduce((sum, s) => sum + s.price, 0),
-        averageRating: profile?.rating || 0,
-        responseRate: 95 // TODO: Calculer avec les vraies données
+        averageRating: profile?.rating || 0
       });
     }
   }, [services, profile]);
-
-  const getCategoryName = (categoryId: string) => {
-    const category = categories.find(c => c.id === categoryId);
-    return category?.name || 'Catégorie inconnue';
-  };
 
   const formatPrice = (price: number, priceType: string) => {
     switch (priceType) {
@@ -93,189 +82,191 @@ export default function ProviderDashboard() {
   }
 
   return (
-    <div className={styles.dashboardContainer}>
-      {/* Header Section */}
-      <div className={styles.headerSection}>
-        <div className={styles.badge}>
-          <Star style={{ width: '16px', height: '16px' }} />
-          Dashboard Provider
-        </div>
-        
-        <h1 className={styles.title}>
-          Bonjour <span className={styles.titleAccent}>{profile.businessName}</span>
-        </h1>
-        
-        <p className={styles.subtitle}>
-          Gérez vos services et suivez vos performances
-        </p>
-      </div>
+    <div className={styles.dashboard}>
+      <HeaderMobile title={`Bonjour ${profile.businessName}`} />
 
-      {/* Profile Overview */}
-      <div className={styles.profileOverview}>
-        <div className={styles.profileCard}>
-          <div className={styles.profileHeader}>
-            <div className={styles.profilePhoto}>
-              {profile.profilePhoto ? (
-                <img src={profile.profilePhoto} alt={profile.businessName} />
-              ) : (
-                <Camera size={32} />
-              )}
-            </div>
-            <div className={styles.profileInfo}>
-              <h3>{profile.businessName}</h3>
-              <div className={styles.profileMeta}>
-                <MapPin size={14} />
-                <span>{profile.displayCity}</span>
-                <span className={styles.category}>
-                  {getCategoryName(profile.categoryId)}
-                </span>
-              </div>
-              <div className={styles.rating}>
-                <Star size={16} className={styles.starIcon} />
-                <span>{profile.rating.toFixed(1)}</span>
-                <span className={styles.reviewCount}>({profile.reviewCount} avis)</span>
-              </div>
-            </div>
-          </div>
+      <main className={styles.main}>
+        {/* Page Title */}
+        <h1 className={styles.pageTitle}>Tableau de bord</h1>
+
+        {/* Section Statistiques */}
+        <section className={styles.statsSection}>
+          <h2 className={styles.sectionTitle}>Statistiques</h2>
           
-          <div className={styles.profileStatus}>
-            {profile.status === 'APPROVED' ? (
-              <span className={styles.statusApproved}>✓ Profil approuvé</span>
-            ) : (
-              <span className={styles.statusPending}>⏳ En attente d'approbation</span>
-            )}
-          </div>
-        </div>
-      </div>
-
-      {/* Stats Grid */}
-      <div className={styles.statsGrid}>
-        <div className={styles.statCard}>
-          <div className={styles.statIcon}>
-            <Briefcase size={24} />
-          </div>
-          <div className={styles.statContent}>
-            <h3>{stats.totalServices}</h3>
-            <p>Services créés</p>
-            <span className={styles.statSubtext}>
-              {stats.activeServices} actifs
-            </span>
-          </div>
-        </div>
-
-        <div className={styles.statCard}>
-          <div className={styles.statIcon}>
-            <Calendar size={24} />
-          </div>
-          <div className={styles.statContent}>
-            <h3>{stats.totalBookings}</h3>
-            <p>Réservations</p>
-            <span className={styles.statSubtext}>
-              Ce mois
-            </span>
-          </div>
-        </div>
-
-        <div className={styles.statCard}>
-          <div className={styles.statIcon}>
-            <Euro size={24} />
-          </div>
-          <div className={styles.statContent}>
-            <h3>{stats.monthlyRevenue}€</h3>
-            <p>Chiffre d'affaires</p>
-            <span className={styles.statSubtext}>
-              Ce mois
-            </span>
-          </div>
-        </div>
-
-        <div className={styles.statCard}>
-          <div className={styles.statIcon}>
-            <TrendingUp size={24} />
-          </div>
-          <div className={styles.statContent}>
-            <h3>{stats.responseRate}%</h3>
-            <p>Taux de réponse</p>
-            <span className={styles.statSubtext}>
-              Moyenne
-            </span>
-          </div>
-        </div>
-      </div>
-
-      {/* Recent Services */}
-      <div className={styles.recentServices}>
-        <div className={styles.sectionHeader}>
-          <h2>Mes Services</h2>
-          <button 
-            onClick={() => window.location.href = '/provider/services/create'}
-            className={styles.addServiceButton}
-          >
-            <Plus size={16} />
-            Ajouter un service
-          </button>
-        </div>
-
-        {servicesLoading ? (
-          <div className={styles.loadingServices}>
-            <div className={styles.loadingSpinner}></div>
-            <p>Chargement des services...</p>
-          </div>
-        ) : services.length === 0 ? (
-          <div className={styles.emptyServices}>
-            <Briefcase size={48} />
-            <h3>Aucun service créé</h3>
-            <p>Commencez par créer votre premier service</p>
-            <button 
-              onClick={() => window.location.href = '/provider/services/create'}
-              className={styles.createServiceButton}
-            >
-              <Plus size={20} />
-              Créer mon premier service
-            </button>
-          </div>
-        ) : (
-          <div className={styles.servicesGrid}>
-            {services.slice(0, 4).map((service) => (
-              <div key={service.id} className={styles.serviceCard}>
-                <div className={styles.serviceHeader}>
-                  <h4>{service.name}</h4>
-                  <span className={`${styles.serviceStatus} ${service.isActive ? styles.active : styles.inactive}`}>
-                    {service.isActive ? 'Actif' : 'Inactif'}
-                  </span>
-                </div>
-                
-                <p className={styles.serviceDescription}>
-                  {service.description.substring(0, 100)}
-                  {service.description.length > 100 && '...'}
-                </p>
-                
-                <div className={styles.serviceDetails}>
-                  <div className={styles.servicePrice}>
-                    <Euro size={14} />
-                    <span>{formatPrice(service.price, service.priceType)}</span>
-                  </div>
-                  
-                  {service.duration && (
-                    <div className={styles.serviceDuration}>
-                      <Clock size={14} />
-                      <span>{service.duration}min</span>
-                    </div>
-                  )}
-                </div>
-                
-                <button 
-                  onClick={() => window.location.href = `/provider/services/${service.id}/edit`}
-                  className={styles.viewServiceButton}
-                >
-                  <Eye size={16} />
-                  Voir le service
-                </button>
+          <div className={styles.statsGrid}>
+            {/* Services créés */}
+            <div className={styles.statCard}>
+              <div className={styles.statIconWrapper}>
+                <Briefcase size={20} />
               </div>
-            ))}
+              <div className={styles.statValue}>{stats.totalServices}</div>
+              <div className={styles.statLabel}>Services créés</div>
+            </div>
+            
+            {/* Services actifs */}
+            <div className={styles.statCard}>
+              <div className={`${styles.statIconWrapper} ${styles.success}`}>
+                <Star size={20} />
+              </div>
+              <div className={styles.statValue}>{stats.activeServices}</div>
+              <div className={styles.statLabel}>Services actifs</div>
+            </div>
+            
+            {/* Réservations */}
+            <div className={styles.statCard}>
+              <div className={styles.statIconWrapper}>
+                <Calendar size={20} />
+              </div>
+              <div className={styles.statValue}>{stats.totalBookings}</div>
+              <div className={styles.statLabel}>Réservations</div>
+            </div>
+            
+            {/* Chiffre d'affaires */}
+            <div className={styles.statCard}>
+              <div className={styles.statIconWrapper}>
+                <Euro size={20} />
+              </div>
+              <div className={styles.statValue}>{stats.monthlyRevenue}€</div>
+              <div className={styles.statLabel}>Chiffre d'affaires</div>
+            </div>
+            
+            {/* Note moyenne */}
+            <div className={styles.statCard}>
+              <div className={`${styles.statIconWrapper} ${styles.success}`}>
+                <Star size={20} />
+              </div>
+              <div className={styles.statValue}>{stats.averageRating.toFixed(1)}</div>
+              <div className={styles.statLabel}>Note moyenne</div>
+            </div>
           </div>
+        </section>
+
+        {/* Actions rapides */}
+        <section className={styles.quickActions}>
+          <h2 className={styles.sectionTitle}>Actions rapides</h2>
+          <div className={styles.actionsGrid}>
+            <Link
+              href="/provider/services/create"
+              className={styles.actionCard}
+            >
+              <div className={styles.actionLeft}>
+                <div className={styles.actionIconWrapper}>
+                  <Plus size={24} />
+                </div>
+                <div className={styles.actionContent}>
+                  <div className={styles.actionTitle}>Créer un service</div>
+                  <div className={styles.actionDescription}>Ajouter une nouvelle prestation</div>
+                </div>
+              </div>
+              <div className={styles.actionArrow}>
+                <ChevronDown size={20} style={{ transform: 'rotate(-90deg)' }} />
+              </div>
+            </Link>
+
+            <Link
+              href="/provider/services"
+              className={styles.actionCard}
+            >
+              <div className={styles.actionLeft}>
+                <div className={styles.actionIconWrapper}>
+                  <Briefcase size={24} />
+                </div>
+                <div className={styles.actionContent}>
+                  <div className={styles.actionTitle}>Gérer mes services</div>
+                  <div className={styles.actionDescription}>Voir et modifier vos services</div>
+                </div>
+              </div>
+              <div className={styles.actionArrow}>
+                <ChevronDown size={20} style={{ transform: 'rotate(-90deg)' }} />
+              </div>
+            </Link>
+
+            <Link
+              href="/provider/bookings"
+              className={styles.actionCard}
+            >
+              <div className={styles.actionLeft}>
+                <div className={styles.actionIconWrapper}>
+                  <Calendar size={24} />
+                </div>
+                <div className={styles.actionContent}>
+                  <div className={styles.actionTitle}>Mes réservations</div>
+                  <div className={styles.actionDescription}>Consulter vos demandes</div>
+                </div>
+              </div>
+              <div className={styles.actionArrow}>
+                <ChevronDown size={20} style={{ transform: 'rotate(-90deg)' }} />
+              </div>
+            </Link>
+          </div>
+        </section>
+
+        {/* Services récents */}
+        {services.length > 0 && (
+          <section className={styles.recentServices}>
+            <div className={styles.sectionHeader}>
+              <h2 className={styles.sectionTitle}>Mes Services</h2>
+              <Link 
+                href="/provider/services"
+                className={styles.viewAllLink}
+              >
+                Voir tout
+                <ChevronDown size={16} style={{ transform: 'rotate(-90deg)' }} />
+              </Link>
+            </div>
+
+            {servicesLoading ? (
+              <div className={styles.loadingServices}>
+                <div className={styles.loadingSpinner}></div>
+                <p>Chargement des services...</p>
+              </div>
+            ) : (
+              <div className={styles.servicesGrid}>
+                {services.slice(0, 3).map((service) => (
+                  <Link
+                    key={service.id}
+                    href={`/provider/services/${service.id}`}
+                    className={styles.serviceCard}
+                  >
+                    <div className={styles.serviceHeader}>
+                      <h4 className={styles.serviceName}>{service.name}</h4>
+                      <span className={`${styles.serviceStatus} ${service.isActive ? styles.active : styles.inactive}`}>
+                        {service.isActive ? 'Actif' : 'Inactif'}
+                      </span>
+                    </div>
+                    
+                    <p className={styles.serviceDescription}>
+                      {service.description.substring(0, 80)}
+                      {service.description.length > 80 && '...'}
+                    </p>
+                    
+                    <div className={styles.serviceDetails}>
+                      <div className={styles.servicePrice}>
+                        <Euro size={14} />
+                        <span>{formatPrice(service.price, service.priceType)}</span>
+                      </div>
+                      
+                      {service.duration && (
+                        <div className={styles.serviceDuration}>
+                          <Clock size={14} />
+                          <span>{service.duration}min</span>
+                        </div>
+                      )}
+                    </div>
+                  </Link>
+                ))}
+              </div>
+            )}
+          </section>
         )}
-      </div>
+      </main>
+
+      <style jsx>{`
+        @keyframes spin {
+          0% { transform: rotate(0deg); }
+          100% { transform: rotate(360deg); }
+        }
+      `}</style>
     </div>
   );
 }

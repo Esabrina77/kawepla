@@ -16,13 +16,13 @@ type InvitationCreateInput = {
   eventDate: Date;         // Date de l'événement
   location: string;        // "Château de la Roseraie, Paris"
   designId: string;        // ID du design choisi
-  
+
   // CHAMPS OPTIONNELS
   eventType?: 'WEDDING' | 'BIRTHDAY' | 'BAPTISM' | 'ANNIVERSARY' | 'GRADUATION' | 'BABY_SHOWER' | 'ENGAGEMENT' | 'COMMUNION' | 'CONFIRMATION' | 'RETIREMENT' | 'HOUSEWARMING' | 'CORPORATE' | 'OTHER';
   eventTime?: string;      // "15h00"
   customText?: string;     // Texte libre personnalisable
   moreInfo?: string;       // Informations supplémentaires
-  
+
   // Champs techniques conservés
   description?: string;
   photos?: Prisma.InputJsonValue[];
@@ -105,13 +105,13 @@ export class InvitationService {
         location: data.location,
         designId: data.designId,
         userId: userId,
-        
+
         // Champs optionnels
         eventType: data.eventType || 'WEDDING',
         eventTime: data.eventTime,
         customText: data.customText,
         moreInfo: data.moreInfo,
-        
+
         // Champs techniques
         description: data.description,
         photos: data.photos || [],
@@ -187,7 +187,7 @@ export class InvitationService {
     }
 
     const updateData: any = {};
-    
+
     // NOUVEAUX CHAMPS SIMPLIFIÉS
     if (data.eventTitle !== undefined) updateData.eventTitle = data.eventTitle;
     if (data.eventDate !== undefined) updateData.eventDate = new Date(data.eventDate);
@@ -201,7 +201,7 @@ export class InvitationService {
     if (data.description !== undefined) updateData.description = data.description;
     if (data.photos !== undefined) updateData.photos = data.photos;
     if (data.languages !== undefined) updateData.languages = data.languages;
-    
+
     if (data.designId !== undefined) {
       // Vérifier si le design existe
       const design = await prisma.design.findUnique({
@@ -481,6 +481,7 @@ export class InvitationService {
         customText: true,
         moreInfo: true,
         status: true,
+        designId: true,
         createdAt: true,
         updatedAt: true,
         // Relations
@@ -493,7 +494,8 @@ export class InvitationService {
             role: true
           }
         },
-        design: true, // Inclure toutes les données du design (comme RSVP)
+        // Inclure TOUTES les données du design comme pour RSVP et client
+        design: true,
         _count: {
           select: {
             guests: true,
@@ -511,8 +513,7 @@ export class InvitationService {
    * Récupérer une invitation spécifique avec tous les détails (pour l'admin).
    */
   static async getInvitationByIdAdmin(id: string) {
-    console.log('🔵 SERVICE - getInvitationByIdAdmin appelé avec ID:', id);
-    
+
     const invitation = await prisma.invitation.findUnique({
       where: { id },
       include: {
@@ -536,16 +537,7 @@ export class InvitationService {
       }
     });
 
-    console.log('🔵 SERVICE - Résultat Prisma:');
-    console.log('  - Invitation trouvée?', !!invitation);
-    if (invitation) {
-      console.log('  - eventTitle:', invitation.eventTitle);
-      console.log('  - Design présent?', !!invitation.design);
-      if (invitation.design) {
-        console.log('  - Design ID:', invitation.design.id);
-        console.log('  - Design keys:', Object.keys(invitation.design));
-      }
-    }
+
 
     if (!invitation) {
       throw new Error('Invitation non trouvée');

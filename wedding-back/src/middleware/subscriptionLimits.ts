@@ -4,6 +4,7 @@
 import { Request, Response, NextFunction } from 'express';
 import { prisma } from '../lib/prisma';
 import { StripeService } from '../services/stripeService';
+import { AIRequestService } from '../services/aiRequestService';
 
 /**
  * Obtenir les limites d'un utilisateur selon ses achats et services supplémentaires
@@ -15,13 +16,17 @@ export const getUserLimits = async (tier: string, userId?: string) => {
   }
   
   // Fallback vers les limites de base
-  const plan = StripeService.getPlanDetails(tier as any);
-  return plan ? plan.limits : {
+  const plan = await StripeService.getPlanDetails(tier as any);
+  const planLimits = plan ? plan.limits : {
     invitations: 1,
     guests: 30,
     photos: 20,
-    designs: 1
+    designs: 1,
+    aiRequests: 3
   };
+  // Retirer designs des limites retournées
+  const { designs: _, ...limitsWithoutDesigns } = planLimits;
+  return limitsWithoutDesigns;
 };
 
 /**
@@ -260,6 +265,7 @@ export const getUserLimitsAndUsage = async (req: Request, res: Response): Promis
     const userTier = await StripeService.getUserCurrentTier(userId);
     
     // Récupérer les limites totales (tous les achats + services supplémentaires)
+    // getUserLimits retourne déjà les limites sans designs
     const limits = await getUserLimits(userTier, userId);
 
     // Compter l'utilisation actuelle
@@ -279,18 +285,21 @@ export const getUserLimitsAndUsage = async (req: Request, res: Response): Promis
       })
     ]);
 
+    // Compter les requêtes AI utilisées
+    const aiRequestCount = await AIRequestService.getAIRequestCount(userId);
+
     const usage = {
       invitations: invitationCount,
       guests: guestCount,
       photos: photoCount,
-      designs: 0 // TODO: Implémenter le comptage des designs
+      aiRequests: aiRequestCount
     };
 
     const remaining = {
       invitations: Math.max(0, limits.invitations - usage.invitations),
       guests: Math.max(0, limits.guests - usage.guests),
       photos: limits.photos === 999999 ? 999999 : Math.max(0, limits.photos - usage.photos),
-      designs: Math.max(0, limits.designs - usage.designs)
+      aiRequests: Math.max(0, limits.aiRequests - usage.aiRequests)
     };
 
     res.json({

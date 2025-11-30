@@ -1,23 +1,31 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import { useProviderProfile } from '@/hooks/useProviderProfile';
 import { useServiceCategories } from '@/hooks/useServiceCategories';
 import { CreateProviderProfileDto } from '@/lib/api/providers';
+import { HeaderMobile } from '@/components/HeaderMobile/HeaderMobile';
+import { ConfirmModal } from '@/components/ui/modal';
+import { usersApi } from '@/lib/api/users';
+import { useAuth } from '@/hooks/useAuth';
 import { 
   User, 
   MapPin, 
   Camera, 
   Save, 
-  Upload,
   Plus,
   X,
   Star,
-  Briefcase
+  Trash2,
+  AlertTriangle
 } from 'lucide-react';
+import { WebsiteIcon, InstagramIcon, TikTokIcon, FacebookIcon } from '@/components/icons/SocialIcons';
 import styles from './profile.module.css';
 
 export default function ProviderProfilePage() {
+  const router = useRouter();
+  const { logout } = useAuth();
   const { profile, loading, error, createProfile, updateProfile } = useProviderProfile();
   const { categories } = useServiceCategories();
   
@@ -30,13 +38,19 @@ export default function ProviderProfilePage() {
     displayCity: '',
     phone: '',
     profilePhoto: '',
-    portfolio: []
+    portfolio: [],
+    website: '',
+    instagram: '',
+    tiktok: '',
+    facebook: ''
   });
   
   const [uploading, setUploading] = useState(false);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [showErrorModal, setShowErrorModal] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   useEffect(() => {
     if (profile) {
@@ -49,7 +63,11 @@ export default function ProviderProfilePage() {
         displayCity: profile.displayCity,
         phone: profile.phone || '',
         profilePhoto: profile.profilePhoto || '',
-        portfolio: profile.portfolio || []
+        portfolio: profile.portfolio || [],
+        website: profile.website || '',
+        instagram: profile.instagram || '',
+        tiktok: profile.tiktok || '',
+        facebook: profile.facebook || ''
       });
     }
   }, [profile]);
@@ -112,6 +130,14 @@ export default function ProviderProfilePage() {
       return;
     }
 
+    // Vérifier qu'au moins un réseau social est fourni
+    const hasSocialNetwork = !!(formData.website?.trim() || formData.instagram?.trim() || formData.tiktok?.trim() || formData.facebook?.trim());
+    if (!hasSocialNetwork) {
+      setErrorMessage('Veuillez fournir au moins un lien de réseau social (site web, Instagram, TikTok ou Facebook)');
+      setShowErrorModal(true);
+      return;
+    }
+
     try {
       if (profile) {
         await updateProfile(formData);
@@ -141,27 +167,16 @@ export default function ProviderProfilePage() {
   }
 
   return (
-    <div className={styles.profileContainer}>
-      {/* Header Section */}
-      <div className={styles.headerSection}>
-        <div className={styles.badge}>
-          <User style={{ width: '16px', height: '16px' }} />
-          {profile ? 'Mon Profil' : 'Créer mon Profil'}
-        </div>
-        
-        <h1 className={styles.title}>
-          {profile ? 'Mon Profil Prestataire' : 'Créer votre profil prestataire'}
-        </h1>
-        
-        <p className={styles.subtitle}>
-          {profile 
-            ? 'Gérez les informations de votre entreprise'
-            : 'Complétez votre profil pour commencer à proposer vos services'
-          }
-        </p>
-      </div>
+    <div className={styles.profilePage}>
+      <HeaderMobile title={profile ? 'Mon profil' : 'Créer mon profil'} />
 
-      <form onSubmit={handleSubmit} className={styles.profileForm}>
+      <main className={styles.main}>
+        {/* Page Title */}
+        <h1 className={styles.pageTitle}>
+          {profile ? 'Mon profil prestataire' : 'Créer votre profil prestataire'}
+        </h1>
+
+        <form onSubmit={handleSubmit} className={styles.profileForm}>
         <div className={styles.formGrid}>
           {/* Informations de base */}
           <div className={styles.formSection}>
@@ -233,6 +248,74 @@ export default function ProviderProfilePage() {
                 className={styles.formTextarea}
                 placeholder="Décrivez votre entreprise, vos spécialités, votre expérience..."
                 rows={4}
+              />
+            </div>
+          </div>
+
+          {/* Réseaux sociaux */}
+          <div className={styles.formSection}>
+            <h2 className={styles.sectionTitle}>Réseaux sociaux *</h2>
+            <p className={styles.sectionDescription}>
+              Veuillez fournir au moins un lien (site web, Instagram, TikTok ou Facebook)
+            </p>
+            
+            <div className={styles.formField}>
+              <label className={styles.formLabel}>
+                <WebsiteIcon size={16} />
+                Site web personnel
+              </label>
+              <input
+                type="url"
+                name="website"
+                value={formData.website}
+                onChange={handleInputChange}
+                className={styles.formInput}
+                placeholder="https://www.votre-site.com"
+              />
+            </div>
+
+            <div className={styles.formField}>
+              <label className={styles.formLabel}>
+                <InstagramIcon size={16} />
+                Instagram
+              </label>
+              <input
+                type="url"
+                name="instagram"
+                value={formData.instagram}
+                onChange={handleInputChange}
+                className={styles.formInput}
+                placeholder="https://www.instagram.com/votre-compte"
+              />
+            </div>
+
+            <div className={styles.formField}>
+              <label className={styles.formLabel}>
+                <TikTokIcon size={16} />
+                TikTok
+              </label>
+              <input
+                type="url"
+                name="tiktok"
+                value={formData.tiktok}
+                onChange={handleInputChange}
+                className={styles.formInput}
+                placeholder="https://www.tiktok.com/@votre-compte"
+              />
+            </div>
+
+            <div className={styles.formField}>
+              <label className={styles.formLabel}>
+                <FacebookIcon size={16} />
+                Facebook
+              </label>
+              <input
+                type="url"
+                name="facebook"
+                value={formData.facebook}
+                onChange={handleInputChange}
+                className={styles.formInput}
+                placeholder="https://www.facebook.com/votre-page"
               />
             </div>
           </div>
@@ -334,7 +417,28 @@ export default function ProviderProfilePage() {
             )}
           </button>
         </div>
-      </form>
+        </form>
+
+        {/* Danger Zone */}
+        <div className={styles.dangerZone}>
+          <div className={styles.dangerZoneHeader}>
+            <AlertTriangle className={styles.dangerIcon} size={20} />
+            <h3 className={styles.dangerZoneTitle}>Zone de danger</h3>
+          </div>
+          <p className={styles.dangerZoneDescription}>
+            La suppression de votre compte est définitive et irréversible. Toutes vos données, y compris votre profil provider, vos services et vos réservations, seront supprimés.
+          </p>
+          <button
+            type="button"
+            onClick={() => setShowDeleteModal(true)}
+            className={styles.deleteAccountButton}
+            disabled={isDeleting}
+          >
+            <Trash2 size={18} />
+            {isDeleting ? 'Suppression...' : 'Supprimer mon compte'}
+          </button>
+        </div>
+      </main>
 
       {/* Success Modal */}
       {showSuccessModal && (
@@ -373,6 +477,31 @@ export default function ProviderProfilePage() {
           </div>
         </div>
       )}
+
+      {/* Delete Account Confirmation Modal */}
+      <ConfirmModal
+        isOpen={showDeleteModal}
+        onClose={() => setShowDeleteModal(false)}
+        onConfirm={async () => {
+          setIsDeleting(true);
+          try {
+            await usersApi.deleteAccount();
+            logout();
+            router.push('/auth/login');
+          } catch (error) {
+            console.error('Erreur lors de la suppression du compte:', error);
+            setErrorMessage('Erreur lors de la suppression du compte. Veuillez réessayer.');
+            setShowErrorModal(true);
+            setIsDeleting(false);
+            setShowDeleteModal(false);
+          }
+        }}
+        title="Supprimer mon compte"
+        message="Êtes-vous sûr de vouloir supprimer votre compte ? Cette action est irréversible et toutes vos données (profil provider, services, réservations) seront définitivement supprimées."
+        confirmText="Supprimer définitivement"
+        cancelText="Annuler"
+        isLoading={isDeleting}
+      />
     </div>
   );
 }

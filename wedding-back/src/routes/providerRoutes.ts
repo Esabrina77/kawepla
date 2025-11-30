@@ -2,24 +2,25 @@ import { Router, RequestHandler } from 'express';
 import { ProviderController } from '@/controllers/providerController';
 import { authMiddleware, requireAdmin } from '@/middleware/auth';
 import { adminOnly } from '@/middleware/roleCheck';
+import { createRateLimiter, searchRateLimiter } from '@/middleware/rateLimiter';
 
 const router = Router();
 
-// Routes publiques (sans authentification)
+// Routes publiques (sans authentification) avec rate limiting pour recherche
 router.get('/', ProviderController.getApprovedProviders);
-router.get('/search-location', ProviderController.searchByLocation); // NOUVEAU V1: Recherche géolocalisée
+router.get('/search-location', searchRateLimiter as RequestHandler, ProviderController.searchByLocation); // NOUVEAU V1: Recherche géolocalisée
 router.get('/categories', ProviderController.getServiceCategories);
 
-// Routes protégées (prestataires) - authentification requise
-router.post('/profile', authMiddleware as RequestHandler, ProviderController.createProfile);
-router.put('/profile', authMiddleware as RequestHandler, ProviderController.updateProfile);
+// Routes protégées (prestataires) - authentification requise avec rate limiting pour création/modification
+router.post('/profile', authMiddleware as RequestHandler, createRateLimiter as RequestHandler, ProviderController.createProfile);
+router.put('/profile', authMiddleware as RequestHandler, createRateLimiter as RequestHandler, ProviderController.updateProfile);
 router.get('/profile', authMiddleware as RequestHandler, ProviderController.getMyProfile);
 
-// Routes pour les services
-router.post('/services', authMiddleware as RequestHandler, ProviderController.createService);
+// Routes pour les services avec rate limiting pour création/modification
+router.post('/services', authMiddleware as RequestHandler, createRateLimiter as RequestHandler, ProviderController.createService);
 router.get('/services', authMiddleware as RequestHandler, ProviderController.getMyServices);
-router.put('/services/:serviceId', authMiddleware as RequestHandler, ProviderController.updateService);
-router.delete('/services/:serviceId', authMiddleware as RequestHandler, ProviderController.deleteService);
+router.put('/services/:serviceId', authMiddleware as RequestHandler, createRateLimiter as RequestHandler, ProviderController.updateService);
+router.delete('/services/:serviceId', authMiddleware as RequestHandler, createRateLimiter as RequestHandler, ProviderController.deleteService);
 
 // Routes admin seulement
 router.get('/admin', authMiddleware as RequestHandler, requireAdmin as RequestHandler, ProviderController.getAllProviders);

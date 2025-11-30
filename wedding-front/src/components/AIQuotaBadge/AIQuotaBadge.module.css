@@ -1,0 +1,169 @@
+.badge {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 0.75rem;
+  background: var(--bg-card, #ffffff);
+  border: 1px solid var(--border-color, #e5e7eb);
+  border-radius: 0.5rem;
+  font-size: 0.875rem;
+  color: var(--text-primary, #1f2937);
+  transition: all 0.2s ease-in-out;
+}
+
+.badge.low {
+  border-color: #f59e0b;
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.badge.empty {
+  border-color: #ef4444;
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+.icon {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.content {
+  display: flex;
+  flex-direction: column;
+  gap: 0.125rem;
+  flex: 1;
+}
+
+.label {
+  font-size: 0.75rem;
+  color: var(--text-secondary, #6b7280);
+  font-weight: 500;
+}
+
+.count {
+  display: flex;
+  align-items: baseline;
+  gap: 0.25rem;
+  font-weight: 600;
+}
+
+.current {
+  font-size: 1rem;
+  color: var(--text-primary, #1f2937);
+}
+
+.separator {
+  font-size: 0.875rem;
+  color: var(--text-secondary, #9ca3af);
+}
+
+.total {
+  font-size: 0.875rem;
+  color: var(--text-secondary, #6b7280);
+}
+
+.warning {
+  font-size: 0.75rem;
+  color: #f59e0b;
+  font-weight: 500;
+}
+
+.upgradeButton {
+  padding: 0.375rem 0.75rem;
+  background: var(--accent-color, #8b5cf6);
+  color: white;
+  border-radius: 0.375rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-decoration: none;
+  transition: opacity 0.2s;
+  white-space: nowrap;
+}
+
+.upgradeButton:hover {
+  opacity: 0.9;
+}
+
+.upgradeLink {
+  margin-left: auto;
+  padding: 0.25rem 0.5rem;
+  background: var(--accent-color, #8b5cf6);
+  color: white;
+  border-radius: 0.375rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-decoration: none;
+  transition: opacity 0.2s;
+}
+
+.upgradeLink:hover {
+  opacity: 0.9;
+}
+
+/* Variant compact */
+.compact {
+  padding: 0.375rem 0.625rem;
+  font-size: 0.8125rem;
+}
+
+.compact .icon {
+  display: none;
+}
+
+.compact .content {
+  flex-direction: row;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.compact .label {
+  display: none;
+}
+
+.compact .count {
+  font-size: 0.875rem;
+}
+
+.compact .warning {
+  display: none;
+}
+
+/* Variant inline */
+.inline {
+  display: inline-flex;
+  padding: 0.25rem 0.5rem;
+  font-size: 0.8125rem;
+  background: transparent;
+  border: none;
+  gap: 0.25rem;
+}
+
+.inline .icon {
+  display: none;
+}
+
+.inline .content {
+  display: none;
+}
+
+.inline .upgradeButton {
+  display: none;
+}
+
+@media (max-width: 768px) {
+  .badge {
+    font-size: 0.8125rem;
+    padding: 0.5rem;
+  }
+
+  .label {
+    font-size: 0.6875rem;
+  }
+
+  .current {
+    font-size: 0.9375rem;
+  }
+}
+

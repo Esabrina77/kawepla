@@ -8,7 +8,6 @@
 
 .mainContent {
   flex: 1;
-  padding: var(--space-lg);
   margin-left: 0; /* Pas de marge sur mobile */
   max-width: calc(100vw);
   overflow-x: auto;

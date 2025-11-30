@@ -1,10 +1,11 @@
 'use client';
 import React, { createContext, useContext, useState, useCallback } from 'react';
-import { CheckCircle, AlertCircle, X, Info } from 'lucide-react';
+import { CheckCircle, AlertCircle, X, Info, AlertTriangle } from 'lucide-react';
+import styles from './toast.module.css';
 
 interface Toast {
   id: string;
-  type: 'success' | 'error' | 'info';
+  type: 'success' | 'error' | 'info' | 'warning';
   title: string;
   message?: string;
   duration?: number;
@@ -34,10 +35,14 @@ export const ToastProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     
     setToasts(prev => [...prev, newToast]);
     
-    // Auto remove after duration
+    // Auto remove after duration (plus long pour les erreurs importantes)
+    const duration = toast.type === 'error' && toast.title === 'Limite atteinte' 
+      ? (toast.duration || 8000) 
+      : (toast.duration || 5000);
+    
     setTimeout(() => {
       removeToast(id);
-    }, toast.duration || 5000);
+    }, duration);
   }, []);
 
   const removeToast = useCallback((id: string) => {
@@ -59,7 +64,7 @@ const ToastContainer: React.FC<{ toasts: Toast[]; removeToast: (id: string) => v
   if (toasts.length === 0) return null;
 
   return (
-    <div className="fixed top-4 right-4 z-50 space-y-2">
+    <div className={styles.container}>
       {toasts.map(toast => (
         <ToastItem key={toast.id} toast={toast} onRemove={() => removeToast(toast.id)} />
       ))}
@@ -71,57 +76,47 @@ const ToastItem: React.FC<{ toast: Toast; onRemove: () => void }> = ({ toast, on
   const getIcon = () => {
     switch (toast.type) {
       case 'success':
-        return <CheckCircle className="w-5 h-5 text-green-500" />;
+        return <CheckCircle className={styles.icon} size={24} />;
       case 'error':
-        return <AlertCircle className="w-5 h-5 text-red-500" />;
+        return <AlertTriangle className={styles.icon} size={24} />;
+      case 'warning':
+        return <AlertCircle className={styles.icon} size={24} />;
       case 'info':
-        return <Info className="w-5 h-5 text-blue-500" />;
+        return <Info className={styles.icon} size={24} />;
       default:
-        return <Info className="w-5 h-5 text-gray-500" />;
+        return <Info className={styles.icon} size={24} />;
     }
   };
 
-  const getBgColor = () => {
-    switch (toast.type) {
-      case 'success':
-        return 'bg-green-50 border-green-200';
-      case 'error':
-        return 'bg-red-50 border-red-200';
-      case 'info':
-        return 'bg-blue-50 border-blue-200';
-      default:
-        return 'bg-gray-50 border-gray-200';
-    }
-  };
+  const isLimitReached = toast.title === 'Limite atteinte';
 
   return (
-    <div className={`
-      max-w-sm w-full shadow-lg rounded-lg pointer-events-auto 
-      border ${getBgColor()} p-4 animate-in slide-in-from-right
-    `}>
-      <div className="flex items-start">
-        <div className="flex-shrink-0">
+    <div 
+      className={`${styles.toast} ${styles[toast.type]}`}
+      data-limit-reached={isLimitReached ? 'true' : undefined}
+    >
+      <div className={styles.content}>
+        <div className={styles.iconWrapper}>
           {getIcon()}
         </div>
-        <div className="ml-3 w-0 flex-1">
-          <p className="text-sm font-medium text-gray-900">
+        <div className={styles.textWrapper}>
+          <p className={styles.title}>
             {toast.title}
           </p>
           {toast.message && (
-            <p className="mt-1 text-sm text-gray-500">
+            <p className={styles.message}>
               {toast.message}
             </p>
           )}
         </div>
-        <div className="ml-4 flex-shrink-0 flex">
-          <button
-            onClick={onRemove}
-            className="inline-flex text-gray-400 hover:text-gray-600 focus:outline-none"
-          >
-            <X className="w-4 h-4" />
-          </button>
-        </div>
+        <button
+          onClick={onRemove}
+          className={styles.closeButton}
+          aria-label="Fermer"
+        >
+          <X size={18} />
+        </button>
       </div>
     </div>
   );
-}; 
+};

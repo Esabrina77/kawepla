@@ -57,7 +57,50 @@
   height: 100%;
   background: var(--luxury-champagne-gold);
   border-radius: 9999px;
-  transition: width 0.3s ease;
+  transition: all 0.3s ease;
+  position: relative;
+}
+
+.limitsProgressFill.limitReached {
+  background: var(--alert-error);
+  box-shadow: 0 0 8px rgba(239, 68, 68, 0.4);
+  animation: pulse 2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+    box-shadow: 0 0 8px rgba(239, 68, 68, 0.4);
+  }
+  50% {
+    opacity: 0.9;
+    box-shadow: 0 0 12px rgba(239, 68, 68, 0.6);
+  }
+}
+
+.limitsProgressFill.limitReached::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.3),
+    transparent
+  );
+  animation: shimmer 2s infinite;
+}
+
+@keyframes shimmer {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
 }
 
 /* Create Button Section */
@@ -333,8 +376,13 @@
 }
 
 @keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+  0% {
+    transform: rotate(0deg);
+  }
+
+  100% {
+    transform: rotate(360deg);
+  }
 }
 
 /* Responsive */
@@ -409,15 +457,16 @@
   display: flex;
   flex-direction: column;
   gap: 0;
-  min-height: calc(100vh - 60px);
+  min-height: auto;
 }
 
 @media (min-width: 1024px) {
   .formWithPreview {
     flex-direction: row;
     gap: 0;
-    height: calc(100vh - 60px);
-    overflow: hidden;
+    height: auto;
+    align-items: stretch;
+    overflow: visible;
   }
 }
 
@@ -425,15 +474,17 @@
   flex: 1;
   padding: 1rem;
   background: transparent;
-  overflow-y: auto;
+  overflow-y: visible;
 }
 
 @media (min-width: 1024px) {
   .formSection {
-    flex: 0 0 50%;
-    max-width: 50%;
+    flex: 0 0 40%;
+    /* Reduced width for form on desktop */
+    max-width: 450px;
+    /* Limit max width for better readability on large screens */
     border-right: 1px solid rgba(74, 74, 74, 0.2);
-    padding: 2rem;
+    padding: 1.5rem;
   }
 
   [data-theme="dark"] .formSection {
@@ -444,20 +495,23 @@
 .createForm {
   display: flex;
   flex-direction: column;
-  gap: 1.5rem;
+  gap: 1rem;
+  /* Reduced gap */
   max-width: 100%;
 }
 
 .formGroup {
   display: flex;
   flex-direction: column;
-  gap: 0.75rem;
+  gap: 0.4rem;
+  /* Reduced gap */
 }
 
 .formGroup h3 {
   margin: 0;
   color: var(--text-primary);
-  font-size: 1rem;
+  font-size: 0.9rem;
+  /* Reduced font size */
   font-weight: 600;
   font-family: var(--font-sans);
 }
@@ -465,11 +519,13 @@
 .formField {
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
+  gap: 0.25rem;
+  /* Reduced gap */
 }
 
 .formLabel {
-  font-size: 0.875rem;
+  font-size: 0.8rem;
+  /* Reduced font size */
   font-weight: 500;
   color: var(--text-primary);
   font-family: var(--font-sans);
@@ -479,12 +535,14 @@
 .formTextarea,
 .formSelect {
   width: 100%;
-  padding: 0.75rem;
-  border-radius: 0.5rem;
+  padding: 0.5rem 0.75rem;
+  /* Reduced padding */
+  border-radius: 0.375rem;
   border: 1px solid rgba(74, 74, 74, 0.5);
   background: var(--bg-primary);
   color: var(--text-primary);
-  font-size: 1rem;
+  font-size: 0.9rem;
+  /* Reduced font size */
   font-family: var(--font-sans);
   outline: none;
   transition: border-color var(--transition-normal);
@@ -503,121 +561,37 @@
   box-shadow: 0 0 0 2px rgba(165, 136, 102, 0.2);
 }
 
-/* Icônes des inputs date et time */
-.formInput[type="date"],
-.formInput[type="time"] {
-  color-scheme: light;
-}
-
-[data-theme="dark"] .formInput[type="date"],
-[data-theme="dark"] .formInput[type="time"] {
-  color-scheme: dark;
-}
-
-.formInput[type="date"]::-webkit-calendar-picker-indicator,
-.formInput[type="time"]::-webkit-calendar-picker-indicator {
-  cursor: pointer;
-  opacity: 0.8;
-}
-
-.formInput[type="date"]::-webkit-datetime-edit,
-.formInput[type="time"]::-webkit-datetime-edit {
-  color: var(--text-primary);
-}
-
-.formInput[type="date"]::-webkit-datetime-edit-fields-wrapper,
-.formInput[type="time"]::-webkit-datetime-edit-fields-wrapper {
-  color: var(--text-primary);
-}
-
-.formInput[type="date"]::-webkit-datetime-edit-text,
-.formInput[type="time"]::-webkit-datetime-edit-text {
-  color: var(--text-primary);
-}
-
-.formInput[type="date"]::-webkit-datetime-edit-month-field,
-.formInput[type="date"]::-webkit-datetime-edit-day-field,
-.formInput[type="date"]::-webkit-datetime-edit-year-field,
-.formInput[type="time"]::-webkit-datetime-edit-hour-field,
-.formInput[type="time"]::-webkit-datetime-edit-minute-field {
-  color: var(--text-primary);
-}
-
-.formTextarea {
-  resize: vertical;
-  min-height: 4rem;
-}
-
-.formRow {
-  display: flex;
-  flex-direction: column;
-  gap: 0.75rem;
-}
-
-@media (min-width: 640px) {
-  .formRow {
-    flex-direction: row;
-  }
-  
-  .formRow .formField {
-    flex: 1;
-  }
-}
-
-.formHelp {
-  font-size: 0.875rem;
-  color: var(--text-secondary);
-  margin: 0;
-}
-
-.selectDesignButton,
-.changeDesignButton {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.75rem 1rem;
-  background: var(--bg-secondary);
-  border: 1px solid rgba(74, 74, 74, 0.5);
-  border-radius: 0.5rem;
-  color: var(--text-primary);
-  font-size: 0.875rem;
-  font-weight: 500;
-  cursor: pointer;
-  transition: opacity var(--transition-normal);
-}
-
-.selectDesignButton:hover,
-.changeDesignButton:hover {
-  opacity: 0.8;
-}
-
-.selectedDesign {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0.75rem;
-  background: var(--bg-secondary);
-  border-radius: 0.5rem;
-  border: 1px solid rgba(74, 74, 74, 0.5);
-}
-
-.selectedDesign span {
-  font-size: 0.875rem;
-  font-weight: 500;
-  color: var(--text-primary);
-}
-
 .previewSection {
   flex: 1;
   display: flex;
   flex-direction: column;
+  align-items: center;
+  justify-content: center;
   border-top: 1px solid rgba(74, 74, 74, 0.2);
-  background: transparent;
-  min-height: calc(100vh - 60px);
+  background: #f8fafc;
+  /* Light background for preview area */
+  min-height: 300px;
+  /* Keep min-height for mobile */
+  overflow: hidden;
+  position: relative;
+  /* Needed for absolute positioning of image */
+}
+
+.previewSection>img {
+  position: absolute !important;
+  top: 0;
+  left: 0;
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: contain;
+  padding: 1rem;
+  /* Add padding inside the image area if desired, or remove */
 }
 
 [data-theme="dark"] .previewSection {
   border-top-color: rgba(74, 74, 74, 0.5);
+  background: #0f172a;
+  /* Dark background for preview area */
 }
 
 @media (min-width: 1024px) {
@@ -628,75 +602,16 @@
     overflow: hidden;
     display: flex;
     flex-direction: column;
-    height: 100%;
-    min-height: auto;
-  }
-}
-
-.previewContainer {
-  flex: 1;
-  overflow: auto;
-  display: flex;
-  align-items: flex-start;
-  justify-content: center;
-  padding: 1rem;
-  background: transparent;
-  min-height: calc(100vh - 60px);
-}
-
-[data-theme="dark"] .previewContainer {
-  background: transparent;
-}
-
-@media (min-width: 768px) {
-  .previewContainer {
-    padding: 2rem;
-  }
-}
-
-@media (min-width: 1024px) {
-  .previewContainer {
-    flex: 1;
-    overflow: hidden;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 2rem;
-    min-height: 0;
-    height: 100%;
-  }
-}
-
-.preview {
-  width: 100%;
-  max-width: 100%;
-  height: auto;
-  transform: scale(1);
-  transform-origin: top center;
-  overflow: visible;
-}
-
-@media (min-width: 1024px) {
-  .preview {
-    width: 100%;
-    max-width: 100%;
-    height: 100%;
-    max-height: 100%;
-    transform: scale(1);
-    transform-origin: center center;
-    overflow: visible;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-
-  /* Ajuster le contenu HTML de la prévisualisation pour format A4 */
-  .preview > * {
-    max-width: 100%;
-    max-height: 100%;
-    width: auto;
     height: auto;
-    object-fit: contain;
+    min-height: 0;
+    /* Allow it to be determined by parent stretch */
+    padding: 0;
+    /* Remove padding on desktop to let absolute image fill */
+  }
+
+  .previewSection>img {
+    padding: 2rem;
+    /* Add visual padding via the image itself */
   }
 }
 

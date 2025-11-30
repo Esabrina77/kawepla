@@ -1,6 +1,9 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { bookingsApi, Booking } from '@/lib/api/bookings';
+import { HeaderMobile } from '@/components/HeaderMobile/HeaderMobile';
 import { 
   Calendar, 
   Filter, 
@@ -9,31 +12,19 @@ import {
   XCircle,
   Euro,
   Users,
-  MapPin,
   Phone, 
   Mail, 
-  MessageSquare
+  MessageSquare,
+  ChevronDown,
+  Eye
 } from 'lucide-react';
+import Link from 'next/link';
 import styles from './bookings.module.css';
 
-// Types temporaires - à remplacer par l'API réelle
-interface Booking {
-  id: string;
-  clientName: string;
-  clientEmail: string;
-  clientPhone?: string;
-  eventDate: string;
-  eventTime?: string;
-  eventType: string;
-  guestCount?: number;
-  message?: string;
-  status: 'PENDING' | 'CONFIRMED' | 'CANCELLED' | 'COMPLETED' | 'DISPUTED';
-  totalPrice: number;
-  serviceName: string;
-  createdAt: string;
-}
-
 export default function ProviderBookingsPage() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const conversationId = searchParams.get('conversationId');
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -43,73 +34,66 @@ export default function ProviderBookingsPage() {
     pending: 0,
     confirmed: 0,
     completed: 0,
-    cancelled: 0
+    cancelled: 0,
+    totalRevenue: 0
   });
 
-  // Données de démonstration - à remplacer par l'API réelle
+  // Charger les vraies données depuis l'API
   useEffect(() => {
-    const mockBookings: Booking[] = [
-      {
-        id: '1',
-        clientName: 'Marie Dubois',
-        clientEmail: 'marie@email.com',
-        clientPhone: '06 12 34 56 78',
-        eventDate: '2024-06-15',
-        eventTime: '15:00',
-        eventType: 'WEDDING',
-        guestCount: 80,
-        message: 'Nous souhaitons une ambiance romantique pour notre mariage',
-        status: 'CONFIRMED',
-        totalPrice: 1200,
-        serviceName: 'Séance photo mariage',
-        createdAt: '2024-01-15T10:30:00Z'
-      },
-      {
-        id: '2',
-        clientName: 'Pierre Martin',
-        clientEmail: 'pierre@email.com',
-        eventDate: '2024-07-20',
-        eventTime: '18:00',
-        eventType: 'BIRTHDAY',
-        guestCount: 30,
-        status: 'PENDING',
-        totalPrice: 800,
-        serviceName: 'Photographie événement',
-        createdAt: '2024-01-20T14:15:00Z'
-      },
-      {
-        id: '3',
-        clientName: 'Sophie Laurent',
-        clientEmail: 'sophie@email.com',
-        clientPhone: '06 98 76 54 32',
-        eventDate: '2024-05-10',
-        eventTime: '16:30',
-        eventType: 'BAPTISM',
-        guestCount: 25,
-        message: 'Cérémonie en extérieur, prévoir équipement pour la pluie',
-        status: 'COMPLETED',
-        totalPrice: 600,
-        serviceName: 'Reportage baptême',
-        createdAt: '2024-01-10T09:45:00Z'
+    const fetchBookings = async () => {
+      try {
+        setLoading(true);
+        setError(null);
+        
+        // Si on a un conversationId, récupérer le booking correspondant
+        if (conversationId) {
+          try {
+            const { booking } = await bookingsApi.getBookingByConversationId(conversationId);
+            // Rediriger vers la page de détails
+            router.push(`/provider/bookings/${booking.id}`);
+            return;
+          } catch (err) {
+            // Si pas de booking trouvé, continuer avec la liste normale
+            console.error('Booking non trouvé pour cette conversation:', err);
+          }
+        }
+        
+        const response = await bookingsApi.getProviderBookings({
+          status: selectedFilter !== 'all' ? selectedFilter : undefined,
+          limit: 100
+        });
+        
+        setBookings(response.bookings || []);
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'Erreur lors du chargement des réservations');
+      } finally {
+        setLoading(false);
       }
-    ];
-
-    setTimeout(() => {
-      setBookings(mockBookings);
-      setLoading(false);
-    }, 1000);
-  }, []);
-
-  useEffect(() => {
-    const newStats = {
-      total: bookings.length,
-      pending: bookings.filter(b => b.status === 'PENDING').length,
-      confirmed: bookings.filter(b => b.status === 'CONFIRMED').length,
-      completed: bookings.filter(b => b.status === 'COMPLETED').length,
-      cancelled: bookings.filter(b => b.status === 'CANCELLED').length
     };
-    setStats(newStats);
-  }, [bookings]);
+
+    fetchBookings();
+  }, [selectedFilter, conversationId, router]);
+
+  // Charger les statistiques
+  useEffect(() => {
+    const fetchStats = async () => {
+      try {
+        const response = await bookingsApi.getBookingStats();
+        setStats({
+          total: response.stats.totalBookings,
+          pending: response.stats.statusCounts.PENDING || 0,
+          confirmed: response.stats.statusCounts.CONFIRMED || 0,
+          completed: response.stats.statusCounts.COMPLETED || 0,
+          cancelled: response.stats.statusCounts.CANCELLED || 0,
+          totalRevenue: response.stats.totalRevenue || 0
+        });
+      } catch (err) {
+        // Ignorer les erreurs de stats
+      }
+    };
+
+    fetchStats();
+  }, []);
 
   const filteredBookings = bookings.filter(booking => {
     if (selectedFilter === 'all') return true;
@@ -147,30 +131,55 @@ export default function ProviderBookingsPage() {
   };
 
   const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('fr-FR', {
-      weekday: 'long',
-      year: 'numeric',
+    const date = new Date(dateString);
+    return date.toLocaleDateString('fr-FR', {
+      day: 'numeric',
       month: 'long',
-      day: 'numeric'
+      year: 'numeric'
     });
   };
 
   const formatTime = (timeString: string) => {
-    return new Date(`2000-01-01T${timeString}`).toLocaleTimeString('fr-FR', {
-      hour: '2-digit',
-      minute: '2-digit'
-    });
+    if (!timeString) return '';
+    // Si le format est déjà correct (HH:mm), le retourner tel quel
+    if (/^\d{2}:\d{2}$/.test(timeString)) {
+      return timeString;
+    }
+    // Sinon, essayer de parser
+    try {
+      return new Date(`2000-01-01T${timeString}`).toLocaleTimeString('fr-FR', {
+        hour: '2-digit',
+        minute: '2-digit'
+      });
+    } catch {
+      return timeString;
+    }
   };
 
   const handleStatusUpdate = async (bookingId: string, newStatus: string) => {
-    // TODO: Implémenter l'API de mise à jour du statut
-    console.log(`Mise à jour du statut de la réservation ${bookingId} vers ${newStatus}`);
-    
-    setBookings(prev => prev.map(booking => 
-      booking.id === bookingId 
-        ? { ...booking, status: newStatus as any }
-        : booking
-    ));
+    try {
+      await bookingsApi.updateBookingStatus(bookingId, newStatus);
+      
+      // Mettre à jour localement
+      setBookings(prev => prev.map(booking => 
+        booking.id === bookingId 
+          ? { ...booking, status: newStatus as any }
+          : booking
+      ));
+      
+      // Recharger les stats
+      const response = await bookingsApi.getBookingStats();
+      setStats({
+        total: response.stats.totalBookings,
+        pending: response.stats.statusCounts.PENDING || 0,
+        confirmed: response.stats.statusCounts.CONFIRMED || 0,
+        completed: response.stats.statusCounts.COMPLETED || 0,
+        cancelled: response.stats.statusCounts.CANCELLED || 0,
+        totalRevenue: response.stats.totalRevenue || 0
+      });
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Erreur lors de la mise à jour du statut');
+    }
   };
 
   if (loading) {
@@ -193,85 +202,94 @@ export default function ProviderBookingsPage() {
   }
 
   return (
-    <div className={styles.bookingsContainer}>
-      {/* Header Section */}
-      <div className={styles.headerSection}>
-        <div className={styles.badge}>
-          <Calendar style={{ width: '16px', height: '16px' }} />
-          Gestion des réservations
-        </div>
-        
-        <h1 className={styles.title}>
-          Mes <span className={styles.titleAccent}>réservations</span>
-        </h1>
-        
-        <p className={styles.subtitle}>
-          Gérez les demandes de vos clients et suivez vos événements
-        </p>
-      </div>
+    <div className={styles.bookingsPage}>
+      <HeaderMobile title="Mes réservations" />
 
-      {/* Stats Cards */}
-      <div className={styles.statsGrid}>
-        <div className={styles.statCard}>
-          <div className={styles.statIcon}>
-            <Calendar size={24} />
+      <main className={styles.main}>
+        {/* Page Title */}
+        <h1 className={styles.pageTitle}>Mes réservations</h1>
+
+        {/* Section Statistiques */}
+        <section className={styles.statsSection}>
+          <h2 className={styles.sectionTitle}>Statistiques</h2>
+          
+          <div className={styles.statsGrid}>
+            {/* Total réservations */}
+            <div className={styles.statCard}>
+              <div className={styles.statIconWrapper}>
+                <Calendar size={20} />
+              </div>
+              <div className={styles.statValue}>{stats.total}</div>
+              <div className={styles.statLabel}>Total réservations</div>
+            </div>
+            
+            {/* En attente */}
+            <div className={styles.statCard}>
+              <div className={`${styles.statIconWrapper} ${styles.warning}`}>
+                <Clock size={20} />
+              </div>
+              <div className={styles.statValue}>{stats.pending}</div>
+              <div className={styles.statLabel}>En attente</div>
+            </div>
+            
+            {/* Confirmées */}
+            <div className={styles.statCard}>
+              <div className={`${styles.statIconWrapper} ${styles.success}`}>
+                <CheckCircle size={20} />
+              </div>
+              <div className={styles.statValue}>{stats.confirmed}</div>
+              <div className={styles.statLabel}>Confirmées</div>
+            </div>
+            
+            {/* Terminées */}
+            <div className={styles.statCard}>
+              <div className={styles.statIconWrapper}>
+                <CheckCircle size={20} />
+              </div>
+              <div className={styles.statValue}>{stats.completed}</div>
+              <div className={styles.statLabel}>Terminées</div>
+            </div>
+            
+            {/* Annulées */}
+            <div className={styles.statCard}>
+              <div className={`${styles.statIconWrapper} ${styles.error}`}>
+                <XCircle size={20} />
+              </div>
+              <div className={styles.statValue}>{stats.cancelled}</div>
+              <div className={styles.statLabel}>Annulées</div>
+            </div>
+            
+            {/* Chiffre d'affaires */}
+            <div className={styles.statCard}>
+              <div className={styles.statIconWrapper}>
+                <Euro size={20} />
+              </div>
+              <div className={styles.statValue}>{stats.totalRevenue}€</div>
+              <div className={styles.statLabel}>Chiffre d'affaires</div>
+            </div>
           </div>
-          <div className={styles.statContent}>
-            <h3>{stats.total}</h3>
-            <p>Total réservations</p>
+        </section>
+
+        {/* Filters */}
+        <div className={styles.filtersContainer}>
+          <div className={styles.filterGroup}>
+            <Filter size={16} />
+            <select 
+              value={selectedFilter}
+              onChange={(e) => setSelectedFilter(e.target.value)}
+              className={styles.filterSelect}
+            >
+              <option value="all">Toutes les réservations</option>
+              <option value="pending">En attente</option>
+              <option value="confirmed">Confirmées</option>
+              <option value="completed">Terminées</option>
+              <option value="cancelled">Annulées</option>
+            </select>
+            <ChevronDown className={styles.selectIcon} size={16} />
           </div>
         </div>
 
-        <div className={styles.statCard}>
-          <div className={styles.statIcon}>
-            <Clock size={24} />
-          </div>
-          <div className={styles.statContent}>
-            <h3>{stats.pending}</h3>
-          <p>En attente</p>
-          </div>
-        </div>
-
-        <div className={styles.statCard}>
-          <div className={styles.statIcon}>
-            <CheckCircle size={24} />
-          </div>
-          <div className={styles.statContent}>
-            <h3>{stats.confirmed}</h3>
-          <p>Confirmées</p>
-          </div>
-        </div>
-
-        <div className={styles.statCard}>
-          <div className={styles.statIcon}>
-            <Euro size={24} />
-          </div>
-          <div className={styles.statContent}>
-            <h3>{bookings.reduce((sum, b) => sum + b.totalPrice, 0)}€</h3>
-          <p>Chiffre d'affaires</p>
-          </div>
-        </div>
-      </div>
-
-      {/* Filters */}
-      <div className={styles.filtersContainer}>
-        <div className={styles.filterGroup}>
-          <Filter size={16} />
-          <select 
-            value={selectedFilter}
-            onChange={(e) => setSelectedFilter(e.target.value)}
-            className={styles.filterSelect}
-          >
-            <option value="all">Toutes les réservations</option>
-            <option value="pending">En attente</option>
-            <option value="confirmed">Confirmées</option>
-            <option value="completed">Terminées</option>
-            <option value="cancelled">Annulées</option>
-          </select>
-        </div>
-      </div>
-
-      {/* Bookings List */}
+        {/* Bookings List */}
         {filteredBookings.length === 0 ? (
           <div className={styles.emptyState}>
           <Calendar className={styles.emptyIcon} />
@@ -303,7 +321,9 @@ export default function ProviderBookingsPage() {
                 {/* Booking Header */}
                 <div className={styles.bookingHeader}>
                   <h3 className={styles.clientName}>{booking.clientName}</h3>
-                  <div className={styles.serviceName}>{booking.serviceName}</div>
+                  <div className={styles.serviceName}>
+                    {booking.service?.name || booking.customServiceName || 'Service personnalisé'}
+                  </div>
               </div>
 
                 {/* Event Details */}
@@ -363,6 +383,14 @@ export default function ProviderBookingsPage() {
 
                 {/* Actions */}
               <div className={styles.bookingActions}>
+                <Link
+                  href={`/provider/bookings/${booking.id}`}
+                  className={`${styles.actionButton} ${styles.viewButton}`}
+                >
+                  <Eye size={16} />
+                  Voir les détails
+                </Link>
+                
                 {booking.status === 'PENDING' && (
                   <>
                     <button
@@ -395,8 +423,9 @@ export default function ProviderBookingsPage() {
               </div>
             );
           })}
-      </div>
-      )}
+        </div>
+        )}
+      </main>
     </div>
   );
 }

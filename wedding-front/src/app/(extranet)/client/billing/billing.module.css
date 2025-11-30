@@ -237,9 +237,16 @@
   font-size: 1.125rem;
   font-weight: 700;
   color: var(--text-primary);
-  margin-bottom: 1.25rem;
+  margin-bottom: 0.5rem;
   letter-spacing: -0.015em;
   line-height: 1.2;
+}
+
+.sectionDescription {
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+  margin-bottom: 1.25rem;
+  line-height: 1.5;
 }
 
 .plansGrid {
@@ -382,6 +389,26 @@
   opacity: 0.5;
   border-radius: 0.5rem;
   z-index: -1;
+}
+
+/* Service-specific styles */
+.serviceHeader {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 0.5rem;
+}
+
+.serviceIcon {
+  color: var(--luxury-champagne-gold);
+  flex-shrink: 0;
+}
+
+.serviceDescription {
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+  margin-bottom: 1rem;
+  line-height: 1.5;
 }
 
 [data-theme="dark"] .buyButton:disabled {

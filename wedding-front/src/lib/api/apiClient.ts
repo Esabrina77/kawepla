@@ -37,10 +37,11 @@ class ApiClient {
     if (!response.ok) {
       // Essayer de récupérer le message d'erreur du serveur
       let errorMessage = 'Une erreur est survenue';
+      let errorData: any = {};
       
       try {
-        const errorData = await response.json();
-        errorMessage = errorData.message || errorMessage;
+        errorData = await response.json();
+        errorMessage = errorData.error || errorData.message || errorMessage;
       } catch {
         // Si on ne peut pas parser le JSON, utiliser le message par défaut
       }
@@ -67,6 +68,40 @@ class ApiClient {
           }
           throw new Error('Session expirée');
         }
+      }
+      
+      if (response.status === 429) {
+        // Pour les erreurs 429 (rate limiting), émettre un événement personnalisé
+        if (typeof window !== 'undefined') {
+          let retryAfter: string | undefined = errorData.retryAfter;
+          
+          // Si retryAfter n'est pas dans le JSON, essayer le header HTTP
+          if (!retryAfter) {
+            try {
+              const retryAfterHeader = response.headers.get('retry-after');
+              if (retryAfterHeader) {
+                const seconds = parseInt(retryAfterHeader, 10);
+                if (seconds >= 60) {
+                  const minutes = Math.ceil(seconds / 60);
+                  retryAfter = `${minutes} minute${minutes > 1 ? 's' : ''}`;
+                } else {
+                  retryAfter = `${seconds} seconde${seconds > 1 ? 's' : ''}`;
+                }
+              }
+            } catch {
+              // Ignorer les erreurs de parsing
+            }
+          }
+
+          const rateLimitEvent = new CustomEvent('rateLimitExceeded', {
+            detail: {
+              message: errorMessage || 'Trop de tentatives. Veuillez réessayer plus tard.',
+              retryAfter
+            }
+          });
+          window.dispatchEvent(rateLimitEvent);
+        }
+        throw new Error(errorMessage);
       }
       
       throw new Error(errorMessage);

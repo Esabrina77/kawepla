@@ -12,6 +12,10 @@ export interface ProviderProfile {
   longitude: number;
   displayCity: string;
   phone: string;
+  website?: string;
+  instagram?: string;
+  tiktok?: string;
+  facebook?: string;
   profilePhoto?: string;
   portfolio?: string[];
   rating: number;
@@ -58,6 +62,10 @@ export interface CreateProviderProfileDto {
   profilePhoto?: string;
   portfolio?: string[];
   serviceRadius?: number;
+  website?: string;
+  instagram?: string;
+  tiktok?: string;
+  facebook?: string;
 }
 
 export interface UpdateProviderProfileDto extends Partial<CreateProviderProfileDto> {}
@@ -278,5 +286,6 @@ export const providersApi = {
    */
   async getStats(): Promise<{ stats: ProviderStats }> {
     return apiClient.get('/providers/admin/stats');
-  }
+  },
+
 };

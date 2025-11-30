@@ -21,7 +21,9 @@ import {
   Home,
   Star,
   MapPin,
-  Camera
+  Camera,
+  MessageCircle,
+  CreditCard
 } from 'lucide-react';
 
 const menuItems = [
@@ -33,10 +35,17 @@ const menuItems = [
     priority: 1
   },
   {
-    title: 'Mon Profil',
-    path: '/provider/profile',
-    icon: User,
-    description: 'Gérez votre profil provider',
+    title: 'Messages',
+    path: '/provider/messages',
+    icon: MessageCircle,
+    description: 'Conversations avec vos clients',
+    priority: 1
+  },
+  {
+    title: 'Réservations',
+    path: '/provider/bookings',
+    icon: CalendarCheck,
+    description: 'Gérez vos réservations',
     priority: 1
   },
   {
@@ -47,19 +56,20 @@ const menuItems = [
     priority: 1
   },
   {
-    title: 'Réservations',
-    path: '/provider/bookings',
-    icon: CalendarCheck,
-    description: 'Gérez vos réservations',
+    title: 'Mon Profil',
+    path: '/provider/profile',
+    icon: User,
+    description: 'Gérez votre profil provider',
     priority: 2
   },
   {
-    title: 'Paramètres',
-    path: '/provider/settings',
-    icon: Settings,
-    description: 'Configuration de votre compte',
+    title: 'Facturation',
+    path: '/provider/billing',
+    icon: CreditCard,
+    description: 'Gérez vos abonnements et factures',
     priority: 2
-  }
+  },
+
 ];
 
 export const ProviderSidebar = () => {
@@ -93,8 +103,14 @@ export const ProviderSidebar = () => {
   };
 
   // Séparer les éléments pour mobile
-  const primaryItems = menuItems.filter(item => item.priority === 1);
-  const secondaryItems = menuItems.filter(item => item.priority >= 2);
+  // Sur mobile : seulement 3 icônes principales + bouton "Plus"
+  const primaryItems = menuItems.filter(item => item.priority === 1).slice(0, 3);
+  const secondaryItems = [
+    // Les autres éléments de priorité 1 non affichés
+    ...menuItems.filter(item => item.priority === 1).slice(3),
+    // Les éléments de priorité 2
+    ...menuItems.filter(item => item.priority >= 2)
+  ];
 
   return (
     <>

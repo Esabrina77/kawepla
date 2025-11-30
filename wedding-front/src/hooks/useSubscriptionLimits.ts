@@ -6,6 +6,7 @@ interface ServicePurchaseLimits {
   guests: number;
   photos: number;
   designs: number;
+  aiRequests: number;
 }
 
 interface ServicePurchaseUsage {
@@ -13,6 +14,7 @@ interface ServicePurchaseUsage {
   guests: number;
   photos: number;
   designs: number;
+  aiRequests?: number;
 }
 
 interface ServicePurchaseRemaining {
@@ -20,6 +22,7 @@ interface ServicePurchaseRemaining {
   guests: number;
   photos: number;
   designs: number;
+  aiRequests?: number;
 }
 
 interface ServicePurchaseLimitsResponse {
@@ -40,7 +43,7 @@ export function useServicePurchaseLimits() {
   const fetchLimits = useCallback(async () => {
     try {
       setLoading(true);
-      const response = await apiClient.get('/servicePurchases/limits');
+      const response = await apiClient.get('/subscriptions/limits');
       const data = response as ServicePurchaseLimitsResponse;
       
       setLimits(data.limits);

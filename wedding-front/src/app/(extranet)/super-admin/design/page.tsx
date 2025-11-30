@@ -3,13 +3,14 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useDesigns } from '@/hooks/useDesigns';
+import { HeaderMobile } from '@/components/HeaderMobile';
 import { Design } from '@/types';
-import { TemplateEngine, getPreviewDataByType } from '@/lib/templateEngine';
-import { 
-  Palette, 
-  Search, 
-  Filter, 
-  Eye, 
+import DesignPreview from '@/components/DesignPreview';
+import {
+  Palette,
+  Search,
+  Filter,
+  Eye,
   Edit,
   Trash2,
   Plus,
@@ -29,43 +30,38 @@ export default function SuperAdminDesignPage() {
   const [searchTerm, setSearchTerm] = useState<string>('');
   const [selectedFilter, setSelectedFilter] = useState<string>('all');
 
-  // Données d'exemple pour les prévisualisations (adaptées au type d'événement)
-  const getPreviewData = (design: Design) => {
-    return getPreviewDataByType(design.category || 'event');
-  };
-
   // Filtrer les designs en fonction de la recherche et du filtre
   const filteredDesigns = designs.filter(design => {
     // Filtre par recherche
-    const searchMatch = searchTerm === '' || 
+    const searchMatch = searchTerm === '' ||
       design.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       design.description?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      design.category?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       design.tags?.some(tag => tag.toLowerCase().includes(searchTerm.toLowerCase()));
-    
-    // Filtre par catégorie/type
-    const filterMatch = selectedFilter === 'all' || 
-      design.category === selectedFilter ||
-      (selectedFilter === 'premium' && design.isPremium) ||
+
+    // Filtre par type
+    const filterMatch = selectedFilter === 'all' ||
+      (selectedFilter === 'templates' && design.isTemplate) ||
+      (selectedFilter === 'personalized' && !design.isTemplate) ||
       (selectedFilter === 'active' && design.isActive) ||
-      (selectedFilter === 'inactive' && !design.isActive);
-    
+      (selectedFilter === 'inactive' && !design.isActive) ||
+      (selectedFilter === 'free' && design.priceType === 'FREE') ||
+      (selectedFilter === 'paid' && design.priceType !== 'FREE');
+
     return searchMatch && filterMatch;
   });
 
-  // Obtenir toutes les catégories uniques pour le select
-  const categories = ['all', ...new Set(designs.map(d => d.category).filter(Boolean) as string[])];
-  
+  // Obtenir tous les tags uniques pour le filtre
+  const allTags = Array.from(new Set(designs.flatMap(d => d.tags || [])));
+
   // Options pour le filtre
   const filterOptions = [
     { value: 'all', label: 'Tous les designs' },
-    { value: 'premium', label: 'Designs Premium' },
+    { value: 'templates', label: 'Modèles' },
+    { value: 'personalized', label: 'Personnalisés' },
     { value: 'active', label: 'Designs Actifs' },
     { value: 'inactive', label: 'Designs Inactifs' },
-    ...categories.filter(cat => cat !== 'all').map(cat => ({
-      value: cat,
-      label: cat.charAt(0).toUpperCase() + cat.slice(1)
-    }))
+    { value: 'free', label: 'Gratuits' },
+    { value: 'paid', label: 'Payants' },
   ];
 
   const handleDeleteDesign = async (designId: string) => {
@@ -100,13 +96,14 @@ export default function SuperAdminDesignPage() {
 
 
   const handleEditDesign = (designId: string) => {
-    router.push(`/super-admin/design/create?id=${designId}`);
+    router.push(`/super-admin/design/create-canva?id=${designId}`);
   };
 
   if (loading) {
     return (
-      <div className={styles.loadingContainer}>
-        <div className={styles.loadingContent}>
+      <div className={styles.designPage}>
+        <HeaderMobile title="Designs" />
+        <div className={styles.loadingContainer}>
           <div className={styles.loadingSpinner}></div>
           <p>Chargement des designs...</p>
         </div>
@@ -116,8 +113,9 @@ export default function SuperAdminDesignPage() {
 
   if (error) {
     return (
-      <div className={styles.errorContainer}>
-        <div className={styles.errorContent}>
+      <div className={styles.designPage}>
+        <HeaderMobile title="Designs" />
+        <div className={styles.errorContainer}>
           <p>Erreur: {error}</p>
         </div>
       </div>
@@ -126,220 +124,198 @@ export default function SuperAdminDesignPage() {
 
   return (
     <div className={styles.designPage}>
-      {/* Header Section */}
-      <div className={styles.headerSection}>
-        <div className={styles.badge}>
-          <Palette style={{ width: '16px', height: '16px' }} />
-          Gestion des designs
-        </div>
-        
-        <h1 className={styles.title}>
-          Vos <span className={styles.titleAccent}>designs</span>
-        </h1>
-        
-        <p className={styles.subtitle}>
-          Gérez les designs d'invitations d'événements disponibles dans votre collection
-        </p>
+      <HeaderMobile title="Designs" />
 
-        <button
-          onClick={() => router.push('/super-admin/design/create')}
-          className={styles.createButton}
-        >
-          <Plus style={{ width: '16px', height: '16px' }} />
-          Créer un design
-        </button>
-      </div>
-
-
-
-      {/* Filters */}
-      <div className={styles.filtersContainer}>
-        <div className={styles.searchContainer}>
-          <Search className={styles.searchIcon} />
-          <input
-            type="text"
-            placeholder="Rechercher un design..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className={styles.searchInput}
-          />
-        </div>
-
-        <div className={styles.filterContainer}>
-          <Filter className={styles.filterIcon} />
-          <select
-            value={selectedFilter}
-            onChange={(e) => setSelectedFilter(e.target.value)}
-            className={styles.filterSelect}
+      <main className={styles.main}>
+        {/* Page Header */}
+        <div className={styles.pageHeader}>
+          <button
+            onClick={() => router.push('/super-admin/design/create-canva')}
+            className={styles.createButton}
           >
-            {filterOptions.map(option => (
-              <option key={option.value} value={option.value}>
-                {option.label}
-              </option>
-            ))}
-          </select>
+            <Plus size={18} />
+            Créer un design
+          </button>
         </div>
-      </div>
 
-      {/* Designs Grid */}
-      <div className={styles.designsGrid}>
-        {filteredDesigns.map((design) => (
-          <div key={design.id} className={styles.designCard}>
-            {/* Badge Premium */}
-            {design.isPremium && (
-              <div className={styles.premiumBadge}>
-                <Crown style={{ width: '12px', height: '12px' }} />
-                Premium
-              </div>
-            )}
 
-            {/* Preview */}
-            <div className={styles.previewContainer}>
-              {design.template && design.styles && design.variables ? (
-                <div 
-                  className={styles.previewContent}
-                  dangerouslySetInnerHTML={{
-                    __html: new TemplateEngine().render(design, getPreviewData(design))
-                  }}
-                  key={`card-preview-${design.id}`}
-                />
-              ) : (
-                <div className={styles.previewPlaceholder}>
-                  <Palette style={{ width: '48px', height: '48px', marginBottom: 'var(--space-sm)' }} />
-                  <h3>{design.name}</h3>
-                  <p>Aperçu non disponible</p>
-                  <p style={{ fontSize: '0.7rem', color: '#666' }}>
-                    Template: {design.template ? '✓' : '✗'} | 
-                    Styles: {design.styles ? '✓' : '✗'} | 
-                    Variables: {design.variables ? '✓' : '✗'}
-                  </p>
-                </div>
-              )}
-            </div>
-            
-            {/* Info */}
-            <div className={styles.designInfo}>
-              <h3 className={styles.designTitle}>
-                {design.name}
-              </h3>
-              
-              <p className={styles.designDescription}>
-                {design.description}
-              </p>
-              
-              {design.category && (
-                <span className={styles.categoryBadge}>
-                  {design.category}
-                </span>
-              )}
-              
-              {design.tags && design.tags.length > 0 && (
-                <div className={styles.tagsContainer}>
-                  {design.tags.map(tag => (
-                    <span key={tag} className={styles.tag}>
-                      {tag}
-                    </span>
-                  ))}
-                </div>
-              )}
-              
-              {/* Actions */}
-              <div className={styles.actionsContainer}>
-                <button
-                  onClick={() => handlePreviewDesign(design)}
-                  className={styles.previewButton}
-                >
-                  <Eye style={{ width: '14px', height: '14px' }} />
-                  Voir
-                </button>
-                
-                <button
-                  onClick={() => handleEditDesign(design.id)}
-                  className={styles.editButton}
-                >
-                  <Edit style={{ width: '14px', height: '14px' }} />
-                  Modif
-                </button>
-                
-                <button
-                  onClick={() => handleToggleStatus(design.id)}
-                  className={styles.toggleButton}
-                >
-                  {design.isActive ? (
-                    <>
-                      <PowerOff style={{ width: '14px', height: '14px' }} />
-                      OFF
-                    </>
-                  ) : (
-                    <>
-                      <Power style={{ width: '14px', height: '14px' }} />
-                      ON
-                    </>
-                  )}
-                </button>
-                
-                <button
-                  onClick={() => handleDeleteDesign(design.id)}
-                  disabled={deletingDesignId === design.id}
-                  className={styles.deleteButton}
-                >
-                  <Trash2 style={{ width: '14px', height: '14px' }} />
-                  {deletingDesignId === design.id ? 'Suppression...' : 'Supprimer'}
-                </button>
-              </div>
-            </div>
+
+        {/* Filters */}
+        <div className={styles.filtersContainer}>
+          <div className={styles.searchContainer}>
+            <Search className={styles.searchIcon} />
+            <input
+              type="text"
+              placeholder="Rechercher un design..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className={styles.searchInput}
+            />
           </div>
-        ))}
-      </div>
 
-      {/* Empty State */}
-      {filteredDesigns.length === 0 && (
-        <div className={styles.emptyState}>
-          <Palette style={{ width: '64px', height: '64px', marginBottom: 'var(--space-md)' }} />
-          <h3>Aucun design trouvé</h3>
-          <p>
-            {searchTerm || selectedFilter !== 'all' 
-              ? 'Aucun design ne correspond à vos critères de recherche' 
-              : 'Commencez par créer votre premier design'
-            }
-          </p>
+          <div className={styles.filterContainer}>
+            <Filter className={styles.filterIcon} />
+            <select
+              value={selectedFilter}
+              onChange={(e) => setSelectedFilter(e.target.value)}
+              className={styles.filterSelect}
+            >
+              {filterOptions.map(option => (
+                <option key={option.value} value={option.value}>
+                  {option.label}
+                </option>
+              ))}
+            </select>
+          </div>
         </div>
-      )}
 
-      {/* Modal de prévisualisation */}
-      {showPreviewModal && selectedDesign && (
-        <div className={styles.modal} onClick={() => setShowPreviewModal(false)}>
-          <div className={styles.modalContent} onClick={(e) => e.stopPropagation()}>
-            <div className={styles.modalHeader}>
-              <h2>Aperçu - {selectedDesign.name}</h2>
-              <button
-                className={styles.closeButton}
-                onClick={() => setShowPreviewModal(false)}
-              >
-                ×
-              </button>
-            </div>
-            <div className={styles.modalBody}>
-              <div className={styles.modalPreviewContainer}>
-                {selectedDesign.template && selectedDesign.styles && selectedDesign.variables ? (
-                  <div 
-                    className={styles.fullPreview}
-                    dangerouslySetInnerHTML={{
-                      __html: new TemplateEngine().render(selectedDesign, getPreviewData(selectedDesign))
-                    }}
-                    key={`modal-preview-${selectedDesign.id}`}
-                  />
+        {/* Designs Grid */}
+        <div className={styles.designsGrid}>
+          {filteredDesigns.map((design) => (
+            <div key={design.id} className={styles.designCard}>
+              {/* Badge Prix */}
+              {design.priceType && design.priceType !== 'FREE' && (
+                <div className={styles.premiumBadge}>
+                  <Crown style={{ width: '12px', height: '12px' }} />
+                  {design.priceType === 'ESSENTIAL' ? 'Essentiel' :
+                    design.priceType === 'ELEGANT' ? 'Élégant' :
+                      design.priceType === 'LUXE' ? 'Luxe' : design.priceType}
+                </div>
+              )}
+
+              {/* Preview */}
+              <div className={styles.previewContainer}>
+                <DesignPreview
+                  design={design}
+                  width={300}
+                  height={400}
+                  className={styles.previewContent}
+                />
+              </div>
+
+              {/* Info */}
+              <div className={styles.designInfo}>
+                <h3 className={styles.designTitle}>
+                  {design.name}
+                </h3>
+
+                <p className={styles.designDescription}>
+                  {design.description}
+                </p>
+
+                {design.priceType && design.priceType !== 'FREE' && (
+                  <span className={styles.priceBadge}>
+                    {design.priceType === 'ESSENTIAL' ? 'Essentiel' :
+                      design.priceType === 'ELEGANT' ? 'Élégant' :
+                        design.priceType === 'LUXE' ? 'Luxe' : design.priceType}
+                  </span>
+                )}
+                {design.isTemplate ? (
+                  <span className={styles.templateBadge}>Modèle</span>
                 ) : (
-                  <div className={styles.noPreview}>
-                    <h3>Aperçu non disponible</h3>
-                    <p>Les données du template ne sont pas complètes pour ce design.</p>
+                  <span className={styles.personalizedBadge}>Personnalisé</span>
+                )}
+
+                {design.tags && design.tags.length > 0 && (
+                  <div className={styles.tagsContainer}>
+                    {design.tags.map(tag => (
+                      <span key={tag} className={styles.tag}>
+                        {tag}
+                      </span>
+                    ))}
                   </div>
                 )}
+
+                {/* Actions */}
+                <div className={styles.actionsContainer}>
+                  <button
+                    onClick={() => handlePreviewDesign(design)}
+                    className={styles.previewButton}
+                  >
+                    <Eye style={{ width: '14px', height: '14px' }} />
+                    Voir
+                  </button>
+
+                  <button
+                    onClick={() => handleEditDesign(design.id)}
+                    className={styles.editButton}
+                  >
+                    <Edit style={{ width: '14px', height: '14px' }} />
+                    Modif
+                  </button>
+
+                  <button
+                    onClick={() => handleToggleStatus(design.id)}
+                    className={styles.toggleButton}
+                  >
+                    {design.isActive ? (
+                      <>
+                        <PowerOff style={{ width: '14px', height: '14px' }} />
+                        OFF
+                      </>
+                    ) : (
+                      <>
+                        <Power style={{ width: '14px', height: '14px' }} />
+                        ON
+                      </>
+                    )}
+                  </button>
+
+                  <button
+                    onClick={() => handleDeleteDesign(design.id)}
+                    disabled={deletingDesignId === design.id}
+                    className={styles.deleteButton}
+                  >
+                    <Trash2 style={{ width: '14px', height: '14px' }} />
+                    {deletingDesignId === design.id ? 'Suppression...' : 'Supprimer'}
+                  </button>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* Empty State */}
+        {filteredDesigns.length === 0 && (
+          <div className={styles.emptyState}>
+            <Palette size={64} />
+            <h3>Aucun design trouvé</h3>
+            <p>
+              {searchTerm || selectedFilter !== 'all'
+                ? 'Aucun design ne correspond à vos critères de recherche'
+                : 'Commencez par créer votre premier design'
+              }
+            </p>
+          </div>
+        )}
+
+        {/* Modal de prévisualisation */}
+        {showPreviewModal && selectedDesign && (
+          <div className={styles.modal} onClick={() => setShowPreviewModal(false)}>
+            <div className={styles.modalContent} onClick={(e) => e.stopPropagation()}>
+              <div className={styles.modalHeader}>
+                <h2>Aperçu - {selectedDesign.name}</h2>
+                <button
+                  className={styles.closeButton}
+                  onClick={() => setShowPreviewModal(false)}
+                >
+                  ×
+                </button>
+              </div>
+              <div className={styles.modalBody}>
+                <div className={styles.modalPreviewContainer}>
+                  <DesignPreview
+                    design={selectedDesign}
+                    width={600}
+                    height={800}
+                    className={styles.fullPreview}
+                  />
+                </div>
               </div>
             </div>
           </div>
-        </div>
-      )}
+        )}
+      </main>
     </div>
   );
 }

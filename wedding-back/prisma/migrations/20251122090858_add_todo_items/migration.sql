@@ -1,0 +1,3 @@
+-- Migration: add_todo_items
+-- Les tables todo_items et les enums associés existent déjà dans la base de données
+-- Cette migration est vide car la base de données est déjà synchronisée

@@ -1,6 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
 import { invitationsApi, CreateInvitationDto } from '@/lib/api/invitations';
-import { renderTemplate, invitationToTemplateData, mergeInvitationData, DesignTemplate } from '../lib/templateEngine';
 import { useAuth } from './useAuth';
 import { Invitation, Statistics } from '@/types';
 
@@ -19,12 +18,12 @@ export const useInvitations = () => {
     try {
       setLoading(true);
       setError(null);
-      
+
       const response = await invitationsApi.getInvitations();
       setInvitations(response || []);
     } catch (err) {
       console.error('❌ Error fetching invitations:', err);
-      
+
       // Si erreur 401, l'utilisateur n'est plus authentifié
       if (err instanceof Error && err.message.includes('Session expirée')) {
         console.log('🔒 Session expirée, déconnexion automatique');
@@ -34,7 +33,7 @@ export const useInvitations = () => {
         setError('Session expirée');
         return;
       }
-      
+
       setError(err instanceof Error ? err.message : 'Une erreur est survenue');
     } finally {
       setLoading(false);
@@ -45,7 +44,7 @@ export const useInvitations = () => {
     try {
       setLoading(true);
       setError(null);
-      
+
       const response = await invitationsApi.getInvitation(id);
       return response;
     } catch (err) {
@@ -61,9 +60,9 @@ export const useInvitations = () => {
     try {
       setLoading(true);
       setError(null);
-      
+
       const response = await invitationsApi.createInvitation(data);
-      
+
       if (response) {
         setInvitations(prev => [...prev, response]);
         return response;
@@ -82,9 +81,9 @@ export const useInvitations = () => {
     try {
       setLoading(true);
       setError(null);
-      
+
       const response = await invitationsApi.updateInvitation(id, data);
-      
+
       if (response) {
         setInvitations(prev => prev.map(inv => inv.id === id ? response : inv));
         return response;
@@ -102,12 +101,12 @@ export const useInvitations = () => {
   const publishInvitation = async (id: string): Promise<Invitation> => {
     try {
       const response = await invitationsApi.publishInvitation(id);
-      
+
       // Mettre à jour la liste des invitations
-      setInvitations(prev => prev.map(inv => 
+      setInvitations(prev => prev.map(inv =>
         inv.id === id ? response : inv
       ));
-      
+
       return response;
     } catch (error) {
       console.error('Erreur lors de la publication de l\'invitation:', error);
@@ -118,12 +117,12 @@ export const useInvitations = () => {
   const archiveInvitation = async (id: string): Promise<Invitation> => {
     try {
       const response = await invitationsApi.archiveInvitation(id);
-      
+
       // Mettre à jour la liste des invitations
-      setInvitations(prev => prev.map(inv => 
+      setInvitations(prev => prev.map(inv =>
         inv.id === id ? response : inv
       ));
-      
+
       return response;
     } catch (error) {
       console.error('Erreur lors de l\'archivage de l\'invitation:', error);
@@ -134,7 +133,7 @@ export const useInvitations = () => {
   const deleteInvitation = async (id: string): Promise<void> => {
     try {
       await invitationsApi.deleteInvitation(id);
-      
+
       // Supprimer de la liste
       setInvitations(prev => prev.filter(inv => inv.id !== id));
     } catch (error) {
@@ -164,7 +163,7 @@ export const useInvitations = () => {
   const exportGuestsCSV = async (id: string): Promise<void> => {
     try {
       const blob = await invitationsApi.exportGuestsCSV(id);
-      
+
       // Télécharger le fichier
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement('a');
@@ -214,18 +213,3 @@ export const useInvitations = () => {
   };
 }
 
-// Fonction pour rendre une invitation avec un template
-export function renderInvitationWithTemplate(
-  invitation: Invitation,
-  template: DesignTemplate,
-  customData: Partial<any> = {}
-): { html: string; css: string } {
-  // Convertir les données d'invitation en données de template
-  const invitationData = invitationToTemplateData(invitation);
-  
-  // Fusionner avec les données personnalisées
-  const templateData = mergeInvitationData({ ...invitationData, ...customData });
-  
-  // Rendre le template
-  return renderTemplate(template, templateData, invitation.id);
-} 

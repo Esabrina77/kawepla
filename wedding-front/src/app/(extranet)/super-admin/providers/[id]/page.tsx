@@ -3,8 +3,8 @@
 import { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { providersApi, ProviderProfile } from '@/lib/api/providers';
+import { HeaderMobile } from '@/components/HeaderMobile';
 import { 
-  ArrowLeft,
   User,
   MapPin,
   Phone,
@@ -22,6 +22,7 @@ import {
   Users,
   Clock as ClockIcon
 } from 'lucide-react';
+import { WebsiteIcon, InstagramIcon, TikTokIcon, FacebookIcon } from '@/components/icons/SocialIcons';
 import styles from './provider-detail.module.css';
 
 export default function ProviderDetailPage() {
@@ -118,56 +119,56 @@ export default function ProviderDetailPage() {
 
   if (loading) {
     return (
-      <div className={styles.loadingContainer}>
-        <div className={styles.loadingSpinner}></div>
-        <p>Chargement du provider...</p>
+      <div className={styles.providerDetail}>
+        <HeaderMobile title="Détail du provider" />
+        <div className={styles.loadingContainer}>
+          <div className={styles.loadingSpinner}></div>
+          <p>Chargement du provider...</p>
+        </div>
       </div>
     );
   }
 
   if (error || !provider) {
     return (
-      <div className={styles.errorContainer}>
-        <h2>❌ Erreur</h2>
-        <p>{error || 'Provider non trouvé'}</p>
-        <button onClick={() => router.back()} className={styles.backButton}>
-          <ArrowLeft size={16} />
-          Retour
-        </button>
+      <div className={styles.providerDetail}>
+        <HeaderMobile title="Détail du provider" />
+        <div className={styles.errorContainer}>
+          <h2>❌ Erreur</h2>
+          <p>{error || 'Provider non trouvé'}</p>
+          <button onClick={() => router.back()} className={styles.backButton}>
+            Retour
+          </button>
+        </div>
       </div>
     );
+  }
+
+  // TypeScript assertion: provider is not null at this point
+  if (!provider) {
+    return null;
   }
 
   const statusInfo = getStatusInfo(provider.status);
   const StatusIcon = statusInfo.icon;
 
   return (
-    <div className={styles.detailContainer}>
-      {/* Header */}
-      <div className={styles.header}>
-        <button onClick={() => router.back()} className={styles.backButton}>
-          <ArrowLeft size={16} />
-          Retour
-        </button>
-        
-        <div className={styles.headerContent}>
-          <div className={styles.badge}>
-            <User style={{ width: '16px', height: '16px' }} />
-            Détail Provider
-          </div>
-          
-          <h1 className={styles.title}>
-            {provider.businessName}
-          </h1>
-          
+    <div className={styles.providerDetail}>
+      <HeaderMobile 
+        title={provider.businessName || 'Détail du provider'} 
+        onBack={() => router.push('/super-admin/providers')}
+      />
+      
+      <main className={styles.main}>
+        {/* Page Header */}
+        <div className={styles.pageHeader}>
           <div className={styles.statusBadge} style={{ color: statusInfo.color }}>
-            <StatusIcon size={16} />
+            <StatusIcon size={14} />
             {statusInfo.label}
           </div>
         </div>
-      </div>
 
-      <div className={styles.content}>
+        <div className={styles.content}>
         {/* Informations principales */}
         <div className={styles.mainInfo}>
           <div className={styles.profileSection}>
@@ -183,17 +184,68 @@ export default function ProviderDetailPage() {
             
             <div className={styles.profileInfo}>
               <h2>{provider.businessName}</h2>
-              <p className={styles.category}>
-                {provider.category?.icon} {provider.category?.name}
-              </p>
+              {provider.category && (
+                <p className={styles.category}>
+                  {provider.category?.icon} {provider.category?.name}
+                </p>
+              )}
               <div className={styles.location}>
-                <MapPin size={16} />
+                <MapPin size={14} />
                 {provider.displayCity}
               </div>
               <div className={styles.contact}>
-                <Phone size={16} />
+                <Phone size={14} />
                 {provider.phone}
               </div>
+              {/* Réseaux sociaux */}
+              {(provider.website || provider.instagram || provider.tiktok || provider.facebook) && (
+                <div className={styles.socialLinks}>
+                  {provider.website && (
+                    <a 
+                      href={provider.website} 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      className={styles.socialLink}
+                      title="Site web"
+                    >
+                      <WebsiteIcon size={16} />
+                    </a>
+                  )}
+                  {provider.instagram && (
+                    <a 
+                      href={provider.instagram} 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      className={styles.socialLink}
+                      title="Instagram"
+                    >
+                      <InstagramIcon size={16} />
+                    </a>
+                  )}
+                  {provider.tiktok && (
+                    <a 
+                      href={provider.tiktok} 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      className={styles.socialLink}
+                      title="TikTok"
+                    >
+                      <TikTokIcon size={16} />
+                    </a>
+                  )}
+                  {provider.facebook && (
+                    <a 
+                      href={provider.facebook} 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      className={styles.socialLink}
+                      title="Facebook"
+                    >
+                      <FacebookIcon size={16} />
+                    </a>
+                  )}
+                </div>
+              )}
             </div>
           </div>
 
@@ -351,7 +403,8 @@ export default function ProviderDetailPage() {
             )}
           </div>
         </div>
-      </div>
+        </div>
+      </main>
     </div>
   );
 }

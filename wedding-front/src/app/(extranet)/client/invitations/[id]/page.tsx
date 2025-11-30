@@ -5,7 +5,7 @@ import { useParams, useRouter } from 'next/navigation';
 import { HeaderMobile } from '@/components/HeaderMobile';
 import { useInvitations } from '@/hooks/useInvitations';
 import { useDesigns } from '@/hooks/useDesigns';
-import { TemplateEngine } from '@/lib/templateEngine';
+import DesignPreview from '@/components/DesignPreview';
 import { Edit, Globe } from 'lucide-react';
 import styles from './invitation-detail.module.css';
 
@@ -14,7 +14,7 @@ export default function InvitationDetailPage() {
   const router = useRouter();
   const { getInvitationById, publishInvitation, loading } = useInvitations();
   const { designs } = useDesigns();
-  
+
   const [invitation, setInvitation] = useState<any>(null);
 
   useEffect(() => {
@@ -32,7 +32,7 @@ export default function InvitationDetailPage() {
 
   const handlePublish = async () => {
     if (!invitation) return;
-    
+
     const result = await publishInvitation(invitation.id);
     if (result) {
       setInvitation((prev: any) => prev ? { ...prev, status: 'PUBLISHED' } : null);
@@ -50,29 +50,7 @@ export default function InvitationDetailPage() {
     return designs.find(d => d.id === invitation.designId);
   };
 
-  const getPreviewHtml = () => {
-    const selectedDesign = getSelectedDesign();
-    if (!selectedDesign) return '';
-    
-    try {
-      const templateEngine = new TemplateEngine();
-      // Utiliser la NOUVELLE architecture avec les vraies données de l'invitation
-      const invitationData = {
-        eventTitle: invitation.eventTitle || '',
-        eventDate: invitation.eventDate ? new Date(invitation.eventDate) : new Date(),
-        eventTime: invitation.eventTime || '',
-        location: invitation.location || '',
-        eventType: invitation.eventType || 'event',
-        customText: invitation.customText || '', // Pas de texte par défaut
-        moreInfo: invitation.moreInfo || '' // Pas de texte par défaut
-      };
 
-      return templateEngine.render(selectedDesign, invitationData);
-    } catch (error) {
-      console.error('Erreur lors de la génération de la prévisualisation:', error);
-      return '<div>Erreur de prévisualisation</div>';
-    }
-  };
 
   if (loading) {
     return (
@@ -107,16 +85,18 @@ export default function InvitationDetailPage() {
   return (
     <div className={styles.invitationDetail}>
       <HeaderMobile title={invitation.eventTitle || 'Invitation sans titre'} />
-      
+
       <main className={styles.main}>
         {/* Preview Section - Full Page */}
         <div className={styles.previewSection}>
           <div className={styles.previewContainer}>
-            <div 
-              className={styles.invitationPreview}
-              dangerouslySetInnerHTML={{ __html: getPreviewHtml() }}
-              key={`preview-${invitation.id}-${invitation.eventTitle}-${invitation.eventDate}`}
-            />
+            {getSelectedDesign() && (
+              <DesignPreview
+                design={getSelectedDesign()!}
+                width={800}
+                height={1100}
+              />
+            )}
           </div>
         </div>
 
@@ -137,14 +117,14 @@ export default function InvitationDetailPage() {
           <div className={styles.actions}>
             {invitation.status === 'DRAFT' && (
               <>
-                <button 
+                <button
                   className={styles.actionButton}
                   onClick={() => router.push(`/client/invitations/${invitation.id}/edit`)}
                 >
                   <Edit size={18} />
                   Modifier
                 </button>
-                <button 
+                <button
                   className={`${styles.actionButton} ${styles.publishButton}`}
                   onClick={handlePublish}
                 >

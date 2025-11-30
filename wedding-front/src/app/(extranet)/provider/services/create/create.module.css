@@ -1,97 +1,249 @@
-/* ===== CREATE SERVICE - LUXURY DESIGN SYSTEM ===== */
+/* ===== CREATE SERVICE - DASHBOARD STYLE ===== */
 
 .createContainer {
   background: var(--bg-primary);
   min-height: 100vh;
-  padding: var(--space-lg);
-  max-width: 1200px;
-  margin: 0 auto;
+  width: 100%;
+  animation: fadeInUp 0.6s ease-out;
 }
 
-/* Header Section */
-.headerSection {
-  text-align: center;
-  margin-bottom: var(--space-xl);
-  max-width: 800px;
-  margin: 0 auto var(--space-xl);
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
-.badge {
-  background: var(--gradient-primary);
-  color: white;
-  padding: var(--space-xs) var(--space-md);
-  border-radius: var(--radius-xl);
-  font-size: 0.875rem;
-  font-weight: 600;
-  display: inline-flex;
-  align-items: center;
-  gap: var(--space-xs);
-  margin-bottom: var(--space-md);
-  box-shadow: var(--shadow-sm);
+/* Main Content */
+.main {
+  flex: 1;
+  padding: 1rem;
+  padding-bottom: 7rem;
+  animation: fadeIn 0.8s ease-out 0.2s both;
 }
 
-.title {
-  font-family: var(--font-sans);
-  font-size: clamp(1.75rem, 4vw, 2.5rem);
-  font-weight: 400;
-  line-height: 1.2;
-  margin-bottom: var(--space-md);
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* Desktop avec sidebar - aligné avec HeaderMobile */
+@media (min-width: 768px) {
+  .main {
+    padding: 2rem;
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+}
+
+@media (min-width: 769px) {
+  .main {
+    padding-left: 190px;
+    padding-right: 2rem;
+    transition: padding-left var(--transition-normal);
+  }
+}
+
+/* Desktop avec sidebar collapsed */
+@media (min-width: 769px) {
+  :global(body[data-sidebar-collapsed="true"]) .main {
+    padding-left: 80px;
+  }
+}
+
+.pageTitle {
+  font-size: 1.875rem;
+  font-weight: 700;
   color: var(--text-primary);
-}
-
-.titleAccent {
-  color: var(--luxury-champagne-gold);
-}
-
-.subtitle {
-  font-size: clamp(1rem, 1.5vw, 1.125rem);
-  line-height: 1.6;
-  color: var(--text-secondary);
-  margin-bottom: var(--space-md);
+  padding-top: 1rem;
+  padding-bottom: 1.5rem;
+  line-height: 1.2;
+  letter-spacing: -0.015em;
 }
 
 /* Form */
 .createForm {
   background: var(--bg-card);
-  border: 1px solid var(--border-color);
-  border-radius: var(--radius-md);
-  padding: var(--space-xl);
-  box-shadow: var(--shadow-sm);
+  border-radius: 0.75rem;
+  padding: 1.5rem;
 }
 
 .formGrid {
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: var(--space-xl);
-  margin-bottom: var(--space-xl);
+  grid-template-columns: 1fr;
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+@media (min-width: 768px) {
+  .formGrid {
+    grid-template-columns: 1fr 1fr;
+  }
 }
 
 .formSection {
   display: flex;
   flex-direction: column;
-  gap: var(--space-lg);
+  gap: 1rem;
 }
 
 .sectionTitle {
-  font-family: var(--font-sans);
   font-size: 1.25rem;
   font-weight: 600;
   color: var(--text-primary);
-  margin: 0 0 var(--space-md) 0;
-  padding-bottom: var(--space-sm);
-  border-bottom: 1px solid var(--border-color);
+  margin-bottom: 1rem;
 }
 
 .formField {
   display: flex;
   flex-direction: column;
-  gap: var(--space-sm);
+  gap: 0.5rem;
 }
 
 .formLabel {
   font-size: 0.875rem;
   font-weight: 600;
   color: var(--text-primary);
+}
+
+.formLabelRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.5rem;
+}
+
+.quotaBadge {
+  font-size: 0.75rem;
+  padding: 0.25rem 0.5rem;
+  background: rgba(139, 92, 246, 0.1);
+  color: rgba(139, 92, 246, 1);
+  border-radius: var(--radius-sm);
+  font-weight: 500;
+}
+
+/* Edit Image Modal */
+.editModalOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 1rem;
+}
+
+.editModal {
+  background: var(--bg-card);
+  border-radius: 1rem;
+  max-width: 600px;
+  width: 100%;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+}
+
+.editModalHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.5rem;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.editModalHeader h3 {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.closeModalButton {
+  background: transparent;
+  border: none;
+  color: var(--text-secondary);
+  cursor: pointer;
+  padding: 0.25rem;
+  border-radius: 0.25rem;
+  transition: all var(--transition-normal);
+}
+
+.closeModalButton:hover {
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+}
+
+.editModalContent {
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.editModalImage {
+  width: 100%;
+  max-height: 300px;
+  object-fit: contain;
+  border-radius: 0.5rem;
+  background: var(--bg-secondary);
+}
+
+.editModalForm {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.editModalActions {
+  display: flex;
+  gap: 1rem;
+  justify-content: flex-end;
+  margin-top: 1rem;
+}
+
+.cancelButton {
+  padding: 0.75rem 1.5rem;
+  background: transparent;
+  border: 1px solid var(--border-color);
+  border-radius: 0.5rem;
+  color: var(--text-primary);
+  cursor: pointer;
+  transition: all var(--transition-normal);
+}
+
+.cancelButton:hover {
+  background: var(--bg-secondary);
+}
+
+.confirmButton {
+  padding: 0.75rem 1.5rem;
+  background: var(--luxury-champagne-gold);
+  border: none;
+  border-radius: 0.5rem;
+  color: var(--luxury-velvet-black);
+  font-weight: 600;
+  cursor: pointer;
+  transition: all var(--transition-normal);
+}
+
+.confirmButton:hover:not(:disabled) {
+  background: #b89a6e;
+}
+
+.confirmButton:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
 }
 
 .formInput,
@@ -265,10 +417,41 @@
   object-fit: cover;
 }
 
-.removePhotoButton {
+.photoActions {
   position: absolute;
   top: var(--space-xs);
   right: var(--space-xs);
+  display: flex;
+  gap: var(--space-xs);
+  align-items: center;
+}
+
+.enhancePhotoButton {
+  background: rgba(139, 92, 246, 0.9);
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all var(--transition-normal);
+  padding: 0;
+}
+
+.enhancePhotoButton:hover:not(:disabled) {
+  background: rgba(139, 92, 246, 1);
+  transform: scale(1.1);
+}
+
+.enhancePhotoButton:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.removePhotoButton {
   background: rgba(220, 53, 69, 0.9);
   color: white;
   border: none;

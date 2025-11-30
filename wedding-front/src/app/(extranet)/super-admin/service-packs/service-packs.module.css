@@ -1,0 +1,197 @@
+.page {
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.pageHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.pageHeader h1 {
+  margin: 0;
+  font-size: 24px;
+}
+
+.refreshBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  border: 1px solid rgba(0,0,0,0.1);
+  padding: 8px 14px;
+  border-radius: 8px;
+  background: white;
+  cursor: pointer;
+}
+
+.errorBanner {
+  padding: 12px 16px;
+  border-radius: 8px;
+  background: rgba(255, 99, 71, 0.15);
+  color: #c0392b;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 24px;
+}
+
+.listSection, .formSection {
+  background: #fff;
+  border-radius: 16px;
+  padding: 24px;
+  box-shadow: 0 10px 25px rgba(15, 23, 42, 0.08);
+}
+
+.sectionHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.sectionHeader h2 {
+  font-size: 18px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+}
+
+.primaryBtn, .secondaryBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border-radius: 8px;
+  border: none;
+  padding: 8px 12px;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.primaryBtn {
+  background: linear-gradient(135deg, #c6a072, #9b6b34);
+  color: #fff;
+}
+
+.secondaryBtn {
+  background: rgba(155,107,52,0.1);
+  color: #9b6b34;
+}
+
+.cardList {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.packCard {
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  border-radius: 12px;
+  padding: 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+}
+
+.packName {
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+
+.packMeta {
+  font-size: 14px;
+  color: rgba(15, 23, 42, 0.6);
+  margin-bottom: 6px;
+}
+
+.packDescription {
+  font-size: 14px;
+  color: rgba(15, 23, 42, 0.7);
+}
+
+.cardActions {
+  display: flex;
+  gap: 8px;
+}
+
+.cardActions button {
+  border: none;
+  background: rgba(15, 23, 42, 0.05);
+  padding: 6px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.packForm {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.formGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.formGroup input,
+.formGroup textarea,
+.formGroup select {
+  border: 1px solid rgba(15, 23, 42, 0.15);
+  border-radius: 8px;
+  padding: 10px;
+  font-size: 14px;
+}
+
+.formGroupRow {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.formGroupGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.checkboxLabel {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+}
+
+.submitBtn {
+  border: none;
+  border-radius: 10px;
+  padding: 12px 16px;
+  background: linear-gradient(135deg, #c6a072, #9b6b34);
+  color: #fff;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.placeholder {
+  padding: 16px;
+  border: 1px dashed rgba(15, 23, 42, 0.2);
+  border-radius: 12px;
+  text-align: center;
+  color: rgba(15, 23, 42, 0.6);
+}
+
+@media (max-width: 1100px) {
+  .grid {
+    grid-template-columns: 1fr;
+  }
+}
+

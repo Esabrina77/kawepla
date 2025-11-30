@@ -5,10 +5,11 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { HeaderMobile } from '@/components/HeaderMobile';
 import { useInvitations } from '@/hooks/useInvitations';
 import { useDesigns } from '@/hooks/useDesigns';
-import { TemplateEngine, mergeInvitationData } from '@/lib/templateEngine';
 import { stripeApi } from '@/lib/api/stripe';
 import { Plus, Eye, Edit, Mail, X, CalendarRange, Palette, Save } from 'lucide-react';
 import styles from './invitations.module.css';
+import DesignPreview from '@/components/DesignPreview';
+import { useToast } from '@/components/ui/toast';
 
 // Valeurs par défaut pour les champs optionnels
 const getDefaultFormData = () => ({
@@ -25,6 +26,7 @@ const getDefaultFormData = () => ({
 export default function InvitationsPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const { addToast } = useToast();
   const { invitations, loading: loadingInvitations, createInvitation } = useInvitations();
   const { designs } = useDesigns();
   const [limits, setLimits] = useState<{ usage: any; limits: any } | null>(null);
@@ -57,7 +59,7 @@ export default function InvitationsPage() {
   }, [searchParams, router]);
 
   const handleCreateInvitation = () => {
-    router.push('/client/design?returnTo=invitations');
+    router.push('/client/design?tab=personal');
   };
 
   const handleViewInvitation = (invitationId: string) => {
@@ -99,69 +101,28 @@ export default function InvitationsPage() {
     return design ? design.name : 'Design inconnu';
   };
 
-  // Générer la prévisualisation HTML pour une invitation
-  const getInvitationPreview = (invitation: any) => {
-    if (!invitation.designId) return null;
-    
-    const design = designs.find(d => d.id === invitation.designId);
-    if (!design || !design.template) return null;
-
-    try {
-      const templateEngine = new TemplateEngine();
-      const invitationData = {
-        eventTitle: invitation.eventTitle || '',
-        eventDate: invitation.eventDate ? new Date(invitation.eventDate) : new Date(),
-        eventTime: invitation.eventTime || '',
-        location: invitation.location || '',
-        eventType: invitation.eventType || 'WEDDING',
-        customText: invitation.customText || '',
-        moreInfo: invitation.moreInfo || ''
-      };
-
-      return templateEngine.render(design, invitationData);
-    } catch (error) {
-      console.error('Erreur lors de la génération de la prévisualisation:', error);
-      return null;
-    }
-  };
-
   // Obtenir le design sélectionné pour la prévisualisation
   const selectedDesign = designs.find(d => d.id === formData.designId);
-
-  // Générer la prévisualisation en temps réel
-  const getPreviewHtml = () => {
-    if (!selectedDesign || !selectedDesign.template) return '';
-
-    try {
-      const templateEngine = new TemplateEngine();
-      const templateData = mergeInvitationData({
-        eventTitle: formData.eventTitle || 'Votre Événement',
-        eventDate: formData.eventDate ? new Date(formData.eventDate) : new Date('2024-06-15T15:00:00'),
-        eventTime: formData.eventTime || '15:00',
-        location: formData.location || 'Lieu de l\'événement',
-        eventType: formData.eventType || 'WEDDING',
-        customText: formData.customText,
-        moreInfo: formData.moreInfo
-      });
-
-      return templateEngine.render(selectedDesign, templateData);
-    } catch (error) {
-      console.error('Erreur lors de la génération de la prévisualisation:', error);
-      return '<div>Erreur de prévisualisation</div>';
-    }
-  };
 
   const handleFormSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     if (!formData.eventTitle || !formData.eventDate || !formData.location || !formData.designId) {
-      alert('Veuillez remplir tous les champs obligatoires et sélectionner un design');
+      addToast({
+        type: 'error',
+        title: 'Erreur',
+        message: 'Veuillez remplir tous les champs obligatoires et sélectionner un design'
+      });
       return;
     }
 
     // Vérifier les limites
     if (limits && limits.usage?.invitations >= limits.limits?.invitations) {
-      alert('Vous avez atteint la limite d\'invitations pour votre abonnement.');
+      addToast({
+        type: 'error',
+        title: 'Limite atteinte',
+        message: 'Vous avez atteint la limite d\'invitations pour votre abonnement.'
+      });
       return;
     }
 
@@ -186,7 +147,11 @@ export default function InvitationsPage() {
         router.refresh();
       }
     } catch (error: any) {
-      alert(`Erreur lors de la création : ${error.message || 'Une erreur est survenue'}`);
+      addToast({
+        type: 'error',
+        title: 'Erreur',
+        message: `Erreur lors de la création : ${error.message || 'Une erreur est survenue'}`
+      });
     } finally {
       setCreating(false);
     }
@@ -194,6 +159,9 @@ export default function InvitationsPage() {
 
   // Calculer le pourcentage pour la barre de progression
   const invitationsPercent = limits ? Math.min(100, (limits.usage?.invitations || 0) / (limits.limits?.invitations || 1) * 100) : 0;
+  
+  // Vérifier si la limite est atteinte
+  const isLimitReached = limits && limits.usage?.invitations >= limits.limits?.invitations;
 
   if (loadingInvitations) {
     return (
@@ -212,7 +180,7 @@ export default function InvitationsPage() {
   return (
     <div className={styles.invitationsPage}>
       <HeaderMobile title="Vos invitations" />
-      
+
       <main className={styles.main}>
         {/* Limits Section */}
         {limits && (
@@ -224,18 +192,18 @@ export default function InvitationsPage() {
               </p>
             </div>
             <div className={styles.limitsProgressBar}>
-              <div 
-                className={styles.limitsProgressFill}
+              <div
+                className={`${styles.limitsProgressFill} ${isLimitReached ? styles.limitReached : ''}`}
                 style={{ width: `${invitationsPercent}%` }}
               />
             </div>
           </div>
         )}
 
-        {/* Create Button */}
-        {!showCreateForm && (
+        {/* Create Button - Masqué si limite atteinte */}
+        {!showCreateForm && !isLimitReached && (
           <div className={styles.createButtonSection}>
-            <button 
+            <button
               className={styles.createButton}
               onClick={handleCreateInvitation}
             >
@@ -250,7 +218,7 @@ export default function InvitationsPage() {
           <div className={styles.createFormContainer}>
             <div className={styles.formHeader}>
               <h2 className={styles.formTitle}>Créer une nouvelle invitation</h2>
-              <button 
+              <button
                 onClick={() => {
                   setShowCreateForm(false);
                   setFormData(getDefaultFormData());
@@ -291,7 +259,7 @@ export default function InvitationsPage() {
                   <div className={styles.formGroup}>
                     <h3>1. Titre de l'événement *</h3>
                     <div className={styles.formField}>
-                       <input
+                      <input
                         type="text"
                         value={formData.eventTitle}
                         onChange={(e) => setFormData(prev => ({ ...prev, eventTitle: e.target.value }))}
@@ -381,7 +349,7 @@ export default function InvitationsPage() {
                         </p>
                         <button
                           type="button"
-                          onClick={() => router.push('/client/design?returnTo=invitations')}
+                          onClick={() => router.push('/client/design?tab=personal')}
                           className={styles.selectDesignButton}
                         >
                           <Palette size={18} />
@@ -396,32 +364,31 @@ export default function InvitationsPage() {
               {/* Prévisualisation */}
               {formData.designId && selectedDesign && (
                 <div className={styles.previewSection}>
-                  <div className={styles.previewContainer}>
-                    <div 
-                      className={styles.preview}
-                      dangerouslySetInnerHTML={{ __html: getPreviewHtml() }}
-                    />
-                  </div>
+                  <DesignPreview
+                    design={selectedDesign}
+                    width={500}
+                    height={700}
+                  />
                 </div>
               )}
             </div>
 
             {/* Form Actions */}
             <div className={styles.formActions}>
-              <button 
-                type="button" 
+              <button
+                type="button"
                 onClick={() => {
                   setShowCreateForm(false);
                   setFormData(getDefaultFormData());
-                }} 
+                }}
                 className={styles.cancelButton}
                 disabled={creating}
               >
                 <X size={18} />
                 Annuler
               </button>
-              <button 
-                type="submit" 
+              <button
+                type="submit"
                 onClick={handleFormSubmit}
                 className={styles.submitButton}
                 disabled={creating || !formData.eventTitle || !formData.eventDate || !formData.location || !formData.designId}
@@ -441,13 +408,15 @@ export default function InvitationsPage() {
                 <Mail size={80} />
                 <h3>Aucune invitation créée</h3>
                 <p>Commencez par créer votre première invitation pour la partager avec vos contacts.</p>
-                <button 
-                  className={styles.emptyStateButton}
-                  onClick={handleCreateInvitation}
-                >
-                  <Plus size={20} />
-                  <span>Créer une invitation</span>
-                </button>
+                {!isLimitReached && (
+                  <button
+                    className={styles.emptyStateButton}
+                    onClick={handleCreateInvitation}
+                  >
+                    <Plus size={20} />
+                    <span>Créer une invitation</span>
+                  </button>
+                )}
               </div>
             ) : (
               <div className={styles.invitationsGrid}>
@@ -455,12 +424,12 @@ export default function InvitationsPage() {
                   <div key={invitation.id} className={styles.invitationCard}>
                     {/* Image Preview */}
                     <div className={styles.invitationImageWrapper}>
-                      {getInvitationPreview(invitation) ? (
-                        <iframe
-                          srcDoc={getInvitationPreview(invitation) || ''}
-                          className={styles.invitationPreview}
-                          title={`Preview ${invitation.eventTitle}`}
-                          scrolling="no"
+                      {/* Utiliser DesignPreview pour l'image de l'invitation */}
+                      {invitation.designId && designs.find(d => d.id === invitation.designId) ? (
+                        <DesignPreview
+                          design={designs.find(d => d.id === invitation.designId)!}
+                          width={300}
+                          height={225} // Aspect ratio 4:3
                         />
                       ) : (
                         <div className={styles.invitationImage} style={{
@@ -488,7 +457,7 @@ export default function InvitationsPage() {
                           {formatDate(invitation.eventDate)}
                         </p>
                       )}
-                      
+
                       {/* Actions */}
                       <div className={styles.invitationActions}>
                         <button

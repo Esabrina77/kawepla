@@ -1,136 +1,141 @@
 'use client';
 
-import { useEffect, useState } from 'react';
-import { useRouter, useParams } from 'next/navigation';
-import { HeaderMobile } from '@/components/HeaderMobile';
+import React, { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { useDesigns } from '@/hooks/useDesigns';
 import { Design } from '@/types';
-import { TemplateEngine, getPreviewDataByType } from '@/lib/templateEngine';
-import { Palette, Crown } from 'lucide-react';
-import styles from './design-detail.module.css';
+import DesignPreview from '@/components/DesignPreview';
+import { HeaderMobile } from '@/components/HeaderMobile';
+import { Heart, PaintBucket } from 'lucide-react';
+import styles from './page.module.css';
 
-export default function DesignDetailPage() {
-  const router = useRouter();
-  const params = useParams();
-  const { getDesignById } = useDesigns();
-  const [design, setDesign] = useState<Design | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  
-  const designId = params?.id as string;
+export default function DesignDetailPage({ params }: { params: { id: string } }) {
+    const router = useRouter();
+    const { getDesignById } = useDesigns();
+    const [design, setDesign] = useState<Design | null>(null);
+    const [loading, setLoading] = useState(true);
+    const [isFavorite, setIsFavorite] = useState(false);
 
-  // Données d'exemple pour la prévisualisation (adaptées au type d'événement)
-  const getPreviewData = (design: Design | null) => {
-    return getPreviewDataByType(design?.category || 'event');
-  };
+    useEffect(() => {
+        const loadDesign = async () => {
+            try {
+                setLoading(true);
+                const data = await getDesignById(params.id);
+                setDesign(data);
 
-  useEffect(() => {
-    if (!designId) return;
-    
-    const fetchDesign = async () => {
-      try {
-        setLoading(true);
-        setError(null);
-        const designData = await getDesignById(designId);
-        if (!designData) {
-          setError('Design non trouvé');
-          return;
+                // Check favorites from local storage
+                const favorites = JSON.parse(localStorage.getItem('favoriteDesigns') || '[]');
+                setIsFavorite(favorites.includes(params.id));
+            } catch (error) {
+                console.error('Error loading design:', error);
+            } finally {
+                setLoading(false);
+            }
+        };
+        loadDesign();
+    }, [params.id, getDesignById]);
+
+    const toggleFavorite = () => {
+        const favorites = JSON.parse(localStorage.getItem('favoriteDesigns') || '[]');
+        let newFavorites;
+
+        if (isFavorite) {
+            newFavorites = favorites.filter((id: string) => id !== params.id);
+        } else {
+            newFavorites = [...favorites, params.id];
         }
-        setDesign(designData);
-      } catch (err) {
-        setError(err instanceof Error ? err.message : 'Une erreur est survenue');
-      } finally {
-        setLoading(false);
-      }
+
+        localStorage.setItem('favoriteDesigns', JSON.stringify(newFavorites));
+        setIsFavorite(!isFavorite);
     };
 
-    fetchDesign();
-  }, [designId, getDesignById]);
+    const handlePersonalize = () => {
+        if (!design) return;
 
-  const handleSelectDesign = () => {
-    // Rediriger vers la page de création d'invitation avec le design sélectionné
-    router.push(`/client/invitations?designId=${design?.id}`);
-  };
+        if (design.isTemplate) {
+            // Créer une nouvelle personnalisation à partir du modèle
+            router.push(`/client/design/editor?templateId=${design.id}`);
+        } else {
+            // Éditer le design existant
+            router.push(`/client/design/editor?designId=${design.id}`);
+        }
+    };
 
-  if (loading) {
+    if (loading) {
+        return <div className={styles.loading}>Chargement du design...</div>;
+    }
+
+    if (!design) {
+        return (
+            <div className={styles.error}>
+                <h2>Design introuvable</h2>
+                <button onClick={() => router.back()} className={styles.secondaryButton}>
+                    Retour
+                </button>
+            </div>
+        );
+    }
+
     return (
-      <div className={styles.designDetailPage}>
-        <HeaderMobile title="Détail du design" />
-        <div className={styles.loadingContainer}>
-          <div className={styles.loadingContent}>
-            <div className={styles.loadingSpinner}></div>
-            <p>Chargement...</p>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  if (error || !design) {
-    return (
-      <div className={styles.designDetailPage}>
-        <HeaderMobile title="Détail du design" />
-        <div className={styles.errorContainer}>
-          <div className={styles.errorContent}>
-            <p className={styles.errorMessage}>{error || 'Design non trouvé'}</p>
-        <button
-              onClick={() => router.push('/client/design')}
-          className={styles.backButton}
-        >
-          Retour aux designs
-        </button>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  return (
-    <div className={styles.designDetailPage}>
-      <HeaderMobile title={design.name} />
-
-      <main className={styles.main}>
-        {/* Preview Section - Full Page */}
-        <div className={styles.previewSection}>
-          <div className={styles.previewContainer}>
-            <div 
-              className={styles.preview}
-              dangerouslySetInnerHTML={{
-                __html: new TemplateEngine().render(design, getPreviewData(design))
-              }}
-              key={`preview-${design.id}`}
+        <div className={styles.container}>
+            <HeaderMobile 
+                title={design.name}
+                onBack={() => router.push('/client/design')}
             />
-          </div>
+
+            <main className={styles.main}>
+                <div className={styles.content}>
+                    <div className={styles.previewSection}>
+                        <DesignPreview
+                            design={design}
+                            width={500}
+                            height={700}
+                        />
+                    </div>
+
+                    <div className={styles.infoSection}>
+                        <div className={styles.header}>
+                            {design.category && (
+                                <span className={styles.category}>{design.category}</span>
+                            )}
+                            <h1 className={styles.title}>{design.name}</h1>
+                            <div className={styles.priceType}>
+                                {design.priceType === 'FREE' ? 'Gratuit' :
+                                    design.priceType === 'ESSENTIAL' ? 'Essentiel' :
+                                        design.priceType === 'ELEGANT' ? 'Élégant' : 'Luxe'}
+                            </div>
+                        </div>
+
+                        <p className={styles.description}>{design.description}</p>
+
+                        {design.tags && design.tags.length > 0 && (
+                            <div className={styles.tags}>
+                                {design.tags.map(tag => (
+                                    <span key={tag} className={styles.tag}>{tag}</span>
+                                ))}
+                            </div>
+                        )}
+
+                        <div className={styles.actions}>
+                            <button
+                                onClick={handlePersonalize}
+                                className={styles.primaryButton}
+                            >
+                                <PaintBucket size={20} />
+                                {design.isTemplate ? 'Personnaliser ce modèle' : 'Modifier ce design'}
+                            </button>
+
+                            <button
+                                onClick={toggleFavorite}
+                                className={`${styles.secondaryButton} ${isFavorite ? styles.active : ''}`}
+                            >
+                                <Heart size={20} fill={isFavorite ? 'currentColor' : 'none'} />
+                                {isFavorite ? 'Favori' : 'Ajouter aux favoris'}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </main>
         </div>
-
-        {/* Info Section - Compact */}
-        <div className={styles.infoSection}>
-          <div className={styles.infoHeader}>
-            {design.category && (
-              <span className={styles.designType}>
-                {design.category}
-              </span>
-            )}
-            {design.isPremium && (
-              <div className={styles.premiumBadge}>
-                <Crown size={12} />
-                Premium
-              </div>
-            )}
-          </div>
-
-          <h2 className={styles.designTitle}>{design.name}</h2>
-
-          {/* Action Button */}
-            <button 
-              onClick={handleSelectDesign}
-              className={styles.selectButton}
-            >
-            <Palette size={18} />
-              Utiliser ce design
-            </button>
-        </div>
-      </main>
-    </div>
-  );
-} 
+    );
+}

@@ -75,28 +75,89 @@ export default function BillingPage() {
   });
 
   useEffect(() => {
+    const checkPaymentReturn = async () => {
+      // Check for payment success/failure in URL
+      const urlParams = new URLSearchParams(window.location.search);
+      const success = urlParams.get('success');
+      const canceled = urlParams.get('canceled');
+      const planId = urlParams.get('plan');
+      const serviceId = urlParams.get('service');
+      const sessionId = urlParams.get('session_id');
+      
+      // Vérifier si on a déjà traité ce retour de paiement (éviter les doubles appels)
+      const processedKey = `payment_processed_${sessionId || serviceId || planId}`;
+      if (sessionStorage.getItem(processedKey)) {
+        console.log('⚠️ Payment return already processed, skipping...');
+        return;
+      }
+      
+      if (success === 'true') {
+        if (planId) {
+          sessionStorage.setItem(processedKey, 'true');
+          handlePaymentReturn(planId);
+        } else if (serviceId) {
+          // Marquer comme traité immédiatement pour éviter les doubles appels
+          sessionStorage.setItem(processedKey, 'true');
+          
+          // Service supplémentaire acheté avec succès
+          // En développement local, les webhooks ne sont pas reçus automatiquement
+          // On appelle la confirmation manuelle comme fallback
+          try {
+            console.log('🔍 Confirming additional service purchase:', serviceId, 'session:', sessionId);
+            const result = await stripeApi.confirmAdditionalService(serviceId, sessionId || undefined);
+            
+            if (result.success) {
+              setSuccessModal({
+                isOpen: true,
+                title: 'Achat réussi !',
+                message: result.message || 'Votre service supplémentaire a été ajouté à votre compte.'
+              });
+              
+              // Recharger les données après confirmation
+              await loadBillingData();
+            } else {
+              // Si déjà appliqué (par webhook), on affiche juste un message de succès
+              setSuccessModal({
+                isOpen: true,
+                title: 'Achat réussi !',
+                message: 'Votre service supplémentaire a été ajouté à votre compte.'
+              });
+              
+              // Recharger quand même les données
+              setTimeout(async () => {
+                await loadBillingData();
+              }, 1000);
+            }
+          } catch (error) {
+            console.error('❌ Error confirming additional service:', error);
+            // Même en cas d'erreur, on essaie de recharger (le webhook a peut-être traité)
+            setSuccessModal({
+              isOpen: true,
+              title: 'Achat réussi !',
+              message: 'Votre service supplémentaire sera ajouté à votre compte dans quelques instants.'
+            });
+            
+            setTimeout(async () => {
+              await loadBillingData();
+            }, 2000);
+          }
+        }
+      } else if (canceled === 'true') {
+        setErrorModal({
+          isOpen: true,
+          title: 'Paiement annulé',
+          message: 'Vous avez annulé le processus de paiement.'
+        });
+      }
+      
+      // Clean URL
+      if (success || canceled) {
+        window.history.replaceState({}, '', window.location.pathname);
+      }
+    };
+
     loadBillingData();
-    
-    // Check for payment success/failure in URL
-    const urlParams = new URLSearchParams(window.location.search);
-    const success = urlParams.get('success');
-    const canceled = urlParams.get('canceled');
-    const planId = urlParams.get('plan');
-    
-    if (success === 'true' && planId) {
-      handlePaymentReturn(planId);
-    } else if (canceled === 'true') {
-      setErrorModal({
-        isOpen: true,
-        title: 'Paiement annulé',
-        message: 'Vous avez annulé le processus de paiement.'
-      });
-    }
-    
-    // Clean URL
-    if (success || canceled) {
-      window.history.replaceState({}, '', window.location.pathname);
-    }
+    checkPaymentReturn();
   }, []);
 
   const loadBillingData = async () => {
@@ -305,17 +366,15 @@ export default function BillingPage() {
   };
 
   const getCurrentPlan = () => {
-    return availablePlans.find(plan => plan.id === userLimits?.tier);
+    return availablePlans.find(plan => plan.tier === userLimits?.tier);
   };
 
   const getAvailableForPurchase = () => {
     // Retourner tous les plans payants (exclure FREE)
-    return availablePlans.filter(plan => plan.id !== 'FREE');
+    return availablePlans.filter(plan => plan.tier !== 'FREE');
   };
 
   const getOriginalPrice = (currentPrice: number) => {
-    // Simuler un prix original pour l'effet de promotion
-    // Par exemple, si le prix actuel est 39€, l'original pourrait être 59€
     if (currentPrice <= 39) return 59;
     if (currentPrice <= 69) return 99;
     if (currentPrice <= 99) return 149;
@@ -377,7 +436,7 @@ export default function BillingPage() {
                       <Package size={24} />
                     </div>
                     <p className={styles.purchaseName}>
-                      Pack {availablePlans.find(p => p.id === purchase.tier)?.name || purchase.tier}
+                      {purchase.pack?.name || availablePlans.find(p => p.tier === purchase.tier)?.name || purchase.tier || 'Pack personnalisé'}
                     </p>
                   </div>
                   <div className={styles.purchaseCount}>
@@ -446,6 +505,23 @@ export default function BillingPage() {
                     />
                   </div>
                 </div>
+                <div className={styles.limitItem}>
+                  <div className={styles.limitHeader}>
+                    <p className={styles.limitLabel}>Requêtes IA</p>
+                    <p className={styles.limitValue}>
+                      {userLimits?.usage?.aiRequests || 0} / {activePurchases.totalLimits.aiRequests || 0}
+                    </p>
+                  </div>
+                  <div className={styles.progressBar}>
+                    <div 
+                      className={styles.progressFill}
+                      style={{
+                        width: `${Math.min(100, ((userLimits?.usage?.aiRequests || 0) / (activePurchases.totalLimits.aiRequests || 1)) * 100)}%`,
+                        backgroundColor: (userLimits?.remaining?.aiRequests || 0) === 0 ? '#ef4444' : (userLimits?.remaining?.aiRequests || 0) <= 5 ? '#f59e0b' : undefined
+                      }}
+                    />
+                  </div>
+                </div>
               </div>
             </>
           )}
@@ -465,7 +541,7 @@ export default function BillingPage() {
           <h2 className={styles.upgradeTitle}>Upgradez votre expérience</h2>
           <div className={styles.plansGrid}>
             {availablePlans.map((plan) => {
-              const isPopular = plan.id === 'ROYAL';
+              const isPopular = !!plan.isHighlighted;
               
               return (
                 <div 
@@ -483,10 +559,14 @@ export default function BillingPage() {
                       <p className={styles.currentPrice}>Gratuit</p>
                     ) : (
                       <div className={styles.priceContainer}>
-                        <p className={styles.currentPrice}>{plan.price}€</p>
+                        <p className={styles.currentPrice}>
+                          {plan.price.toLocaleString('fr-FR', { style: 'currency', currency: plan.currency || 'EUR' })}
+                        </p>
                         {getOriginalPrice(plan.price) > plan.price && (
                           <>
-                            <p className={styles.originalPrice}>{getOriginalPrice(plan.price)}€</p>
+                            <p className={styles.originalPrice}>
+                              {getOriginalPrice(plan.price).toLocaleString('fr-FR', { style: 'currency', currency: plan.currency || 'EUR' })}
+                            </p>
                             <span className={styles.discountBadge}>
                         -{getDiscountPercentage(plan.price)}%
                             </span>
@@ -509,9 +589,13 @@ export default function BillingPage() {
                       <CheckCircle className={styles.featureIcon} size={16} />
                       <span>{formatNumber(plan.limits.photos)} Photos</span>
                     </li>
+                    <li className={styles.featureItem}>
+                      <CheckCircle className={styles.featureIcon} size={16} />
+                      <span>{formatNumber(plan.limits.aiRequests || 0)} Requêtes IA</span>
+                    </li>
                   </ul>
                   
-                  {plan.id !== 'FREE' && (
+                  {plan.tier !== 'FREE' && (
                     <button
                       className={styles.buyButton}
                       onClick={() => handleUpgradeClick(plan)}
@@ -525,6 +609,89 @@ export default function BillingPage() {
             })}
           </div>
         </section>
+
+      {/* Additional Services Section */}
+        {additionalServices.length > 0 && (
+          <section className={styles.upgradeSection}>
+            <h2 className={styles.upgradeTitle}>Packs supplémentaires</h2>
+            <p className={styles.sectionDescription}>
+              Ajoutez des fonctionnalités à votre forfait actuel
+            </p>
+            <div className={styles.plansGrid}>
+              {additionalServices.map((service) => {
+                const getServiceIcon = () => {
+                  switch (service.type) {
+                    case 'guests':
+                      return <Users className={styles.serviceIcon} size={20} />;
+                    case 'photos':
+                      return <Image className={styles.serviceIcon} size={20} />;
+                    case 'invitations':
+                      return <Mail className={styles.serviceIcon} size={20} />;
+                    case 'designs':
+                      return <Crown className={styles.serviceIcon} size={20} />;
+                    case 'aiRequests':
+                      return <Mail className={styles.serviceIcon} size={20} />;
+                    default:
+                      return <Package className={styles.serviceIcon} size={20} />;
+                  }
+                };
+
+                const getServiceLabel = () => {
+                  switch (service.type) {
+                    case 'guests':
+                      return `${service.quantity} invités`;
+                    case 'photos':
+                      return `${service.quantity} photos`;
+                    case 'invitations':
+                      return `${service.quantity} événement${service.quantity > 1 ? 's' : ''}`;
+                    case 'designs':
+                      return `${service.quantity} design${service.quantity > 1 ? 's' : ''}`;
+                    case 'aiRequests':
+                      return `${service.quantity} requêtes IA`;
+                    default:
+                      return service.name;
+                  }
+                };
+
+                return (
+                  <div 
+                    key={service.id} 
+                    className={styles.planCard}
+                  >
+                    <div className={styles.planHeader}>
+                      <div className={styles.serviceHeader}>
+                        {getServiceIcon()}
+                        <h3 className={styles.planName}>{service.name}</h3>
+                      </div>
+                      <div className={styles.priceContainer}>
+                        <p className={styles.currentPrice}>
+                          {service.price.toLocaleString('fr-FR', { style: 'currency', currency: service.currency || 'EUR' })}
+                        </p>
+                      </div>
+                    </div>
+                    
+                    <p className={styles.serviceDescription}>{service.description}</p>
+                    
+                    <ul className={styles.featuresList}>
+                      <li className={styles.featureItem}>
+                        <CheckCircle className={styles.featureIcon} size={16} />
+                        <span>{getServiceLabel()}</span>
+                      </li>
+                    </ul>
+                    
+                    <button
+                      className={styles.buyButton}
+                      onClick={() => handleServiceClick(service)}
+                      disabled={purchasingService === service.id}
+                    >
+                      {purchasingService === service.id ? 'Traitement...' : 'Acheter'}
+                    </button>
+                  </div>
+                );
+              })}
+            </div>
+          </section>
+        )}
       </main>
 
       {/* Confirm Upgrade Modal */}
@@ -533,7 +700,7 @@ export default function BillingPage() {
         onClose={handleCancelUpgrade}
         onConfirm={handleConfirmUpgrade}
         title={`Acheter le pack ${confirmModal.plan?.name || ''} ?`}
-        message={`Voulez-vous acheter le pack ${confirmModal.plan?.name || ''} pour ${confirmModal.plan?.price || 0}€ ?`}
+        message={`Voulez-vous acheter le pack ${confirmModal.plan?.name || ''} pour ${confirmModal.plan ? confirmModal.plan.price.toLocaleString('fr-FR', { style: 'currency', currency: confirmModal.plan.currency || 'EUR' }) : '0€'} ?`}
         confirmText="Oui, acheter le pack"
         cancelText="Non, annuler"
         isLoading={upgrading}
@@ -545,7 +712,7 @@ export default function BillingPage() {
         onClose={handleCancelService}
         onConfirm={handleConfirmService}
         title={`Acheter ${serviceModal.service?.name || ''} ?`}
-        message={`Voulez-vous acheter ${serviceModal.service?.name || ''} pour ${serviceModal.service?.price || 0}€ ?`}
+        message={`Voulez-vous acheter ${serviceModal.service?.name || ''} pour ${serviceModal.service ? serviceModal.service.price.toLocaleString('fr-FR', { style: 'currency', currency: serviceModal.service.currency || 'EUR' }) : '0€'} ?`}
         confirmText="Oui, acheter"
         cancelText="Non, annuler"
         isLoading={purchasingService !== null}

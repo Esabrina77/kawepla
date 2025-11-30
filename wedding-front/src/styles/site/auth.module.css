@@ -582,8 +582,13 @@
   transition: color var(--transition-normal);
 }
 
-.passwordToggle:hover {
+.passwordToggle:hover:not(:disabled) {
   color: var(--text-primary);
+}
+
+.passwordToggle:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }
 
 .validationItem {

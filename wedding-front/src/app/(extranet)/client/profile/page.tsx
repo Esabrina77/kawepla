@@ -1,20 +1,28 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import { useAuth } from '@/hooks/useAuth';
 import { HeaderMobile } from '@/components/HeaderMobile';
-import { User, Mail, Phone } from 'lucide-react';
+import { ConfirmModal } from '@/components/ui/modal';
+import { usersApi } from '@/lib/api/users';
+import { User, Mail, Phone, Trash2, AlertTriangle } from 'lucide-react';
+import { useToast } from '@/components/ui/toast';
 import styles from './profile.module.css';
 
 export default function ProfilePage() {
-  const { user } = useAuth();
+  const router = useRouter();
+  const { user, logout } = useAuth();
+  const { addToast } = useToast();
   const [formData, setFormData] = useState({
     firstName: user?.firstName || '',
     lastName: user?.lastName || '',
     email: user?.email || '',
-    phone: user?.phone || '',
+
   });
   const [isSaving, setIsSaving] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   useEffect(() => {
     if (user) {
@@ -22,7 +30,6 @@ export default function ProfilePage() {
         firstName: user.firstName || '',
         lastName: user.lastName || '',
         email: user.email || '',
-        phone: user?.phone || '',
       });
     }
   }, [user]);
@@ -40,10 +47,18 @@ export default function ProfilePage() {
       console.log('Mise à jour du profil:', formData);
       // Simuler un délai
       await new Promise(resolve => setTimeout(resolve, 1000));
-      alert('Profil mis à jour avec succès !');
+      addToast({
+        type: 'success',
+        title: 'Succès',
+        message: 'Profil mis à jour avec succès !'
+      });
     } catch (error) {
       console.error('Erreur lors de la mise à jour du profil:', error);
-      alert('Erreur lors de la mise à jour du profil');
+      addToast({
+        type: 'error',
+        title: 'Erreur',
+        message: 'Erreur lors de la mise à jour du profil'
+      });
     } finally {
       setIsSaving(false);
     }
@@ -58,7 +73,7 @@ export default function ProfilePage() {
   return (
     <div className={styles.profilePage}>
       <HeaderMobile title="Profil Utilisateur" />
-      
+
       <main className={styles.main}>
         {/* Profile Header */}
         <div className={styles.profileHeader}>
@@ -129,23 +144,7 @@ export default function ProfilePage() {
             <p className={styles.helpText}>L'email ne peut pas être modifié</p>
           </div>
 
-          {/* Phone Field */}
-          <div className={styles.formField}>
-            <label className={styles.label} htmlFor="phone">
-              Téléphone
-            </label>
-            <div className={styles.inputWrapper}>
-              <Phone className={styles.inputIcon} size={20} />
-              <input
-                className={styles.input}
-                id="phone"
-                type="tel"
-                placeholder="+33 6 12 34 56 78"
-                value={formData.phone}
-                onChange={(e) => setFormData(prev => ({ ...prev, phone: e.target.value }))}
-              />
-            </div>
-          </div>
+
 
           {/* Save Button */}
           <div className={styles.saveButtonContainer}>
@@ -158,7 +157,55 @@ export default function ProfilePage() {
             </button>
           </div>
         </form>
+
+        {/* Danger Zone */}
+        <div className={styles.dangerZone}>
+          <div className={styles.dangerZoneHeader}>
+            <AlertTriangle className={styles.dangerIcon} size={20} />
+            <h3 className={styles.dangerZoneTitle}>Zone de danger</h3>
+          </div>
+          <p className={styles.dangerZoneDescription}>
+            La suppression de votre compte est définitive et irréversible. Toutes vos données seront supprimées.
+          </p>
+          <button
+            type="button"
+            onClick={() => setShowDeleteModal(true)}
+            className={styles.deleteAccountButton}
+            disabled={isDeleting}
+          >
+            <Trash2 size={18} />
+            {isDeleting ? 'Suppression...' : 'Supprimer mon compte'}
+          </button>
+        </div>
       </main>
+
+      {/* Delete Account Confirmation Modal */}
+      <ConfirmModal
+        isOpen={showDeleteModal}
+        onClose={() => setShowDeleteModal(false)}
+        onConfirm={async () => {
+          setIsDeleting(true);
+          try {
+            await usersApi.deleteAccount();
+            logout();
+            router.push('/auth/login');
+          } catch (error) {
+            console.error('Erreur lors de la suppression du compte:', error);
+            addToast({
+              type: 'error',
+              title: 'Erreur',
+              message: 'Erreur lors de la suppression du compte. Veuillez réessayer.'
+            });
+            setIsDeleting(false);
+            setShowDeleteModal(false);
+          }
+        }}
+        title="Supprimer mon compte"
+        message="Êtes-vous sûr de vouloir supprimer votre compte ? Cette action est irréversible et toutes vos données seront définitivement supprimées."
+        confirmText="Supprimer définitivement"
+        cancelText="Annuler"
+        isLoading={isDeleting}
+      />
     </div>
   );
 }

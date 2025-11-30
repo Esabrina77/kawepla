@@ -1,5 +1,5 @@
 import { prisma } from '@/lib/prisma';
-import { CreateDesignDto, DesignResponse, DesignTemplate, DesignStyles, DesignVariables } from '@/types';
+import { CreateDesignDto, DesignResponse } from '@/types';
 import { ServiceTier } from '@prisma/client';
 
 export class DesignService {
@@ -13,15 +13,19 @@ export class DesignService {
   }
 
   static async getDesignsByFilter(
-    filters: { category?: string; tags?: string[] },
+    filters: { tags?: string[]; isTemplate?: boolean; userId?: string },
     includeInactive = false
   ): Promise<DesignResponse[]> {
     const whereClause: any = {
       isActive: includeInactive ? undefined : true,
     };
 
-    if (filters.category) {
-      whereClause.category = filters.category;
+    if (filters.isTemplate !== undefined) {
+      whereClause.isTemplate = filters.isTemplate;
+    }
+
+    if (filters.userId !== undefined) {
+      whereClause.userId = filters.userId;
     }
 
     if (filters.tags && filters.tags.length > 0) {
@@ -38,31 +42,55 @@ export class DesignService {
     return designs.map(this.formatDesignResponse);
   }
 
+  // Nouvelle méthode : Récupérer uniquement les modèles (templates) pour la galerie
+  static async getTemplates(includeInactive = false): Promise<DesignResponse[]> {
+    return this.getDesignsByFilter({ isTemplate: true }, includeInactive);
+  }
+
+  // Nouvelle méthode : Récupérer les designs personnalisés d'un utilisateur
+  static async getUserDesigns(userId: string): Promise<DesignResponse[]> {
+    return this.getDesignsByFilter({ userId, isTemplate: false }, false);
+  }
+
   static async getDesignById(id: string): Promise<DesignResponse | null> {
     const design = await prisma.design.findUnique({ where: { id } });
     if (!design) return null;
     return this.formatDesignResponse(design);
   }
 
-  static async createDesign(data: CreateDesignDto): Promise<DesignResponse> {
+  static async createDesign(data: CreateDesignDto, userId?: string): Promise<DesignResponse> {
     console.log('Creating design with data:', JSON.stringify(data, null, 2));
-    
-    this.validateTemplateStructure(data.template);
-    this.validateStyles(data.styles);
-    this.validateVariables(data.variables);
+
+    // Validation : fabricData est obligatoire pour les nouveaux designs Canva
+    if (!data.fabricData) {
+      throw new Error('fabricData is required for Canva designs');
+    }
 
     const designData = {
       name: data.name,
       description: data.description,
-      category: data.category,
       tags: data.tags || [],
       isActive: data.isActive !== false,
       priceType: data.priceType || 'FREE',
-      template: JSON.parse(JSON.stringify(data.template)),
-      styles: JSON.parse(JSON.stringify(data.styles)),
-      variables: JSON.parse(JSON.stringify(data.variables)),
-      customFonts: data.customFonts ? JSON.parse(JSON.stringify(data.customFonts)) : null,
+
+      // Format Fabric.js (essentiel)
+      fabricData: JSON.parse(JSON.stringify(data.fabricData)),
+      editorVersion: data.editorVersion || 'canva',
+
+      // Dimensions du canvas
+      canvasWidth: data.canvasWidth || 794, // A4 par défaut
+      canvasHeight: data.canvasHeight || 1123, // A4 par défaut
+      canvasFormat: data.canvasFormat || 'A4',
+
+      // Métadonnées
       backgroundImage: data.backgroundImage || null,
+      thumbnail: data.thumbnail || null,
+      previewImage: data.previewImage || null,
+
+      // Propriétaire du design
+      userId: userId || data.userId || null, // null = modèle super-admin
+      isTemplate: data.isTemplate !== undefined ? data.isTemplate : (userId ? false : true),
+      originalDesignId: data.originalDesignId || null,
     };
 
     console.log('Saving to database:', JSON.stringify(designData, null, 2));
@@ -75,16 +103,50 @@ export class DesignService {
     return this.formatDesignResponse(design);
   }
 
-  static async updateDesign(id: string, data: Partial<CreateDesignDto>): Promise<DesignResponse | null> {
-    if (data.template) this.validateTemplateStructure(data.template);
-    if (data.styles) this.validateStyles(data.styles);
-    if (data.variables) this.validateVariables(data.variables);
+  static async updateDesign(
+    id: string,
+    data: Partial<CreateDesignDto>,
+    userId?: string,
+    isAdmin?: boolean
+  ): Promise<DesignResponse | null> {
+    // Vérifier l'existence et les droits
+    const existingDesign = await prisma.design.findUnique({ where: { id } });
 
-    const updateData: any = { ...data };
-    if (data.template) updateData.template = JSON.parse(JSON.stringify(data.template));
-    if (data.styles) updateData.styles = JSON.parse(JSON.stringify(data.styles));
+    if (!existingDesign) return null;
 
-    if (data.variables) updateData.variables = JSON.parse(JSON.stringify(data.variables));
+    // Si ce n'est pas un admin, vérifier que l'utilisateur est le propriétaire
+    if (!isAdmin) {
+      if (!userId || existingDesign.userId !== userId) {
+        throw new Error('Accès non autorisé');
+      }
+    }
+
+    const updateData: any = {};
+
+    if (data.name !== undefined) updateData.name = data.name;
+    if (data.description !== undefined) updateData.description = data.description;
+    if (data.tags !== undefined) updateData.tags = data.tags;
+    if (data.isActive !== undefined) updateData.isActive = data.isActive;
+    if (data.priceType !== undefined) updateData.priceType = data.priceType;
+
+    // Format Fabric.js
+    if (data.fabricData) updateData.fabricData = JSON.parse(JSON.stringify(data.fabricData));
+    if (data.editorVersion !== undefined) updateData.editorVersion = data.editorVersion;
+
+    // Dimensions du canvas
+    if (data.canvasWidth !== undefined) updateData.canvasWidth = data.canvasWidth;
+    if (data.canvasHeight !== undefined) updateData.canvasHeight = data.canvasHeight;
+    if (data.canvasFormat !== undefined) updateData.canvasFormat = data.canvasFormat;
+
+    // Métadonnées
+    if (data.backgroundImage !== undefined) updateData.backgroundImage = data.backgroundImage;
+    if (data.thumbnail !== undefined) updateData.thumbnail = data.thumbnail;
+    if (data.previewImage !== undefined) updateData.previewImage = data.previewImage;
+
+    // Propriétaire du design (admin only can change owner, but usually not needed)
+    if (isAdmin && data.userId !== undefined) updateData.userId = data.userId;
+    if (isAdmin && data.isTemplate !== undefined) updateData.isTemplate = data.isTemplate;
+    if (isAdmin && data.originalDesignId !== undefined) updateData.originalDesignId = data.originalDesignId;
 
     const design = await prisma.design.update({
       where: { id },
@@ -94,49 +156,58 @@ export class DesignService {
     return this.formatDesignResponse(design);
   }
 
-  private static async incrementVersion(id: string): Promise<string> {
-    const design = await prisma.design.findUnique({ where: { id } });
-    if (!design) throw new Error('Design not found');
-    
-    const [major, minor, patch] = design.version.split('.').map(Number);
-    return `${major}.${minor}.${patch + 1}`;
-  }
-
   private static formatDesignResponse(design: any): DesignResponse {
+    // Gérer les anciens designs legacy qui n'ont pas de fabricData
+    // Vérifier si c'est un design legacy (a template/styles/variables mais pas fabricData)
+    const isLegacy = !design.fabricData && (design.template || design.styles || design.variables);
+    const fabricData = design.fabricData || (isLegacy ? { legacy: true } : {});
+
     return {
-      ...design,
-      template: design.template as DesignTemplate,
-      styles: design.styles as DesignStyles,
-      variables: design.variables as DesignVariables,
+      id: design.id,
+      name: design.name,
       description: design.description || undefined,
+      tags: design.tags || [],
+      isActive: design.isActive,
+      createdAt: design.createdAt,
+      updatedAt: design.updatedAt,
+
+      // Format Fabric.js (peut être vide pour les anciens designs)
+      fabricData: fabricData,
+      editorVersion: design.editorVersion || (isLegacy ? 'legacy' : 'canva'),
+
+      // Dimensions du canvas (peuvent être null pour les anciens designs)
+      canvasWidth: design.canvasWidth ?? 794,
+      canvasHeight: design.canvasHeight ?? 1123,
+      canvasFormat: design.canvasFormat || 'A4',
+
+      // Métadonnées
+      backgroundImage: design.backgroundImage || undefined,
+      thumbnail: design.thumbnail || undefined,
+      previewImage: design.previewImage || undefined,
+      priceType: design.priceType || 'FREE',
+
+      // Propriétaire du design
+      userId: design.userId || undefined,
+      isTemplate: design.isTemplate !== undefined ? design.isTemplate : (design.userId ? false : true),
+      originalDesignId: design.originalDesignId || undefined,
     };
   }
 
-  private static validateTemplateStructure(template: DesignTemplate) {
-    if (!template.layout || typeof template.layout !== 'string') {
-      throw new Error('Template must include a layout string');
-    }
-    if (!template.sections || typeof template.sections !== 'object') {
-      throw new Error('Template must include sections');
-    }
-  }
+  static async deleteDesign(id: string, userId?: string, isAdmin?: boolean): Promise<void> {
+    // Vérifier l'existence et les droits
+    const existingDesign = await prisma.design.findUnique({ where: { id } });
 
-  private static validateStyles(styles: DesignStyles) {
-    if (!styles.base || typeof styles.base !== 'object') {
-      throw new Error('Styles must include base styles');
+    if (!existingDesign) {
+      throw new Error('Design introuvable');
     }
-    if (!styles.components || typeof styles.components !== 'object') {
-      throw new Error('Styles must include component styles');
-    }
-  }
 
-  private static validateVariables(variables: DesignVariables) {
-    if (!variables.colors || !variables.typography || !variables.spacing) {
-      throw new Error('Variables must include colors, typography, and spacing');
+    // Si ce n'est pas un admin, vérifier que l'utilisateur est le propriétaire
+    if (!isAdmin) {
+      if (!userId || existingDesign.userId !== userId) {
+        throw new Error('Accès non autorisé');
+      }
     }
-  }
 
-  static async deleteDesign(id: string): Promise<void> {
     // Vérifier si le design est utilisé dans des invitations
     const invitationsUsingDesign = await prisma.invitation.findMany({
       where: { designId: id },
@@ -161,16 +232,20 @@ export class DesignService {
     const design = await prisma.design.findUnique({ where: { id: designId } });
     if (!design) return false;
     if (design.priceType === 'FREE') return true;
-    
+
     // Utiliser StripeService pour vérifier l'accès basé sur les achats
     const { StripeService } = await import('./stripeService');
     const currentTier = await StripeService.getUserCurrentTier(userId);
-    
+
     // Vérifier si l'utilisateur a le tier requis ou supérieur
-    const tierOrder = ['FREE', 'ESSENTIAL', 'ELEGANT', 'PREMIUM', 'LUXE'];
-    const userTierIndex = tierOrder.indexOf(currentTier);
-    const requiredTierIndex = tierOrder.indexOf(design.priceType);
-    
+    // PREMIUM n'est plus disponible mais peut exister dans les anciens designs
+    const tierOrder = ['FREE', 'ESSENTIAL', 'ELEGANT', 'LUXE'];
+    // Rétrocompatibilité : traiter PREMIUM comme ELEGANT pour les anciens designs
+    const userTier = currentTier === 'PREMIUM' ? 'ELEGANT' : currentTier;
+    const requiredTier = design.priceType === 'PREMIUM' ? 'ELEGANT' : design.priceType;
+    const userTierIndex = tierOrder.indexOf(userTier);
+    const requiredTierIndex = tierOrder.indexOf(requiredTier);
+
     return userTierIndex >= requiredTierIndex;
   }
 } 

@@ -21,6 +21,7 @@ import {
   Plus,
     Home,
     Mail,
+  Package,
 } from 'lucide-react';
 
 const menuItems = [
@@ -74,6 +75,13 @@ const menuItems = [
     priority: 2
   },
   {
+    title: 'Packs & Tarifs',
+    path: '/super-admin/service-packs',
+    icon: Package,
+    description: 'Gérer les plans et add-ons',
+    priority: 2
+  },
+  {
     title: 'Discussions',
     path: '/super-admin/discussions',
     icon: MessageSquare,
@@ -112,8 +120,15 @@ export const SuperAdminSidebar = () => {
   };
 
   // Séparer les éléments pour mobile
-  const primaryItems = menuItems.filter(item => item.priority === 1);
-  const secondaryItems = menuItems.filter(item => item.priority >= 2);
+  // Séparer les éléments pour mobile
+  // Sur mobile : seulement 3 icônes principales + bouton "Plus"
+  const primaryItems = menuItems.filter(item => item.priority === 1).slice(0, 3);
+  const secondaryItems = [
+    // Les autres éléments de priorité 1 non affichés
+    ...menuItems.filter(item => item.priority === 1).slice(3),
+    // Les éléments de priorité 2
+    ...menuItems.filter(item => item.priority >= 2)
+  ];
 
   return (
     <>

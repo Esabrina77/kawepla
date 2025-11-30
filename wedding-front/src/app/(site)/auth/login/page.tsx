@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useAuth } from '@/hooks/useAuth';
+import { Eye, EyeOff } from 'lucide-react';
 import styles from '@/styles/site/auth.module.css';
 
 export default function LoginPage() {
@@ -12,6 +13,7 @@ export default function LoginPage() {
   const [formError, setFormError] = useState<string>('');
   const [emailNotVerified, setEmailNotVerified] = useState<string>('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -37,11 +39,23 @@ export default function LoginPage() {
         if (result.error && (result.error.includes('vérifier votre email') || result.error.includes('email non vérifié'))) {
           setEmailNotVerified(email);
         } else {
+          // Ne pas afficher l'erreur de rate limiting dans le formulaire, le modal va s'afficher
+          if (result.error && result.error.includes('Trop de tentatives')) {
+            // Le modal RateLimitModal va s'afficher automatiquement via l'événement rateLimitExceeded
+            // Ne rien faire ici
+          } else {
           setFormError(result.error || 'Erreur lors de la connexion');
+          }
         }
       }
     } catch (err: any) {
+      // Ne pas afficher l'erreur de rate limiting dans le formulaire, le modal va s'afficher
+      if (err.message && err.message.includes('Trop de tentatives')) {
+        // Le modal RateLimitModal va s'afficher automatiquement via l'événement rateLimitExceeded
+        // Ne rien faire ici
+      } else {
       setFormError(err.message || 'Erreur lors de la connexion');
+      }
     } finally {
       setIsSubmitting(false);
     }
@@ -100,16 +114,26 @@ export default function LoginPage() {
 
             <div className={styles.formGroup}>
               <label htmlFor="password">Mot de passe</label>
-              <input
-                id="password"
-                name="password"
-                type="password"
-                autoComplete="current-password"
-                required
-                className={styles.fullWidth}
-                placeholder="••••••••"
-                disabled={isSubmitting || authLoading}
-              />
+              <div className={styles.passwordInput}>
+                <input
+                  id="password"
+                  name="password"
+                  type={showPassword ? "text" : "password"}
+                  autoComplete="current-password"
+                  required
+                  className={styles.fullWidth}
+                  placeholder="••••••••"
+                  disabled={isSubmitting || authLoading}
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className={styles.passwordToggle}
+                  disabled={isSubmitting || authLoading}
+                >
+                  {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                </button>
+              </div>
             </div>
 
             <div className={styles.passwordOptions}>

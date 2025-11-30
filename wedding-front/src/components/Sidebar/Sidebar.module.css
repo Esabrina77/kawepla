@@ -440,8 +440,7 @@
 
 .mobileMenuFooter {
   padding: var(--space-lg);
-  border-top: 1px solid var(--border-color);
-  background: var(--bg-secondary);
+  border-top: 1px solid var(--border-color)
 }
 
 .mobileLogoutButton {
@@ -487,6 +486,8 @@
   align-items: center;
   padding: var(--space-xs) var(--space-sm);
   gap: var(--space-xs);
+  /* 4 éléments : 3 icônes + bouton Plus */
+  max-width: 100%;
 }
 
 .mobileNavItem {
@@ -501,6 +502,7 @@
   transition: all var(--transition-normal);
   gap: 4px;
   min-width: 60px;
+  flex: 1;
   background: transparent;
   border: none;
   cursor: pointer;
@@ -556,11 +558,22 @@
   background: var(--luxury-champagne-gold);
   color: var(--luxury-velvet-black);
   border-radius: var(--radius-md);
+  font-weight: 600;
+  box-shadow: 0 2px 8px rgba(197, 168, 128, 0.3);
 }
 
-.mobileMoreButton:hover {
+.mobileMoreButton:hover,
+.mobileMoreButton:active {
   background: #b89a6e;
   color: var(--luxury-velvet-black);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(197, 168, 128, 0.4);
+}
+
+.mobileMoreButton.active {
+  background: #b89a6e;
+  color: var(--luxury-velvet-black);
+  box-shadow: 0 4px 12px rgba(197, 168, 128, 0.5);
 }
 
 /* Responsive */
@@ -581,27 +594,39 @@
 
 @media (max-width: 480px) {
   .mobileNavContainer {
-    padding: var(--space-xs);
+    padding: var(--space-xs) var(--space-xs);
     gap: var(--space-xs);
   }
 
   .mobileNavItem {
-    min-width: 50px;
+    min-width: 0;
     padding: var(--space-xs);
+    flex: 1;
   }
 
   .mobileIcon {
+    width: 22px;
+    height: 22px;
+  }
+
+  .mobileMenuIcon {
     width: 20px;
     height: 20px;
   }
 
-  .mobileMenuIcon {
-    width: 18px;
-    height: 18px;
-  }
-
   .mobileTitle {
     font-size: 0.65rem;
+    line-height: 1.1;
+  }
+
+  .mobileMoreButton .mobileIcon {
+    width: 24px;
+    height: 24px;
+  }
+
+  .mobileMoreButton .mobileMenuIcon {
+    width: 22px;
+    height: 22px;
   }
 
   .mobileNavContainer :global(body) {

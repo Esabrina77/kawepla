@@ -1,10 +1,10 @@
 import { Metadata } from 'next';
-import { SITE_CONFIG } from '@/config/siteConfig';
 
-const metadata: Metadata = {
-  title: SITE_CONFIG.seo.titre,
-  description: SITE_CONFIG.seo.description,
-  keywords: SITE_CONFIG.seo.keywords,
+
+export const metadata: Metadata = {
+  title: "Kawepla | Plateforme d'Organisation d'Événements & Annuaire Prestataires",
+  description: "Organisez tous vos événements (mariage, anniversaire, corporate) simplement. Trouvez les meilleurs lieux et prestataires en France. Outils de gestion gratuits pour organisateurs.",
+  keywords: "organisation événement, wedding planner, événementiel entreprise, location salle, traiteur, photographe, invitation numérique, gestion invités, France, Paris, Lyon, Marseille, Bordeaux, séminaire, baptême, baby shower, gala",
   authors: [{ name: 'Kawepla Team' }],
   creator: 'Kawepla',
   publisher: 'Kawepla',
@@ -19,8 +19,8 @@ const metadata: Metadata = {
     canonical: '/',
   },
   openGraph: {
-    title: SITE_CONFIG.seo.titre,
-    description: SITE_CONFIG.seo.description,
+    title: "Kawepla | Plateforme d'Organisation d'Événements",
+    description: "Organisez tous vos événements (mariage, anniversaire, corporate) simplement.",
     url: 'https://kawepla.kaporelo.com',
     siteName: 'Kawepla',
     images: [
@@ -36,8 +36,8 @@ const metadata: Metadata = {
   },
   twitter: {
     card: 'summary_large_image',
-    title: SITE_CONFIG.seo.titre,
-    description: SITE_CONFIG.seo.description,
+    title: "Kawepla | Plateforme d'Organisation d'Événements",
+    description: "Organisez tous vos événements (mariage, anniversaire, corporate) simplement.",
     images: ['/images/logo.png'],
     creator: '@kawepla',
   },

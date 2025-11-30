@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { providersApi, ProviderProfile, ProviderStats } from '@/lib/api/providers';
 import { useAdminProviders } from '@/hooks/useAdminProviders';
+import { HeaderMobile } from '@/components/HeaderMobile';
 import { 
   Users, 
   CheckCircle, 
@@ -23,7 +24,8 @@ import {
   MapPin,
   Phone,
   Mail,
-  Calendar
+  Calendar,
+  Link
 } from 'lucide-react';
 import styles from './providers.module.css';
 
@@ -141,30 +143,21 @@ export default function AdminProvidersPage() {
 
   if (loading) {
     return (
-      <div className={styles.loadingContainer}>
-        <div className={styles.loadingSpinner}></div>
-        <p>Chargement des providers...</p>
+      <div className={styles.providersPage}>
+        <HeaderMobile title="Providers" />
+        <div className={styles.loadingContainer}>
+          <div className={styles.loadingSpinner}></div>
+          <p>Chargement des providers...</p>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className={styles.adminContainer}>
-      {/* Header */}
-      <div className={styles.headerSection}>
-        <div className={styles.badge}>
-          <Users style={{ width: '16px', height: '16px' }} />
-          Administration Providers
-        </div>
-        
-        <h1 className={styles.title}>
-          Gestion des <span className={styles.titleAccent}>Providers</span>
-        </h1>
-        
-        <p className={styles.subtitle}>
-          Gérez les profils providers, approuvez les demandes et surveillez l'activité
-        </p>
-      </div>
+    <div className={styles.providersPage}>
+      <HeaderMobile title="Providers" />
+      
+      <main className={styles.main}>
 
       {/* Statistiques */}
       {stats && (
@@ -356,13 +349,20 @@ export default function AdminProvidersPage() {
 
                 <div className={styles.tableCell}>
                   <div className={styles.actions}>
-                    <button
+                    <Link 
+                      className={styles.actionButton}
+                      href={`/super-admin/providers/${provider.id}`}
+                      target="_blank"
+                    >
+                      <Eye size={16} />
+                    </Link>
+                    {/* <button
                       className={styles.actionButton}
                       onClick={() => window.open(`/super-admin/providers/${provider.id}`, '_blank')}
                       title="Voir le détail"
                     >
                       <Eye size={16} />
-                    </button>
+                    </button> */}
                     
                     <button
                       className={styles.actionButton}
@@ -457,6 +457,7 @@ export default function AdminProvidersPage() {
           </div>
         </div>
       )}
+      </main>
     </div>
   );
 }

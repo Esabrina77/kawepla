@@ -3,7 +3,9 @@ import { apiClient } from './apiClient';
 export interface Booking {
   id: string;
   providerId: string;
-  serviceId: string;
+  serviceId?: string;
+  customServiceName?: string;
+  customServiceDescription?: string;
   clientName: string;
   clientEmail: string;
   clientPhone?: string;
@@ -18,7 +20,7 @@ export interface Booking {
   cancelledAt?: string;
   completedAt?: string;
   createdAt: string;
-  service: {
+  service?: {
     id: string;
     name: string;
     category: {
@@ -31,7 +33,10 @@ export interface Booking {
 export interface CreateBookingDto {
   clientId: string;
   providerId: string;
-  serviceId: string;
+  serviceId?: string; // Optionnel - permet les services personnalisés
+  customServiceName?: string; // Nom du service personnalisé si serviceId n'est pas fourni
+  customServiceDescription?: string; // Description du service personnalisé
+  conversationId: string; // REQUIS - La conversation doit exister avant la réservation
   clientName: string;
   clientEmail: string;
   clientPhone?: string;
@@ -69,6 +74,11 @@ export const bookingsApi = {
   // Obtenir une réservation par ID
   async getBookingById(bookingId: string): Promise<{ booking: Booking }> {
     return apiClient.get(`/bookings/${bookingId}`);
+  },
+
+  // Obtenir une réservation par conversationId
+  async getBookingByConversationId(conversationId: string): Promise<{ booking: Booking }> {
+    return apiClient.get(`/bookings/conversation/${conversationId}`);
   },
 
   // Mettre à jour le statut d'une réservation

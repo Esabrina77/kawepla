@@ -22,8 +22,9 @@ export function Header({ onNavigate }: HeaderProps) {
 
   const navItems = [
     { label: "Accueil", href: "/" },
-    { label: "Comment ça marche", href: "#comment-ca-marche" },
-    { label: "Tarifs", href: "#tarifs" },
+    { label: "Blog Organisateurs", href: "/blog/host" },
+    { label: "Blog Prestataires", href: "/blog/provider" },
+    { label: "Tarifs", href: "/pricing" },
     { label: "FAQ", href: "/faq" },
   ];
 
@@ -34,13 +35,13 @@ export function Header({ onNavigate }: HeaderProps) {
       setIsMenuOpen(false);
       return;
     }
-    
+
     // Si on n'est pas sur la page d'accueil, rediriger vers la page d'accueil avec l'ancre
     if (pathname !== '/') {
       router.push('/' + href);
       return;
     }
-    
+
     // Sinon, faire le scroll smooth normal pour les ancres
     const element = document.querySelector(href);
     if (element) {
@@ -53,7 +54,7 @@ export function Header({ onNavigate }: HeaderProps) {
   const getDashboardLink = () => {
     if (isLoading) return '/auth/login'; // Or a loading page
     if (!user) return '/auth/login';
-    
+
     switch (user.role) {
       case 'ADMIN':
         return '/super-admin/dashboard';
@@ -134,7 +135,7 @@ export function Header({ onNavigate }: HeaderProps) {
             {item.label}
           </button>
         ))}
-        
+
         <div className={styles.mobileCtaSection}>
           <Link href={getDashboardLink()} className={styles.signupButton}>
             {getButtonText()}

@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { ChatBox } from '@/components/Messages/ChatBox';
 import { useAuth } from '@/hooks/useAuth';
+import { HeaderMobile } from '@/components/HeaderMobile';
 import { MessagesAPI, Conversation } from '@/lib/api/messages';
 import { useSocket } from '@/hooks/useSocket';
 import { 
@@ -244,7 +245,8 @@ export default function AdminDiscussionsPage() {
 
   if (authLoading) {
     return (
-      <div className={styles.discussionsContainer}>
+      <div className={styles.discussionsPage}>
+        <HeaderMobile title="Discussions" />
         <div className={styles.loadingContainer}>
           <div className={styles.loadingSpinner}></div>
           <p>Chargement...</p>
@@ -254,24 +256,18 @@ export default function AdminDiscussionsPage() {
   }
 
   return (
-    <div className={styles.discussionsContainer}>
-      {/* Sidebar */}
-      <div className={styles.sidebar}>
-        {/* Header */}
-        <div className={styles.sidebarHeader}>
-          <div className={styles.headerContent}>
-            <div className={styles.badge}>
-              <MessageCircle style={{ width: '16px', height: '16px' }} />
-              Discussions
-            </div>
-            <h1 className={styles.title}>
-              Support <span className={styles.titleAccent}>client</span>
-            </h1>
+    <div className={styles.discussionsPage}>
+      <HeaderMobile title="Discussions" />
+      
+      <main className={styles.main}>
+        {/* Sidebar */}
+        <div className={styles.sidebar}>
+          {/* Sidebar Header */}
+          <div className={styles.sidebarHeader}>
+            <button onClick={loadConversations} className={styles.refreshButton}>
+              <RefreshCw size={18} />
+            </button>
           </div>
-          <button onClick={loadConversations} className={styles.refreshButton}>
-            <RefreshCw style={{ width: '16px', height: '16px' }} />
-          </button>
-        </div>
 
         {/* Filters */}
         <div className={styles.filtersContainer}>
@@ -480,16 +476,17 @@ export default function AdminDiscussionsPage() {
         )}
       </div>
 
-      {/* Error Banner */}
-      {error && (
-        <div className={styles.errorBanner}>
-          <AlertCircle style={{ width: '16px', height: '16px' }} />
-          <span>{error}</span>
-          <button onClick={() => setError(null)} className={styles.closeError}>
-            <X style={{ width: '16px', height: '16px' }} />
-          </button>
-        </div>
-      )}
+        {/* Error Banner */}
+        {error && (
+          <div className={styles.errorBanner}>
+            <AlertCircle size={16} />
+            <span>{error}</span>
+            <button onClick={() => setError(null)} className={styles.closeError}>
+              <X size={16} />
+            </button>
+          </div>
+        )}
+      </main>
     </div>
   );
 }

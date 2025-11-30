@@ -2,26 +2,33 @@ import { apiClient } from './apiClient';
 
 export interface ServicePurchasePlan {
   id: string;
+  slug: string;
+  tier?: string | null;
   name: string;
-  description: string;
+  description?: string | null;
   price: number;
+  currency: string;
   features: string[];
+  isHighlighted?: boolean;
   limits: {
     invitations: number;
     guests: number;
     photos: number;
     designs: number;
+    aiRequests: number;
   };
 }
 
 export interface AdditionalService {
   id: string;
+  slug: string;
   name: string;
   description: string;
   price: number;
-  paymentLink: string;
-  type: 'guests' | 'photos' | 'designs';
+  currency: string;
+  type: 'guests' | 'photos' | 'designs' | 'aiRequests' | 'invitations';
   quantity: number;
+  unit?: string | null;
 }
 
 export class StripeApi {
@@ -51,6 +58,10 @@ export class StripeApi {
 
   async createAdditionalServiceCheckoutSession(serviceId: string): Promise<{ url: string; sessionId: string }> {
     return await apiClient.post('/subscriptions/create-additional-service-checkout-session', { serviceId });
+  }
+
+  async confirmAdditionalService(serviceId: string, sessionId?: string): Promise<any> {
+    return await apiClient.post('/subscriptions/confirm-additional-service', { serviceId, sessionId });
   }
 
   async getActivePurchases(): Promise<any> {

@@ -1,9 +1,13 @@
 import { prisma } from '../lib/prisma';
+import { ProviderConversationService } from './providerConversationService';
 
 export interface CreateBookingDto {
   clientId: string;
   providerId: string;
-  serviceId: string;
+  serviceId?: string; // Optionnel - permet les services personnalisés
+  customServiceName?: string; // Nom du service personnalisé si serviceId n'est pas fourni
+  customServiceDescription?: string; // Description du service personnalisé
+  conversationId: string; // REQUIS - La conversation doit exister avant la réservation
   clientName: string;
   clientEmail: string;
   clientPhone?: string;
@@ -22,8 +26,23 @@ export interface UpdateBookingDto extends Partial<CreateBookingDto> {
 export class BookingService {
   /**
    * Créer une nouvelle réservation
+   * RÈGLE MÉTIER : Une conversation active doit exister avant de créer une réservation
    */
   static async createBooking(data: CreateBookingDto) {
+    // Vérifier que la conversation existe et est active
+    const conversation = await prisma.providerConversation.findFirst({
+      where: {
+        id: data.conversationId,
+        clientId: data.clientId,
+        providerId: data.providerId,
+        status: 'ACTIVE'
+      }
+    });
+
+    if (!conversation) {
+      throw new Error('Une conversation active avec ce prestataire est requise avant de créer une réservation');
+    }
+
     // Vérifier que le prestataire et le service existent
     const service = await prisma.service.findFirst({
       where: {
@@ -49,7 +68,10 @@ export class BookingService {
       data: {
         clientId: data.clientId,
         providerId: data.providerId,
-        serviceId: data.serviceId,
+        serviceId: data.serviceId ?? undefined, // Optionnel pour les services personnalisés
+        customServiceName: data.customServiceName ?? undefined,
+        customServiceDescription: data.customServiceDescription ?? undefined,
+        conversationId: data.conversationId, // Lier à la conversation
         clientName: data.clientName,
         clientEmail: data.clientEmail,
         clientPhone: data.clientPhone || '',
@@ -80,9 +102,28 @@ export class BookingService {
               }
             }
           }
-        }
+        },
+        conversation: true
       }
     });
+
+    // Envoyer un message automatique dans la conversation
+    const eventDateFormatted = new Date(data.eventDate).toLocaleDateString('fr-FR', {
+      weekday: 'long',
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
+    });
+    
+    await ProviderConversationService.sendSystemMessage(
+      data.conversationId,
+      `✅ Réservation créée le ${new Date().toLocaleDateString('fr-FR')}\n\n` +
+      `📅 Date de l'événement : ${eventDateFormatted}${data.eventTime ? ` à ${data.eventTime}` : ''}\n` +
+      `👥 Type : ${data.eventType}${data.guestCount ? ` - ${data.guestCount} invités` : ''}\n` +
+      `💰 Montant : ${data.totalPrice}€\n\n` +
+      `Statut : En attente de confirmation`,
+      'BOOKING_CREATED'
+    );
 
     return booking;
   }
@@ -120,6 +161,68 @@ export class BookingService {
               }
             }
           }
+        },
+        conversation: {
+          include: {
+            messages: {
+              orderBy: { createdAt: 'desc' },
+              take: 1
+            }
+          }
+        }
+      },
+      orderBy: {
+        createdAt: 'desc'
+      },
+      take: filters?.limit || 50,
+      skip: filters?.offset || 0
+    });
+
+    return bookings;
+  }
+
+  /**
+   * Obtenir les réservations d'un client
+   */
+  static async getClientBookings(clientId: string, filters?: {
+    status?: string;
+    limit?: number;
+    offset?: number;
+  }) {
+    const where: any = { clientId };
+
+    if (filters?.status && filters.status !== 'all') {
+      where.status = filters.status;
+    }
+
+    const bookings = await prisma.booking.findMany({
+      where,
+      include: {
+        service: {
+          include: {
+            category: true
+          }
+        },
+        provider: {
+          include: {
+            user: {
+              select: {
+                id: true,
+                firstName: true,
+                lastName: true,
+                email: true
+              }
+            },
+            category: true
+          }
+        },
+        conversation: {
+          include: {
+            messages: {
+              orderBy: { createdAt: 'desc' },
+              take: 1
+            }
+          }
         }
       },
       orderBy: {
@@ -134,13 +237,22 @@ export class BookingService {
 
   /**
    * Mettre à jour le statut d'une réservation
+   * Envoie automatiquement un message dans la conversation liée
    */
-  static async updateBookingStatus(bookingId: string, providerId: string, status: string) {
+  static async updateBookingStatus(
+    bookingId: string, 
+    providerId: string, 
+    status: string,
+    reason?: string // Raison optionnelle pour les annulations
+  ) {
     // Vérifier que la réservation appartient au prestataire
     const booking = await prisma.booking.findFirst({
       where: {
         id: bookingId,
         providerId
+      },
+      include: {
+        conversation: true
       }
     });
 
@@ -155,12 +267,10 @@ export class BookingService {
       case 'CONFIRMED':
         updateData.confirmedAt = new Date();
         break;
-      case 'CANCELLED':
-        updateData.cancelledAt = new Date();
-        break;
       case 'COMPLETED':
         updateData.completedAt = new Date();
         break;
+      // Note: cancelledAt n'existe pas dans le schéma Prisma
     }
 
     const updatedBooking = await prisma.booking.update({
@@ -183,9 +293,39 @@ export class BookingService {
               }
             }
           }
-        }
+        },
+        conversation: true
       }
     });
+
+    // Envoyer un message automatique dans la conversation si elle existe
+    if (booking.conversationId) {
+      let messageContent = '';
+      let messageType: 'BOOKING_CONFIRMED' | 'BOOKING_CANCELLED' | 'BOOKING_COMPLETED' = 'BOOKING_CONFIRMED';
+
+      switch (status) {
+        case 'CONFIRMED':
+          messageContent = `✅ Réservation confirmée !\n\nVotre réservation a été confirmée par le prestataire.`;
+          messageType = 'BOOKING_CONFIRMED';
+          break;
+        case 'CANCELLED':
+          messageContent = `❌ Réservation annulée${reason ? ` : ${reason}` : ''}`;
+          messageType = 'BOOKING_CANCELLED';
+          break;
+        case 'COMPLETED':
+          messageContent = `🎉 Réservation terminée\n\nL'événement s'est bien déroulé. Vous pouvez maintenant laisser un avis.`;
+          messageType = 'BOOKING_COMPLETED';
+          break;
+      }
+
+      if (messageContent) {
+        await ProviderConversationService.sendSystemMessage(
+          booking.conversationId,
+          messageContent,
+          messageType
+        );
+      }
+    }
 
     return updatedBooking;
   }
@@ -193,10 +333,14 @@ export class BookingService {
   /**
    * Obtenir une réservation par ID
    */
-  static async getBookingById(bookingId: string, providerId?: string) {
+  static async getBookingById(bookingId: string, userId?: string, userRole?: 'CLIENT' | 'PROVIDER') {
     const where: any = { id: bookingId };
-    if (providerId) {
-      where.providerId = providerId;
+    
+    // Filtrer selon le rôle
+    if (userRole === 'PROVIDER' && userId) {
+      where.providerId = userId;
+    } else if (userRole === 'CLIENT' && userId) {
+      where.clientId = userId;
     }
 
     const booking = await prisma.booking.findFirst({
@@ -216,11 +360,73 @@ export class BookingService {
                 lastName: true,
                 email: true
               }
+            },
+            category: true
+          }
+        },
+        conversation: {
+          include: {
+            messages: {
+              orderBy: { createdAt: 'asc' },
+              take: 50
             }
           }
         }
       }
     });
+
+    return booking;
+  }
+
+  /**
+   * Obtenir une réservation par conversationId
+   */
+  static async getBookingByConversationId(conversationId: string, userId: string) {
+    const booking = await prisma.booking.findFirst({
+      where: {
+        conversationId,
+        OR: [
+          { clientId: userId },
+          { provider: { userId } }
+        ]
+      },
+      include: {
+        service: {
+          include: {
+            category: true
+          }
+        },
+        provider: {
+          include: {
+            user: {
+              select: {
+                id: true,
+                firstName: true,
+                lastName: true,
+                email: true
+              }
+            },
+            category: true
+          }
+        },
+        conversation: {
+          include: {
+            client: {
+              select: {
+                id: true,
+                firstName: true,
+                lastName: true,
+                email: true
+              }
+            }
+          }
+        }
+      }
+    });
+
+    if (!booking) {
+      throw new Error('Réservation non trouvée pour cette conversation');
+    }
 
     return booking;
   }

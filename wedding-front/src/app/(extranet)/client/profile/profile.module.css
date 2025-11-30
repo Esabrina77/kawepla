@@ -200,6 +200,66 @@
   color: rgba(255, 255, 255, 0.6);
 }
 
+/* Danger Zone */
+.dangerZone {
+  margin-top: 3rem;
+  padding: 1.5rem;
+  border: 1px solid var(--alert-error);
+  border-radius: 0.5rem;
+  background: var(--bg-card);
+}
+
+.dangerZoneHeader {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.75rem;
+}
+
+.dangerIcon {
+  color: var(--alert-error);
+}
+
+.dangerZoneTitle {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: var(--alert-error);
+  margin: 0;
+}
+
+.dangerZoneDescription {
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+  margin-bottom: 1rem;
+  line-height: 1.5;
+}
+
+.deleteAccountButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  width: 100%;
+  height: 3rem;
+  background: var(--alert-error);
+  color: white;
+  border: none;
+  border-radius: 0.5rem;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity var(--transition-normal);
+}
+
+.deleteAccountButton:hover:not(:disabled) {
+  opacity: 0.9;
+}
+
+.deleteAccountButton:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
 /* Responsive */
 @media (min-width: 768px) {
   .main {

@@ -1,14 +1,11 @@
 // users.ts
 import { Router, RequestHandler } from 'express';
 import { UserController } from '../controllers/userController';
-import { authMiddleware } from '../middleware/auth';
 
 const router = Router();
 
-// Toutes les routes nécessitent une authentification
-router.use(authMiddleware as RequestHandler);
-
 // Routes spécifiques (avant les routes générales)
+// Note: L'authentification est gérée au niveau de app.ts via protectedRouter/adminRouter
 router.get('/me', UserController.getProfile as RequestHandler);
 router.patch('/me', UserController.updateProfile as RequestHandler);
 router.delete('/me', UserController.deleteProfile as RequestHandler);

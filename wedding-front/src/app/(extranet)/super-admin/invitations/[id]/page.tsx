@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { apiClient } from '@/lib/api/apiClient';
+import { HeaderMobile } from '@/components/HeaderMobile';
 import styles from './invitation-detail.module.css';
 
 interface InvitationDetail {
@@ -42,7 +43,7 @@ export default function InvitationDetailPage() {
   const params = useParams();
   const router = useRouter();
   const invitationId = params.id as string;
-  
+
   const [invitation, setInvitation] = useState<InvitationDetail | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -51,7 +52,7 @@ export default function InvitationDetailPage() {
     try {
       setLoading(true);
       setError(null);
-      
+
       const data = await apiClient.get<InvitationDetail>(`/admin/invitations/${invitationId}`);
       setInvitation(data);
     } catch (err) {
@@ -122,27 +123,37 @@ export default function InvitationDetailPage() {
 
   if (loading) {
     return (
-      <div className={styles.container}>
-        <div className={styles.loading}>Chargement de l'invitation...</div>
+      <div className={styles.invitationDetail}>
+        <HeaderMobile title="Détail de l'invitation" />
+        <div className={styles.loadingContainer}>
+          <div className={styles.loadingSpinner}></div>
+          <p>Chargement de l'invitation...</p>
+        </div>
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className={styles.container}>
-        <div className={styles.error}>{error}</div>
-        <button onClick={fetchInvitationDetail} className={styles.retryButton}>
-          Réessayer
-        </button>
+      <div className={styles.invitationDetail}>
+        <HeaderMobile title="Détail de l'invitation" />
+        <div className={styles.errorContainer}>
+          <p>{error}</p>
+          <button onClick={fetchInvitationDetail} className={styles.retryButton}>
+            Réessayer
+          </button>
+        </div>
       </div>
     );
   }
 
   if (!invitation) {
     return (
-      <div className={styles.container}>
-        <div className={styles.error}>Invitation non trouvée</div>
+      <div className={styles.invitationDetail}>
+        <HeaderMobile title="Détail de l'invitation" />
+        <div className={styles.errorContainer}>
+          <p>Invitation non trouvée</p>
+        </div>
       </div>
     );
   }
@@ -153,140 +164,134 @@ export default function InvitationDetailPage() {
   const sentInvitations = invitation.guests.filter(g => g.invitationSentAt).length;
 
   return (
-    <div className={styles.container}>
-      <div className={styles.header}>
-        <button 
-          onClick={() => window.history.back()} 
-          className={styles.backButton}
-        >
-          ← Retour
-        </button>
-        <h1>{invitation.title}</h1>
-        <span className={`${styles.status} ${getStatusColor(invitation.status)}`}>
-          {getStatusLabel(invitation.status)}
-        </span>
-      </div>
+    <div className={styles.invitationDetail}>
+      <HeaderMobile title={invitation.title || 'Détail de l\'invitation'} />
 
-      <div className={styles.content}>
-        <div className={styles.section}>
-          <h2>Informations de l'invitation</h2>
-          <div className={styles.infoGrid}>
-            <div className={styles.infoCard}>
-              <h3>Créateur</h3>
-              <p>{invitation.user.firstName} {invitation.user.lastName}</p>
-              <p className={styles.email}>{invitation.user.email}</p>
-            </div>
-            <div className={styles.infoCard}>
-              <h3>Date de création</h3>
-              <p>{new Date(invitation.createdAt).toLocaleDateString('fr-FR')}</p>
-            </div>
-            <div className={styles.infoCard}>
-              <h3>Dernière modification</h3>
-              <p>{new Date(invitation.updatedAt).toLocaleDateString('fr-FR')}</p>
-            </div>
-            <div className={styles.infoCard}>
-              <h3>Description</h3>
-              <p>{invitation.description || 'Aucune description'}</p>
-            </div>
-          </div>
+      <main className={styles.main}>
+        {/* Page Header */}
+        <div className={styles.pageHeader}>
+          <span className={`${styles.statusBadge} ${getStatusColor(invitation.status)}`}>
+            {getStatusLabel(invitation.status)}
+          </span>
         </div>
 
-        <div className={styles.section}>
-          <h2>Statistiques</h2>
-          <div className={styles.statsGrid}>
-            <div className={styles.statCard}>
-              <h3>Total invités</h3>
-              <span className={styles.statNumber}>{invitation._count.guests}</span>
-            </div>
-            <div className={styles.statCard}>
-              <h3>Invitations envoyées</h3>
-              <span className={styles.statNumber}>{sentInvitations}</span>
-            </div>
-            <div className={styles.statCard}>
-              <h3>Confirmations</h3>
-              <span className={styles.statNumber}>{confirmedRSVPs}</span>
-            </div>
-            <div className={styles.statCard}>
-              <h3>Déclinés</h3>
-              <span className={styles.statNumber}>{declinedRSVPs}</span>
-            </div>
-            <div className={styles.statCard}>
-              <h3>En attente</h3>
-              <span className={styles.statNumber}>{pendingRSVPs}</span>
+        <div className={styles.content}>
+          <div className={styles.section}>
+            <h2 className={styles.sectionTitle}>Informations de l'invitation</h2>
+            <div className={styles.infoGrid}>
+              <div className={styles.infoCard}>
+                <h3>Créateur</h3>
+                <p>{invitation.user.firstName} {invitation.user.lastName}</p>
+                <p className={styles.email}>{invitation.user.email}</p>
+              </div>
+              <div className={styles.infoCard}>
+                <h3>Date de création</h3>
+                <p>{new Date(invitation.createdAt).toLocaleDateString('fr-FR')}</p>
+              </div>
+              <div className={styles.infoCard}>
+                <h3>Dernière modification</h3>
+                <p>{new Date(invitation.updatedAt).toLocaleDateString('fr-FR')}</p>
+              </div>
+              <div className={styles.infoCard}>
+                <h3>Description</h3>
+                <p>{invitation.description || 'Aucune description'}</p>
+              </div>
             </div>
           </div>
-        </div>
 
-        <div className={styles.section}>
-          <h2>Liste des invités</h2>
-          <div className={styles.tableContainer}>
-            <table className={styles.table}>
-              <thead>
-                <tr>
-                  <th>Nom</th>
-                  <th>Email</th>
-                  <th>Invitation envoyée</th>
-                  <th>Statut RSVP</th>
-                  <th>Date de réponse</th>
-                </tr>
-              </thead>
-              <tbody>
-                {invitation.guests.map((guest) => (
-                  <tr key={guest.id}>
-                    <td className={styles.nameCell}>
-                      {guest.firstName} {guest.lastName}
-                    </td>
-                    <td className={styles.emailCell}>
-                      {guest.email}
-                    </td>
-                    <td className={styles.sentCell}>
-                      {guest.invitationSentAt ? (
-                        <span className={styles.sent}>✓ Envoyée</span>
-                      ) : (
-                        <span className={styles.notSent}>Non envoyée</span>
-                      )}
-                    </td>
-                    <td>
-                      {guest.rsvp ? (
-                        <span className={`${styles.rsvpStatus} ${getRSVPStatusColor(guest.rsvp.status)}`}>
-                          {getRSVPStatusLabel(guest.rsvp.status)}
-                        </span>
-                      ) : (
-                        <span className={`${styles.rsvpStatus} ${styles.rsvpDefault}`}>
-                          Aucune réponse
-                        </span>
-                      )}
-                    </td>
-                    <td className={styles.dateCell}>
-                      {guest.rsvp?.respondedAt ? 
-                        new Date(guest.rsvp.respondedAt).toLocaleDateString('fr-FR') : 
-                        '-'
-                      }
-                    </td>
+          <div className={styles.section}>
+            <h2 className={styles.sectionTitle}>Statistiques</h2>
+            <div className={styles.statsGrid}>
+              <div className={styles.statCard}>
+                <h3>Total invités</h3>
+                <span className={styles.statNumber}>{invitation._count.guests}</span>
+              </div>
+              <div className={styles.statCard}>
+                <h3>Invitations envoyées</h3>
+                <span className={styles.statNumber}>{sentInvitations}</span>
+              </div>
+              <div className={styles.statCard}>
+                <h3>Confirmations</h3>
+                <span className={styles.statNumber}>{confirmedRSVPs}</span>
+              </div>
+              <div className={styles.statCard}>
+                <h3>Déclinés</h3>
+                <span className={styles.statNumber}>{declinedRSVPs}</span>
+              </div>
+              <div className={styles.statCard}>
+                <h3>En attente</h3>
+                <span className={styles.statNumber}>{pendingRSVPs}</span>
+              </div>
+            </div>
+          </div>
+
+          <div className={styles.section}>
+            <h2 className={styles.sectionTitle}>Liste des invités</h2>
+            <div className={styles.tableContainer}>
+              <table className={styles.table}>
+                <thead>
+                  <tr>
+                    <th>Nom</th>
+                    <th>Email</th>
+                    <th>Invitation envoyée</th>
+                    <th>Statut RSVP</th>
+                    <th>Date de réponse</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody>
+                  {invitation.guests.map((guest) => (
+                    <tr key={guest.id}>
+                      <td className={styles.nameCell}>
+                        {guest.firstName} {guest.lastName}
+                      </td>
+                      <td className={styles.emailCell}>
+                        {guest.email}
+                      </td>
+                      <td className={styles.sentCell}>
+                        {guest.invitationSentAt ? (
+                          <span className={styles.sent}>✓ Envoyée</span>
+                        ) : (
+                          <span className={styles.notSent}>Non envoyée</span>
+                        )}
+                      </td>
+                      <td>
+                        {guest.rsvp ? (
+                          <span className={`${styles.rsvpStatus} ${getRSVPStatusColor(guest.rsvp.status)}`}>
+                            {getRSVPStatusLabel(guest.rsvp.status)}
+                          </span>
+                        ) : (
+                          <span className={`${styles.rsvpStatus} ${styles.rsvpDefault}`}>
+                            Aucune réponse
+                          </span>
+                        )}
+                      </td>
+                      <td className={styles.dateCell}>
+                        {guest.rsvp?.respondedAt ?
+                          new Date(guest.rsvp.respondedAt).toLocaleDateString('fr-FR') :
+                          '-'
+                        }
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <div className={styles.actionsSection}>
+            <h3 className={styles.sectionTitle}>Actions</h3>
+            <div className={styles.actions}>
+              <button
+                className={styles.actionButton}
+                onClick={() => router.push(`/super-admin/invitations/${invitationId}/design`)}
+              >
+                Voir le design
+              </button>
+
+            </div>
           </div>
         </div>
-        <div className={styles.actionsSection}>
-          <h3>Actions</h3>
-          <div className={styles.actions}>
-            <button 
-              className={styles.actionButton}
-              onClick={() => router.push(`/super-admin/invitations/${invitationId}/design`)}
-            >
-              Voir le design
-            </button>
-            <button 
-              className={styles.actionButton}
-              onClick={() => router.push(`/rsvp/${invitationId}`)}
-            >
-              Voir la page publique
-            </button>
-          </div>
-        </div>
-      </div>
+      </main>
     </div>
   );
 } 

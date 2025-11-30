@@ -1,0 +1,357 @@
+/* ===== PROVIDER BILLING PAGE - DASHBOARD STYLE ===== */
+
+.billingPage {
+  background: var(--bg-primary);
+  min-height: 100vh;
+  width: 100%;
+  animation: fadeInUp 0.6s ease-out;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Main Content */
+.main {
+  flex: 1;
+  padding: 1rem;
+  padding-bottom: 7rem;
+  animation: fadeIn 0.8s ease-out 0.2s both;
+}
+
+/* Desktop avec sidebar */
+@media (min-width: 768px) {
+  .main {
+    padding: 2rem;
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+}
+
+/* Desktop avec sidebar - aligné avec HeaderMobile */
+@media (min-width: 769px) {
+  .main {
+    padding-left: 190px;
+    padding-right: 2rem;
+    transition: padding-left var(--transition-normal);
+  }
+}
+
+/* Desktop avec sidebar collapsed */
+@media (min-width: 769px) {
+  :global(body[data-sidebar-collapsed="true"]) .main {
+    padding-left: 80px;
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* Section Titles */
+.sectionTitle {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 1.5rem;
+}
+
+/* Plans Section */
+.plansSection {
+  margin-bottom: 3rem;
+}
+
+.plansGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1.5rem;
+}
+
+.planCard {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 0.75rem;
+  padding: 1.5rem;
+  transition: all var(--transition-normal);
+  display: flex;
+  flex-direction: column;
+}
+
+.planCard:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-lg);
+  border-color: var(--luxury-champagne-gold);
+}
+
+.planHeader {
+  margin-bottom: 1rem;
+}
+
+.planName {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 0.5rem;
+}
+
+.planPrice {
+  display: flex;
+  align-items: baseline;
+  gap: 0.25rem;
+}
+
+.priceAmount {
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--luxury-champagne-gold);
+}
+
+.pricePeriod {
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+}
+
+.freePrice {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.planDescription {
+  color: var(--text-secondary);
+  margin-bottom: 1.5rem;
+  font-size: 0.875rem;
+}
+
+.planFeatures {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin-bottom: 1.5rem;
+  flex: 1;
+}
+
+.featureItem {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.875rem;
+  color: var(--text-primary);
+}
+
+.featureItem svg {
+  color: var(--luxury-champagne-gold);
+  flex-shrink: 0;
+}
+
+.planButton {
+  width: 100%;
+  padding: 0.75rem;
+  background: var(--luxury-champagne-gold);
+  color: var(--luxury-velvet-black);
+  border: none;
+  border-radius: 0.5rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all var(--transition-normal);
+}
+
+.planButton:hover:not(:disabled) {
+  background: #b89a6e;
+  transform: translateY(-2px);
+}
+
+.planButton:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Summary Section */
+.summarySection {
+  margin-bottom: 2rem;
+}
+
+.summaryGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1rem;
+}
+
+.summaryCard {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 0.75rem;
+  padding: 1rem;
+  transition: all var(--transition-normal);
+}
+
+.summaryCard:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+  border-color: var(--luxury-champagne-gold);
+}
+
+.summaryContent {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.summaryIcon {
+  width: 48px;
+  height: 48px;
+  border-radius: 0.5rem;
+  background: rgba(197, 168, 128, 0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--luxury-champagne-gold);
+}
+
+.summaryInfo h3 {
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+  margin-bottom: 0.25rem;
+}
+
+.summaryInfo p {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+/* History Section */
+.historySection {
+  margin-bottom: 2rem;
+}
+
+.purchaseList {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.purchaseCard {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 0.75rem;
+  padding: 1.5rem;
+  transition: all var(--transition-normal);
+}
+
+.purchaseCard:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+  border-color: var(--luxury-champagne-gold);
+}
+
+.purchaseHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 1rem;
+}
+
+.purchaseInfo h3 {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 0.25rem;
+}
+
+.purchaseDate {
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+}
+
+.purchasePrice {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--luxury-champagne-gold);
+}
+
+.purchaseActions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.invoiceButton {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  background: transparent;
+  border: 1px solid var(--border-color);
+  border-radius: 0.5rem;
+  color: var(--text-primary);
+  cursor: pointer;
+  transition: all var(--transition-normal);
+}
+
+.invoiceButton:hover {
+  border-color: var(--luxury-champagne-gold);
+  color: var(--luxury-champagne-gold);
+}
+
+/* Loading & Error States */
+.loadingContainer,
+.errorContainer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  padding: 2rem;
+}
+
+.loadingContent,
+.errorContent {
+  text-align: center;
+  max-width: 400px;
+}
+
+.loadingSpinner {
+  width: 48px;
+  height: 48px;
+  border: 4px solid var(--border-color);
+  border-top-color: var(--luxury-champagne-gold);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin: 0 auto 1rem;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.errorIcon {
+  width: 64px;
+  height: 64px;
+  color: #dc3545;
+  margin: 0 auto 1rem;
+}
+
+.retryButton {
+  margin-top: 1rem;
+  padding: 0.75rem 1.5rem;
+  background: var(--luxury-champagne-gold);
+  color: var(--luxury-velvet-black);
+  border: none;
+  border-radius: 0.5rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+

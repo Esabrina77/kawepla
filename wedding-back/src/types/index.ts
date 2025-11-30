@@ -223,26 +223,62 @@ export interface DesignComponents {
   };
 }
 
+// NOUVELLE STRUCTURE SIMPLIFIÉE - Plus de template/styles/variables, tout est dans fabricData
 export interface CreateDesignDto {
   name: string;
   description?: string;
-  category?: string;
   tags?: string[];
   isActive?: boolean;
   priceType?: ServiceTier;
-  template: DesignTemplate;
-  styles: DesignStyles;
-  variables: DesignVariables;
-  customFonts?: Record<string, string>;
-  backgroundImage?: string;
+  
+  // Format Fabric.js (essentiel)
+  fabricData?: any; // JSON Fabric.js complet du design (optionnel pour compatibilité legacy)
+  editorVersion?: 'canva' | 'legacy'; // Version de l'éditeur utilisé
+  
+  // Dimensions du canvas
+  canvasWidth?: number; // Largeur du canvas (ex: 794 pour A4)
+  canvasHeight?: number; // Hauteur du canvas (ex: 1123 pour A4)
+  canvasFormat?: string; // Format (ex: "A4", "A5", "custom")
+  
+  // Métadonnées
+  backgroundImage?: string; // URL de l'image de fond (optionnel)
+  thumbnail?: string; // URL de la miniature pour la galerie
+  previewImage?: string; // URL de l'image de prévisualisation
+  
+  // Propriétaire du design (pour designs personnalisés)
+  userId?: string; // null = modèle super-admin, rempli = design personnalisé user
+  isTemplate?: boolean; // true = modèle réutilisable, false = design personnalisé
+  originalDesignId?: string; // Référence au modèle original si c'est une personnalisation
 }
 
-export interface DesignResponse extends CreateDesignDto {
+export interface DesignResponse {
   id: string;
+  name: string;
+  description?: string;
+  tags: string[];
   isActive: boolean;
   createdAt: Date;
   updatedAt: Date;
-  version: string;
+  
+  // Format Fabric.js
+  fabricData?: any; // Peut être null pour les designs legacy
+  editorVersion?: 'canva' | 'legacy';
+  
+  // Dimensions du canvas (peuvent être null pour les anciens designs)
+  canvasWidth: number; // Valeur par défaut 794 si null
+  canvasHeight: number; // Valeur par défaut 1123 si null
+  canvasFormat?: string;
+  
+  // Métadonnées
+  backgroundImage?: string;
+  thumbnail?: string;
+  previewImage?: string;
+  priceType: ServiceTier;
+  
+  // Propriétaire du design
+  userId?: string;
+  isTemplate: boolean;
+  originalDesignId?: string;
 }
 
 // Theme Configuration

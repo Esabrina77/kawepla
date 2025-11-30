@@ -117,6 +117,7 @@ export const requireRole = (roles: UserRole[]): RequestHandler => {
     }
 
     if (!roles.includes(req.user.role)) {
+      console.log(`❌ requireRole bloqué - Route: ${req.path}, User role: ${req.user.role}, Required roles:`, roles);
       return res.status(403).json({ message: 'Accès non autorisé' });
     }
 

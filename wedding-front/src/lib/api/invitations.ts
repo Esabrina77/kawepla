@@ -5,7 +5,7 @@ import { Invitation } from '@/types';
 export interface CreateInvitationDto {
   // NOUVELLE ARCHITECTURE SIMPLIFIÉE
   eventTitle: string;      // "Emma & Lucas" ou "Anniversaire de Marie"
-  eventDate: string;       // Date de l'événement (ISO string)
+  eventDate: string | Date; // Date de l'événement (ISO string ou Date)
   eventTime?: string;      // "15h00" (optionnel)
   location: string;        // "Château de la Roseraie, Paris"
   eventType?: 'WEDDING' | 'BIRTHDAY' | 'BAPTISM' | 'ANNIVERSARY' | 'GRADUATION' | 'BABY_SHOWER' | 'ENGAGEMENT' | 'COMMUNION' | 'CONFIRMATION' | 'RETIREMENT' | 'HOUSEWARMING' | 'CORPORATE' | 'OTHER';
@@ -17,6 +17,13 @@ export interface CreateInvitationDto {
   photos?: string[];
   languages?: string[];
   designId: string;        // Obligatoire
+  status?: string;         // Statut de l'invitation (DRAFT, PUBLISHED, etc.)
+  
+  // Design personnalisé (optionnel - ajouté après personnalisation)
+  customDesignId?: string;
+  customFabricData?: any;   // JSON Fabric.js du design personnalisé
+  customCanvasWidth?: number;
+  customCanvasHeight?: number;
 }
 
 export const invitationsApi = {

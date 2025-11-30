@@ -13,6 +13,7 @@ router.post('/webhook', ServicePurchaseController.handleWebhook);
 // Routes protégées
 router.post('/create-checkout-session', authMiddleware as any, ServicePurchaseController.createCheckoutSession as any);
 router.post('/create-additional-service-checkout-session', authMiddleware as any, ServicePurchaseController.createAdditionalServiceCheckoutSession as any);
+router.post('/confirm-additional-service', authMiddleware as any, ServicePurchaseController.confirmAdditionalService as any);
 router.post('/confirm-payment', authMiddleware as any, ServicePurchaseController.confirmPayment as any);
 router.get('/limits', authMiddleware as any, getUserLimitsAndUsage as any);
 router.get('/active-purchases', authMiddleware as any, ServicePurchaseController.getActivePurchases as any);

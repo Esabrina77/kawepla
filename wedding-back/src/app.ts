@@ -10,6 +10,7 @@ import cors from 'cors';
 import helmet from 'helmet';
 import morgan from 'morgan';
 import compression from 'compression';
+import { generalRateLimiter } from './middleware/rateLimiter';
 
 // Import des routes principales
 import authRoutes from './routes/auth';
@@ -27,7 +28,11 @@ import subscriptionRoutes from './routes/subscriptions';
 import pushRoutes from './routes/push';
 import providerRoutes from './routes/providerRoutes';
 import bookingRoutes from './routes/bookings';
+import providerConversationRoutes from './routes/providerConversations';
 import newsletterRoutes from './routes/newsletterRoutes';
+import todoRoutes from './routes/todos';
+import aiRoutes from './routes/ai';
+import adminServicePackRoutes from './routes/adminServicePacks';
 
 // Import des middlewares
 import { errorHandler } from './middleware/errorHandler';
@@ -96,6 +101,13 @@ app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
 /**
+ * Rate Limiting général pour toutes les routes API
+ * Appliqué après le parsing mais avant les routes spécifiques
+ * Les routes spécifiques peuvent avoir leurs propres rate limiters plus stricts
+ */
+app.use('/api', generalRateLimiter as RequestHandler);
+
+/**
  * Routes publiques (sans authentification)
  */
 app.use('/api/auth', authRoutes);
@@ -124,11 +136,19 @@ adminRouter.use(authMiddleware as RequestHandler, requireAdmin as RequestHandler
 // Routes admin designs - AVANT /api/admin pour éviter les conflits
 app.use('/api/admin/designs', adminRouter, designRoutes);
 
+// Routes admin service-packs - AVANT /api/admin pour éviter les conflits
+app.use('/api/admin/service-packs', adminRouter, adminServicePackRoutes);
+
 // Routes admin users - utilise le système de routes modulaire
 app.use('/api/admin', adminRouter, userRoutes);
 
-// Routes utilisateur standard (authentifié)
-app.use('/api/users/me', protectedRouter, userRoutes);
+// Routes utilisateur standard (authentifié) - AVANT /api/users pour priorité
+// Créer un router séparé pour /me pour éviter les conflits avec /api/users
+const userMeRouter = Router();
+userMeRouter.get('/', UserController.getProfile as RequestHandler);
+userMeRouter.patch('/', UserController.updateProfile as RequestHandler);
+userMeRouter.delete('/', UserController.deleteProfile as RequestHandler);
+app.use('/api/users/me', protectedRouter, userMeRouter);
 
 // Routes publiques protégées (nécessite authentification)
 app.use('/api/designs', protectedRouter, designRoutes);
@@ -162,8 +182,17 @@ app.use('/api/providers', providerRoutes);
 // Routes pour les réservations
 app.use('/api/bookings', bookingRoutes);
 
+// Routes pour les conversations client-provider
+app.use('/api/provider-conversations', providerConversationRoutes);
+
 // Routes pour les newsletters (admin seulement)
 app.use('/api/newsletters', newsletterRoutes);
+
+// Routes pour les tâches (todos)
+app.use('/api/todos', protectedRouter, todoRoutes);
+
+// Routes pour l'IA (Gemini)
+app.use('/api/ai', protectedRouter, aiRoutes);
 
 // Route de nettoyage (pour les tests et maintenance)
 app.post('/api/admin/cleanup', authMiddleware as RequestHandler, requireAdmin as RequestHandler, async (req, res) => {

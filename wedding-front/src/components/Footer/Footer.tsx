@@ -1,6 +1,7 @@
 'use client'
 import { Heart, Mail, Phone, MapPin, Facebook, Instagram, Twitter } from "lucide-react";
 import Image from "next/image";
+import Link from "next/link";
 import { useRouter, usePathname } from "next/navigation";
 import styles from './Footer.module.css';
 
@@ -14,7 +15,7 @@ export function Footer() {
       router.push('/' + href);
       return;
     }
-    
+
     // Sinon, faire le scroll smooth normal
     const element = document.querySelector(href);
     if (element) {
@@ -51,34 +52,39 @@ export function Footer() {
             </h4>
             <ul className={styles.linkList}>
               <li>
-                <a href="/" className={styles.footerLink}>
+                <Link href="/" className={styles.footerLink}>
                   Accueil
-                </a>
+                </Link>
               </li>
               <li>
-                <button onClick={() => handleFooterLink('#comment-ca-marche')} className={styles.footerLink}>
-                  Comment ça marche
-                </button>
+                <Link href="/blog/host" className={styles.footerLink}>
+                  Blog Organisateurs
+                </Link>
               </li>
               <li>
-                <button onClick={() => handleFooterLink('#tarifs')} className={styles.footerLink}>
+                <Link href="/blog/provider" className={styles.footerLink}>
+                  Blog Prestataires
+                </Link>
+              </li>
+              <li>
+                <Link href="/pricing" className={styles.footerLink}>
                   Tarifs
-                </button>
+                </Link>
               </li>
               <li>
-                <button onClick={() => handleFooterLink('#faq')} className={styles.footerLink}>
+                <Link href="/faq" className={styles.footerLink}>
                   FAQ
-                </button>
+                </Link>
               </li>
               <li>
-                <a href="/auth/register" className={styles.footerLink}>
+                <Link href="/auth/register" className={styles.footerLink}>
                   Créer un compte
-                </a>
+                </Link>
               </li>
               <li>
-                <a href="/auth/login" className={styles.footerLink}>
+                <Link href="/auth/login" className={styles.footerLink}>
                   Se connecter
-                </a>
+                </Link>
               </li>
             </ul>
           </div>
@@ -119,15 +125,15 @@ export function Footer() {
             © 2025 Kawepla. Fait avec <Heart className={styles.heartIcon} size={16} /> en France.
           </p>
           <div className={styles.legalLinks}>
-            <a href="/mentions-legales" className={styles.legalLink}>
+            <Link href="/mentions-legales" className={styles.legalLink}>
               Mentions légales
-            </a>
-            <a href="/politique-confidentialite" className={styles.legalLink}>
+            </Link>
+            <Link href="/politique-confidentialite" className={styles.legalLink}>
               Politique de confidentialité
-            </a>
-            <a href="/conditions-utilisation" className={styles.legalLink}>
+            </Link>
+            <Link href="/conditions-utilisation" className={styles.legalLink}>
               Conditions d'utilisation
-            </a>
+            </Link>
           </div>
         </div>
       </div>

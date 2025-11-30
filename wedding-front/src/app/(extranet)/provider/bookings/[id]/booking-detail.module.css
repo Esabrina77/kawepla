@@ -1,0 +1,356 @@
+.bookingDetailPage {
+  background: var(--bg-primary);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  animation: fadeInUp 0.6s ease-out;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.main {
+  flex: 1;
+  padding: 1.5rem;
+  padding-bottom: 7rem;
+  max-width: 800px;
+  margin: 0 auto;
+  width: 100%;
+  animation: fadeIn 0.8s ease-out 0.2s both;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* Desktop avec sidebar - aligné avec HeaderMobile */
+@media (min-width: 768px) {
+  .main {
+    padding: 2rem;
+    max-width: 800px;
+  }
+}
+
+@media (min-width: 769px) {
+  .main {
+    padding-left: 190px;
+    padding-right: 2rem;
+    transition: padding-left var(--transition-normal);
+  }
+}
+
+/* Desktop avec sidebar collapsed */
+@media (min-width: 769px) {
+  :global(body[data-sidebar-collapsed="true"]) .main {
+    padding-left: 80px;
+  }
+}
+
+.statusBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  border-radius: 0.5rem;
+  border: 1px solid;
+  font-weight: 600;
+  font-size: 0.875rem;
+  margin-bottom: 2rem;
+}
+
+.section {
+  margin-bottom: 2rem;
+}
+
+.sectionTitle {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 1rem;
+}
+
+.infoGrid {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.infoItem {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem;
+  background: var(--bg-card);
+  border-radius: 0.5rem;
+  color: var(--text-primary);
+}
+
+.infoItem strong {
+  min-width: 100px;
+  color: var(--text-secondary);
+}
+
+.serviceCard {
+  padding: 1.5rem;
+  background: var(--bg-card);
+  border-radius: 0.75rem;
+  border: 1px solid var(--border-color);
+}
+
+.serviceCard h3 {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin: 0 0 0.5rem 0;
+}
+
+.category {
+  color: var(--text-secondary);
+  font-size: 0.875rem;
+  margin: 0.5rem 0;
+}
+
+.description {
+  color: var(--text-primary);
+  margin-top: 0.75rem;
+  line-height: 1.6;
+}
+
+.detailsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+}
+
+.detailCard {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  padding: 1rem;
+  background: var(--bg-card);
+  border-radius: 0.5rem;
+  border: 1px solid var(--border-color);
+}
+
+.detailCard svg {
+  color: var(--luxury-champagne-gold);
+  flex-shrink: 0;
+}
+
+.detailCard strong {
+  display: block;
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+  margin-bottom: 0.25rem;
+}
+
+.detailCard p {
+  margin: 0;
+  color: var(--text-primary);
+  font-weight: 500;
+}
+
+.messageCard {
+  display: flex;
+  gap: 0.75rem;
+  padding: 1rem;
+  background: var(--bg-card);
+  border-radius: 0.5rem;
+  border: 1px solid var(--border-color);
+}
+
+.messageCard svg {
+  color: var(--luxury-champagne-gold);
+  flex-shrink: 0;
+}
+
+.messageCard p {
+  margin: 0;
+  color: var(--text-primary);
+  line-height: 1.6;
+}
+
+.priceCard {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 1.5rem;
+  background: linear-gradient(135deg, var(--luxury-champagne-gold) 0%, rgba(212, 175, 55, 0.8) 100%);
+  border-radius: 0.75rem;
+  color: var(--luxury-velvet-black);
+}
+
+.priceCard svg {
+  width: 2rem;
+  height: 2rem;
+}
+
+.priceAmount {
+  font-size: 2rem;
+  font-weight: 700;
+}
+
+.datesList {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.dateItem {
+  display: flex;
+  justify-content: space-between;
+  padding: 0.75rem;
+  background: var(--bg-card);
+  border-radius: 0.5rem;
+  border: 1px solid var(--border-color);
+}
+
+.dateItem strong {
+  color: var(--text-secondary);
+}
+
+.dateItem span {
+  color: var(--text-primary);
+}
+
+.actionsSection {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  margin-top: 2rem;
+  padding-top: 2rem;
+  border-top: 1px solid var(--border-color);
+}
+
+.actionButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.5rem;
+  border: none;
+  border-radius: 0.5rem;
+  font-weight: 600;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.actionButton:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.confirmButton {
+  background: #27ae60;
+  color: white;
+}
+
+.confirmButton:hover:not(:disabled) {
+  background: #229954;
+}
+
+.cancelButton {
+  background: transparent;
+  color: #e74c3c;
+  border: 1px solid #e74c3c;
+}
+
+.cancelButton:hover:not(:disabled) {
+  background: rgba(231, 76, 60, 0.1);
+}
+
+.completeButton {
+  background: #3498db;
+  color: white;
+}
+
+.completeButton:hover:not(:disabled) {
+  background: #2980b9;
+}
+
+.conversationLink {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.5rem;
+  background: var(--bg-card);
+  color: var(--text-primary);
+  border: 1px solid var(--border-color);
+  border-radius: 0.5rem;
+  text-decoration: none;
+  font-weight: 500;
+  transition: all 0.2s;
+}
+
+.conversationLink:hover {
+  background: var(--bg-secondary);
+  border-color: var(--luxury-champagne-gold);
+}
+
+.loadingContainer,
+.errorContainer {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  padding: 2rem;
+  min-height: 50vh;
+}
+
+.loadingSpinner {
+  width: 40px;
+  height: 40px;
+  border: 3px solid var(--luxury-champagne-gold);
+  border-top: 3px solid transparent;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.backButton {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  background: var(--bg-card);
+  color: var(--text-primary);
+  border: 1px solid var(--border-color);
+  border-radius: 0.5rem;
+  text-decoration: none;
+  transition: all 0.2s;
+}
+
+.backButton:hover {
+  background: var(--bg-secondary);
+}
+
+@media (max-width: 768px) {
+  .main {
+    padding: 1rem;
+  }
+
+  .detailsGrid {
+    grid-template-columns: 1fr;
+  }
+}
+

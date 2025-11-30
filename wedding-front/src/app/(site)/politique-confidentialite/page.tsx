@@ -24,9 +24,9 @@ export default function PolitiqueConfidentialitePage() {
             <h2 className={styles.sectionTitle}>1. Introduction</h2>
             <div className={styles.info}>
               <p>
-                Bienvenue sur Kawepla. La protection de vos données personnelles est une priorité pour nous. 
-                Cette politique de confidentialité décrit comment nous collectons, utilisons, partageons et 
-                protégeons vos informations personnelles conformément au Règlement Général sur la Protection 
+                Bienvenue sur Kawepla. La protection de vos données personnelles est une priorité pour nous.
+                Cette politique de confidentialité décrit comment nous collectons, utilisons, partageons et
+                protégeons vos informations personnelles conformément au Règlement Général sur la Protection
                 des Données (RGPD) et aux lois françaises applicables.
               </p>
             </div>
@@ -39,7 +39,7 @@ export default function PolitiqueConfidentialitePage() {
               <p><strong>Statut :</strong> Particulier (Personne physique non immatriculée)</p>
               <p className={styles.contact}>
                 <Mail size={12} />
-                <strong>Contact :</strong> 
+                <strong>Contact :</strong>
                 <a href="mailto:kawepla.kaporelo@gmail.com">kawepla.kaporelo@gmail.com</a>
               </p>
             </div>
@@ -53,7 +53,8 @@ export default function PolitiqueConfidentialitePage() {
               <p><strong>b) Données de l'événement :</strong> Titre de l'événement, date, lieu, description, liste des invités</p>
               <p><strong>c) Données de connexion :</strong> Adresse IP, type de navigateur, pages consultées, date et heure des visites</p>
               <p><strong>d) Données de communication :</strong> Messages envoyés via la plateforme, photos partagées</p>
-              <p><strong>e) Données de paiement :</strong> Les informations de paiement sont traitées directement par notre prestataire de paiement Stripe et ne sont pas stockées sur nos serveurs</p>
+              <p><strong>e) Données des Prestataires :</strong> Pour les professionnels référencés : informations de l'entreprise (SIRET, adresse), portfolio, tarifs, et avis clients.</p>
+              <p><strong>f) Données de paiement :</strong> Les informations de paiement sont traitées directement par notre prestataire de paiement Stripe et ne sont pas stockées sur nos serveurs</p>
             </div>
           </section>
 
@@ -128,7 +129,7 @@ export default function PolitiqueConfidentialitePage() {
               <p><strong>• Droit d'opposition :</strong> Vous opposer au traitement de vos données</p>
               <p><strong>• Droit de retirer votre consentement :</strong> À tout moment pour les traitements basés sur le consentement</p>
               <p>
-                Pour exercer ces droits, contactez-nous à : 
+                Pour exercer ces droits, contactez-nous à :
                 <a href="mailto:kawepla.kaporelo@gmail.com" style={{ marginLeft: '4px' }}>kawepla.kaporelo@gmail.com</a>
               </p>
             </div>
@@ -149,7 +150,7 @@ export default function PolitiqueConfidentialitePage() {
             <h2 className={styles.sectionTitle}>11. Contact et Délégué à la Protection des Données</h2>
             <div className={styles.info}>
               <p>
-                Pour toute question concernant cette politique de confidentialité ou pour exercer vos droits (RGPD), 
+                Pour toute question concernant cette politique de confidentialité ou pour exercer vos droits (RGPD),
                 vous pouvez nous contacter à l'adresse suivante :
               </p>
               <div className={styles.contactBox}>
@@ -157,13 +158,13 @@ export default function PolitiqueConfidentialitePage() {
                 <a href="mailto:kawepla.kaporelo@gmail.com">kawepla.kaporelo@gmail.com</a>
               </div>
               <p style={{ marginTop: 'var(--space-md)' }}>
-                <strong>Délégué à la Protection des Données (DPO) :</strong> L'éditeur de l'application Kawepla 
-                (Sabrina ELOUNDOU) est l'unique responsable du traitement des données personnelles et est le point 
+                <strong>Délégué à la Protection des Données (DPO) :</strong> L'éditeur de l'application Kawepla
+                (Sabrina ELOUNDOU) est l'unique responsable du traitement des données personnelles et est le point
                 de contact pour toutes les questions relatives au RGPD.
               </p>
               <p style={{ marginTop: 'var(--space-md)' }}>
-                Vous avez également le droit d'introduire une réclamation auprès de la Commission Nationale 
-                de l'Informatique et des Libertés (CNIL) si vous estimez que le traitement de vos données 
+                Vous avez également le droit d'introduire une réclamation auprès de la Commission Nationale
+                de l'Informatique et des Libertés (CNIL) si vous estimez que le traitement de vos données
                 constitue une violation de la réglementation applicable.
               </p>
             </div>
@@ -173,9 +174,9 @@ export default function PolitiqueConfidentialitePage() {
             <h2 className={styles.sectionTitle}>12. Modifications de la politique</h2>
             <div className={styles.info}>
               <p>
-                Nous nous réservons le droit de modifier cette politique de confidentialité à tout moment. 
-                Toute modification sera publiée sur cette page avec une nouvelle date de mise à jour. 
-                Nous vous encourageons à consulter régulièrement cette page pour rester informé de nos pratiques 
+                Nous nous réservons le droit de modifier cette politique de confidentialité à tout moment.
+                Toute modification sera publiée sur cette page avec une nouvelle date de mise à jour.
+                Nous vous encourageons à consulter régulièrement cette page pour rester informé de nos pratiques
                 en matière de protection des données.
               </p>
             </div>

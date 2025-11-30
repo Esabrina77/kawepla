@@ -16,11 +16,16 @@ export const useWebSocketNotifications = () => {
         const { io } = await import('socket.io-client');
         
         // Se connecter avec authentification
-        socketRef.current = io('http://localhost:3013', {
+        const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3013';
+        socketRef.current = io(apiUrl, {
           auth: {
             token: token
           },
-          transports: ['websocket', 'polling']
+          transports: ['websocket', 'polling'],
+          reconnection: true,
+          reconnectionDelay: 1000,
+          reconnectionAttempts: Infinity,
+          timeout: 20000
         });
 
         socketRef.current.on('connect', () => {

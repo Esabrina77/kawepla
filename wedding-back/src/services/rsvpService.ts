@@ -335,7 +335,7 @@ export class RSVPService {
     if (!data.lastName || data.lastName.trim().length < 2) {
       throw new Error('Le nom est requis (minimum 2 caractères)');
     }
-    
+
     // Téléphone requis
     if (!data.phone || data.phone.trim().length < 8) {
       throw new Error('Le numéro de téléphone est requis (minimum 8 caractères)');
@@ -367,7 +367,7 @@ export class RSVPService {
 
     // Générer un token unique pour cet invité
     const inviteToken = `guest-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
-    
+
     // Créer l'invité en liant au propriétaire de l'invitation
     const guest = await prisma.guest.create({
       data: {

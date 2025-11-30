@@ -4,19 +4,22 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useAuth } from '@/hooks/useAuth';
+import { Eye, EyeOff } from 'lucide-react';
 import styles from '@/styles/site/auth.module.css';
 
 export default function RegisterPage() {
   const { register, isLoading: authLoading } = useAuth();
   const router = useRouter();
   const [error, setError] = useState<string>('');
-  const [loading, setLoading] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [userType, setUserType] = useState<'HOST' | 'PROVIDER'>('HOST');
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setError('');
-    setLoading(true);
+    setIsSubmitting(true);
 
     const formData = new FormData(e.currentTarget);
     const data = {
@@ -29,7 +32,7 @@ export default function RegisterPage() {
 
     if (data.password !== data.confirmPassword) {
       setError('Les mots de passe ne correspondent pas');
-      setLoading(false);
+      setIsSubmitting(false);
       return;
     }
 
@@ -52,7 +55,7 @@ export default function RegisterPage() {
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Une erreur est survenue');
     } finally {
-      setLoading(false);
+      setIsSubmitting(false);
     }
   };
 
@@ -85,7 +88,7 @@ export default function RegisterPage() {
                         value="HOST"
                         checked={userType === 'HOST'}
                         onChange={(e) => setUserType(e.target.value as 'HOST' | 'PROVIDER')}
-                        disabled={loading}
+                        disabled={isSubmitting}
                       />
                       <div className={styles.userTypeContent}>
                         <div className={styles.userTypeIcon}>💒</div>
@@ -103,7 +106,7 @@ export default function RegisterPage() {
                         value="PROVIDER"
                         checked={userType === 'PROVIDER'}
                         onChange={(e) => setUserType(e.target.value as 'HOST' | 'PROVIDER')}
-                        disabled={loading}
+                        disabled={isSubmitting}
                       />
                       <div className={styles.userTypeContent}>
                         <div className={styles.userTypeIcon}>🎯</div>
@@ -129,7 +132,7 @@ export default function RegisterPage() {
                       required
                       className={styles.fullWidth}
                       placeholder="Votre prénom"
-                      disabled={loading}
+                      disabled={isSubmitting}
                     />
                   </div>
                   <div className={styles.formGroup}>
@@ -141,7 +144,7 @@ export default function RegisterPage() {
                       required
                       className={styles.fullWidth}
                       placeholder="Votre nom"
-                      disabled={loading}
+                      disabled={isSubmitting}
                     />
                   </div>
                 </div>
@@ -156,22 +159,32 @@ export default function RegisterPage() {
                     required
                     className={styles.fullWidth}
                     placeholder="votre@email.com"
-                    disabled={loading}
+                    disabled={isSubmitting}
                   />
                 </div>
 
                 <div className={styles.formGroup}>
                   <label htmlFor="password">Mot de passe</label>
-                  <input
-                    id="password"
-                    name="password"
-                    type="password"
-                    autoComplete="new-password"
-                    required
-                    className={styles.fullWidth}
-                    placeholder="••••••••"
-                    disabled={loading}
-                  />
+                  <div className={styles.passwordInput}>
+                    <input
+                      id="password"
+                      name="password"
+                      type={showPassword ? "text" : "password"}
+                      autoComplete="new-password"
+                      required
+                      className={styles.fullWidth}
+                      placeholder="••••••••"
+                      disabled={isSubmitting}
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword(!showPassword)}
+                      className={styles.passwordToggle}
+                    disabled={isSubmitting}
+                    >
+                      {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                    </button>
+                  </div>
                   <p className={styles.passwordHint}>
                     Le mot de passe doit contenir au moins 8 caractères
                   </p>
@@ -179,21 +192,31 @@ export default function RegisterPage() {
 
                 <div className={styles.formGroup}>
                   <label htmlFor="confirmPassword">Confirmer le mot de passe</label>
-                  <input
-                    id="confirmPassword"
-                    name="confirmPassword"
-                    type="password"
-                    autoComplete="new-password"
-                    required
-                    className={styles.fullWidth}
-                    placeholder="••••••••"
-                    disabled={loading}
-                  />
+                  <div className={styles.passwordInput}>
+                    <input
+                      id="confirmPassword"
+                      name="confirmPassword"
+                      type={showConfirmPassword ? "text" : "password"}
+                      autoComplete="new-password"
+                      required
+                      className={styles.fullWidth}
+                      placeholder="••••••••"
+                      disabled={isSubmitting}
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                      className={styles.passwordToggle}
+                      disabled={isSubmitting}
+                    >
+                      {showConfirmPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                    </button>
+                  </div>
                 </div>
 
                 <div className={styles.terms}>
                   <label>
-                    <input type="checkbox" name="terms" required disabled={loading} />
+                    <input type="checkbox" name="terms" required disabled={isSubmitting} />
                     <span>
                       J'accepte les{' '}
                       <Link href="/legal/terms">conditions d'utilisation</Link> et la{' '}
@@ -204,10 +227,10 @@ export default function RegisterPage() {
 
                 <button
                   type="submit" 
-                  disabled={loading}
-                  className={`${styles.submitButton} ${loading ? styles.loading : ''}`}
+                  disabled={isSubmitting}
+                  className={`${styles.submitButton} ${isSubmitting ? styles.loading : ''}`}
                 >
-                  {loading ? 'Inscription en cours...' : 'Créer mon compte'}
+                  {isSubmitting ? 'Création en cours...' : 'Créer mon compte'}
                 </button>
 
                 <div className={styles.footer}>

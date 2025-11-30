@@ -31,3 +31,4 @@ router.get('/:id/stats', NewsletterController.getNewsletterStats);
 router.get('/:id/recipients', NewsletterController.getNewsletterRecipients);
 
 export default router;
+    

@@ -1,6 +1,7 @@
 import Stripe from 'stripe';
 import { prisma } from '../lib/prisma';
-import { ServiceTier, PurchaseStatus } from '@prisma/client';
+import { ServicePack, ServicePackType, ServiceTier } from '@prisma/client';
+import { ServicePackService } from './servicePackService';
 
 const stripe = process.env.STRIPE_SECRET_KEY 
   ? new Stripe(process.env.STRIPE_SECRET_KEY, {
@@ -9,177 +10,111 @@ const stripe = process.env.STRIPE_SECRET_KEY
   : null;
 
 export interface ServicePurchasePlan {
-  id: ServiceTier;
+  id: string;
+  slug: string;
+  tier?: ServiceTier | null;
   name: string;
-  description: string;
+  description?: string | null;
   price: number;
-  paymentLink: string; // URL du Payment Link Stripe
+  currency: string;
   features: string[];
+  isHighlighted?: boolean;
   limits: {
     invitations: number;
     guests: number;
     photos: number;
     designs: number;
+    aiRequests: number;
   };
 }
 
-// Services supplémentaires payants
 export interface AdditionalService {
   id: string;
+  slug: string;
   name: string;
   description: string;
   price: number;
-  paymentLink: string;
-  type: 'guests' | 'photos' | 'designs';
+  currency: string;
+  type: 'guests' | 'photos' | 'designs' | 'aiRequests' | 'invitations';
   quantity: number;
+  unit?: string | null;
 }
 
-export const ADDITIONAL_SERVICES: AdditionalService[] = [
-  {
-    id: 'GUESTS_30',
-    name: 'Pack 30 invités supplémentaires',
-    description: 'Ajoutez 30 invités supplémentaires à votre forfait',
-    price: 15,
-    paymentLink: process.env.STRIPE_PAYMENT_LINK_GUESTS_30 || 'https://buy.stripe.com/test_guests_30',
-    type: 'guests',
-    quantity: 30
-  },
-  {
-    id: 'GUESTS_50',
-    name: 'Pack 50 invités supplémentaires',
-    description: 'Ajoutez 50 invités supplémentaires à votre forfait',
-    price: 25,
-    paymentLink: process.env.STRIPE_PAYMENT_LINK_GUESTS_50 || 'https://buy.stripe.com/test_guests_50',
-    type: 'guests',
-    quantity: 50
-  },
-  {
-    id: 'PHOTOS_50',
-    name: '50 photos supplémentaires',
-    description: 'Ajoutez 50 photos supplémentaires à votre album',
-    price: 15,
-    paymentLink: process.env.STRIPE_PAYMENT_LINK_PHOTOS_50 || 'https://buy.stripe.com/test_photos_50',
-    type: 'photos',
-    quantity: 50
-  },
-  {
-    id: 'DESIGN_ELEGANT',
-    name: 'Design premium supplémentaire',
-    description: 'Accédez à un design premium exclusif',
-    price: 20,
-    paymentLink: process.env.STRIPE_PAYMENT_LINK_DESIGN_ELEGANT || 'https://buy.stripe.com/test_design_premium',
-    type: 'designs',
-    quantity: 1
+const mapPackToPlan = (pack: ServicePack): ServicePurchasePlan => ({
+  id: pack.id,
+  slug: pack.slug,
+  tier: pack.tier,
+  name: pack.name,
+  description: pack.description,
+  price: pack.price,
+  currency: pack.currency,
+  features: pack.features || [],
+  isHighlighted: pack.isHighlighted,
+  limits: {
+    invitations: pack.invitations ?? 0,
+    guests: pack.guests ?? 0,
+    photos: pack.photos ?? 0,
+    designs: pack.designs ?? 0,
+    aiRequests: pack.aiRequests ?? 0
   }
-];
+});
 
-export const SUBSCRIPTION_PLANS: ServicePurchasePlan[] = [
-  {
-    id: 'FREE',
-    name: 'Découverte',
-    description: 'Parfait pour tester',
-    price: 0,
-    paymentLink: '', // Pas de paiement pour le plan gratuit
-    features: [
-      '1 invitation personnalisable',
-      'Jusqu\'à 10 invités',
-      'RSVP basique',
-      '1 design standard',
-      'Support communautaire'
-    ],
-    limits: {
-      invitations: 1,
-      guests: 30,
-      photos: 20,
-      designs: 1
-    }
-  },
-  {
-    id: 'ESSENTIAL',
-    name: 'Essentiel',
-    description: 'Pour les petits mariages',
-    price: 39,
-    paymentLink: process.env.STRIPE_PAYMENT_LINK_ESSENTIAL || 'https://buy.stripe.com/test_essential',
-    features: [
-      '2 invitations personnalisables',
-      'Jusqu\'à 75 invités',
-      'RSVP avec préférences alimentaires',
-      '5 designs premium',
-      'Album photos (50 photos max)',
-      'Support email'
-    ],
-    limits: {
-      invitations: 2,
-      guests: 75,
-      photos: 50,
-      designs: 5
-    }
-  },
-  {
-    id: 'ELEGANT',
-    name: 'Élégant',
-    description: 'Le plus populaire',
-    price: 69,
-    paymentLink: process.env.STRIPE_PAYMENT_LINK_ELEGANT || 'https://buy.stripe.com/test_elegant',
-    features: [
-      '3 invitations personnalisables',
-      'Jusqu\'à 150 invités',
-      'RSVP complet + messages',
-      '10 designs premium',
-      'Album photos (150 photos max)',
-      'QR codes personnalisés',
-      'Support prioritaire'
-    ],
-    limits: {
-      invitations: 3,
-      guests: 150,
-      photos: 150,
-      designs: 10
-    }
-  },
-  {
-    id: 'PREMIUM',
-    name: 'Premium',
-    description: 'Pour les grands mariages',
-    price: 99,
-    paymentLink: process.env.STRIPE_PAYMENT_LINK_PREMIUM || 'https://buy.stripe.com/test_premium',
-    features: [
-      '5 invitations personnalisables',
-      'Jusqu\'à 300 invités',
-      'Toutes les fonctionnalités RSVP',
-      'Tous les designs premium',
-      'Album photos (500 photos max)',
-      'Analytics détaillées',
-      'Support VIP'
-    ],
-    limits: {
-      invitations: 5,
-      guests: 300,
-      photos: 500,
-      designs: 20
-    }
-  },
-  {
-    id: 'LUXE',
-    name: 'Luxe',
-    description: 'L\'expérience ultime',
-    price: 149,
-    paymentLink: process.env.STRIPE_PAYMENT_LINK_LUXE || 'https://buy.stripe.com/test_luxe',
-    features: [
-      '10 invitations personnalisables',
-      'Jusqu\'à 500 invités',
-      'Album photos (1000 photos max)',
-      'Tous les designs + personnalisations',
-      'Accès bêta aux nouvelles fonctionnalités'
-    ],
-    limits: {
-      invitations: 10,
-      guests: 500,
-      photos: 1000,
-      designs: 50
+const mapPackToAddon = (pack: ServicePack): AdditionalService => ({
+  id: pack.id,
+  slug: pack.slug,
+  name: pack.name,
+  description: pack.description || '',
+  price: pack.price,
+  currency: pack.currency,
+    type: (pack.unit === 'PHOTO' ? 'photos'
+      : pack.unit === 'INVITATION' ? 'invitations'
+      : pack.unit === 'DESIGN' ? 'designs'
+      : pack.unit === 'AI_REQUEST' ? 'aiRequests'
+      : 'guests'),
+  quantity: pack.quantity ?? 0,
+  unit: pack.unit
+});
+
+const resolveBasePack = async (identifier: string): Promise<ServicePack | null> => {
+  if (!identifier) return null;
+
+  const byId = await ServicePackService.getById(identifier);
+  if (byId && byId.type === ServicePackType.BASE) {
+    return byId;
+  }
+
+  const normalized = identifier.toLowerCase();
+  const bySlug = await ServicePackService.getBySlug(normalized);
+  if (bySlug && bySlug.type === ServicePackType.BASE) {
+    return bySlug;
+  }
+
+  if ((Object.values(ServiceTier) as string[]).includes(identifier)) {
+    const byTier = await ServicePackService.getByTier(identifier as ServiceTier);
+    if (byTier) {
+      return byTier;
     }
   }
-];
+
+  return null;
+};
+
+const resolveAddonPack = async (identifier: string): Promise<ServicePack | null> => {
+  if (!identifier) return null;
+
+  const byId = await ServicePackService.getById(identifier);
+  if (byId && byId.type === ServicePackType.ADDON) {
+    return byId;
+  }
+
+  const normalized = identifier.toLowerCase();
+  const bySlug = await ServicePackService.getBySlug(normalized);
+  if (bySlug && bySlug.type === ServicePackType.ADDON) {
+    return bySlug;
+  }
+
+  return null;
+};
 
 export class StripeService {
   /**
@@ -192,14 +127,14 @@ export class StripeService {
     cancelUrl: string
   ) {
     try {
-      const plan = SUBSCRIPTION_PLANS.find(p => p.id === planId);
-      if (!plan) {
+      const pack = await resolveBasePack(planId);
+      if (!pack) {
         throw new Error('Plan non trouvé');
       }
 
-      if (plan.price === 0) {
+      if (pack.price === 0) {
         // Plan gratuit - changement direct
-        await this.changePlanDirectly(userId, planId);
+        await this.changePlanDirectly(userId, pack.id);
         return {
           url: successUrl,
           sessionId: null
@@ -219,20 +154,21 @@ export class StripeService {
             price_data: {
               currency: 'eur',
               product_data: {
-                name: `Forfait ${plan.name}`,
-                description: plan.description,
+                name: `Forfait ${pack.name}`,
+                description: pack.description ?? undefined,
               },
-              unit_amount: plan.price * 100, // Stripe utilise les centimes
+              unit_amount: Math.round(pack.price * 100),
             },
             quantity: 1,
           },
         ],
         mode: 'payment',
-        success_url: `${successUrl}?success=true&plan=${planId}`,
+        success_url: `${successUrl}?success=true&plan=${pack.id}`,
         cancel_url: `${cancelUrl}?canceled=true`,
         metadata: {
           userId,
-          planId,
+          planId: pack.id,
+          servicePackId: pack.id,
         },
       });
 
@@ -256,8 +192,8 @@ export class StripeService {
     cancelUrl: string
   ) {
     try {
-      const service = ADDITIONAL_SERVICES.find(s => s.id === serviceId);
-      if (!service) {
+      const pack = await resolveAddonPack(serviceId);
+      if (!pack) {
         throw new Error('Service non trouvé');
       }
 
@@ -273,20 +209,20 @@ export class StripeService {
             price_data: {
               currency: 'eur',
               product_data: {
-                name: service.name,
-                description: service.description,
+                name: pack.name,
+                description: pack.description ?? undefined,
               },
-              unit_amount: service.price * 100,
+              unit_amount: Math.round(pack.price * 100),
             },
             quantity: 1,
           },
         ],
         mode: 'payment',
-        success_url: `${successUrl}?success=true&service=${serviceId}`,
+        success_url: `${successUrl}?success=true&service=${pack.id}&session_id={CHECKOUT_SESSION_ID}`,
         cancel_url: `${cancelUrl}?canceled=true`,
         metadata: {
           userId,
-          serviceId,
+          serviceId: pack.id,
           type: 'additional_service'
         },
       });
@@ -303,74 +239,172 @@ export class StripeService {
 
   /**
    * Appliquer un service supplémentaire à un utilisateur
-   * TODO: Implémenter la table additionalService dans Prisma
    */
-  static async applyAdditionalService(userId: string, serviceId: string) {
+  static async applyAdditionalService(userId: string, serviceId: string, stripeSessionId?: string) {
     try {
-      const service = ADDITIONAL_SERVICES.find(s => s.id === serviceId);
-      if (!service) {
+      const servicePack = await resolveAddonPack(serviceId);
+      if (!servicePack) {
         throw new Error('Service non trouvé');
       }
 
-      // Créer la table si elle n'existe pas
-      await this.ensureAdditionalServicesTable();
-
-      // Insérer le service acheté
-      await prisma.$executeRaw`
-        INSERT INTO user_additional_services (id, "userId", "serviceId", quantity, type, "createdAt")
-        VALUES (${this.generateId()}, ${userId}, ${serviceId}, ${service.quantity}, ${service.type}, NOW())
-      `;
-
-      console.log(`Service supplémentaire appliqué: ${service.name} pour l'utilisateur ${userId}`);
+      // Utiliser une transaction avec retry pour gérer les deadlocks
+      let wasAlreadyApplied = false;
+      let retries = 3;
       
-      return { success: true, service };
+      while (retries > 0) {
+        try {
+          wasAlreadyApplied = await prisma.$transaction(async (tx) => {
+        // Vérifier si le service a déjà été appliqué récemment (dans les 30 dernières secondes)
+        // Fenêtre très courte pour éviter les doublons entre webhook et confirmation manuelle
+        const recentService = await tx.userAdditionalService.findFirst({
+          where: {
+            userId: userId,
+            servicePackId: servicePack.id,
+            createdAt: {
+              gte: new Date(Date.now() - 30 * 1000) // 30 secondes seulement
+            }
+          },
+          orderBy: {
+            createdAt: 'desc'
+          }
+        });
+
+        if (recentService) {
+          const secondsAgo = Math.round((Date.now() - recentService.createdAt.getTime()) / 1000);
+          console.log(`⚠️ Service ${servicePack.name} déjà appliqué récemment (${secondsAgo}s) pour l'utilisateur ${userId}, évitement du doublon`);
+          return true; // Déjà appliqué
+        }
+
+        // Vérifier aussi dans purchase_history pour être sûr
+        // Si on a un stripeSessionId, vérifier avec celui-ci pour une détection plus précise
+        const purchaseWhere: any = {
+          userId: userId,
+          servicePackId: servicePack.id,
+          purchasedAt: {
+            gte: new Date(Date.now() - 30 * 1000) // 30 secondes
+          }
+        };
+        
+        // Si on a un sessionId, vérifier aussi avec celui-ci
+        if (stripeSessionId) {
+          purchaseWhere.stripePaymentId = {
+            contains: stripeSessionId
+          };
+        }
+        
+        const recentPurchase = await tx.purchaseHistory.findFirst({
+          where: purchaseWhere
+        });
+
+        if (recentPurchase) {
+          console.log(`⚠️ Achat déjà enregistré dans purchase_history pour ${servicePack.name} (${Math.round((Date.now() - recentPurchase.purchasedAt.getTime()) / 1000)}s), évitement du doublon`);
+          return true; // Déjà appliqué
+        }
+
+        // Créer l'entrée dans user_additional_services
+        // quantity = nombre de fois qu'on a acheté ce pack (1 par défaut)
+        try {
+          await tx.userAdditionalService.create({
+            data: {
+              userId: userId,
+              serviceId: servicePack.slug,
+              servicePackId: servicePack.id,
+              quantity: 1, // Nombre de fois qu'on a acheté ce pack, pas la quantité du pack
+              type: servicePack.unit ?? 'ADDON'
+            }
+          });
+        } catch (error: any) {
+          // Si erreur de contrainte unique ou doublon, considérer comme déjà appliqué
+          if (error.code === 'P2002' || error.message?.includes('Unique constraint')) {
+            console.log(`⚠️ Contrainte unique violée pour ${servicePack.name}, service déjà appliqué`);
+            return true;
+          }
+          throw error;
+        }
+
+        // Créer une entrée dans purchase_history pour tracer l'achat
+        // Inclure le sessionId dans stripePaymentId pour éviter les doublons
+        const paymentId = stripeSessionId 
+          ? `addon_${stripeSessionId}_${Date.now()}`
+          : `addon_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+        
+        try {
+          await tx.purchaseHistory.create({
+            data: {
+              userId: userId,
+              tier: null, // Les add-ons n'ont pas de tier
+              servicePackId: servicePack.id,
+              quantity: 1,
+              price: servicePack.price,
+              currency: servicePack.currency,
+              stripePaymentId: paymentId
+            }
+          });
+        } catch (error: any) {
+          // Si erreur de contrainte unique ou doublon, considérer comme déjà appliqué
+          if (error.code === 'P2002' || error.message?.includes('Unique constraint')) {
+            console.log(`⚠️ Contrainte unique violée dans purchase_history pour ${servicePack.name}, achat déjà enregistré`);
+            return true;
+          }
+          throw error;
+        }
+
+            return false; // Nouvellement appliqué
+          }, {
+            isolationLevel: 'ReadCommitted', // Isolation moins stricte pour éviter les deadlocks
+            timeout: 5000 // 5 secondes de timeout
+          });
+          
+          break; // Succès, sortir de la boucle
+        } catch (error: any) {
+          // Si erreur de deadlock (P2034), réessayer
+          if (error.code === 'P2034' && retries > 1) {
+            retries--;
+            console.log(`⚠️ Deadlock détecté, nouvelle tentative (${retries} restantes)...`);
+            await new Promise(resolve => setTimeout(resolve, 100 * (4 - retries))); // Délai exponentiel
+            continue;
+          }
+          // Si autre erreur ou plus de retries, propager l'erreur
+          throw error;
+        }
+      }
+
+      // Si le service était déjà appliqué, retourner directement
+      if (wasAlreadyApplied) {
+        return { 
+          success: true, 
+          service: mapPackToAddon(servicePack), 
+          alreadyApplied: true,
+          message: `Le service "${servicePack.name}" a déjà été appliqué à votre compte.`
+        };
+      }
+
+      console.log(`✅ Service supplémentaire appliqué: ${servicePack.name} pour l'utilisateur ${userId}`);
+      console.log(`   Quantité ajoutée: ${servicePack.quantity} ${servicePack.unit}`);
+      
+      return { 
+        success: true, 
+        service: mapPackToAddon(servicePack),
+        message: `Le service "${servicePack.name}" a été ajouté à votre compte avec succès.`
+      };
     } catch (error) {
-      console.error('Erreur lors de l\'application du service supplémentaire:', error);
+      console.error('❌ Erreur lors de l\'application du service supplémentaire:', error);
       throw new Error('Erreur lors de l\'application du service supplémentaire');
     }
   }
 
-  /**
-   * Créer la table des services supplémentaires si elle n'existe pas
-   */
-  private static async ensureAdditionalServicesTable() {
-    try {
-      await prisma.$executeRaw`
-        CREATE TABLE IF NOT EXISTS user_additional_services (
-          id TEXT PRIMARY KEY,
-          "userId" TEXT NOT NULL,
-          "serviceId" TEXT NOT NULL,
-          quantity INTEGER NOT NULL,
-          type TEXT NOT NULL,
-          "createdAt" TIMESTAMP NOT NULL DEFAULT NOW(),
-          FOREIGN KEY ("userId") REFERENCES users(id) ON DELETE CASCADE
-        );
-      `;
-    } catch (error) {
-      console.error('Erreur lors de la création de la table:', error);
-    }
-  }
-
-  /**
-   * Générer un ID unique
-   */
-  private static generateId(): string {
-    return `cm${Date.now().toString(36)}${Math.random().toString(36).substr(2, 9)}`;
-  }
 
   /**
    * Obtenir les services supplémentaires d'un utilisateur
    */
   static async getUserAdditionalServices(userId: string) {
     try {
-      await this.ensureAdditionalServicesTable();
-      
-      const result = await prisma.$queryRaw`
-        SELECT * FROM user_additional_services 
-        WHERE "userId" = ${userId}
-      ` as any[];
-
-      return result;
+      return await prisma.userAdditionalService.findMany({
+        where: { userId },
+        include: {
+          servicePack: true
+        }
+      });
     } catch (error) {
       console.error('Erreur lors de la récupération des services supplémentaires:', error);
       return [];
@@ -382,68 +416,178 @@ export class StripeService {
    */
   static async getUserTotalLimits(userId: string) {
     try {
-      // Récupérer tous les achats de l'utilisateur
-      const userPurchases = await prisma.servicePurchase.findMany({
-        where: { 
-          userId: userId,
-          status: 'ACTIVE'
+      const [userPurchases, additionalServices, freePack] = await Promise.all([
+        prisma.servicePurchase.findMany({
+          where: {
+            userId,
+            status: 'ACTIVE'
+          },
+          include: {
+            servicePack: true
+          }
+        }),
+        this.getUserAdditionalServices(userId),
+        ServicePackService.getByTier('FREE')
+      ]);
+
+      const defaultLimits = freePack
+        ? mapPackToPlan(freePack).limits
+        : { invitations: 1, guests: 30, photos: 20, designs: 1, aiRequests: 3 };
+
+      const totalLimits = { ...defaultLimits };
+
+      const applyBasePack = (pack: ServicePack, multiplier = 1) => {
+        totalLimits.invitations += (pack.invitations ?? 0) * multiplier;
+        totalLimits.guests += (pack.guests ?? 0) * multiplier;
+        totalLimits.photos += (pack.photos ?? 0) * multiplier;
+        totalLimits.designs += (pack.designs ?? 0) * multiplier;
+        totalLimits.aiRequests += (pack.aiRequests ?? 0) * multiplier;
+      };
+
+      const applyAddonPack = (pack: ServicePack, multiplier = 1) => {
+        const amount = (pack.quantity ?? 0) * multiplier;
+        switch (pack.unit) {
+          case 'GUEST':
+            totalLimits.guests += amount;
+            break;
+          case 'PHOTO':
+            totalLimits.photos += amount;
+            break;
+          case 'INVITATION':
+            // INVITATION = nombre d'événements qu'on peut créer
+            totalLimits.invitations += amount;
+            break;
+          case 'DESIGN':
+            // DESIGN = modèles/templates (non utilisé pour les packs supplémentaires)
+            totalLimits.designs += amount;
+            break;
+          case 'AI_REQUEST':
+            totalLimits.aiRequests += amount;
+            break;
+        }
+      };
+
+      const missingTiers = Array.from(
+        new Set(
+          userPurchases
+            .filter(p => !p.servicePack && p.tier)
+            .map(p => p.tier as ServiceTier)
+        )
+      );
+      const tierMap = new Map<ServiceTier, ServicePack | null>();
+      await Promise.all(
+        missingTiers.map(async tier => {
+          const pack = await ServicePackService.getByTier(tier);
+          tierMap.set(tier, pack ?? null);
+        })
+      );
+
+      userPurchases.forEach(purchase => {
+        const pack = purchase.servicePack
+          ?? (purchase.tier ? tierMap.get(purchase.tier as ServiceTier) ?? null : null);
+        if (!pack) {
+          return;
+        }
+
+        if (pack.type === ServicePackType.BASE) {
+          applyBasePack(pack, purchase.quantity);
+        } else if (pack.type === ServicePackType.ADDON) {
+          applyAddonPack(pack, purchase.quantity);
         }
       });
 
-      // Récupérer les services supplémentaires
-      const additionalServices = await this.getUserAdditionalServices(userId);
-
-      // TOUJOURS commencer avec les limites FREE de base
-      const freeLimits = this.getPlanDetails('FREE')?.limits || {
-        invitations: 1,
-        guests: 30,
-        photos: 20,
-        designs: 1
-      };
-
-      let totalLimits = {
-        invitations: freeLimits.invitations,
-        guests: freeLimits.guests,
-        photos: freeLimits.photos,
-        designs: freeLimits.designs
-      };
-
-      // AJOUTER les limites de chaque achat payant
-      for (const purchase of userPurchases) {
-        const planLimits = this.getPlanDetails(purchase.tier)?.limits;
-        if (planLimits) {
-          totalLimits.invitations += planLimits.invitations * purchase.quantity;
-          totalLimits.guests += planLimits.guests * purchase.quantity;
-          totalLimits.photos += planLimits.photos * purchase.quantity;
-          totalLimits.designs += planLimits.designs * purchase.quantity;
+      // Appliquer les services supplémentaires (add-ons)
+      console.log(`🔍 Calcul des limites: ${additionalServices.length} services supplémentaires trouvés`);
+      
+      // Charger les servicePacks manquants si nécessaire
+      const servicesWithPacks = await Promise.all(
+        additionalServices.map(async (service) => {
+          if (!service.servicePack && service.servicePackId) {
+            const pack = await ServicePackService.getById(service.servicePackId);
+            return { ...service, servicePack: pack };
+          }
+          return service;
+        })
+      );
+      
+      servicesWithPacks.forEach(service => {
+        console.log(`  - Service: ${service.serviceId}, quantity: ${service.quantity}, type: ${service.type}, servicePack: ${service.servicePack ? service.servicePack.name : 'NULL'}`);
+        
+        if (service.servicePack) {
+          // service.quantity = nombre de packs achetés (devrait toujours être 1 pour un achat unique)
+          // pack.quantity = quantité du pack (ex: 10 requêtes IA, 1 design)
+          // On multiplie la quantité du pack par le nombre de packs achetés
+          let numberOfPacks = service.quantity || 1;
+          
+          // Correction pour les anciennes entrées où quantity stockait la quantité du pack au lieu du nombre de packs
+          // On ne corrige que si quantity > 1 ET quantity correspond à pack.quantity (cas suspect)
+          // Si quantity = 1 et pack.quantity = 1, c'est normal, pas besoin de corriger
+          if (service.servicePack.quantity && service.servicePack.quantity > 0) {
+            if (numberOfPacks > 1 && numberOfPacks === service.servicePack.quantity) {
+              // Ancienne entrée : quantity stockait la quantité du pack (ex: 10 pour pack de 10 requêtes IA)
+              // On corrige à 1 pack acheté
+              numberOfPacks = 1;
+              console.log(`⚠️ Correction automatique: quantity=${service.quantity} correspond à pack.quantity=${service.servicePack.quantity}, corrigé à 1 pack pour ${service.servicePack.name}`);
+            } else if (numberOfPacks > service.servicePack.quantity && numberOfPacks % service.servicePack.quantity === 0) {
+              // Ancienne entrée : quantity est un multiple de pack.quantity (ex: 20 pour pack de 10 = 2 achats)
+              numberOfPacks = numberOfPacks / service.servicePack.quantity;
+              console.log(`⚠️ Correction automatique: quantity=${service.quantity} est un multiple de pack.quantity=${service.servicePack.quantity}, corrigé à ${numberOfPacks} packs pour ${service.servicePack.name}`);
+            }
+          }
+          
+          const limitKey = service.servicePack.unit === 'INVITATION' ? 'invitations' :
+                          service.servicePack.unit === 'DESIGN' ? 'designs' : 
+                          service.servicePack.unit === 'GUEST' ? 'guests' :
+                          service.servicePack.unit === 'PHOTO' ? 'photos' :
+                          service.servicePack.unit === 'AI_REQUEST' ? 'aiRequests' : null;
+          
+          if (limitKey) {
+            const beforeLimit = totalLimits[limitKey];
+            console.log(`  ✅ Application du pack ${service.servicePack.name}: pack.quantity=${service.servicePack.quantity}, unit=${service.servicePack.unit}, numberOfPacks=${numberOfPacks}`);
+            applyAddonPack(service.servicePack, numberOfPacks);
+            const afterLimit = totalLimits[limitKey];
+            console.log(`  📊 Limite ${service.servicePack.unit}: ${beforeLimit} → ${afterLimit} (+${afterLimit - beforeLimit})`);
+          } else {
+            console.log(`  ⚠️ Unité inconnue pour le pack ${service.servicePack.name}: ${service.servicePack.unit}`);
+          }
+        } else if (service.type) {
+          // Fallback pour les anciens services sans servicePack
+          // On utilise le type pour déterminer l'unité
+          // Dans ce cas, service.quantity représente directement la quantité à ajouter
+          const amount = service.quantity || 0;
+          switch (service.type) {
+            case 'GUEST':
+              totalLimits.guests += amount;
+              break;
+            case 'PHOTO':
+              totalLimits.photos += amount;
+              break;
+            case 'DESIGN':
+              totalLimits.designs += amount;
+              break;
+            case 'AI_REQUEST':
+              totalLimits.aiRequests += amount;
+              break;
+          }
         }
-      }
+      });
 
-      // Ajouter les services supplémentaires
-      for (const service of additionalServices) {
-        switch (service.type) {
-          case 'guests':
-            totalLimits.guests += service.quantity;
-            break;
-          case 'photos':
-            totalLimits.photos += service.quantity;
-            break;
-          case 'designs':
-            totalLimits.designs += service.quantity;
-            break;
-        }
-      }
+      console.log(`📊 Limites totales calculées pour l'utilisateur ${userId}:`, {
+        invitations: totalLimits.invitations,
+        guests: totalLimits.guests,
+        photos: totalLimits.photos,
+        aiRequests: totalLimits.aiRequests
+      });
 
-      return totalLimits;
+      // Retourner les limites sans designs (designs = modèles, pas nécessaire pour les limites)
+      const { designs, ...limitsWithoutDesigns } = totalLimits;
+      return limitsWithoutDesigns;
     } catch (error) {
       console.error('Erreur lors du calcul des limites totales:', error);
-      // Retourner les limites gratuites en cas d'erreur
-      return this.getPlanDetails('FREE')?.limits || {
-        invitations: 1,
-        guests: 30,
-        photos: 20,
-        designs: 1
-      };
+      const freePack = await ServicePackService.getByTier('FREE');
+      return freePack
+        ? mapPackToPlan(freePack).limits
+        : { invitations: 1, guests: 30, photos: 20, designs: 1, aiRequests: 3 };
     }
   }
 
@@ -457,21 +601,29 @@ export class StripeService {
           userId: userId,
           status: 'ACTIVE'
         },
-        orderBy: { purchasedAt: 'desc' }
+        orderBy: { purchasedAt: 'desc' },
+        include: {
+          servicePack: true
+        }
       });
 
       if (userPurchases.length === 0) {
         return 'FREE';
       }
 
-      // Retourner le tier le plus élevé acheté
-      const tiers = userPurchases.map(p => p.tier);
-      if (tiers.includes('LUXE')) return 'LUXE';
-      if (tiers.includes('PREMIUM')) return 'PREMIUM';
-      if (tiers.includes('ELEGANT')) return 'ELEGANT';
-      if (tiers.includes('ESSENTIAL')) return 'ESSENTIAL';
-      
-      return 'FREE';
+      const tierOrder: ServiceTier[] = ['FREE', 'ESSENTIAL', 'ELEGANT', 'PREMIUM', 'LUXE'];
+      let highestTier: ServiceTier = 'FREE';
+
+      for (const purchase of userPurchases) {
+        const tier = purchase.servicePack?.tier ?? purchase.tier;
+        if (!tier) continue;
+        const normalizedTier = tier === 'PREMIUM' ? 'ELEGANT' : tier;
+        if (tierOrder.indexOf(normalizedTier) > tierOrder.indexOf(highestTier)) {
+          highestTier = normalizedTier;
+        }
+      }
+
+      return highestTier;
     } catch (error) {
       console.error('Erreur lors de la récupération du tier:', error);
       return 'FREE';
@@ -481,9 +633,11 @@ export class StripeService {
   /**
    * Obtenir les services supplémentaires disponibles
    */
-  static getAdditionalServices() {
-    return ADDITIONAL_SERVICES;
+  static async getAdditionalServices() {
+    const packs = await ServicePackService.listAddonPacks();
+    return packs.map(mapPackToAddon);
   }
+
 
 
 
@@ -505,7 +659,7 @@ export class StripeService {
 
     // Utiliser le tier actuel basé sur les achats
     const currentTier = await this.getUserCurrentTier(userId);
-    const plan = SUBSCRIPTION_PLANS.find(p => p.id === currentTier);
+    const plan = await this.getPlanDetails(currentTier);
     if (!plan) {
       throw new Error('Plan non trouvé');
     }
@@ -530,8 +684,9 @@ export class StripeService {
   /**
    * Obtenir les détails d'un plan
    */
-  static getPlanDetails(tier: ServiceTier) {
-    return SUBSCRIPTION_PLANS.find(p => p.id === tier);
+  static async getPlanDetails(tier: ServiceTier) {
+    const pack = await ServicePackService.getByTier(tier);
+    return pack ? mapPackToPlan(pack) : undefined;
   }
 
   /**
@@ -539,17 +694,28 @@ export class StripeService {
    */
   static async handleWebhook(event: any) {
     try {
+      console.log(`📥 Webhook reçu: ${event.type}`);
       switch (event.type) {
         case 'checkout.session.completed':
           const session = event.data.object;
-          const { userId, planId, serviceId, type } = session.metadata;
+          console.log(`📋 Session metadata:`, session.metadata);
+          const { userId, planId, serviceId, type } = session.metadata || {};
           
-                     if (userId && planId) {
-             console.log(`✅ Paiement confirmé pour l'utilisateur ${userId}, pack ${planId}`);
-             await this.changePlanDirectly(userId, planId);
-           } else if (userId && serviceId && type === 'additional_service') {
-            console.log(`✅ Paiement confirmé pour l'utilisateur ${userId}, service ${serviceId}`);
-            await this.applyAdditionalService(userId, serviceId);
+          if (userId && planId) {
+            console.log(`✅ Paiement confirmé pour l'utilisateur ${userId}, pack ${planId}`);
+            await this.changePlanDirectly(userId, planId);
+          } else if (userId && serviceId && type === 'additional_service') {
+            const sessionId = session.id;
+            console.log(`✅ Paiement confirmé pour l'utilisateur ${userId}, service ${serviceId}, session ${sessionId}`);
+            await this.applyAdditionalService(userId, serviceId, sessionId);
+          } else {
+            console.log(`⚠️ Webhook checkout.session.completed ignoré - métadonnées manquantes ou invalides:`, {
+              userId,
+              planId,
+              serviceId,
+              type,
+              metadata: session.metadata
+            });
           }
           break;
         
@@ -557,7 +723,7 @@ export class StripeService {
           console.log(`Webhook non géré: ${event.type}`);
       }
     } catch (error) {
-      console.error('Erreur lors du traitement du webhook:', error);
+      console.error('❌ Erreur lors du traitement du webhook:', error);
       throw error;
     }
   }
@@ -565,23 +731,25 @@ export class StripeService {
   /**
    * Obtenir tous les plans
    */
-  static getAllPlans() {
-    return SUBSCRIPTION_PLANS;
+  static async getAllPlans() {
+    const packs = await ServicePackService.listBasePacks();
+    return packs.map(mapPackToPlan);
   }
 
   /**
    * Acheter un pack directement
    */
-  static async changePlanDirectly(userId: string, newTier: string) {
+  static async changePlanDirectly(userId: string, packIdentifier: string) {
     try {
-      console.log(`🔍 ChangePlanDirectly - Début pour userId: ${userId}, newTier: ${newTier}`);
+      console.log(`🔍 ChangePlanDirectly - Début pour userId: ${userId}, pack: ${packIdentifier}`);
       
-      const plan = this.getPlanDetails(newTier as any);
-      if (!plan) {
+      const pack = await resolveBasePack(packIdentifier);
+      if (!pack) {
         throw new Error('Plan non trouvé');
       }
 
-      console.log(`🔍 Plan trouvé:`, plan);
+      const plan = mapPackToPlan(pack);
+      console.log('🔍 Plan trouvé:', plan);
 
       // Créer un nouvel achat (pas de mise à jour de l'utilisateur)
       // Générer un ID unique pour éviter les conflits de contrainte unique
@@ -590,7 +758,8 @@ export class StripeService {
       const newServicePurchase = await prisma.servicePurchase.create({
         data: {
           userId: userId,
-          tier: plan.id,
+          tier: pack.tier ?? null,
+          servicePackId: pack.id,
           status: 'ACTIVE',
           stripePaymentId: testPaymentId,
         }
@@ -602,10 +771,11 @@ export class StripeService {
       const purchaseHistoryEntry = await prisma.purchaseHistory.create({
         data: {
           userId: userId,
-          tier: plan.id,
+          tier: pack.tier ?? null,
+          servicePackId: pack.id,
           quantity: 1,
           price: plan.price,
-          currency: 'EUR',
+          currency: plan.currency,
           stripePaymentId: testPaymentId, // ID unique pour éviter les conflits
         }
       });

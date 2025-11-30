@@ -2,6 +2,8 @@
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/hooks/useAuth";
+import { RateLimitModal } from "@/components/RateLimitModal/RateLimitModal";
+import Chatbot from "@/components/Chatbot/Chatbot";
 import styles from './extranetLayout.module.css';
 
 export default function ExtranetLayout({
@@ -60,6 +62,8 @@ export default function ExtranetLayout({
   return (
     <div className={`${styles.layout}`}>
       {children}
+      <RateLimitModal />
+      <Chatbot />
     </div>
   );
 } 

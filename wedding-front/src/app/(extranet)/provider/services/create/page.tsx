@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useProviderServices } from '@/hooks/useProviderServices';
 import { CreateServiceDto } from '@/lib/api/providers';
+import { HeaderMobile } from '@/components/HeaderMobile/HeaderMobile';
 import { 
   Plus, 
   Save, 
@@ -12,13 +13,16 @@ import {
   Euro,
   Clock,
   Users,
-  Camera
+  Camera,
+  Sparkles,
 } from 'lucide-react';
+import { useAI } from '@/hooks/useAI';
 import styles from './create.module.css';
 
 export default function CreateServicePage() {
   const router = useRouter();
   const { createService } = useProviderServices();
+  const { improveDescription, loading: aiLoading } = useAI();
   
   const [formData, setFormData] = useState<CreateServiceDto>({
     name: '',
@@ -96,6 +100,7 @@ export default function CreateServicePage() {
     }));
   };
 
+
   const addInclusion = () => {
     if (newInclusion.trim()) {
       setFormData(prev => ({ 
@@ -156,23 +161,13 @@ export default function CreateServicePage() {
 
   return (
     <div className={styles.createContainer}>
-      {/* Header Section */}
-      <div className={styles.headerSection}>
-        <div className={styles.badge}>
-          <Plus style={{ width: '16px', height: '16px' }} />
-          Créer un service
-        </div>
-        
-        <h1 className={styles.title}>
-          Créer un <span className={styles.titleAccent}>nouveau service</span>
-        </h1>
-        
-        <p className={styles.subtitle}>
-          Définissez votre offre avec précision pour attirer vos clients
-        </p>
-      </div>
+      <HeaderMobile title="Créer un service" />
 
-      <form onSubmit={handleSubmit} className={styles.createForm}>
+      <main className={styles.main}>
+        {/* Page Title */}
+        <h1 className={styles.pageTitle}>Créer un nouveau service</h1>
+
+        <form onSubmit={handleSubmit} className={styles.createForm}>
         <div className={styles.formGrid}>
           {/* Informations de base */}
           <div className={styles.formSection}>
@@ -192,7 +187,44 @@ export default function CreateServicePage() {
             </div>
 
             <div className={styles.formField}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
               <label className={styles.formLabel}>Description *</label>
+                <button
+                  type="button"
+                  onClick={async () => {
+                    if (!formData.description) return;
+                    try {
+                      const result = await improveDescription({
+                        currentDescription: formData.description,
+                        serviceName: formData.name || 'Service',
+                        price: formData.price || undefined
+                      });
+                      setFormData(prev => ({ ...prev, description: result.improvedDescription }));
+                    } catch (err) {
+                      setErrorMessage(err instanceof Error ? err.message : 'Erreur lors de l\'amélioration');
+                      setShowErrorModal(true);
+                    }
+                  }}
+                  disabled={aiLoading || !formData.description}
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '0.25rem',
+                    padding: '0.5rem 1rem',
+                    backgroundColor: '#8b5cf6',
+                    color: 'white',
+                    border: 'none',
+                    borderRadius: '0.375rem',
+                    cursor: aiLoading || !formData.description ? 'not-allowed' : 'pointer',
+                    opacity: aiLoading || !formData.description ? 0.5 : 1,
+                    fontSize: '0.875rem',
+                    fontWeight: 500
+                  }}
+                >
+                  <Sparkles size={14} />
+                  {aiLoading ? 'Amélioration...' : 'Améliorer avec l\'IA'}
+                </button>
+              </div>
               <textarea
                 name="description"
                 value={formData.description}
@@ -362,13 +394,23 @@ export default function CreateServicePage() {
                 {(formData.photos || []).map((photo, index) => (
                   <div key={index} className={styles.photoItem}>
                     <img src={photo} alt={`Service ${index + 1}`} />
-                    <button
-                      type="button"
-                      onClick={() => removePhoto(index)}
-                      className={styles.removePhotoButton}
-                    >
-                      <X size={16} />
-                    </button>
+                    <div className={styles.photoActions}>
+                      <button
+                        type="button"
+                        onClick={() => handleEditImage(index)}
+                        className={styles.enhancePhotoButton}
+                        title="Éditer avec l'IA (ajouter/supprimer)"
+                      >
+                        <Wand2 size={14} />
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => removePhoto(index)}
+                        className={styles.removePhotoButton}
+                      >
+                        <X size={16} />
+                      </button>
+                    </div>
                   </div>
                 ))}
                 
@@ -421,6 +463,7 @@ export default function CreateServicePage() {
           </button>
         </div>
       </form>
+      </main>
 
       {/* Success Modal */}
       {showSuccessModal && (

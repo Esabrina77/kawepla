@@ -16,7 +16,7 @@
 }
 
 /* Quand la sidebar est réduite */
-.layout :global(.collapsed) ~ .main {
+.layout :global(.collapsed)~.main {
   margin-left: 80px;
 }
 
@@ -27,7 +27,7 @@
     padding: var(--space-md);
   }
 
-  .layout :global(.collapsed) ~ .main {
+  .layout :global(.collapsed)~.main {
     margin-left: 0;
   }
 }
@@ -556,4 +556,4 @@
   .superAdminPage {
     padding: var(--space-md);
   }
-} 
+}

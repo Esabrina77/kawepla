@@ -32,22 +32,44 @@ export type Design = {
   id: string;
   name: string;
   description?: string;
-  category?: string;
   tags?: string[];
-  isPremium: boolean;
   isActive: boolean;
-  backgroundImageRequired?: boolean;
-  customFonts?: Record<string, string>;
-  template: {
+  createdAt: Date;
+  updatedAt: Date;
+  
+  // Format Fabric.js (essentiel)
+  fabricData: any; // JSON Fabric.js complet
+  editorVersion?: 'canva' | 'legacy';
+  
+  // Dimensions du canvas
+  canvasWidth: number;
+  canvasHeight: number;
+  canvasFormat?: string;
+  
+  // Métadonnées
+  backgroundImage?: string;
+  thumbnail?: string;
+  previewImage?: string;
+  priceType: 'FREE' | 'ESSENTIAL' | 'ELEGANT' | 'LUXE';
+  
+  // Propriétaire du design
+  userId?: string;
+  isTemplate: boolean;
+  originalDesignId?: string;
+  
+  // Champs legacy (pour compatibilité, à supprimer progressivement)
+  category?: string;
+  isPremium?: boolean;
+  template?: {
     layout: string;
     sections: Record<string, any>;
   };
-  styles: {
+  styles?: {
     base: Record<string, any>;
     components: Record<string, any>;
     animations?: Record<string, any>;
   };
-  variables: {
+  variables?: {
     colors: Record<string, string | undefined>;
     typography: Record<string, any>;
     spacing: Record<string, string>;
