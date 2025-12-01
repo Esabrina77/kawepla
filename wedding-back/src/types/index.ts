@@ -63,7 +63,7 @@ export interface CreateInvitationDto {
   eventType?: string;      // Type d'événement (WEDDING, BIRTHDAY, etc.)
   customText?: string;     // Texte libre personnalisable
   moreInfo?: string;       // Informations supplémentaires
-  
+
   // Champs techniques conservés
   description?: string;
   status?: string;
@@ -86,7 +86,7 @@ export interface InvitationResponse {
   eventType: string;
   customText?: string;
   moreInfo?: string;
-  
+
   // Champs techniques conservés
   description?: string;
   status: string;
@@ -230,25 +230,32 @@ export interface CreateDesignDto {
   tags?: string[];
   isActive?: boolean;
   priceType?: ServiceTier;
-  
+
   // Format Fabric.js (essentiel)
   fabricData?: any; // JSON Fabric.js complet du design (optionnel pour compatibilité legacy)
   editorVersion?: 'canva' | 'legacy'; // Version de l'éditeur utilisé
-  
+
   // Dimensions du canvas
   canvasWidth?: number; // Largeur du canvas (ex: 794 pour A4)
   canvasHeight?: number; // Hauteur du canvas (ex: 1123 pour A4)
   canvasFormat?: string; // Format (ex: "A4", "A5", "custom")
-  
+
   // Métadonnées
   backgroundImage?: string; // URL de l'image de fond (optionnel)
   thumbnail?: string; // URL de la miniature pour la galerie
   previewImage?: string; // URL de l'image de prévisualisation
-  
+
   // Propriétaire du design (pour designs personnalisés)
   userId?: string; // null = modèle super-admin, rempli = design personnalisé user
   isTemplate?: boolean; // true = modèle réutilisable, false = design personnalisé
   originalDesignId?: string; // Référence au modèle original si c'est une personnalisation
+}
+
+export interface TextMapping {
+  elementId: string;
+  invitationVariable: string;
+  elementType: string;
+  fabricObjectId: string;
 }
 
 export interface DesignResponse {
@@ -259,22 +266,26 @@ export interface DesignResponse {
   isActive: boolean;
   createdAt: Date;
   updatedAt: Date;
-  
+
   // Format Fabric.js
   fabricData?: any; // Peut être null pour les designs legacy
   editorVersion?: 'canva' | 'legacy';
-  
+
+  // Legacy support
+  styles?: DesignStyles;
+  textMappings?: Record<string, TextMapping>;
+
   // Dimensions du canvas (peuvent être null pour les anciens designs)
   canvasWidth: number; // Valeur par défaut 794 si null
   canvasHeight: number; // Valeur par défaut 1123 si null
   canvasFormat?: string;
-  
+
   // Métadonnées
   backgroundImage?: string;
   thumbnail?: string;
   previewImage?: string;
   priceType: ServiceTier;
-  
+
   // Propriétaire du design
   userId?: string;
   isTemplate: boolean;
@@ -377,7 +388,7 @@ export const SUBSCRIPTION_FEATURES: ServicePurchaseFeatures = {
     'Badge VIP invités',
     'Espace liste de mariage/cadeaux'
   ]
-}; 
+};
 
 import { Request, Response, NextFunction } from 'express';
 
@@ -391,7 +402,7 @@ export type RequestHandler = (
   req: Request,
   res: Response,
   next: NextFunction
-) => void | Response; 
+) => void | Response;
 
 // Provider Types V1
 export interface CreateProviderProfileDto {

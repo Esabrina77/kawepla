@@ -36,30 +36,30 @@ export function convertFabricToKawepla(
   // Normaliser le JSON (peut être string ou objet)
   const fabricData = typeof fabricJson === 'string' ? JSON.parse(fabricJson) : fabricJson;
   const objects = fabricData.objects || [];
-  
+
   // Déterminer le format du canvas
   const canvasFormat = getCanvasFormat(canvasWidth, canvasHeight);
-  
+
   // Extraire les textes avec leurs mappings
   const textMappings: Record<string, TextMapping> = {};
   const textElements: string[] = [];
-  
+
   objects.forEach((obj: any, index: number) => {
     if (obj.type === 'textbox' || obj.type === 'text' || obj.type === 'i-text') {
       // Extraire la variable d'invitation depuis le texte ou la propriété custom
       const invitationVariable = obj.invitationVariable || extractVariableFromText(obj.text || '');
-      
+
       if (invitationVariable) {
         const elementId = `element-${invitationVariable}`;
         const fabricObjectId = obj.id || `obj-${index}`;
-        
+
         textMappings[elementId] = {
           elementId,
           invitationVariable,
           elementType: obj.type,
           fabricObjectId
         };
-        
+
         textElements.push(`
           <div class="element-${elementId} positionable-element" 
                data-element-id="${elementId}"
@@ -70,7 +70,7 @@ export function convertFabricToKawepla(
       }
     }
   });
-  
+
   // Générer le template HTML
   const template: DesignTemplate = {
     layout: '<div class="invitation">{content}</div>',
@@ -85,19 +85,19 @@ export function convertFabricToKawepla(
       }
     }
   };
-  
+
   // Générer les styles pour chaque élément
   const elementStyles: Record<string, Record<string, string>> = {};
-  
+
   objects.forEach((obj: any) => {
     if (obj.type === 'textbox' || obj.type === 'text' || obj.type === 'i-text') {
       const invitationVariable = obj.invitationVariable || extractVariableFromText(obj.text || '');
-      
+
       if (invitationVariable) {
         const elementId = `element-${invitationVariable}`;
         const leftPercent = ((obj.left || 0) / canvasWidth) * 100;
         const topPercent = ((obj.top || 0) / canvasHeight) * 100;
-        
+
         elementStyles[`.element-${elementId}`] = {
           position: 'absolute',
           left: `${leftPercent}%`,
@@ -119,7 +119,7 @@ export function convertFabricToKawepla(
       }
     }
   });
-  
+
   // Styles de base
   const baseStyles: Record<string, any> = {
     '.invitation': {
@@ -150,14 +150,15 @@ export function convertFabricToKawepla(
       'user-select': 'none'
     }
   };
-  
+
   // Extraire les couleurs utilisées
-  const colors: Record<string, string> = {
+  // Extraire les couleurs utilisées
+  const colors: DesignVariables['colors'] = {
     primary: '#2c2c2c',
     secondary: '#555555',
     accent: '#666666'
   };
-  
+
   objects.forEach((obj: any) => {
     if (obj.fill && typeof obj.fill === 'string' && !Object.values(colors).includes(obj.fill)) {
       if (!colors.primary || colors.primary === '#2c2c2c') {
@@ -167,7 +168,7 @@ export function convertFabricToKawepla(
       }
     }
   });
-  
+
   // Variables
   const variables: DesignVariables = {
     colors,
@@ -189,7 +190,7 @@ export function convertFabricToKawepla(
       components: '1.5rem'
     }
   };
-  
+
   return {
     template,
     styles: {
@@ -229,7 +230,7 @@ function getCanvasFormat(width: number, height: number): string {
   if (width === 559 && height === 794) return 'A5';
   // A3: 1123 x 1587
   if (width === 1123 && height === 1587) return 'A3';
-  
+
   return 'custom';
 }
 
@@ -240,11 +241,11 @@ export function validateInvitationDesign(
   result: FabricToKaweplaResult
 ): { isValid: boolean; missingFields: string[] } {
   const REQUIRED_FIELDS = ['eventTitle', 'eventDate', 'location'];
-  
+
   const missingFields = REQUIRED_FIELDS.filter(
     field => !result.textMappings[`element-${field}`]
   );
-  
+
   return {
     isValid: missingFields.length === 0,
     missingFields
