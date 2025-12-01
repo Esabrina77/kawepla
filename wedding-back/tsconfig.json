@@ -5,6 +5,7 @@
     "lib": ["es6"],
     "allowJs": true,
     "outDir": "dist",
+    "rootDir": "src",
     "strict": true,
     "noImplicitAny": true,
     "esModuleInterop": true,
@@ -24,11 +25,10 @@
   },
   "include": [
     "src/**/*",
-    "scripts/**/*.ts"
+    "scripts/**/*"
   ],
   "exclude": [
     "node_modules",
-    "dist",
-    "scripts/**/*.js"
+    "dist"
   ]
 } 

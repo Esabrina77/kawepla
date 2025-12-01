@@ -85,25 +85,25 @@ export interface BookingInfo {
 export async function getOrCreateProviderConversation(
   data: CreateProviderConversationDto
 ): Promise<ProviderConversation> {
-  const response = await apiClient.post('/provider-conversations', data);
+  const response = await apiClient.post('/provider-conversations', data) as any;
   return response.conversation;
 }
 
 // Récupérer les conversations d'un client
 export async function getClientConversations(): Promise<ProviderConversation[]> {
-  const response = await apiClient.get('/provider-conversations/client');
+  const response = await apiClient.get('/provider-conversations/client') as any;
   return response.conversations;
 }
 
 // Récupérer les conversations d'un provider
 export async function getProviderConversations(): Promise<ProviderConversation[]> {
-  const response = await apiClient.get('/provider-conversations/provider');
+  const response = await apiClient.get('/provider-conversations/provider') as any;
   return response.conversations;
 }
 
 // Récupérer une conversation par ID
 export async function getConversationById(conversationId: string): Promise<ProviderConversation> {
-  const response = await apiClient.get(`/provider-conversations/${conversationId}`);
+  const response = await apiClient.get(`/provider-conversations/${conversationId}`) as any;
   return response.conversation;
 }
 
@@ -115,7 +115,7 @@ export async function getConversationMessages(
 ): Promise<MessagesResponse> {
   const response = await apiClient.get(
     `/provider-conversations/${conversationId}/messages?page=${page}&limit=${limit}`
-  );
+  ) as any;
   return response;
 }
 
@@ -124,7 +124,7 @@ export async function sendProviderMessage(
   conversationId: string,
   data: SendMessageDto
 ): Promise<ProviderMessage> {
-  const response = await apiClient.post(`/provider-conversations/${conversationId}/messages`, data);
+  const response = await apiClient.post(`/provider-conversations/${conversationId}/messages`, data) as any;
   return response.message;
 }
 
@@ -135,7 +135,7 @@ export async function markConversationAsRead(conversationId: string): Promise<vo
 
 // Extraire les infos pour pré-remplir le formulaire de réservation
 export async function extractBookingInfo(conversationId: string): Promise<BookingInfo> {
-  const response = await apiClient.get(`/provider-conversations/${conversationId}/booking-info`);
+  const response = await apiClient.get(`/provider-conversations/${conversationId}/booking-info`) as any;
   return response.bookingInfo;
 }
 

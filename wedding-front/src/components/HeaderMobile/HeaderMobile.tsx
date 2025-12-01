@@ -10,18 +10,22 @@ interface HeaderMobileProps {
   title: string;
   showBackButton?: boolean;
   onBack?: () => void;
+  backUrl?: string;
 }
 
 export const HeaderMobile: React.FC<HeaderMobileProps> = ({
   title,
   showBackButton = true,
   onBack,
+  backUrl,
 }) => {
   const router = useRouter();
 
   const handleBack = () => {
     if (onBack) {
       onBack();
+    } else if (backUrl) {
+      router.push(backUrl);
     } else {
       router.back();
     }
@@ -36,9 +40,9 @@ export const HeaderMobile: React.FC<HeaderMobileProps> = ({
       ) : (
         <div className={styles.headerSpacer}></div>
       )}
-      
+
       <h1 className={styles.pageTitle}>{title}</h1>
-      
+
       <div className={styles.themeToggleWrapper}>
         <FloatingThemeToggle variant="inline" size={20} />
       </div>

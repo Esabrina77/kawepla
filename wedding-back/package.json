@@ -16,7 +16,6 @@
     "seed:service-packs": "ts-node -r tsconfig-paths/register scripts/seed-service-packs.ts",
     "migrate:design-to-invitation": "ts-node -r tsconfig-paths/register scripts/migrate-design-to-invitation.ts",
     "export:production": "ts-node -r tsconfig-paths/register scripts/export-production-db.ts",
-    "fix:encoding": "ts-node -r tsconfig-paths/register scripts/fix-encoding-issues.ts",
     "test": "jest --detectOpenHandles",
     "test:watch": "jest --watch",
     "test:rate-limit": "ts-node -r tsconfig-paths/register scripts/test-rate-limiter.ts",

@@ -34,29 +34,27 @@ export type Design = {
   description?: string;
   tags?: string[];
   isActive: boolean;
-  createdAt: Date;
-  updatedAt: Date;
-  
+
   // Format Fabric.js (essentiel)
   fabricData: any; // JSON Fabric.js complet
   editorVersion?: 'canva' | 'legacy';
-  
+
   // Dimensions du canvas
   canvasWidth: number;
   canvasHeight: number;
   canvasFormat?: string;
-  
+
   // Métadonnées
   backgroundImage?: string;
   thumbnail?: string;
   previewImage?: string;
   priceType: 'FREE' | 'ESSENTIAL' | 'ELEGANT' | 'LUXE';
-  
+
   // Propriétaire du design
   userId?: string;
   isTemplate: boolean;
   originalDesignId?: string;
-  
+
   // Champs legacy (pour compatibilité, à supprimer progressivement)
   category?: string;
   isPremium?: boolean;
@@ -187,7 +185,7 @@ export interface Invitation {
   eventType?: 'WEDDING' | 'BIRTHDAY' | 'BAPTISM' | 'ANNIVERSARY' | 'GRADUATION' | 'BABY_SHOWER' | 'ENGAGEMENT' | 'COMMUNION' | 'CONFIRMATION' | 'RETIREMENT' | 'HOUSEWARMING' | 'CORPORATE' | 'OTHER';
   customText?: string;      // Texte libre personnalisable
   moreInfo?: string;        // Informations supplémentaires
-  
+
   // Champs techniques conservés
   description?: string;
   status: 'DRAFT' | 'PUBLISHED' | 'ARCHIVED';
@@ -197,7 +195,7 @@ export interface Invitation {
   updatedAt: string;
   userId: string;
   designId: string;
-  
+
   // Champs pour l'admin (avec relations)
   user?: {
     id: string;
