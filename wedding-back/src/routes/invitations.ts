@@ -21,10 +21,7 @@ router.get('/', InvitationController.getUserInvitations);
 router.get('/active', InvitationController.getActiveInvitation);
 router.post('/', createRateLimiter as RequestHandler, checkInvitationLimit, InvitationController.create);
 
-// Routes admin (protégées)
-router.get('/admin/invitations', InvitationController.getAllInvitations);
-router.get('/admin/invitations/:id', InvitationController.getInvitationByIdAdmin);
-router.delete('/admin/invitations/:id', InvitationController.deleteInvitationAdmin);
+// Routes admin (protégées) - Déplacées dans adminInvitations.ts
 
 // Routes spécifiques avec ID (protégées)
 router.get('/:id/stats', InvitationController.stats);

@@ -227,6 +227,17 @@
   color: var(--text-primary);
 }
 
+.actionButton.export {
+  background: var(--luxury-velvet-black);
+  color: var(--luxury-champagne-gold);
+  border: 1px solid var(--luxury-champagne-gold);
+}
+
+[data-theme="dark"] .actionButton.export {
+  background: var(--bg-secondary);
+  color: var(--luxury-champagne-gold);
+}
+
 .actionButton:hover:not(:disabled) {
   opacity: 0.9;
 }

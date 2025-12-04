@@ -5,7 +5,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import dynamic from 'next/dynamic';
 import { HeaderMobile } from '@/components/HeaderMobile';
 import { useDesigns } from '@/hooks/useDesigns';
-import { uploadToFirebase } from '@/lib/firebase';
+import { uploadToFirebase, deleteFromFirebase } from '@/lib/firebase';
 import * as fabric from 'fabric';
 import { convertFabricToKawepla, loadKaweplaDesignToFabric } from '@/utils/fabricToKaweplaAdapter';
 import { useToast } from '@/components/ui/toast';
@@ -246,6 +246,17 @@ export default function ClientDesignEditorPage() {
                     canvasWidth: converted.canvasWidth,
                     canvasHeight: converted.canvasHeight,
                 });
+
+                // Supprimer les anciennes images
+                if (currentDesign) {
+                    if (currentDesign.thumbnail && currentDesign.thumbnail !== thumbnailUrl && currentDesign.thumbnail.includes('firebasestorage')) {
+                        try { await deleteFromFirebase(currentDesign.thumbnail); } catch (e) { console.error(e); }
+                    }
+                    if (currentDesign.previewImage && currentDesign.previewImage !== thumbnailUrl && currentDesign.previewImage !== currentDesign.thumbnail && currentDesign.previewImage.includes('firebasestorage')) {
+                        try { await deleteFromFirebase(currentDesign.previewImage); } catch (e) { console.error(e); }
+                    }
+                }
+
                 addToast({
                     type: 'success',
                     title: 'Succès',

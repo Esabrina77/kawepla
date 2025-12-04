@@ -18,9 +18,10 @@ interface NavbarProps {
     onExport?: () => void;
     saving?: boolean;
     isEditing?: boolean;
+    showJsonExport?: boolean;
 }
 
-const Navbar = ({ onSave, onExport, saving, isEditing }: NavbarProps) => {
+const Navbar = ({ onSave, onExport, saving, isEditing, showJsonExport }: NavbarProps) => {
     const {
         undo,
         redo,
@@ -103,6 +104,27 @@ const Navbar = ({ onSave, onExport, saving, isEditing }: NavbarProps) => {
             </div>
 
             <div className={styles.rightActions}>
+                {showJsonExport && (
+                    <button
+                        onClick={() => {
+                            const canvas = useEditorStore.getState().canvas;
+                            if (!canvas) return;
+                            const json = JSON.stringify(canvas.toJSON());
+                            const blob = new Blob([json], { type: 'application/json' });
+                            const link = document.createElement('a');
+                            link.download = 'design.json';
+                            link.href = URL.createObjectURL(blob);
+                            document.body.appendChild(link);
+                            link.click();
+                            document.body.removeChild(link);
+                        }}
+                        className={styles.exportButton}
+                        title="Export JSON"
+                    >
+                        JSON
+                        <Download size={16} strokeWidth={2.5} />
+                    </button>
+                )}
                 {onSave && (
                     <button
                         onClick={onSave}

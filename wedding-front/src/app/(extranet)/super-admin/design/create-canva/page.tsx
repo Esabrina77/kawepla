@@ -5,7 +5,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import dynamic from 'next/dynamic';
 import { HeaderMobile } from '@/components/HeaderMobile';
 import { useDesigns } from '@/hooks/useDesigns';
-import { uploadToFirebase } from '@/lib/firebase';
+import { uploadToFirebase, deleteFromFirebase } from '@/lib/firebase';
 import * as fabric from 'fabric';
 import { convertFabricToKawepla, loadKaweplaDesignToFabric } from '@/utils/fabricToKaweplaAdapter';
 import { useToast } from '@/components/ui/toast';
@@ -234,16 +234,46 @@ export default function CreateCanvaDesignPage() {
 
     setSaving(true);
     try {
-      // 1. Générer l'image de prévisualisation (Thumbnail)
+      // 1. Générer l'image de prévisualisation (Thumbnail) haute qualité
       // On déselectionne tout pour que la capture soit propre
       canvas.discardActiveObject();
+
+      // Sauvegarder l'état actuel (zoom et dimensions)
+      const originalZoom = canvas.getZoom();
+      const originalWidth = canvas.width;
+      const originalHeight = canvas.height;
+      const originalVpt = canvas.viewportTransform;
+
+      // Calculer les dimensions logiques (taille réelle du design)
+      const safeZoom = originalZoom || 1;
+      const logicalWidth = originalWidth / safeZoom;
+      const logicalHeight = originalHeight / safeZoom;
+
+      // Réinitialiser à l'échelle 100% pour l'export
+      canvas.setZoom(1);
+      canvas.setWidth(logicalWidth);
+      canvas.setHeight(logicalHeight);
+      // S'assurer que le viewport est remis à zéro (pas de pan)
+      if (canvas.viewportTransform) {
+        canvas.viewportTransform[4] = 0;
+        canvas.viewportTransform[5] = 0;
+      }
       canvas.requestRenderAll();
 
       const dataUrl = canvas.toDataURL({
         format: 'png',
-        quality: 0.8,
-        multiplier: 0.5, // 50% de la taille pour la miniature
+        quality: 1.0,
+        multiplier: 2.0, // x2 sur la taille réelle pour haute qualité
       });
+
+      // Restaurer l'état original pour l'utilisateur
+      canvas.setZoom(originalZoom);
+      canvas.setWidth(originalWidth);
+      canvas.setHeight(originalHeight);
+      if (originalVpt) {
+        canvas.viewportTransform = originalVpt;
+      }
+      canvas.requestRenderAll();
 
       // Convertir DataURL en File
       const response = await fetch(dataUrl);
@@ -278,6 +308,17 @@ export default function CreateCanvaDesignPage() {
       if (designId) {
         // Mise à jour d'un design existant
         await updateDesign(designId, designData);
+
+        // Supprimer les anciennes images de Firebase
+        if (currentDesign) {
+          if (currentDesign.thumbnail && currentDesign.thumbnail !== thumbnailUrl && currentDesign.thumbnail.includes('firebasestorage')) {
+            try { await deleteFromFirebase(currentDesign.thumbnail); } catch (e) { console.error('Erreur suppression old thumbnail:', e); }
+          }
+          if (currentDesign.previewImage && currentDesign.previewImage !== thumbnailUrl && currentDesign.previewImage !== currentDesign.thumbnail && currentDesign.previewImage.includes('firebasestorage')) {
+            try { await deleteFromFirebase(currentDesign.previewImage); } catch (e) { console.error('Erreur suppression old preview:', e); }
+          }
+        }
+
         addToast({
           type: 'success',
           title: 'Succès',
@@ -319,6 +360,7 @@ export default function CreateCanvaDesignPage() {
         <Navbar
           onSave={() => setShowSaveDialog(true)}
           isEditing={!!designId}
+          showJsonExport={true}
         />
 
         {/* Workspace de l'éditeur */}

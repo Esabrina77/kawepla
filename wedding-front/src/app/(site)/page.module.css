@@ -16,11 +16,13 @@
 /* ============================================
    HERO SECTION
    ============================================ */
+/* ============================================
+   HERO SECTION
+   ============================================ */
 .hero {
-  height: 100vh;
-  max-height: 100vh;
-  padding: 0;
-  background: linear-gradient(135deg, var(--bg-secondary) 0%, var(--bg-primary) 100%);
+  min-height: 100vh;
+  padding: 40px 0;
+  background-color: var(--bg-primary);
   position: relative;
   overflow: hidden;
   display: flex;
@@ -31,10 +33,11 @@
   max-width: 1200px;
   margin: 0 auto;
   padding: 0 20px;
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 60px;
-  height: 100%;
+  display: flex;
+  flex-direction: column;
+  /* Mobile first: Stack vertically */
+  gap: 40px;
+  align-items: center;
   width: 100%;
 }
 
@@ -43,27 +46,16 @@
   display: flex;
   flex-direction: column;
   justify-content: center;
-}
-
-.badge {
-  display: inline-flex;
   align-items: center;
-  width: fit-content;
-  gap: 8px;
-  background: var(--bg-primary);
-  backdrop-filter: blur(10px);
-  padding: 8px 16px;
-  border-radius: 100px;
-  border: 1px solid var(--border-color);
-  margin-bottom: 24px;
-  font-size: 0.9rem;
-  font-weight: 500;
-  color: var(--text-primary);
-  box-shadow: var(--shadow-sm);
+  /* Mobile first: Center align */
+  text-align: center;
+  /* Mobile first: Center text */
+  width: 100%;
 }
 
 .heroTitle {
-  font-size: 3.5rem;
+  font-size: 2.5rem;
+  /* Mobile first: Smaller font */
   line-height: 1.1;
   font-weight: 800;
   margin-bottom: 24px;
@@ -72,34 +64,35 @@
 }
 
 .gradientText {
-  background: var(--gradient-primary);
-  background-clip: text;
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
+  color: var(--color-primary);
+  background: none;
+  -webkit-text-fill-color: initial;
 }
 
 .heroSubtitle {
-  font-size: 1.25rem;
+  font-size: 1.1rem;
+  /* Mobile first */
   line-height: 1.6;
   color: var(--text-secondary);
-  margin-bottom: 40px;
-  max-width: 540px;
+  margin-bottom: 32px;
+  max-width: 100%;
 }
 
 .roleSelector {
   display: inline-flex;
   background: var(--bg-secondary);
-  padding: 4px;
-  border-radius: 12px;
-  margin-bottom: 24px;
+  padding: 6px;
+  border-radius: 100px;
+  margin-bottom: 32px;
   border: 1px solid var(--border-color);
+  width: fit-content;
 }
 
 .roleBtn {
   padding: 10px 20px;
-  border-radius: 8px;
+  border-radius: 100px;
   font-weight: 600;
-  font-size: 0.95rem;
+  font-size: 0.9rem;
   border: none;
   background: transparent;
   color: var(--text-secondary);
@@ -117,153 +110,192 @@
   display: inline-flex;
   align-items: center;
   gap: 12px;
-  background: var(--text-primary);
-  color: var(--bg-primary);
+  background: var(--color-primary);
+  color: var(--luxury-velvet-black);
   padding: 16px 32px;
-  border-radius: 12px;
-  font-weight: 600;
-  font-size: 1.1rem;
+  border-radius: 100px;
+  font-weight: 700;
+  font-size: 1rem;
   transition: all 0.3s ease;
+  box-shadow: var(--shadow-md);
+  text-decoration: none;
 }
 
 .primaryBtn:hover {
   transform: translateY(-2px);
   box-shadow: var(--shadow-lg);
-  opacity: 0.9;
+  background: var(--gradient-primary-hover);
 }
 
 .ctaNote {
   font-size: 0.85rem;
   color: var(--text-secondary);
-  margin-top: 12px;
+  margin-top: 16px;
   font-weight: 500;
 }
 
 .trustBar {
   display: flex;
-  gap: 24px;
-  margin-top: 48px;
+  flex-wrap: wrap;
+  /* Mobile first: Wrap */
+  justify-content: center;
+  /* Mobile first: Center */
+  gap: 20px;
+  margin-top: 40px;
   padding-top: 32px;
   border-top: 1px solid var(--border-color);
+  width: 100%;
 }
 
 .trustItem {
   display: flex;
   align-items: center;
-  gap: 8px;
-  font-size: 0.9rem;
+  gap: 6px;
+  font-size: 0.85rem;
   color: var(--text-secondary);
-  font-weight: 500;
+  font-weight: 600;
 }
 
 .trustIcon {
   color: var(--color-primary);
 }
 
-/* Visual Card */
+/* Visual Card / Carousel */
 .heroVisual {
   position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
-  height: 100%;
+  height: auto;
+  width: 100%;
+  max-width: 400px;
+  /* Limit width on mobile */
+  margin-top: 20px;
 }
 
-.visualCard {
-  background: var(--bg-card);
+.carouselCard {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 4/5;
   border-radius: 24px;
-  box-shadow: var(--shadow-xl);
-  padding: 0;
   overflow: hidden;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 300px;
+  box-shadow: var(--shadow-xl);
+  background: var(--bg-card);
 }
 
-.visualHeader {
-  display: flex;
-  gap: 8px;
-  margin-bottom: 24px;
+.carouselSlide {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  transition: opacity 0.8s ease-in-out;
 }
 
-.dot {
-  width: 10px;
-  height: 10px;
+.carouselSlide.activeSlide {
+  opacity: 1;
+}
+
+.carouselIndicators {
+  position: absolute;
+  bottom: 16px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 6px;
+  z-index: 10;
+  padding: 6px 12px;
+  background: rgba(0, 0, 0, 0.2);
+  backdrop-filter: blur(4px);
+  border-radius: 100px;
+}
+
+.indicator {
+  width: 6px;
+  height: 6px;
   border-radius: 50%;
-  background: var(--bg-secondary);
+  background: rgba(255, 255, 255, 0.5);
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  transition: all 0.3s ease;
 }
 
-.dot:nth-child(1) {
-  background: var(--alert-error);
+.indicator.activeIndicator {
+  background: #FFFFFF;
+  transform: scale(1.2);
 }
 
-.dot:nth-child(2) {
-  background: var(--alert-warning);
-}
+/* Desktop Styles */
+@media (min-width: 1024px) {
+  .heroContainer {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 80px;
+  }
 
-.dot:nth-child(3) {
-  background: var(--alert-success);
-}
+  .heroContent {
+    align-items: flex-start;
+    text-align: left;
+  }
 
-.visualContent {
-  text-align: center;
-  padding: 20px 0;
-}
+  .heroTitle {
+    font-size: 4rem;
+    margin-bottom: 32px;
+  }
 
-.mockupRow {
-  display: flex;
-  justify-content: space-around;
-  margin-bottom: 32px;
-}
+  .heroSubtitle {
+    font-size: 1.25rem;
+    margin-bottom: 40px;
+    max-width: 500px;
+  }
 
-.mockupItem {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 8px;
-  font-size: 0.9rem;
-  font-weight: 600;
-  color: var(--text-secondary);
-}
+  .roleSelector {
+    margin-bottom: 40px;
+  }
 
-.mockupIcon {
-  padding: 12px;
-  background: var(--bg-secondary);
-  border-radius: 12px;
-  color: var(--color-primary);
-}
+  .roleBtn {
+    padding: 12px 24px;
+    font-size: 1rem;
+  }
 
-.mockupGraph {
-  display: flex;
-  align-items: flex-end;
-  justify-content: center;
-  gap: 12px;
-  height: 120px;
-  margin-bottom: 16px;
-}
+  .primaryBtn {
+    padding: 18px 36px;
+    font-size: 1.1rem;
+  }
 
-.graphBar {
-  width: 24px;
-  background: var(--color-primary);
-  border-radius: 4px 4px 0 0;
-  opacity: 0.8;
-}
+  .trustBar {
+    justify-content: flex-start;
+    gap: 32px;
+    margin-top: 60px;
+  }
 
-.mockupStat {
-  font-size: 1.5rem;
-  font-weight: 700;
-  color: var(--text-primary);
-  margin-bottom: 8px;
-}
+  .trustItem {
+    font-size: 0.9rem;
+    gap: 8px;
+  }
 
-.mockupStat span {
-  color: var(--alert-success);
-}
+  .heroVisual {
+    height: 100%;
+    max-width: none;
+    margin-top: 0;
+  }
 
-.mockupLabel {
-  font-size: 0.9rem;
-  color: var(--text-secondary);
+  .carouselCard {
+    border-radius: 32px;
+  }
+
+  .carouselIndicators {
+    bottom: 24px;
+    gap: 8px;
+    padding: 8px 16px;
+  }
+
+  .indicator {
+    width: 8px;
+    height: 8px;
+  }
 }
 
 /* ============================================
@@ -381,6 +413,9 @@
 /* ============================================
    HOW IT WORKS
    ============================================ */
+/* ============================================
+   HOW IT WORKS
+   ============================================ */
 .howItWorks {
   padding: 100px 0;
   background: var(--bg-card);
@@ -388,9 +423,11 @@
 
 .stepsContainer {
   display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  margin-top: 60px;
+  flex-direction: column;
+  /* Mobile first */
+  gap: 40px;
+  align-items: center;
+  margin-top: 40px;
   position: relative;
 }
 
@@ -417,6 +454,8 @@
 }
 
 .stepLine {
+  display: none;
+  /* Mobile first */
   flex: 1;
   height: 2px;
   background: var(--border-color);
@@ -433,6 +472,20 @@
 .step p {
   color: var(--text-secondary);
   font-size: 0.95rem;
+}
+
+@media (min-width: 1024px) {
+  .stepsContainer {
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-top: 60px;
+    gap: 0;
+  }
+
+  .stepLine {
+    display: block;
+  }
 }
 
 /* ============================================
@@ -508,6 +561,7 @@
 .largeCtaBtn:hover {
   transform: translateY(-3px);
   box-shadow: var(--shadow-xl);
+  color: var(--text-secondary);
 }
 
 .seoFooter {
@@ -557,43 +611,4 @@
   text-align: center;
   max-width: 800px;
   margin: 0 auto;
-}
-
-/* ============================================
-   RESPONSIVE
-   ============================================ */
-@media (max-width: 968px) {
-  .heroContainer {
-    grid-template-columns: 1fr;
-    text-align: center;
-    gap: 40px;
-  }
-
-  .heroTitle {
-    font-size: 2.5rem;
-  }
-
-  .heroSubtitle {
-    margin: 0 auto 40px;
-  }
-
-  .heroActions {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-  }
-
-  .trustBar {
-    justify-content: center;
-    flex-wrap: wrap;
-  }
-
-  .stepsContainer {
-    flex-direction: column;
-    gap: 40px;
-  }
-
-  .stepLine {
-    display: none;
-  }
 }

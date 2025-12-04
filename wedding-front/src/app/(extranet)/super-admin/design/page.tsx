@@ -19,6 +19,7 @@ import {
   Power,
   PowerOff
 } from 'lucide-react';
+import { deleteFromFirebase } from '@/lib/firebase';
 import styles from './design.module.css';
 
 export default function SuperAdminDesignPage() {
@@ -29,6 +30,7 @@ export default function SuperAdminDesignPage() {
   const [deletingDesignId, setDeletingDesignId] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState<string>('');
   const [selectedFilter, setSelectedFilter] = useState<string>('all');
+  const [viewMode, setViewMode] = useState<'templates' | 'personalized'>('templates');
 
   // Filtrer les designs en fonction de la recherche et du filtre
   const filteredDesigns = designs.filter(design => {
@@ -38,16 +40,17 @@ export default function SuperAdminDesignPage() {
       design.description?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       design.tags?.some(tag => tag.toLowerCase().includes(searchTerm.toLowerCase()));
 
+    // Filtre par type (View Mode)
+    const viewModeMatch = viewMode === 'templates' ? design.isTemplate : !design.isTemplate;
+
     // Filtre par type
     const filterMatch = selectedFilter === 'all' ||
-      (selectedFilter === 'templates' && design.isTemplate) ||
-      (selectedFilter === 'personalized' && !design.isTemplate) ||
       (selectedFilter === 'active' && design.isActive) ||
       (selectedFilter === 'inactive' && !design.isActive) ||
       (selectedFilter === 'free' && design.priceType === 'FREE') ||
       (selectedFilter === 'paid' && design.priceType !== 'FREE');
 
-    return searchMatch && filterMatch;
+    return searchMatch && filterMatch && viewModeMatch;
   });
 
   // Obtenir tous les tags uniques pour le filtre
@@ -55,20 +58,31 @@ export default function SuperAdminDesignPage() {
 
   // Options pour le filtre
   const filterOptions = [
-    { value: 'all', label: 'Tous les designs' },
-    { value: 'templates', label: 'Modèles' },
-    { value: 'personalized', label: 'Personnalisés' },
-    { value: 'active', label: 'Designs Actifs' },
-    { value: 'inactive', label: 'Designs Inactifs' },
+    { value: 'all', label: 'Tous les statuts' },
+    { value: 'active', label: 'Actifs' },
+    { value: 'inactive', label: 'Inactifs' },
     { value: 'free', label: 'Gratuits' },
     { value: 'paid', label: 'Payants' },
   ];
 
   const handleDeleteDesign = async (designId: string) => {
-    if (confirm('Êtes-vous sûr de vouloir supprimer ce design ?')) {
+    if (confirm('Êtes-vous sûr de vouloir supprimer ce design ? Cette action est irréversible.')) {
       try {
         setDeletingDesignId(designId);
+        const design = designs.find(d => d.id === designId);
+
+        // Supprimer le design de la base de données
         await deleteDesign(designId);
+
+        // Si succès, nettoyer les images de Firebase
+        if (design) {
+          if (design.thumbnail && design.thumbnail.includes('firebasestorage')) {
+            try { await deleteFromFirebase(design.thumbnail); } catch (e) { console.error('Erreur suppression thumbnail:', e); }
+          }
+          if (design.previewImage && design.previewImage !== design.thumbnail && design.previewImage.includes('firebasestorage')) {
+            try { await deleteFromFirebase(design.previewImage); } catch (e) { console.error('Erreur suppression preview:', e); }
+          }
+        }
       } catch (error) {
         console.error('Erreur lors de la suppression du design:', error);
         alert('Erreur lors de la suppression du design. Veuillez réessayer.');
@@ -138,7 +152,21 @@ export default function SuperAdminDesignPage() {
           </button>
         </div>
 
-
+        {/* View Mode Toggles */}
+        <div className={styles.viewModeContainer}>
+          <button
+            className={`${styles.viewModeButton} ${viewMode === 'templates' ? styles.active : ''}`}
+            onClick={() => setViewMode('templates')}
+          >
+            Modèles (Admin)
+          </button>
+          <button
+            className={`${styles.viewModeButton} ${viewMode === 'personalized' ? styles.active : ''}`}
+            onClick={() => setViewMode('personalized')}
+          >
+            Designs Personnalisés (Clients)
+          </button>
+        </div>
 
         {/* Filters */}
         <div className={styles.filtersContainer}>

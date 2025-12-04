@@ -807,3 +807,42 @@
     transform: scale(0.5);
   }
 }
+/* View Mode Toggles */
+.viewModeContainer {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+  border-bottom: 1px solid var(--border-color);
+  padding-bottom: 0.5rem;
+}
+
+.viewModeButton {
+  background: none;
+  border: none;
+  padding: 0.5rem 1rem;
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  cursor: pointer;
+  position: relative;
+  transition: color 0.2s;
+}
+
+.viewModeButton:hover {
+  color: var(--text-primary);
+}
+
+.viewModeButton.active {
+  color: var(--luxury-champagne-gold);
+}
+
+.viewModeButton.active::after {
+  content: '';
+  position: absolute;
+  bottom: -0.6rem;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  background: var(--luxury-champagne-gold);
+}
+

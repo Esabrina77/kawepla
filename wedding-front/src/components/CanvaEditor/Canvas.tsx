@@ -3,6 +3,7 @@
 import React, { useEffect, useRef } from 'react';
 import * as fabric from 'fabric';
 import { useEditorStore } from '@/store/useEditorStore';
+import { initAlignmentGuidelines } from './utils/alignmentGuidelines';
 import styles from './Canvas.module.css';
 
 interface CanvasProps {
@@ -48,7 +49,7 @@ const Canvas = ({ onCanvasReady }: CanvasProps) => {
         });
 
         setCanvas(canvas);
-        
+
         // Exposer le canvas au parent
         if (onCanvasReady) {
             onCanvasReady(canvas);
@@ -106,11 +107,18 @@ const Canvas = ({ onCanvasReady }: CanvasProps) => {
         // Window Resize Listener
         window.addEventListener('resize', resizeCanvas);
 
+        // Initialize Alignment Guidelines
+        const cleanupGuidelines = initAlignmentGuidelines(canvas);
+
         return () => {
+            if (typeof cleanupGuidelines === 'function') {
+                cleanupGuidelines();
+            }
             canvas.dispose();
             window.removeEventListener('resize', resizeCanvas);
         };
     }, [setCanvas, setSelectedObjects, format.width, format.height, onCanvasReady]); // Re-init if format changes
+
 
     // Update zoom and dimensions when zoom/format changes
     useEffect(() => {

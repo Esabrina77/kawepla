@@ -1,3 +1,4 @@
+@import url('https://fonts.googleapis.com/css2?family=Mystery+Quest&family=Zain:ital,wght@0,200;0,300;0,400;0,700;0,800;0,900;1,300;1,400&display=swap');
 /* Import du système de design luxury */
 @import './luxury.css';
 
@@ -65,7 +66,7 @@
   --gradient-luxury: var(--luxury-rose-quartz);
 
   /* Typographie */
-  --font-sans: 'Inter', system-ui, sans-serif;
+  --font-sans: 'Zain', system-ui, sans-serif;
 
   /* Tailles de police */
   --font-size-xs: 0.75rem;

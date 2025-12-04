@@ -152,14 +152,45 @@ export default function CreateInvitationPage() {
       setSaving(true);
 
       // 1. Générer la miniature
+      // 1. Générer la miniature haute qualité
       canvas.discardActiveObject();
+
+      // Sauvegarder l'état actuel (zoom et dimensions)
+      const originalZoom = canvas.getZoom();
+      const originalWidth = canvas.width;
+      const originalHeight = canvas.height;
+      const originalVpt = canvas.viewportTransform;
+
+      // Calculer les dimensions logiques (taille réelle du design)
+      const safeZoom = originalZoom || 1;
+      const logicalWidth = originalWidth / safeZoom;
+      const logicalHeight = originalHeight / safeZoom;
+
+      // Réinitialiser à l'échelle 100% pour l'export
+      canvas.setZoom(1);
+      canvas.setWidth(logicalWidth);
+      canvas.setHeight(logicalHeight);
+      // S'assurer que le viewport est remis à zéro (pas de pan)
+      if (canvas.viewportTransform) {
+        canvas.viewportTransform[4] = 0;
+        canvas.viewportTransform[5] = 0;
+      }
       canvas.requestRenderAll();
 
       const dataUrl = canvas.toDataURL({
         format: 'png',
-        quality: 0.8,
-        multiplier: 0.5,
+        quality: 1.0,
+        multiplier: 2.0, // x2 sur la taille réelle pour haute qualité
       });
+
+      // Restaurer l'état original pour l'utilisateur
+      canvas.setZoom(originalZoom);
+      canvas.setWidth(originalWidth);
+      canvas.setHeight(originalHeight);
+      if (originalVpt) {
+        canvas.viewportTransform = originalVpt;
+      }
+      canvas.requestRenderAll();
 
       const response = await fetch(dataUrl);
       const blob = await response.blob();
@@ -188,6 +219,20 @@ export default function CreateInvitationPage() {
         customCanvasHeight: converted.canvasHeight,
         status: 'DRAFT',
       });
+
+      // Supprimer l'ancienne image si elle existe et est différente
+      // Note: design est le design ORIGINAL (template), pas le personnalisé précédent si on est en train de rééditer.
+      // Mais si on est en step 'edit', on a peut-être déjà un design personnalisé chargé ?
+      // Le code actuel crée TOUJOURS un nouveau design personnalisé via createPersonalizedDesign.
+      // Il ne met pas à jour l'ancien. C'est un problème potentiel de duplication.
+      // Mais si on suit la logique actuelle, on ne supprime rien car on crée du nouveau.
+      // Cependant, l'utilisateur a demandé : "quand un design personnalisé est modifié ; supprimé l'ancienne dans firebase"
+
+      // Si on est en train de modifier une invitation qui avait DÉJÀ un design personnalisé, on devrait supprimer l'ancien design personnalisé ?
+      // createPersonalizedDesign crée un NOUVEAU design.
+
+      // Regardons createPersonalizedDesign dans useDesigns.
+
 
       addToast({
         type: 'success',

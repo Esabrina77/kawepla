@@ -22,6 +22,26 @@ import styles from './page.module.css';
 
 export default function LandingPage() {
   const [activeTab, setActiveTab] = useState<'host' | 'provider'>('host');
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
+
+  const allImages = [
+    '/images/hero/wedding_india.jpg',
+    '/images/hero/kids-birthday.jpg',
+    '/images/hero/cake.jpg',
+    '/images/hero/nouvelan.jpg',
+    '/images/hero/provider-hero.jpg',
+    '/images/hero/corporate.jpg',
+    '/images/hero/toast.jpg'
+  ];
+
+  const currentImages = allImages;
+
+  React.useEffect(() => {
+    const timer = setInterval(() => {
+      setCurrentImageIndex((prev) => (prev + 1) % currentImages.length);
+    }, 4000);
+    return () => clearInterval(timer);
+  }, [currentImages.length]);
 
   return (
     <div className={styles.page}>
@@ -32,56 +52,54 @@ export default function LandingPage() {
       <section className={styles.hero}>
         <div className={styles.heroContainer}>
           <div className={styles.heroContent}>
-            <div className={styles.badge}>
+            {/* <div className={styles.badge}>
               <span className={styles.badgeIcon}>✨</span>
               <span className={styles.badgeText}>La plateforme événementielle n°1 en France</span>
-            </div>
+            </div> */}
 
             <h1 className={styles.heroTitle}>
-              <span className={styles.gradientText}>Organisez</span> ou <span className={styles.gradientText}>Prestez</span>,<br />
-              tout se passe ici.
+              <span className={styles.gradientText}>Kawepla</span><br />
+              des évènements qui<br />
+              vous ressemblent
             </h1>
 
+            <div className={styles.roleSelector}>
+              <button
+                className={`${styles.roleBtn} ${activeTab === 'host' ? styles.active : ''}`}
+                onClick={() => setActiveTab('host')}
+              >
+                Je suis Organisateur
+              </button>
+              <button
+                className={`${styles.roleBtn} ${activeTab === 'provider' ? styles.active : ''}`}
+                onClick={() => setActiveTab('provider')}
+              >
+                Je suis Prestataire
+              </button>
+            </div>
+
             <p className={styles.heroSubtitle}>
-              Kawepla connecte les organisateurs d'événements aux meilleurs prestataires.
-              Que vous prépariez un mariage, un anniversaire ou un séminaire, ou que vous soyez un professionnel, nous avons les outils qu'il vous faut.
+              Organisez simplement votre mariage, anniversaire ou séminaire avec nos outils gratuits.
             </p>
 
-            <div className={styles.heroActions}>
-              <div className={styles.roleSelector}>
-                <button
-                  className={`${styles.roleBtn} ${activeTab === 'host' ? styles.active : ''}`}
-                  onClick={() => setActiveTab('host')}
-                >
-                  Je suis Organisateur
-                </button>
-                <button
-                  className={`${styles.roleBtn} ${activeTab === 'provider' ? styles.active : ''}`}
-                  onClick={() => setActiveTab('provider')}
-                >
-                  Je suis Prestataire
-                </button>
-              </div>
-
-              <div className={styles.ctaGroup}>
-                {activeTab === 'host' ? (
-                  <>
-                    <Link href="/auth/register?role=host" className={styles.primaryBtn}>
-                      Créer mon événement
-                      <ArrowRight size={20} />
-                    </Link>
-                    <p className={styles.ctaNote}>Gratuit pour démarrer • Pas de CB requise</p>
-                  </>
-                ) : (
-                  <>
-                    <Link href="/auth/register?role=provider" className={styles.primaryBtn}>
-                      Référencer mon activité
-                      <ArrowRight size={20} />
-                    </Link>
-                    <p className={styles.ctaNote}>Boostez votre visibilité • 0% de commission au lancement</p>
-                  </>
-                )}
-              </div>
+            <div className={styles.ctaGroup}>
+              {activeTab === 'host' ? (
+                <>
+                  <Link href="/auth/register?role=host" className={styles.primaryBtn}>
+                    Créer mon événement
+                    <ArrowRight size={20} />
+                  </Link>
+                  <p className={styles.ctaNote}>Gratuit pour démarrer • Pas de CB requise</p>
+                </>
+              ) : (
+                <>
+                  <Link href="/auth/register?role=provider" className={styles.primaryBtn}>
+                    Référencer mon activité
+                    <ArrowRight size={20} />
+                  </Link>
+                  <p className={styles.ctaNote}>Boostez votre visibilité • 0% de commission au lancement</p>
+                </>
+              )}
             </div>
 
             <div className={styles.trustBar}>
@@ -101,15 +119,30 @@ export default function LandingPage() {
           </div>
 
           <div className={styles.heroVisual}>
-            <div className={styles.visualCard}>
-              <Image
-                src={activeTab === 'host' ? "/images/hero-host.png" : "/images/hero-provider.png"}
-                alt={activeTab === 'host' ? "Interface Organisateur" : "Interface Prestataire"}
-                width={300}
-                height={630}
-                style={{ width: '100%', height: '100%', objectFit: 'contain' }}
-                priority
-              />
+            <div className={styles.carouselCard}>
+              {currentImages.map((src, index) => (
+                <div
+                  key={src}
+                  className={`${styles.carouselSlide} ${index === currentImageIndex ? styles.activeSlide : ''}`}
+                >
+                  <Image
+                    src={src}
+                    alt={`Slide ${index + 1}`}
+                    fill
+                    style={{ objectFit: 'cover' }}
+                    priority={index === 0}
+                  />
+                </div>
+              ))}
+              <div className={styles.carouselIndicators}>
+                {currentImages.map((_, index) => (
+                  <button
+                    key={index}
+                    className={`${styles.indicator} ${index === currentImageIndex ? styles.activeIndicator : ''}`}
+                    onClick={() => setCurrentImageIndex(index)}
+                  />
+                ))}
+              </div>
             </div>
           </div>
         </div>

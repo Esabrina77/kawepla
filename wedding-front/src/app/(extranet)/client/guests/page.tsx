@@ -24,8 +24,14 @@ import {
   Share2,
   CheckCircle,
   AlertCircle,
-  RefreshCw
+  RefreshCw,
+  FileSpreadsheet,
+  Printer
 } from 'lucide-react';
+import * as XLSX from 'xlsx';
+import jsPDF from 'jspdf';
+import autoTable from 'jspdf-autotable';
+import { saveAs } from 'file-saver';
 import styles from './guests.module.css';
 
 // Modal pour ajouter un invité
@@ -339,6 +345,91 @@ function BulkImportModal({
   );
 }
 
+// Modal pour l'export
+function ExportModal({
+  isOpen,
+  onClose,
+  onExportExcel,
+  onExportPDF
+}: {
+  isOpen: boolean;
+  onClose: () => void;
+  onExportExcel: () => void;
+  onExportPDF: () => void;
+}) {
+  if (!isOpen) return null;
+
+  return (
+    <div className={styles.modalOverlay} onClick={onClose}>
+      <div className={styles.modalContent} onClick={(e) => e.stopPropagation()}>
+        <div className={styles.modalHeader}>
+          <h2>Exporter la liste</h2>
+          <button onClick={onClose} className={styles.modalClose}>
+            <X size={24} />
+          </button>
+        </div>
+        <div className={styles.modalBody}>
+          <p style={{ marginBottom: '1.5rem', color: 'var(--text-secondary)' }}>
+            Choisissez le format d'export adapté à vos besoins :
+          </p>
+
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+            <button
+              type="button"
+              onClick={() => { onExportExcel(); onClose(); }}
+              className={styles.modalButtonSecondary}
+              style={{ justifyContent: 'flex-start', padding: '1rem', height: 'auto' }}
+            >
+              <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', width: '100%' }}>
+                <div style={{
+                  background: '#107c41',
+                  color: 'white',
+                  padding: '0.5rem',
+                  borderRadius: '0.5rem',
+                  display: 'flex'
+                }}>
+                  <FileSpreadsheet size={24} />
+                </div>
+                <div style={{ textAlign: 'left' }}>
+                  <div style={{ fontWeight: 'bold', color: 'var(--text-primary)' }}>Excel (Gestion)</div>
+                  <div style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>
+                    Toutes les données (RSVP, régimes, contacts...) pour votre organisation.
+                  </div>
+                </div>
+              </div>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => { onExportPDF(); onClose(); }}
+              className={styles.modalButtonSecondary}
+              style={{ justifyContent: 'flex-start', padding: '1rem', height: 'auto' }}
+            >
+              <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', width: '100%' }}>
+                <div style={{
+                  background: '#ea4335',
+                  color: 'white',
+                  padding: '0.5rem',
+                  borderRadius: '0.5rem',
+                  display: 'flex'
+                }}>
+                  <Printer size={24} />
+                </div>
+                <div style={{ textAlign: 'left' }}>
+                  <div style={{ fontWeight: 'bold', color: 'var(--text-primary)' }}>PDF (Jour J)</div>
+                  <div style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>
+                    Liste de présence épurée à imprimer pour l'émargement à l'entrée.
+                  </div>
+                </div>
+              </div>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 // Composant pour gérer le lien partageable
 function ShareableLinkManager({ invitationId }: { invitationId: string }) {
   const [shareableLink, setShareableLink] = useState<{
@@ -544,6 +635,7 @@ export default function GuestsPage() {
   const [typeFilter, setTypeFilter] = useState<'all' | 'PERSONAL' | 'SHAREABLE'>('all');
   const [showAddModal, setShowAddModal] = useState(false);
   const [showImportModal, setShowImportModal] = useState(false);
+  const [showExportModal, setShowExportModal] = useState(false);
   const [showRsvpFilter, setShowRsvpFilter] = useState(false);
   const [showTypeFilter, setShowTypeFilter] = useState(false);
   const rsvpFilterRef = useRef<HTMLDivElement>(null);
@@ -645,6 +737,10 @@ export default function GuestsPage() {
     setShowImportModal(true);
   };
 
+  const handleExportClick = () => {
+    setShowExportModal(true);
+  };
+
   const handleSendInvitation = async (guestId: string) => {
     const success = await sendInvitation(guestId);
     if (success) {
@@ -719,6 +815,96 @@ export default function GuestsPage() {
       month: '2-digit',
       year: 'numeric'
     });
+  };
+
+  const handleExportExcel = () => {
+    const data = guests.map(guest => ({
+      'Prénom': guest.firstName,
+      'Nom': guest.lastName,
+      'Email': guest.email || '',
+      'Téléphone': guest.phone || '',
+      'Statut RSVP': guest.rsvp ? guest.rsvp.status : 'En attente',
+      'Accompagnant': guest.plusOne ? 'Oui' : 'Non',
+      'Nom Accompagnant': guest.plusOneName || '',
+      'Restrictions Alimentaires': guest.dietaryRestrictions || '',
+      'VIP': guest.isVIP ? 'Oui' : 'Non'
+    }));
+
+    const ws = XLSX.utils.json_to_sheet(data);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "Invités");
+
+    // Téléchargement avec file-saver pour compatibilité maximale
+    const wbout = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
+    const blob = new Blob([wbout], { type: 'application/octet-stream' });
+    saveAs(blob, "liste_invites.xlsx");
+  };
+
+  const handleExportPDF = () => {
+    const doc = new jsPDF();
+
+    const img = new Image();
+    img.src = '/images/logo.png';
+
+    const generatePDF = (hasLogo: boolean) => {
+      if (hasLogo) {
+        doc.addImage(img, 'PNG', 15, 10, 50, 20);
+      }
+
+      doc.setFontSize(22);
+      doc.setTextColor(40);
+      doc.text("Liste de Présence", hasLogo ? 70 : 15, 25);
+
+      doc.setFontSize(11);
+      doc.setTextColor(100);
+      doc.text(`Événement: ${selectedInvitation?.eventTitle || 'Mariage'}`, hasLogo ? 70 : 15, 32);
+      doc.text(`Date: ${new Date().toLocaleDateString('fr-FR')}`, hasLogo ? 70 : 15, 38);
+
+      // Sort guests alphabetically
+      const sortedGuests = [...guests].sort((a, b) => a.lastName.localeCompare(b.lastName));
+
+      const tableData = sortedGuests.map(guest => [
+        guest.lastName.toUpperCase(),
+        guest.firstName,
+        guest.isVIP ? 'VIP' : '',
+        guest.plusOne ? (guest.plusOneName || 'Oui') : '-',
+        guest.dietaryRestrictions || '',
+        ''
+      ]);
+
+      autoTable(doc, {
+        startY: 50,
+        head: [['Nom', 'Prénom', 'VIP', 'Accompagnant', 'Restrictions', 'Présent']],
+        body: tableData,
+        theme: 'grid',
+        headStyles: { fillColor: [66, 66, 66] },
+        styles: { fontSize: 10, cellPadding: 3, valign: 'middle', overflow: 'linebreak' },
+        columnStyles: {
+          0: { fontStyle: 'bold', cellWidth: 35 },
+          1: { cellWidth: 35 },
+          2: { halign: 'center', cellWidth: 15, textColor: [220, 38, 38], fontStyle: 'bold' },
+          3: { cellWidth: 40 },
+          4: { cellWidth: 'auto' },
+          5: { cellWidth: 20 }
+        },
+        didDrawCell: (data) => {
+          if (data.section === 'body' && data.column.index === 5) {
+            const dim = 6;
+            const x = data.cell.x + (data.cell.width - dim) / 2;
+            const y = data.cell.y + (data.cell.height - dim) / 2;
+            doc.setDrawColor(100);
+            doc.rect(x, y, dim, dim);
+          }
+        }
+      });
+
+      // Téléchargement avec file-saver pour compatibilité maximale
+      const blob = doc.output('blob');
+      saveAs(blob, "liste_presence.pdf");
+    };
+
+    img.onload = () => generatePDF(true);
+    img.onerror = () => generatePDF(false);
   };
 
   if (loadingInvitations) {
@@ -836,8 +1022,16 @@ export default function GuestsPage() {
                   className={`${styles.actionButton} ${styles.secondary}`}
                   onClick={handleBulkImport}
                 >
-                  <Upload size={20} />
+                  <Download size={20} />
                   <span>Import en masse</span>
+                </button>
+                <button
+                  className={`${styles.actionButton} ${styles.export}`}
+                  onClick={handleExportClick}
+                  title="Exporter la liste"
+                >
+                  <Upload size={20} />
+                  <span>Exporter la liste</span>
                 </button>
               </div>
               {/* Bouton pour envoyer à tous les invités sans réponse */}
@@ -1101,6 +1295,13 @@ export default function GuestsPage() {
         previewImport={previewImport}
         bulkImport={bulkImport}
         downloadTemplate={downloadTemplate}
+      />
+
+      <ExportModal
+        isOpen={showExportModal}
+        onClose={() => setShowExportModal(false)}
+        onExportExcel={handleExportExcel}
+        onExportPDF={handleExportPDF}
       />
 
       {notification && (

@@ -33,6 +33,7 @@ import newsletterRoutes from './routes/newsletterRoutes';
 import todoRoutes from './routes/todos';
 import aiRoutes from './routes/ai';
 import adminServicePackRoutes from './routes/adminServicePacks';
+import adminInvitationRoutes from './routes/adminInvitations';
 
 // Import des middlewares
 import { errorHandler } from './middleware/errorHandler';
@@ -79,7 +80,7 @@ app.use(cors({
   origin: (origin, callback) => {
     // Permettre les requêtes sans origin (ex: mobile apps, Postman)
     if (!origin) return callback(null, true);
-    
+
     // Permettre tous les sous-domaines de kaporelo.com
     if (origin.endsWith('.kaporelo.com') || allowedOrigins.includes(origin)) {
       callback(null, true);
@@ -138,6 +139,9 @@ app.use('/api/admin/designs', adminRouter, designRoutes);
 
 // Routes admin service-packs - AVANT /api/admin pour éviter les conflits
 app.use('/api/admin/service-packs', adminRouter, adminServicePackRoutes);
+
+// Routes admin invitations
+app.use('/api/admin/invitations', adminRouter, adminInvitationRoutes);
 
 // Routes admin users - utilise le système de routes modulaire
 app.use('/api/admin', adminRouter, userRoutes);
@@ -233,7 +237,7 @@ const startCleanupJobs = () => {
   if (cleanupInterval) {
     clearInterval(cleanupInterval);
   }
-  
+
   // Exécuter immédiatement au démarrage
   setTimeout(async () => {
     try {
@@ -243,7 +247,7 @@ const startCleanupJobs = () => {
       console.error('❌ Erreur lors du cleanup initial:', error);
     }
   }, 10000); // Attendre 10 secondes après le démarrage
-  
+
   // Puis exécuter toutes les 5 minutes
   cleanupInterval = setInterval(async () => {
     try {
@@ -253,7 +257,7 @@ const startCleanupJobs = () => {
       console.error('❌ Erreur lors du cleanup automatique:', error);
     }
   }, 5 * 60 * 1000); // 5 minutes
-  
+
   console.log('🔄 Jobs de nettoyage automatique démarrés (toutes les 5 minutes)');
 };
 
