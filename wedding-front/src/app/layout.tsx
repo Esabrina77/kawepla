@@ -8,6 +8,8 @@ export const metadata = siteMetadata;
 
 import { ToastProvider } from '@/components/ui/toast';
 
+import JsonLd from '@/components/Seo/JsonLd';
+
 export default function RootLayout({
   children,
 }: {
@@ -15,6 +17,9 @@ export default function RootLayout({
 }) {
   return (
     <html lang="fr" suppressHydrationWarning>
+      <head>
+        <JsonLd />
+      </head>
       <body suppressHydrationWarning className="font-sans">
         <ServiceWorkerProvider />
         <WebSocketNotificationsProvider />

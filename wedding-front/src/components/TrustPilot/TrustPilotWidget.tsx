@@ -28,7 +28,7 @@ export const TrustPilotWidget = () => {
                 data-theme="light"
             >
                 <a
-                    href="https://fr.trustpilot.com/review/kawepla.kaporelo.com"
+                    href="https://fr.trustpilot.com/review/kaporelo.com"
                     target="_blank"
                     rel="noopener noreferrer"
                 >

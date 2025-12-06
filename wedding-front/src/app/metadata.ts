@@ -42,8 +42,6 @@ export const metadata: Metadata = {
     creator: '@kawepla',
   },
   manifest: '/manifest.json',
-  themeColor: '#D4B895',
-  colorScheme: 'light',
   robots: {
     index: true,
     follow: true,
@@ -55,14 +53,22 @@ export const metadata: Metadata = {
       'max-snippet': -1,
     },
   },
+  appleWebApp: {
+    capable: true,
+    title: 'Kawepla',
+    statusBarStyle: 'default',
+  },
   icons: {
     icon: [
-      { url: '/icons/logo-16.png', sizes: '16x16', type: 'image/png' },
-      { url: '/icons/logo-32.png', sizes: '32x32', type: 'image/png' },
-      { url: '/icons/logo-192.png', sizes: '192x192', type: 'image/png' }
+      { url: '/icons/favicon-16x16.png', sizes: '16x16', type: 'image/png' },
+      { url: '/icons/favicon-32x32.png', sizes: '32x32', type: 'image/png' },
+      { url: '/icons/android-chrome-192x192.png', sizes: '192x192', type: 'image/png' },
+      { url: '/icons/android-chrome-512x512.png', sizes: '512x512', type: 'image/png' }
     ],
-    apple: { url: '/icons/apple-icon.png' },
-    shortcut: '/favicon.ico',
+    apple: [
+      { url: '/icons/apple-touch-icon.png' },
+    ],
+    shortcut: '/icons/favicon.ico',
   },
   verification: {
     google: 'iLofx6S2vdlLlPQzyPedkFKg8QJriArtaPM65SzmL2s',

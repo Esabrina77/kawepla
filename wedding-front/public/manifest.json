@@ -9,29 +9,34 @@
   "orientation": "portrait-primary",
   "icons": [
     {
-      "src": "/icons/logo-16.png",
+      "src": "/icons/favicon-16x16.png",
       "sizes": "16x16",
       "type": "image/png"
     },
     {
-      "src": "/icons/logo-32.png",
+      "src": "/icons/favicon-32x32.png",
       "sizes": "32x32",
       "type": "image/png"
     },
     {
-      "src": "/icons/logo-192.png",
+      "src": "/icons/android-chrome-192x192.png",
       "sizes": "192x192",
       "type": "image/png",
       "purpose": "any maskable"
     },
     {
-      "src": "/icons/logo-512.png",
+      "src": "/icons/android-chrome-512x512.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any maskable"
     }
   ],
-  "categories": ["lifestyle", "productivity", "social", "wedding"],
+  "categories": [
+    "lifestyle",
+    "productivity",
+    "social",
+    "wedding"
+  ],
   "lang": "fr",
   "dir": "ltr",
   "scope": "/",
@@ -45,7 +50,7 @@
       "url": "/client/dashboard",
       "icons": [
         {
-          "src": "/icons/logo-96.png",
+          "src": "/icons/android-chrome-96x96.png",
           "sizes": "96x96"
         }
       ]
@@ -57,7 +62,7 @@
       "url": "/client/invitations",
       "icons": [
         {
-          "src": "/icons/logo-96.png",
+          "src": "/icons/android-chrome-96x96.png",
           "sizes": "96x96"
         }
       ]
@@ -69,10 +74,10 @@
       "url": "/client/guests",
       "icons": [
         {
-          "src": "/icons/logo-96.png",
+          "src": "/icons/android-chrome-96x96.png",
           "sizes": "96x96"
         }
       ]
     }
   ]
-} 
+}

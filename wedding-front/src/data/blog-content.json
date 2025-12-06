@@ -1,0 +1,66 @@
+{
+    "hostArticles": [
+        {
+            "id": 1,
+            "title": "Comment organiser un mariage sans stress ?",
+            "excerpt": "Découvrez nos 10 conseils pour planifier le plus beau jour de votre vie en toute sérénité. Anticipation, budget et délégation sont les maîtres mots.",
+            "category": "Mariage",
+            "date": "15 Oct 2025",
+            "image": "https://images.pexels.com/photos/1043902/pexels-photo-1043902.jpeg",
+            "slug": "organiser-mariage-sans-stress",
+            "content": "<h2>1. Anticipez et planifiez (très) tôt</h2><p>L'anticipation est la clé pour éviter le stress. Commencez à planifier au moins un an, voire 18 à 24 mois à l'avance. Établissez un rétroplanning détaillé pour étaler les tâches et éviter les imprévus de dernière minute.</p><h2>2. Définissez vos priorités et un budget réaliste</h2><p>Discutez avec votre partenaire pour définir ce qui est vraiment important pour vous. Fixez un budget réaliste dès le début et faites une liste préliminaire des invités, car ces deux éléments influenceront tous vos choix futurs.</p><h2>3. Déléguez et demandez de l'aide</h2><p>Vous n'avez pas besoin de tout faire vous-même. N'hésitez pas à déléguer des tâches à vos témoins et familles. Si votre budget le permet, engager un <em>wedding planner</em> peut considérablement réduire le stress.</p><h2>4. Choisissez les bons prestataires</h2><p>Prenez le temps de rencontrer plusieurs prestataires (traiteur, photographe, DJ) et de comparer leurs offres. Un bon feeling avec votre équipe est essentiel. Utilisez <strong>Kawepla</strong> pour trouver des prestataires vérifiés.</p><h2>5. Ménagez-vous des pauses détente</h2><p>Entre deux sessions de préparation, prenez du temps pour vous détendre et vous déconnecter du mariage. Ces pauses sont cruciales pour votre bien-être et celui de votre couple.</p>"
+        },
+        {
+            "id": 2,
+            "title": "Les tendances déco anniversaire 2025",
+            "excerpt": "Des couleurs pastel aux thèmes rétro, voici ce qui fera fureur cette année. Découvrez comment créer une ambiance inoubliable.",
+            "category": "Anniversaire",
+            "date": "10 Oct 2025",
+            "image": "https://images.pexels.com/photos/2072181/pexels-photo-2072181.jpeg",
+            "slug": "tendances-deco-anniversaire-2025",
+            "content": "<h2>Nature et Durabilité</h2><p>Le 'thème nature' est très en vogue, privilégiant les couleurs sobres et les matériaux naturels comme le bois et le lin. Les fêtes éco-responsables avec de la vaisselle réutilisable et une décoration sans plastique sont la grande tendance de 2025.</p><h2>Retour aux années 90 et style Memphis</h2><p>Pour les plus audacieux, le style Memphis avec ses formes géométriques et ses couleurs vives fait un retour remarqué. Les années 90, avec leurs couleurs néon et leur ambiance pop, sont également très demandées pour des soirées nostalgiques.</p><h2>Couleurs : Dualité</h2><p>On observe une dualité entre des teintes naturelles apaisantes (terracotta, vert sauge) et des couleurs vives (tangerine, rose paprika). Le vert est le nouveau gris, s'associant parfaitement au bois pour une ambiance chaleureuse.</p><h2>Pour les enfants : Immersion</h2><p>Les thèmes immersifs comme les pirates, les super-héros ou l'espace restent des valeurs sûres, mais avec une touche de personnalisation plus poussée et des activités interactives.</p>"
+        },
+        {
+            "id": 3,
+            "title": "Réussir son séminaire d'entreprise",
+            "excerpt": "Engagez vos collaborateurs avec des activités originales et un lieu inspirant. Sortez du cadre habituel pour booster la cohésion.",
+            "category": "Corporate",
+            "date": "05 Oct 2025",
+            "image": "https://images.pexels.com/photos/7648472/pexels-photo-7648472.jpeg",
+            "slug": "reussir-seminaire-entreprise",
+            "content": "<h2>Choisir un lieu atypique</h2><p>Pour marquer les esprits, oubliez les salles de réunion classiques. Optez pour un château, un écolodge en pleine nature ou un tiers-lieu urbain créatif. Le changement de cadre favorise la réflexion et la déconnexion.</p><h2>Activités de Team Building innovantes</h2><p>Proposez des activités qui ont du sens :<ul><li><strong>Escape Game géant</strong> pour la collaboration.</li><li><strong>Ateliers RSE</strong> (fresque du climat, upcycling) pour les valeurs.</li><li><strong>Cours de cuisine</strong> pour la convivialité.</li></ul></p><h2>L'équilibre Travail / Détente</h2><p>Ne surchargez pas le planning. Laissez des temps libres pour que les collaborateurs puissent échanger informellement. C'est souvent là que naissent les meilleures idées.</p><h2>La touche technologique</h2><p>Utilisez une application pour fluidifier l'organisation, partager les photos en direct et recueillir les feedbacks post-événement.</p>"
+        }
+    ],
+    "providerArticles": [
+        {
+            "id": 1,
+            "title": "5 astuces pour booster votre visibilité sur Kawepla",
+            "excerpt": "Optimisez votre profil et attirez plus de clients qualifiés grâce à nos conseils d'experts en marketing événementiel.",
+            "category": "Business",
+            "date": "12 Oct 2025",
+            "image": "https://images.pexels.com/photos/95916/pexels-photo-95916.jpeg",
+            "slug": "booster-visibilite-kawepla",
+            "content": "<h2>1. Soignez vos visuels</h2><p>Dans l'événementiel, l'image est reine. Investissez dans un shooting professionnel de vos réalisations. Une galerie photo lumineuse et variée augmente de 300% les chances de contact.</p><h2>2. Récoltez des avis clients</h2><p>Les avis sont le premier critère de confiance (la 'preuve sociale'). Sollicitez systématiquement vos anciens clients pour qu'ils laissent un commentaire sur votre profil Kawepla.</p><h2>3. Optimisez votre description (SEO)</h2><p>Utilisez des mots-clés pertinents dans votre description (ex: 'Photographe Mariage Bordeaux', 'Traiteur Bio Lyon'). Soyez précis sur vos zones d'intervention et vos spécialités.</p><h2>4. Répondez rapidement</h2><p>L'algorithme de Kawepla favorise les prestataires réactifs. Essayez de répondre aux demandes de devis dans les 4 heures ouvrées.</p><h2>5. Mettez à jour vos disponibilités</h2><p>Un calendrier à jour évite la frustration des clients et vous fait gagner du temps. Connectez votre agenda Google/Outlook à Kawepla.</p>"
+        },
+        {
+            "id": 2,
+            "title": "Comment gérer les demandes de devis efficacement ?",
+            "excerpt": "Gagnez du temps et augmentez votre taux de conversion avec nos modèles de réponse et outils d'automatisation.",
+            "category": "Gestion",
+            "date": "08 Oct 2025",
+            "image": "https://images.pexels.com/photos/811572/pexels-photo-811572.jpeg",
+            "slug": "gerer-demandes-devis",
+            "content": "<h2>La rapidité est la clé</h2><p>Les statistiques montrent que le premier prestataire à répondre a 50% de chances en plus de signer le contrat. Utilisez des modèles de réponses pré-enregistrés pour gagner du temps, mais personnalisez toujours l'introduction.</p><h2>Qualifiez la demande</h2><p>Avant de passer 2h sur un devis, assurez-vous que le client correspond à votre cible. N'hésitez pas à demander un court appel téléphonique de 10 min pour cerner le budget et les attentes.</p><h2>Un devis clair et transparent</h2><p>Votre devis doit être lisible et détaillé. Évitez le jargon technique. Détaillez ce qui est inclus et ce qui est en option. La transparence instaure la confiance.</p><h2>La relance automatique</h2><p>Beaucoup de ventes se perdent faute de relance. Programmez une relance automatique à J+3 et J+7 si vous n'avez pas de réponse.</p>"
+        },
+        {
+            "id": 3,
+            "title": "Les tendances événementielles 2026",
+            "excerpt": "Préparez votre saison prochaine en découvrant ce que les organisateurs rechercheront. IA, RSE et Hyper-personnalisation.",
+            "category": "Tendances",
+            "date": "01 Oct 2025",
+            "image": "https://images.pexels.com/photos/5716001/pexels-photo-5716001.jpeg",
+            "slug": "tendances-evenementielles-2026",
+            "content": "<h2>L'Hyper-personnalisation par l'IA</h2><p>En 2026, les clients attendent du sur-mesure. L'IA permettra de proposer des expériences ultra-personnalisées, des menus adaptés à chaque régime alimentaire aux playlists générées selon les goûts des invités.</p><h2>L'Éco-responsabilité non-négociable</h2><p>Le 'vert' n'est plus une option. Les prestataires devront prouver leur engagement RSE : zéro plastique, circuits courts, compensation carbone. Avoir un label éco-responsable sera un atout commercial majeur.</p><h2>L'Expérience Phygitale</h2><p>Pour les événements corporate, l'hybride (présentiel + distanciel) devient la norme, mais avec une qualité studio TV. L'interactivité via mobile (sondages, quiz) sera omniprésente.</p><h2>Le retour de l'Authenticité</h2><p>Face à la technologie, un besoin de connexion humaine réelle se fait sentir. Les formats intimistes, les dîners assis favorisant la discussion et les lieux avec une âme seront privilégiés.</p>"
+        }
+    ]
+}

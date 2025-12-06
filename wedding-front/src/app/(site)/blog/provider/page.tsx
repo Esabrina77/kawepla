@@ -2,39 +2,14 @@
 
 import React from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { ArrowRight, Calendar, TrendingUp } from 'lucide-react';
-import styles from '../host/blog.module.css'; // Reuse styles
+import styles from '../blog.module.css'; // Reuse styles
+
+import { providerArticles } from '@/data/blogData';
 
 export default function ProviderBlogPage() {
-    const articles = [
-        {
-            id: 1,
-            title: "5 astuces pour booster votre visibilité sur Kawepla",
-            excerpt: "Optimisez votre profil et attirez plus de clients qualifiés grâce à nos conseils d'experts.",
-            category: "Business",
-            date: "12 Oct 2025",
-            image: "/images/blog/visibility-tips.jpg",
-            slug: "booster-visibilite-kawepla"
-        },
-        {
-            id: 2,
-            title: "Comment gérer les demandes de devis efficacement ?",
-            excerpt: "Gagnez du temps et augmentez votre taux de conversion avec nos modèles de réponse.",
-            category: "Gestion",
-            date: "08 Oct 2025",
-            image: "/images/blog/quote-management.jpg",
-            slug: "gerer-demandes-devis"
-        },
-        {
-            id: 3,
-            title: "Les tendances événementielles 2026",
-            excerpt: "Préparez votre saison prochaine en découvrant ce que les organisateurs rechercheront.",
-            category: "Tendances",
-            date: "01 Oct 2025",
-            image: "/images/blog/event-trends-2026.jpg",
-            slug: "tendances-evenementielles-2026"
-        }
-    ];
+    const articles = providerArticles;
 
     return (
         <div className={styles.blogPage}>
@@ -53,8 +28,15 @@ export default function ProviderBlogPage() {
                         {articles.map((article) => (
                             <article key={article.id} className={styles.card}>
                                 <div className={styles.imageWrapper}>
-                                    {/* Placeholder image */}
-                                    <div className={styles.placeholderImage} style={{ background: 'linear-gradient(45deg, var(--bg-secondary), #A58866)' }} />
+                                    {article.image && (
+                                        <Image
+                                            src={article.image}
+                                            alt={article.title}
+                                            fill
+                                            style={{ objectFit: 'cover' }}
+                                        />
+                                    )}
+                                    {!article.image && <div className={styles.placeholderImage} style={{ background: 'linear-gradient(45deg, var(--bg-secondary), #A58866)' }} />}
                                     <span className={styles.category}>{article.category}</span>
                                 </div>
                                 <div className={styles.content}>

@@ -4,38 +4,12 @@ import React from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { ArrowRight, Calendar, Heart, Star } from 'lucide-react';
-import styles from './blog.module.css';
+import styles from '../blog.module.css';
+
+import { hostArticles } from '@/data/blogData';
 
 export default function HostBlogPage() {
-    const articles = [
-        {
-            id: 1,
-            title: "Comment organiser un mariage sans stress ?",
-            excerpt: "Découvrez nos 10 conseils pour planifier le plus beau jour de votre vie en toute sérénité.",
-            category: "Mariage",
-            date: "15 Oct 2025",
-            image: "/images/blog/wedding-planning.jpg",
-            slug: "organiser-mariage-sans-stress"
-        },
-        {
-            id: 2,
-            title: "Les tendances déco anniversaire 2025",
-            excerpt: "Des couleurs pastel aux thèmes rétro, voici ce qui fera fureur cette année.",
-            category: "Anniversaire",
-            date: "10 Oct 2025",
-            image: "/images/blog/birthday-trends.jpg",
-            slug: "tendances-deco-anniversaire-2025"
-        },
-        {
-            id: 3,
-            title: "Réussir son séminaire d'entreprise",
-            excerpt: "Engagez vos collaborateurs avec des activités originales et un lieu inspirant.",
-            category: "Corporate",
-            date: "05 Oct 2025",
-            image: "/images/blog/corporate-event.jpg",
-            slug: "reussir-seminaire-entreprise"
-        }
-    ];
+    const articles = hostArticles;
 
     return (
         <div className={styles.blogPage}>
@@ -54,8 +28,15 @@ export default function HostBlogPage() {
                         {articles.map((article) => (
                             <article key={article.id} className={styles.card}>
                                 <div className={styles.imageWrapper}>
-                                    {/* Placeholder image if real one missing */}
-                                    <div className={styles.placeholderImage} />
+                                    {article.image && (
+                                        <Image
+                                            src={article.image}
+                                            alt={article.title}
+                                            fill
+                                            style={{ objectFit: 'cover' }}
+                                        />
+                                    )}
+                                    {!article.image && <div className={styles.placeholderImage} />}
                                     <span className={styles.category}>{article.category}</span>
                                 </div>
                                 <div className={styles.content}>

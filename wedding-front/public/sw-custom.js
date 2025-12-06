@@ -1,9 +1,9 @@
 // Service Worker pour les notifications push
-self.addEventListener('push', function(event) {
+self.addEventListener('push', function (event) {
   const options = {
     body: 'Vous avez reçu une nouvelle notification',
-    icon: '/icons/logo-192.png',
-    badge: '/icons/logo-192.png',
+    icon: '/icons/android-chrome-192x192.png',
+    badge: '/icons/android-chrome-192x192.png',
     vibrate: [100, 50, 100],
     data: {
       dateOfArrival: Date.now(),
@@ -13,12 +13,12 @@ self.addEventListener('push', function(event) {
       {
         action: 'explore',
         title: 'Voir',
-        icon: '/icons/logo-192.png'
+        icon: '/icons/android-chrome-192x192.png'
       },
       {
         action: 'close',
         title: 'Fermer',
-        icon: '/icons/logo-192.png'
+        icon: '/icons/android-chrome-192x192.png'
       }
     ]
   };
@@ -26,7 +26,7 @@ self.addEventListener('push', function(event) {
   if (event.data) {
     try {
       const data = event.data.json();
-      
+
       // Personnaliser la notification selon le type
       switch (data.type) {
         case 'new_message':
@@ -34,34 +34,34 @@ self.addEventListener('push', function(event) {
           options.body = `${data.senderName}: ${data.message}`;
           options.data.url = '/client/discussions';
           break;
-          
+
         case 'rsvp_response':
           options.title = 'Nouvelle réponse RSVP';
           options.body = `${data.guestName} a répondu à votre invitation`;
           options.data.url = '/client/invitations';
           break;
-          
+
         case 'invitation_published':
           options.title = 'Invitation publiée';
           options.body = 'Votre invitation a été publiée avec succès';
           options.data.url = '/client/invitations';
           break;
-          
+
         case 'guest_added':
           options.title = 'Nouvel invité';
           options.body = `${data.guestName} a été ajouté à votre liste d'invités`;
           options.data.url = '/client/guests';
           break;
-          
+
         default:
           options.title = data.title || 'Kawepla';
           options.body = data.body || 'Nouvelle notification';
           options.data.url = data.url || '/';
       }
-      
+
       // Ajouter les données personnalisées
       options.data = { ...options.data, ...data };
-      
+
     } catch (error) {
       console.error('Error parsing notification data:', error);
     }
@@ -73,7 +73,7 @@ self.addEventListener('push', function(event) {
 });
 
 // Gestion des clics sur les notifications
-self.addEventListener('notificationclick', function(event) {
+self.addEventListener('notificationclick', function (event) {
   event.notification.close();
 
   if (event.action === 'close') {
@@ -81,12 +81,12 @@ self.addEventListener('notificationclick', function(event) {
   }
 
   const urlToOpen = event.notification.data?.url || '/';
-  
+
   event.waitUntil(
     clients.matchAll({
       type: 'window',
       includeUncontrolled: true
-    }).then(function(clientList) {
+    }).then(function (clientList) {
       // Vérifier si l'app est déjà ouverte
       for (let i = 0; i < clientList.length; i++) {
         const client = clientList[i];
@@ -99,7 +99,7 @@ self.addEventListener('notificationclick', function(event) {
           return client.focus();
         }
       }
-      
+
       // Ouvrir une nouvelle fenêtre si aucune n'est ouverte
       if (clients.openWindow) {
         return clients.openWindow(urlToOpen);
@@ -109,9 +109,9 @@ self.addEventListener('notificationclick', function(event) {
 });
 
 // Gestion de la fermeture des notifications
-self.addEventListener('notificationclose', function(event) {
+self.addEventListener('notificationclose', function (event) {
   console.log('Notification fermée:', event.notification.tag);
-  
+
   // Optionnel : envoyer une statistique au serveur
   // fetch('/api/notifications/closed', {
   //   method: 'POST',
@@ -122,7 +122,7 @@ self.addEventListener('notificationclose', function(event) {
 });
 
 // Synchronisation en arrière-plan pour les notifications
-self.addEventListener('sync', function(event) {
+self.addEventListener('sync', function (event) {
   if (event.tag === 'background-sync') {
     event.waitUntil(
       // Synchroniser les données si nécessaire
@@ -136,7 +136,7 @@ async function syncNotifications() {
     // Récupérer les notifications en attente
     const response = await fetch('/api/notifications/pending');
     const notifications = await response.json();
-    
+
     // Afficher les notifications en attente
     notifications.forEach(notification => {
       self.registration.showNotification(notification.title, {
@@ -152,7 +152,7 @@ async function syncNotifications() {
 }
 
 // Gestion des messages du client principal
-self.addEventListener('message', function(event) {
+self.addEventListener('message', function (event) {
   if (event.data && event.data.type === 'SKIP_WAITING') {
     self.skipWaiting();
   }

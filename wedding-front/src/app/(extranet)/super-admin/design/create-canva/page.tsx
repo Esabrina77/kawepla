@@ -351,7 +351,7 @@ export default function CreateCanvaDesignPage() {
   return (
     <div className={styles.pageContainer}>
       <HeaderMobile
-        title="Créer un design avec Canva"
+        title="Créer un design avec kawesign"
         onBack={() => router.push('/super-admin/design')}
       />
 

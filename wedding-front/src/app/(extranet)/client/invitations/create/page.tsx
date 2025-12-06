@@ -246,7 +246,7 @@ export default function CreateInvitationPage() {
       addToast({
         type: 'error',
         title: 'Erreur',
-        message: 'Erreur lors de la sauvegarde du design personnalisé'
+        message: error instanceof Error ? error.message : 'Erreur lors de la sauvegarde du design personnalisé'
       });
     } finally {
       setSaving(false);

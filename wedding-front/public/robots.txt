@@ -13,6 +13,8 @@ Allow: /faq
 Allow: /help
 Allow: /auth/login
 Allow: /auth/register
+Allow: /blog/host
+Allow: /blog/provider
 
 # Pages privées à ne pas indexer
 Disallow: /client/
