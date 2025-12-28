@@ -1,9 +1,9 @@
 // Import du service worker généré par next-pwa
 try {
   importScripts('./sw.js');
-  console.log('Service worker next-pwa chargé avec succès');
+  console.log('✅ Service worker next-pwa chargé avec succès');
 } catch (error) {
-  console.log('Service worker next-pwa non trouvé, utilisation du service worker de notifications uniquement');
+  console.log('⚠️ Service worker next-pwa non trouvé, utilisation du service worker de notifications uniquement');
 }
 
 // Service Worker pour les notifications push
@@ -173,14 +173,37 @@ self.addEventListener('message', function (event) {
 
 // Installation du service worker
 self.addEventListener('install', function (event) {
-  console.log('Service Worker de notifications installé');
-  self.skipWaiting();
+  console.log('✅ Service Worker de notifications installé');
+  console.log('📍 Scope:', self.registration?.scope || 'unknown');
+  self.skipWaiting(); // Forcer l'activation immédiate
 });
 
 // Activation du service worker
 self.addEventListener('activate', function (event) {
-  console.log('Service Worker de notifications activé');
-  event.waitUntil(self.clients.claim());
+  console.log('✅ Service Worker de notifications activé');
+  console.log('📍 Scope:', self.registration?.scope || 'unknown');
+  
+  // Réclamer tous les clients immédiatement
+  event.waitUntil(
+    Promise.all([
+      self.clients.claim(),
+      // Nettoyer les anciens caches si nécessaire
+      caches.keys().then(cacheNames => {
+        return Promise.all(
+          cacheNames.map(cacheName => {
+            if (cacheName.startsWith('old-')) {
+              console.log('🗑️ Suppression du cache obsolète:', cacheName);
+              return caches.delete(cacheName);
+            }
+          })
+        );
+      })
+    ])
+  );
+  
+  console.log('✅ Service Worker de notifications prêt à recevoir des push notifications');
 });
 
-console.log('Service Worker de notifications chargé'); 
+console.log('📱 Service Worker de notifications chargé');
+console.log('📍 URL:', self.location.href);
+console.log('📍 Scope:', self.registration?.scope || 'unknown'); 

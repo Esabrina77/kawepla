@@ -94,7 +94,7 @@ const nextConfig: NextConfig = {
 
 const config = withPWA({
   dest: 'public',
-  register: process.env.NODE_ENV === 'production',
+  register: false, // Désactiver l'enregistrement automatique, on gère manuellement avec sw-notifications.js
   skipWaiting: process.env.NODE_ENV === 'production',
 })(nextConfig);
 
