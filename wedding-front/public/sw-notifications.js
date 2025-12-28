@@ -1,13 +1,13 @@
-// Import du service worker généré par next-pwa (optionnel)
-// En production, ce fichier peut ne pas exister si next-pwa est désactivé
-try {
-  importScripts('./sw.js');
-  console.log('✅ Service worker next-pwa chargé avec succès');
-} catch (error) {
-  // Ne pas faire échouer le service worker si sw.js n'existe pas
-  // C'est normal en production si register: false dans next.config.ts
-  console.log('ℹ️ Service worker next-pwa non trouvé (normal si register: false), utilisation du service worker de notifications uniquement');
-}
+// IMPORTANT : Ne PAS importer sw.js en production
+// sw.js contient workbox qui essaie de precache des fichiers qui n'existent pas (404)
+// Cela fait échouer le service worker et le rend "redundant"
+// 
+// En production, on utilise uniquement sw-notifications.js pour les push notifications
+// Le cache est géré par Next.js, pas par workbox
+
+// Désactiver complètement l'import de sw.js en production
+// Si vous avez besoin de workbox, configurez-le séparément
+console.log('📱 Service Worker de notifications chargé (sans workbox)');
 
 // Service Worker pour les notifications push
 self.addEventListener('push', function (event) {
@@ -224,8 +224,4 @@ self.addEventListener('activate', function (event) {
       console.error('❌ Erreur lors de l\'activation:', error);
     })
   );
-});
-
-console.log('📱 Service Worker de notifications chargé');
-console.log('📍 URL:', self.location.href);
-console.log('📍 Scope:', self.registration?.scope || 'unknown'); 
+}); 
