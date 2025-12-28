@@ -41,81 +41,104 @@ self.addEventListener('push', function (event) {
   if (event.data) {
     try {
       const data = event.data.json();
-      console.log('Données de notification reçues:', data);
+      console.log('📨 Données de notification reçues:', data);
+      console.log('📨 Type de notification:', data.type);
 
       // Personnaliser la notification selon le type
-      // Utiliser directement title et body du backend si présents
-      if (data.title && data.body) {
-        notificationData.title = data.title;
-        notificationData.body = data.body;
-      } else {
-        // Fallback sur les types spécifiques
+      // Utiliser le type pour personnaliser, puis title/body comme fallback
+      if (data.type) {
         switch (data.type) {
           case 'new_message':
-            notificationData.title = '💬 Nouveau message';
-            notificationData.body = `${data.senderName || 'Un invité'}: ${data.message || 'Nouveau message'}`;
-            notificationData.data.url = '/client/discussions';
+            notificationData.title = data.title || '💬 Nouveau message';
+            notificationData.body = data.body || `${data.senderName || 'Un invité'}: ${data.message || 'Nouveau message'}`;
+            notificationData.data.url = data.data?.url || '/client/discussions';
             break;
 
           case 'rsvp_confirmed':
             notificationData.title = data.title || '🎉 RSVP Confirmé !';
             notificationData.body = data.body || `${data.guestName || 'Un invité'} a confirmé sa présence`;
-            notificationData.data.url = data.data?.invitationId ? `/client/invitations/${data.data.invitationId}` : '/client/invitations';
+            notificationData.data.url = data.data?.invitationId ? `/client/invitations/${data.data.invitationId}` : (data.data?.url || '/client/invitations');
             break;
 
           case 'rsvp_declined':
             notificationData.title = data.title || '😔 RSVP Refusé';
             notificationData.body = data.body || `${data.guestName || 'Un invité'} a décliné l'invitation`;
-            notificationData.data.url = data.data?.invitationId ? `/client/invitations/${data.data.invitationId}` : '/client/invitations';
+            notificationData.data.url = data.data?.invitationId ? `/client/invitations/${data.data.invitationId}` : (data.data?.url || '/client/invitations');
             break;
 
           case 'rsvp_response':
-            notificationData.title = 'Nouvelle réponse RSVP';
-            notificationData.body = `${data.guestName || 'Un invité'} a répondu à votre invitation`;
-            notificationData.data.url = '/client/invitations';
+            notificationData.title = data.title || 'Nouvelle réponse RSVP';
+            notificationData.body = data.body || `${data.guestName || 'Un invité'} a répondu à votre invitation`;
+            notificationData.data.url = data.data?.url || '/client/invitations';
             break;
 
           case 'new_guest':
             notificationData.title = data.title || '👥 Nouvel invité';
             notificationData.body = data.body || `${data.guestName || 'Un invité'} a été ajouté à votre liste d'invités`;
-            notificationData.data.url = data.data?.invitationId ? `/client/invitations/${data.data.invitationId}` : '/client/invitations';
+            notificationData.data.url = data.data?.invitationId ? `/client/invitations/${data.data.invitationId}` : (data.data?.url || '/client/invitations');
             break;
 
           case 'invitation_published':
-            notificationData.title = 'Invitation publiée';
-            notificationData.body = 'Votre invitation a été publiée avec succès';
-            notificationData.data.url = '/client/invitations';
+            notificationData.title = data.title || 'Invitation publiée';
+            notificationData.body = data.body || 'Votre invitation a été publiée avec succès';
+            notificationData.data.url = data.data?.url || '/client/invitations';
             break;
 
           case 'guest_added':
-            notificationData.title = 'Nouvel invité';
-            notificationData.body = `${data.guestName || 'Un invité'} a été ajouté à votre liste d'invités`;
-            notificationData.data.url = '/client/guests';
+            notificationData.title = data.title || 'Nouvel invité';
+            notificationData.body = data.body || `${data.guestName || 'Un invité'} a été ajouté à votre liste d'invités`;
+            notificationData.data.url = data.data?.url || '/client/guests';
             break;
 
           case 'test':
             notificationData.title = data.title || 'Test de notification';
             notificationData.body = data.body || 'Ceci est un test de notification push';
-            notificationData.data.url = data.url || '/client/dashboard';
+            notificationData.data.url = data.data?.url || data.url || '/client/dashboard';
             break;
 
           default:
+            // Pour les types non reconnus, utiliser title/body du backend
             notificationData.title = data.title || 'Kawepla';
             notificationData.body = data.body || 'Nouvelle notification';
-            notificationData.data.url = data.url || data.data?.url || '/';
+            notificationData.data.url = data.data?.url || data.url || '/';
         }
+      } else {
+        // Pas de type, utiliser directement title/body
+        notificationData.title = data.title || notificationData.title;
+        notificationData.body = data.body || notificationData.body;
+        notificationData.data.url = data.data?.url || data.url || notificationData.data.url;
       }
 
-      // Ajouter les données personnalisées
-      notificationData.data = { ...notificationData.data, ...data };
+      // Ajouter les données personnalisées (garder les données du backend)
+      notificationData.data = { 
+        ...notificationData.data, 
+        ...(data.data || {}), // Les données du backend (invitationId, etc.)
+        type: data.type,
+        originalData: data // Garder toutes les données originales
+      };
+
+      console.log('📱 Notification personnalisée:', {
+        title: notificationData.title,
+        body: notificationData.body,
+        type: data.type,
+        url: notificationData.data.url
+      });
 
     } catch (error) {
-      console.error('Erreur lors du parsing des données de notification:', error);
+      console.error('❌ Erreur lors du parsing des données de notification:', error);
+      console.error('Données brutes:', event.data?.text());
     }
   }
 
+  console.log('📤 Affichage de la notification:', notificationData.title);
   event.waitUntil(
     self.registration.showNotification(notificationData.title, notificationData)
+      .then(() => {
+        console.log('✅ Notification affichée avec succès');
+      })
+      .catch((error) => {
+        console.error('❌ Erreur lors de l\'affichage de la notification:', error);
+      })
   );
 });
 
