@@ -138,8 +138,10 @@ export const useNotifications = () => {
     }
 
     try {
-      // Enregistrer le service worker
-      const registration = await navigator.serviceWorker.register('/sw.js');
+      // Enregistrer le service worker (utiliser sw-notifications.js qui gère les push notifications)
+      const registration = await navigator.serviceWorker.register('/sw-notifications.js', {
+        scope: '/'
+      });
       console.log('✅ Service worker enregistré:', registration);
 
       // Attendre que le service worker soit actif

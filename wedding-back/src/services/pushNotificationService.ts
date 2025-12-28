@@ -85,6 +85,7 @@ export class PushNotificationService {
       const payload = JSON.stringify({
         title: notification.title,
         body: notification.body,
+        type: notification.type, // Ajouter le type pour le service worker
         icon: '/favicon.ico',
         badge: '/favicon.ico',
         tag: notification.type,

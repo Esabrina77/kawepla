@@ -16,7 +16,7 @@ export class RSVPController {
   static async getInvitation(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
       const { token } = req.params;
-      
+
       if (!token) {
         res.status(400).json({ message: 'Token d\'invitation requis' });
         return;
@@ -49,7 +49,7 @@ export class RSVPController {
   static async respond(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
       const { token } = req.params;
-      
+
       if (!token) {
         res.status(400).json({ message: 'Token d\'invitation requis' });
         return;
@@ -75,17 +75,17 @@ export class RSVPController {
 
       try {
         const rsvp = await RSVPService.createRSVP(token, req.body);
-        
+
         // Envoyer une notification via le service de notifications
         if (rsvp) {
           await NotificationService.sendRSVPNotification(rsvp);
         }
-        
+
         res.status(201).json(rsvp);
       } catch (error) {
         if (error instanceof Error) {
           if (error.message === 'Cette invitation n\'est pas encore publiée' ||
-              error.message === 'Ce lien d\'invitation a déjà été utilisé') {
+            error.message === 'Ce lien d\'invitation a déjà été utilisé') {
             res.status(400).json({ message: error.message });
           } else if (error.message === 'Invité non trouvé') {
             res.status(404).json({ message: error.message });
@@ -107,7 +107,7 @@ export class RSVPController {
   static async getStatus(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
       const { token } = req.params;
-      
+
       if (!token) {
         res.status(400).json({ message: 'Token d\'invitation requis' });
         return;
@@ -115,13 +115,13 @@ export class RSVPController {
 
       try {
         const rsvp = await RSVPService.getRSVPByToken(token);
-        
+
         if (!rsvp) {
           // Pas de RSVP, c'est normal pour un invité qui n'a pas encore répondu
           res.status(404).json({ message: 'Aucune réponse RSVP trouvée pour cet invité' });
           return;
         }
-        
+
         res.status(200).json(rsvp);
       } catch (error) {
         if (error instanceof Error) {
@@ -147,7 +147,7 @@ export class RSVPController {
   static async update(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
       const { token } = req.params;
-      
+
       if (!token) {
         res.status(400).json({ message: 'Token d\'invitation requis' });
         return;
@@ -174,19 +174,19 @@ export class RSVPController {
       try {
         // Utiliser la nouvelle méthode qui gère aussi la photo de profil
         const rsvp = await RSVPService.updateRSVPWithPhotoUpdate(token, req.body);
-        
+
         if (!rsvp) {
           res.status(404).json({ message: 'RSVP non trouvé' });
           return;
         }
-        
+
         res.status(200).json(rsvp);
       } catch (error) {
         if (error instanceof Error) {
           if (error.message === 'Cette invitation n\'est pas encore publiée') {
             res.status(400).json({ message: error.message });
           } else if (error.message === 'Invité non trouvé' ||
-                     error.message === 'Aucune réponse RSVP trouvée') {
+            error.message === 'Aucune réponse RSVP trouvée') {
             res.status(404).json({ message: error.message });
           } else {
             res.status(500).json({ message: 'Erreur interne du serveur' });
@@ -207,7 +207,7 @@ export class RSVPController {
     try {
       const { id } = req.params;
       const userId = (req as any).user?.id;
-      
+
       if (!id) {
         res.status(400).json({ message: 'ID d\'invitation requis' });
         return;
@@ -244,16 +244,16 @@ export class RSVPController {
     try {
       // Validation des données RSVP partageable
       const validatedData = await shareableRSVPSchema.parseAsync(data);
-      
+
       // Récupérer l'invitation via le token partageable
       const invitation = await ShareableInvitationService.getInvitationByShareableToken(shareableToken, true);
-      
+
       // Créer l'invité avec les infos personnelles et associer le lien
       const guest = await RSVPService.createGuestFromShareableLink(invitation.id, validatedData, shareableToken);
-      
+
       // Marquer le lien comme USED (annule la suppression automatique)
       await ShareableInvitationService.associateGuestToLink(shareableToken, guest.id);
-      
+
       // Créer la réponse RSVP
       const rsvp = await RSVPService.createRSVP(guest.inviteToken, {
         status: validatedData.status,
@@ -303,7 +303,7 @@ export class RSVPController {
   static async getStatusFromShareableLink(shareableToken: string) {
     try {
       const invitation = await ShareableInvitationService.getInvitationByShareableToken(shareableToken);
-      
+
       // Pour les liens partageables, on renvoie les infos de l'invitation
       // et on indique que le lien est encore utilisable
       return {
