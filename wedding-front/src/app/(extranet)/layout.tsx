@@ -2,6 +2,7 @@
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/hooks/useAuth";
+import { useAutoNotificationPermission } from "@/hooks/useAutoNotificationPermission";
 import { RateLimitModal } from "@/components/RateLimitModal/RateLimitModal";
 import Chatbot from "@/components/Chatbot/Chatbot";
 import styles from './extranetLayout.module.css';
@@ -13,6 +14,9 @@ export default function ExtranetLayout({
 }) {
   const { isAuthenticated, isLoading, user, handleSessionExpired } = useAuth();
   const router = useRouter();
+  
+  // Demander automatiquement la permission de notification à la connexion
+  useAutoNotificationPermission();
 
   useEffect(() => {
     if (!isLoading && !isAuthenticated) {
