@@ -1,9 +1,12 @@
-// Import du service worker généré par next-pwa
+// Import du service worker généré par next-pwa (optionnel)
+// En production, ce fichier peut ne pas exister si next-pwa est désactivé
 try {
   importScripts('./sw.js');
   console.log('✅ Service worker next-pwa chargé avec succès');
 } catch (error) {
-  console.log('⚠️ Service worker next-pwa non trouvé, utilisation du service worker de notifications uniquement');
+  // Ne pas faire échouer le service worker si sw.js n'existe pas
+  // C'est normal en production si register: false dans next.config.ts
+  console.log('ℹ️ Service worker next-pwa non trouvé (normal si register: false), utilisation du service worker de notifications uniquement');
 }
 
 // Service Worker pour les notifications push
@@ -175,33 +178,52 @@ self.addEventListener('message', function (event) {
 self.addEventListener('install', function (event) {
   console.log('✅ Service Worker de notifications installé');
   console.log('📍 Scope:', self.registration?.scope || 'unknown');
-  self.skipWaiting(); // Forcer l'activation immédiate
+  console.log('📍 URL:', self.location.href);
+  
+  // Forcer l'activation immédiate sans attendre
+  event.waitUntil(
+    self.skipWaiting().then(() => {
+      console.log('✅ skipWaiting() exécuté');
+    }).catch((error) => {
+      console.error('❌ Erreur lors de skipWaiting():', error);
+    })
+  );
 });
 
 // Activation du service worker
 self.addEventListener('activate', function (event) {
   console.log('✅ Service Worker de notifications activé');
   console.log('📍 Scope:', self.registration?.scope || 'unknown');
+  console.log('📍 URL:', self.location.href);
   
   // Réclamer tous les clients immédiatement
   event.waitUntil(
     Promise.all([
-      self.clients.claim(),
+      // Réclamer les clients
+      self.clients.claim().then(() => {
+        console.log('✅ clients.claim() exécuté - Service worker contrôle maintenant tous les clients');
+      }).catch((error) => {
+        console.error('❌ Erreur lors de clients.claim():', error);
+      }),
       // Nettoyer les anciens caches si nécessaire
       caches.keys().then(cacheNames => {
-        return Promise.all(
-          cacheNames.map(cacheName => {
-            if (cacheName.startsWith('old-')) {
-              console.log('🗑️ Suppression du cache obsolète:', cacheName);
-              return caches.delete(cacheName);
-            }
-          })
-        );
+        const oldCaches = cacheNames.filter(cacheName => cacheName.startsWith('old-'));
+        if (oldCaches.length > 0) {
+          console.log('🗑️ Suppression des caches obsolètes:', oldCaches);
+          return Promise.all(
+            oldCaches.map(cacheName => caches.delete(cacheName))
+          );
+        }
+        return Promise.resolve();
+      }).catch((error) => {
+        console.error('❌ Erreur lors du nettoyage des caches:', error);
       })
-    ])
+    ]).then(() => {
+      console.log('✅ Service Worker de notifications prêt à recevoir des push notifications');
+    }).catch((error) => {
+      console.error('❌ Erreur lors de l\'activation:', error);
+    })
   );
-  
-  console.log('✅ Service Worker de notifications prêt à recevoir des push notifications');
 });
 
 console.log('📱 Service Worker de notifications chargé');
