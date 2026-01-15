@@ -1,21 +1,53 @@
 import { prisma } from '@/lib/prisma';
 import { CreateDesignDto, DesignResponse } from '@/types';
 import { ServiceTier } from '@prisma/client';
+import { cache } from '@/lib/redis';
 
 export class DesignService {
   static async getAllDesigns(includeInactive = false): Promise<DesignResponse[]> {
+    const cacheKey = `designs:all:${includeInactive}`;
+    const cached = await cache.get<DesignResponse[]>(cacheKey);
+    if (cached) return cached;
+
     const designs = await prisma.design.findMany({
       where: { isActive: includeInactive ? undefined : true },
+      select: {
+        id: true,
+        name: true,
+        description: true,
+        tags: true,
+        isActive: true,
+        createdAt: true,
+        updatedAt: true,
+        editorVersion: true,
+        canvasWidth: true,
+        canvasHeight: true,
+        canvasFormat: true,
+        backgroundImage: true,
+        thumbnail: true,
+        previewImage: true,
+        priceType: true,
+        userId: true,
+        isTemplate: true,
+        originalDesignId: true,
+        // fabricData EXCLU
+      },
       orderBy: { createdAt: 'desc' },
     });
 
-    return designs.map(this.formatDesignResponse);
+    const result = designs.map(d => this.formatDesignResponse(d));
+    await cache.set(cacheKey, result, 600); // 10 minutes
+    return result;
   }
 
   static async getDesignsByFilter(
     filters: { tags?: string[]; isTemplate?: boolean; userId?: string },
     includeInactive = false
   ): Promise<DesignResponse[]> {
+    const cacheKey = `designs:filter:${JSON.stringify(filters)}:${includeInactive}`;
+    const cached = await cache.get<DesignResponse[]>(cacheKey);
+    if (cached) return cached;
+
     const whereClause: any = {
       isActive: includeInactive ? undefined : true,
     };
@@ -36,10 +68,35 @@ export class DesignService {
 
     const designs = await prisma.design.findMany({
       where: whereClause,
+      select: {
+        id: true,
+        name: true,
+        description: true,
+        tags: true,
+        isActive: true,
+        createdAt: true,
+        updatedAt: true,
+        editorVersion: true,
+        canvasWidth: true,
+        canvasHeight: true,
+        canvasFormat: true,
+        backgroundImage: true,
+        thumbnail: true,
+        previewImage: true,
+        priceType: true,
+        userId: true,
+        isTemplate: true,
+        originalDesignId: true,
+        // fabricData EXCLU
+      },
       orderBy: { createdAt: 'desc' },
     });
 
-    return designs.map(this.formatDesignResponse);
+    const result = designs.map(d => this.formatDesignResponse(d));
+    if (filters.isTemplate && !filters.userId) {
+      await cache.set(cacheKey, result, 600); // Cache seulement pour les templates publics
+    }
+    return result;
   }
 
   // Nouvelle méthode : Récupérer uniquement les modèles (templates) pour la galerie
@@ -152,6 +209,12 @@ export class DesignService {
       where: { id },
       data: updateData,
     });
+
+    // Invalider les caches
+    await cache.del(`designs:all:true`);
+    await cache.del(`designs:all:false`);
+    // On invaliderait normalement les filtres aussi, mais le TTL fera le job 
+    // ou on peut flush le cache designs:* si on veut être strict
 
     return this.formatDesignResponse(design);
   }
