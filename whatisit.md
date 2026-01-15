@@ -1,211 +1,162 @@
-# 🌟 Kawepla - Écosystème Complet d'Organisation d'Événements
+# 🌟 Kawepla - Fonctionnalités et Parcours Utilisateur
 
-## 📋 Vue d'ensemble du projet
-
-**Kawepla** est un écosystème SaaS complet qui révolutionne l'organisation d'événements en France. Notre plateforme intégrée couvre l'ensemble du cycle de vie d'un événement : de la planification initiale à la gestion post-événement, en connectant organisateurs, invités et prestataires dans un écosystème digital unifié.
-
-## 🎯 Mission & Vision
-
-### Mission
-Révolutionner l'organisation d'événements en proposant un écosystème complet qui simplifie et automatise tous les aspects de la gestion d'événements, de la planification à la post-production.
-
-### Vision
-Devenir la plateforme de référence en France pour l'organisation d'événements, en connectant organisateurs, invités et prestataires dans un écosystème digital unifié et intelligent.
-
-## 🏗️ Architecture Technique
-
-### Stack Technologique
-- **Frontend** : Next.js 14, TypeScript, Tailwind CSS, PWA
-- **Backend** : Node.js, Express.js, TypeScript (API monolithique)
-- **Base de données** : PostgreSQL avec Prisma ORM
-- **Authentification** : JWT avec refresh tokens
-- **Stockage** : Firebase Storage pour les médias
-- **Paiements** : Stripe Connect pour les prestataires
-- **Notifications** : Push notifications, WebSocket temps réel (Socket.IO)
-- **Communication** : WebSocket bidirectionnel, notifications temps réel
-- **Architecture** : Monolithe modulaire avec séparation claire des responsabilités
-
-### Fonctionnalités Principales
-
-#### 🎨 Création d'Invitations (Module de Base)
-- **Designs Premium** : Collection de templates haute qualité
-- **Architecture Simplifiée** : Interface intuitive pour tous types d'événements
-- **Personnalisation Avancée** : Couleurs, polices, textes personnalisés
-- **Multi-format** : Invitations web responsives + partageables
-
-#### 👥 Gestion Complète des Invités
-- **Import CSV** : Import en masse depuis Excel/CSV
-- **RSVP Intelligent** : Système de confirmation avec messages personnalisés
-- **Statistiques Temps Réel** : Tableaux de bord avec métriques détaillées
-- **Communication** : Envoi d'invitations par email avec suivi
-- **Gestion des Régimes** : Suivi des restrictions alimentaires
-- **Plan de Table** : Organisation automatique des places
-
-#### 📸 Écosystème Photos & Souvenirs
-- **Albums Photos Partagés** : Upload multi-utilisateur par les invités
-- **Compression Automatique** : Optimisation des images pour le web
-- **Modération Intelligente** : Contrôle qualité par l'organisateur
-- **Partage Sécurisé** : Liens privés avec tokens d'accès
-- **Galerie Temps Réel** : Photos disponibles instantanément
-
-#### 🏢 Marketplace de Prestataires Intégrée
-- **Géolocalisation** : Recherche de prestataires par proximité
-- **Profils Vérifiés** : Système de notation et avis clients
-- **Réservation Intégrée** : Booking direct depuis la plateforme
-- **Paiements Sécurisés** : Stripe Connect pour les transactions
-- **Chat Intégré** : Communication directe avec les prestataires
-
-#### 📊 Analytics & Insights Avancés
-- **Tableaux de Bord** : Métriques complètes de l'événement
-- **Taux de Participation** : Suivi en temps réel des confirmations
-- **Engagement Photos** : Statistiques d'utilisation des albums
-- **ROI Prestataires** : Analyse des performances des services
-
-#### 🔔 Communication & Notifications
-- **Push Notifications** : Alertes temps réel pour tous les acteurs
-- **Email Marketing** : Campagnes automatisées
-- **Rappels Intelligents** : Notifications personnalisées
-- **WebSocket** : Communication instantanée
-
-## 💼 Modèle Économique
-
-### Packs de Services Cumulables (Achat Unique)
-- **Découverte (Gratuit)** : 1 invitation, 30 invités, 20 photos, 1 design
-- **Essentiel (39€)** : 2 invitations, 75 invités, 50 photos, 5 designs
-- **Élégant (69€)** : 3 invitations, 150 invités, 150 photos, 10 designs
-- **Premium (99€)** : 5 invitations, 300 invités, 500 photos, 20 designs
-- **Luxe (149€)** : 10 invitations, 500 invités, 1000 photos, 50 designs
-
-### Services Supplémentaires
-- **Pack 30 invités** : 15€
-- **Pack 50 invités** : 25€
-- **50 photos supplémentaires** : 15€
-- **Design premium supplémentaire** : 20€
-
-### Revenus
-1. **Packs de Services** : Achat unique (pas d'abonnement)
-2. **Services Supplémentaires** : Packs d'extension
-3. **Commission Marketplace** : 15% sur les réservations prestataires
-4. **Services Premium** : Designs exclusifs, personnalisations
-
-## 🎯 Marché Cible
-
-### Segment Principal
-- **Organisateurs d'événements privés** : Mariages, anniversaires, baptêmes
-- **Entreprises** : Événements corporatifs, lancements produits
-- **Prestataires événementiels** : Photographes, traiteurs, décorateurs
-
-### Taille du Marché
-- **Marché français des événements** : 15+ milliards €/an
-- **Digitalisation croissante** : +40% d'adoption des solutions digitales
-- **Opportunité** : 2M+ événements privés/an en France
-
-## 🚀 Avantages Concurrentiels
-
-### 1. **Écosystème Intégré Unique**
-- **Solution Tout-en-Un** : Seule plateforme couvrant l'ensemble du cycle événementiel
-- **Connectivité Native** : Tous les modules communiquent entre eux
-- **Expérience Unifiée** : Interface cohérente pour tous les acteurs
-
-### 2. **Architecture Technique Solide**
-- **Monolithe Modulaire** : API Express.js structurée avec séparation claire des responsabilités
-- **Temps Réel** : WebSocket (Socket.IO) pour notifications instantanées
-- **Intégrations Avancées** : Stripe, Firebase, Prisma ORM
-- **Sécurité Enterprise** : RGPD, chiffrement, authentification JWT robuste
-
-### 3. **Valeur Ajoutée Réelle**
-- **Automatisation** : Processus manuels transformés en workflows automatisés
-- **Intelligence** : Analytics prédictives et recommandations personnalisées
-- **Économies** : Réduction des coûts et du temps d'organisation
-
-### 4. **Monétisation Diversifiée**
-- **Packs d'Achat Unique** : Modèle flexible sans engagement
-- **Services Supplémentaires** : Packs d'extension à la demande
-- **Commission Marketplace** : Revenus récurrents sur les transactions
-- **Services Premium** : Upselling naturel et rentable
-
-## 📊 Métriques de Succès
-
-### KPIs Techniques
-- **Performance** : Temps de chargement < 2s
-- **Disponibilité** : 99.9% uptime
-- **Sécurité** : 0 incident de sécurité
-
-### KPIs Business
-- **Croissance** : +20% MRR mensuel
-- **Rétention** : 85% de rétention à 6 mois
-- **Satisfaction** : NPS > 50
-
-## 🎯 Roadmap Produit
-
-### Phase 1 (Actuelle) - MVP
-- ✅ Création d'invitations
-- ✅ Gestion des invités
-- ✅ Albums photos
-- ✅ Système de paiement
-
-### Phase 2 (Q1 2025)
-- 🔄 Marketplace prestataires
-- 🔄 Analytics avancées
-- 🔄 API publique
-- 🔄 Application mobile
-
-### Phase 3 (Q2 2025)
-- 📋 IA pour recommandations
-- 📋 Intégrations CRM
-- 📋 Événements récurrents
-- 📋 White-label
-
-## 👥 Équipe & Organisation
-
-### Rôles Clés à Recruter
-1. **Développeur Full-Stack Senior** : Architecture et développement
-2. **Designer UX/UI** : Expérience utilisateur et interface
-3. **Business Developer** : Partenariats et croissance
-4. **Customer Success** : Support client et onboarding
-
-### Structure Actuelle
-- **Fondateur/CTO** : Développement technique et vision produit
-- **Développement** : Stack complet maîtrisé
-- **Design** : Système de design cohérent
-
-## 💡 Innovation & Différenciation
-
-### Approche Technique
-- **Architecture Moderne** : Monolithe modulaire, API-first
-- **Performance** : Optimisations avancées, PWA, compression
-- **Sécurité** : Chiffrement, authentification JWT robuste
-
-### Approche Produit
-- **Simplicité** : Complexité cachée, interface intuitive
-- **Flexibilité** : Adaptable à tous types d'événements
-- **Intégration** : Écosystème connecté et cohérent
-
-## 🎯 Objectifs Jury & Investisseurs
-
-### Démonstration de Traction
-- **MVP Fonctionnel** : Produit utilisable et testé
-- **Architecture Solide** : Base technique scalable
-- **Marché Validé** : Besoin client confirmé
-
-### Potentiel de Croissance
-- **Marché Large** : Millions d'événements/an
-- **Monétisation Claire** : Modèle économique validé
-- **Barrières à l'Entrée** : Technologie et réseau
-
-### Vision Long Terme
-- **Leader Français** : Position dominante sur le marché
-- **Expansion Européenne** : Réplication du modèle
-- **Exit Strategy** : Acquisition par un acteur majeur
+Ce document détaille les fonctionnalités de la plateforme Kawepla pour les deux types d'utilisateurs principaux : les **Organisateurs** (Clients) et les **Prestataires**. Il présente également les parcours utilisateurs (User Flows) types.
 
 ---
 
-## 🎤 Pitch Elevator (30 secondes)
+## 👥 Pour les Organisateurs (Clients)
 
-*"Kawepla révolutionne l'organisation d'événements en France avec le premier écosystème complet du marché. Notre plateforme SaaS intègre invitations, gestion d'invités, albums photos partagés et marketplace de prestataires dans une solution unifiée. Avec 2M+ événements privés par an en France et une digitalisation croissante, nous visons 10M€ de CA d'ici 3 ans. Notre MVP est fonctionnel, notre architecture scalable, et nous sommes prêts à conquérir le marché."*
+L'organisateur est celui qui planifie un événement (mariage, anniversaire, etc.). Son interface est conçue pour simplifier la gestion de A à Z.
+
+### 1. 💌 Gestion des Invitations & Design
+*   **Création Intuitive** : Accès à une galerie de modèles (templates) professionnels.
+*   **Éditeur Avancé (Type Canva)** : Personnalisation complète des invitations (textes, polices, couleurs, images) via un éditeur graphique intégré.
+*   **Multi-formats** : Création d'invitations web interactives et versions imprimables/partageables.
+*   **Envoi Multicanal** :
+    *   Envoi par **Email** direct depuis la plateforme.
+    *   Génération de **liens partageables** (pour WhatsApp, SMS, réseaux sociaux).
+
+### 2. 📋 Gestion des Invités (Guest List)
+*   **Centralisation** : Ajout, modification et suppression des fiches invités (coordonnées, accompagnants).
+*   **Import Intelligent** : Importation en masse de listes d'invités via fichiers **Excel (.xlsx)** ou **CSV**.
+*   **Suivi RSVP** : Tableau de bord temps réel des réponses (Présent, Absent, Peut-être).
+*   **Détails Avancés** : Gestion des **régimes alimentaires**, allergies, et assignation aux groupes (VIP, Famille, Amis).
+*   **Communication** : Envoi de rappels automatiques aux retardataires.
+
+### 3. 💰 Gestion Budgétaire (Budget Planner)
+*   **Vue d'Ensemble** : Suivi global du budget total, des dépenses engagées et du reste à dépenser.
+*   **Catégorisation** : Classement des dépenses par poste (Traiteur, Lieu, Tenues, etc.) avec icônes visuelles.
+*   **Suivi des Paiements** :
+    *   Suivi des acomptes versés et soldes restants.
+    *   Dates d'échéance des paiements.
+    *   Indicateurs visuels (Payé / À payer).
+
+### 4. 📸 Photos & Souvenirs
+*   **Albums Collaboratifs** : Espace dédié où les invités peuvent uploader leurs photos de l'événement.
+*   **Galerie** : Visualisation et téléchargement des souvenirs.
+
+### 5. 🛠️ Outils de Planification
+*   **Planning / Tâches** : Gestionnaire de tâches (To-Do List) pour ne rien oublier avant le jour J.
+*   **Marketplace (Recherche Prestataires)** : Accès à une liste de prestataires vérifiés pour l'événement.
 
 ---
 
-**Contact** : [Vos coordonnées]  
-**Demo** : [Lien vers la démo]  
-**Pitch Deck** : [Lien vers la présentation complète]
+## 👔 Pour les Prestataires (Professionnels)
+
+Le prestataire propose ses services (Traiteur, DJ, Photographe, etc.). Son interface est un outil de gestion d'activité (Extranet).
+
+### 1. 🏪 Gestion des Services (Catalogue)
+*   **Création de Services** : Éditeur complet pour référencer ses prestations.
+*   **Détails Précis** :
+    *   Nom, description détaillée et photos.
+    *   **Tarification flexible** : Prix fixe, par personne, ou par heure.
+    *   **Capacité** : Nombre de personnes max, durée.
+    *   **Inclusions** : Liste détaillée de ce qui est compris dans le service.
+*   **Visibilité** : Activation/Désactivation des services en un clic.
+
+### 2. 📅 Gestion des Réservations (Bookings)
+*   **Tableau de Bord des Demandes** : Vue centralisée de toutes les demandes de réservation reçues.
+*   **Workflow de Validation** :
+    *   **En attente** : Nouvelle demande à traiter.
+    *   **Confirmé** : Prestation validée.
+    *   **Terminé** : Prestation réalisée.
+    *   **Annulé / Refusé** : Gestion des annulations.
+*   **Détails Réservation** : Accès complet aux infos de l'événement (Date, Heure, Lieu, Type d'événement, Nb invités).
+
+### 3. 💬 Communication & Client
+*   **Messagerie Intégrée** : Chat direct avec les clients pour discuter des détails.
+*   **Fiches Clients** : Coordonnées (Email, Téléphone) pour un contact rapide.
+
+### 4. 📈 Pilotage d'Activité
+*   **Statistiques** : Suivi du nombre de réservations et du Chiffre d'Affaires généré.
+*   **Vue Filtrée** : Tri des réservations par statut (pour voir ce qui est à traiter en priorité).
+
+---
+
+## 🔄 User Flow (Parcours Utilisateur)
+
+Voici les étapes typiques d'utilisation de la plateforme pour chaque profil.
+
+### 🟣 Parcours Organisateur : "De l'idée au Jour J"
+
+1.  **Onboarding** : Inscription et définition de l'événement (Date, Type, Lieu).
+2.  **Budget Initial** : Définition de l'enveloppe budgétaire globale.
+3.  **Création Liste** : Import ou ajout manuel des invités.
+4.  **Design Invitation** : Choix d'un modèle -> Personnalisation (Texte/Photo) -> Validation.
+5.  **Campagne d'Envoi** : Sélection des destinataires -> Envoi des emails ou partage du lien.
+6.  **Gestion Active** :
+    *   Réception des RSVP (notifications).
+    *   Mise à jour du Budget au fur et à mesure des dépenses.
+    *   Recherche et booking de prestataires manquants.
+7.  **Post-Événement** : Ouverture de l'album photo pour récupérer les clichés des invités.
+
+```mermaid
+graph TD
+    subgraph Planification
+        A[Onboarding & Création Événement] --> B(Budget Initial)
+        A --> C(Liste Invités)
+    end
+    
+    subgraph Design & Envoi
+        C --> D[Design Invitation]
+        B --> D
+        D --> E{Mode d'Envoi}
+        E -->|Email| F[Campagne Emailing]
+        E -->|Lien| G[Partage Lien Direct]
+    end
+    
+    subgraph Gestion & Jour J
+        F --> H((Réception RSVP))
+        G --> H
+        H --> I[Mise à jour Budget & Plan de Table]
+        I --> J[Recherche Prestataires]
+        J --> K[Jour J : Événement]
+    end
+    
+    subgraph Post-Event
+        K --> L[Album Photos Partagé]
+        L --> M[Téléchargement Souvenirs]
+    end
+
+    style A fill:#9f7aea,stroke:#333,stroke-width:2px,color:white
+    style K fill:#ed64a6,stroke:#333,stroke-width:2px,color:white
+    style L fill:#4fd1c5,stroke:#333,stroke-width:2px,color:white
+```
+
+### 🔵 Parcours Prestataire : "De la visibilité au Booking"
+
+1.  **Configuration** : Création du profil public et ajout des services (description, prix, photos).
+2.  **Réception** : Notification d'une nouvelle demande de réservation.
+3.  **Négociation/Validation** :
+    *   Échange via messagerie si besoin d'infos comp.
+    *   Acceptation de la demande (passage en statut "Confirmé").
+4.  **Réalisation** : Accès aux infos pratiques pour le jour J (Lieu, Horaire).
+5.  **Clôture** : Une fois l'événement passé, marquage de la réservation comme "Terminée".
+
+```mermaid
+graph TD
+    subgraph Setup
+        A[Création Compte Pro] --> B[Configuration Profil]
+        B --> C[Ajout Services Catalogue]
+    end
+    
+    subgraph Booking Process
+        C --> D{Nouvelle Demande}
+        D -->|Notification| E[Analyse Demande]
+        E --> F{Action}
+        F -->|Refuser| G[Fin]
+        F -->|Discuter| H[Messagerie Client]
+        H -.-> F
+        F -->|Accepter| I[Statut : Confirmé]
+    end
+    
+    subgraph Prestation
+        I --> J[Jour J : Réalisation]
+        J --> K[Statut : Terminé]
+        K --> L[Encaissement & Stats]
+    end
+
+    style A fill:#4299e1,stroke:#333,stroke-width:2px,color:white
+    style I fill:#48bb78,stroke:#333,stroke-width:2px,color:white
+    style K fill:#2b6cb0,stroke:#333,stroke-width:2px,color:white
+```

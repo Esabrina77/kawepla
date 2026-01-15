@@ -639,36 +639,36 @@ model TodoItem {
 }
 
 model Budget {
-  id              String      @id @default(cuid())
-  invitationId    String
-  userId          String
-  totalBudget     Float       @default(0)
-  currency        String      @default("EUR")
-  createdAt       DateTime    @default(now())
-  updatedAt       DateTime    @updatedAt
-  invitation      Invitation  @relation(fields: [invitationId], references: [id], onDelete: Cascade)
-  user            User        @relation(fields: [userId], references: [id], onDelete: Cascade)
-  items           BudgetItem[]
+  id           String       @id @default(cuid())
+  invitationId String
+  userId       String
+  totalBudget  Float        @default(0)
+  currency     String       @default("EUR")
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
+  invitation   Invitation   @relation(fields: [invitationId], references: [id], onDelete: Cascade)
+  user         User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  items        BudgetItem[]
 
   @@unique([invitationId]) // Un seul budget par invitation
   @@map("budgets")
 }
 
 model BudgetItem {
-  id          String      @id @default(cuid())
+  id          String         @id @default(cuid())
   budgetId    String
   category    BudgetCategory
   description String
   amount      Float
-  paid        Boolean     @default(false)
+  paid        Boolean        @default(false)
   paidAt      DateTime?
   dueDate     DateTime?
   bookingId   String? // Optionnel - lien vers une réservation
   notes       String?
-  createdAt   DateTime    @default(now())
-  updatedAt   DateTime    @updatedAt
-  budget      Budget      @relation(fields: [budgetId], references: [id], onDelete: Cascade)
-  booking     Booking?    @relation(fields: [bookingId], references: [id], onDelete: SetNull)
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+  budget      Budget         @relation(fields: [budgetId], references: [id], onDelete: Cascade)
+  booking     Booking?       @relation(fields: [bookingId], references: [id], onDelete: SetNull)
 
   @@map("budget_items")
 }

@@ -1,9 +1,6 @@
-/**
- * Service métier pour la gestion des réponses RSVP.
- * Contient la logique d'accès à la base de données via Prisma.
- */
 import { prisma } from '../lib/prisma';
 import { RSVPStatus } from '@prisma/client';
+import { cache } from '../lib/redis';
 
 // Types pour la création et mise à jour de RSVP
 type RSVPCreateInput = {
@@ -29,6 +26,13 @@ export class RSVPService {
    * Récupérer les détails de l'invitation avec le token
    */
   static async getInvitationByToken(inviteToken: string) {
+    // Tenter de récupérer depuis le cache
+    const cacheKey = `invitation:token:${inviteToken}`;
+    const cachedData = await cache.get<any>(cacheKey);
+    if (cachedData) {
+      return cachedData;
+    }
+
     const guest = await prisma.guest.findUnique({
       where: {
         inviteToken: inviteToken
@@ -36,7 +40,18 @@ export class RSVPService {
       include: {
         invitation: {
           include: {
-            design: true // Inclure toutes les données du design
+            design: {
+              select: {
+                id: true,
+                name: true,
+                backgroundImage: true,
+                thumbnail: true,
+                previewImage: true,
+                canvasWidth: true,
+                canvasHeight: true,
+                canvasFormat: true
+              }
+            }
           }
         }
       }
@@ -51,8 +66,7 @@ export class RSVPService {
       throw new Error('Cette invitation n\'est pas encore publiée');
     }
 
-    // Retourner la structure attendue par le frontend
-    return {
+    const result = {
       invitation: guest.invitation,
       guest: {
         id: guest.id,
@@ -65,6 +79,11 @@ export class RSVPService {
         dietaryRestrictions: guest.dietaryRestrictions
       }
     };
+
+    // Sauvegarder dans le cache pour 1h
+    await cache.set(cacheKey, result, 3600);
+
+    return result;
   }
 
   /**
@@ -130,6 +149,10 @@ export class RSVPService {
         dietaryRestrictions: data.dietaryRestrictions || null
       }
     });
+
+    // Invalider le cache
+    const cacheKey = `invitation:token:${inviteToken}`;
+    await cache.del(cacheKey);
 
     return rsvp;
   }
@@ -281,6 +304,10 @@ export class RSVPService {
         data: guestUpdateData
       });
     }
+
+    // Invalider le cache
+    const cacheKey = `invitation:token:${inviteToken}`;
+    await cache.del(cacheKey);
 
     return updatedRSVP;
   }

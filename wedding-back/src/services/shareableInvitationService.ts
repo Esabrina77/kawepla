@@ -5,6 +5,7 @@
 import { prisma } from '../lib/prisma';
 import crypto from 'crypto';
 import { StripeService } from '../services/stripeService';
+import { cache } from '../lib/redis';
 
 export class ShareableInvitationService {
   /**
@@ -17,9 +18,9 @@ export class ShareableInvitationService {
     return await prisma.$transaction(async (tx) => {
       // Vérifier que l'invitation appartient à l'utilisateur
       const invitation = await tx.invitation.findFirst({
-        where: { 
-          id: invitationId, 
-          userId 
+        where: {
+          id: invitationId,
+          userId
         },
         include: {
           user: {
@@ -56,10 +57,10 @@ export class ShareableInvitationService {
 
       // Générer un token unique
       const shareableToken = `share-${Date.now()}-${crypto.randomUUID()}`;
-      
+
       // Calculer l'expiration automatique (20 minutes)
       const expiresAt = options.expiresAt || new Date(Date.now() + 20 * 60 * 1000);
-      
+
       // Créer un nouveau lien dans la table ShareableLink avec la limite basée sur les invités restants
       const shareableLink = await tx.shareableLink.create({
         data: {
@@ -102,6 +103,10 @@ export class ShareableInvitationService {
     });
 
     console.log(`🔗 Lien partageable ${shareableToken} marqué comme USED, suppression automatique annulée`);
+
+    // Invalider le cache car le lien a changé
+    await cache.del(`invitation:shareable:${shareableToken}`);
+
     return updatedLink;
   }
 
@@ -120,6 +125,10 @@ export class ShareableInvitationService {
     });
 
     console.log(`✅ Lien partageable ${shareableToken} marqué comme CONFIRMED et rendu permanent (expiresAt supprimé)`);
+
+    // Invalider le cache
+    await cache.del(`invitation:shareable:${shareableToken}`);
+
     return updatedLink;
   }
 
@@ -138,7 +147,18 @@ export class ShareableInvitationService {
       include: {
         invitation: {
           include: {
-            design: true,
+            design: {
+              select: {
+                id: true,
+                name: true,
+                backgroundImage: true,
+                thumbnail: true,
+                previewImage: true,
+                canvasWidth: true,
+                canvasHeight: true,
+                canvasFormat: true
+              }
+            },
             photoAlbums: {
               include: {
                 photos: {
@@ -183,14 +203,28 @@ export class ShareableInvitationService {
    */
   static async cleanupUnusedLinks() {
     const now = new Date();
-    
+
+    // On récupère les tokens avant de supprimer pour le cache (optionnel mais propre)
+    const linksToCleanup = await prisma.shareableLink.findMany({
+      where: {
+        expiresAt: {
+          lt: now
+        }
+      },
+      select: { token: true }
+    });
+
     const deletedLinks = await prisma.shareableLink.deleteMany({
       where: {
         expiresAt: {
-          lt: now // Seulement les liens avec expiresAt défini et expiré
+          lt: now
         }
       }
     });
+
+    for (const link of linksToCleanup) {
+      await cache.del(`invitation:shareable:${link.token}`);
+    }
 
     console.log(`🧹 Cleanup: ${deletedLinks.count} liens partageables expirés supprimés`);
     return deletedLinks.count;
@@ -219,23 +253,44 @@ export class ShareableInvitationService {
     }
 
     // Désactiver le lien (ne pas le supprimer pour garder l'historique)
-    return await prisma.shareableLink.update({
+    const result = await prisma.shareableLink.update({
       where: { token },
       data: { isActive: false }
     });
+
+    await cache.del(`invitation:shareable:${token}`);
+    return result;
   }
 
   /**
    * Récupérer l'invitation via token partageable
    */
   static async getInvitationByShareableToken(shareableToken: string, forRSVP: boolean = false) {
+    // Tenter de récupérer depuis le cache
+    const cacheKey = `invitation:shareable:${shareableToken}`;
+    const cachedData = await cache.get<any>(cacheKey);
+    if (cachedData) {
+      return cachedData;
+    }
+
     // Chercher dans la nouvelle table ShareableLink
     const shareableLink = await prisma.shareableLink.findUnique({
       where: { token: shareableToken },
       include: {
         invitation: {
-          include: { 
-            design: true,
+          include: {
+            design: {
+              select: {
+                id: true,
+                name: true,
+                backgroundImage: true,
+                thumbnail: true,
+                previewImage: true,
+                canvasWidth: true,
+                canvasHeight: true,
+                canvasFormat: true
+              }
+            },
             guests: {
               where: {
                 invitationType: 'SHAREABLE'
@@ -279,9 +334,13 @@ export class ShareableInvitationService {
         throw new Error('Lien d\'invitation expiré (20 minutes). Veuillez demander un nouveau lien.');
       }
     }
-    // Si expiresAt est null, le lien est permanent (CONFIRMED)
 
-    return shareableLink.invitation;
+    const invitation = shareableLink.invitation;
+
+    // Sauvegarder dans le cache pour 1h
+    await cache.set(cacheKey, invitation, 3600);
+
+    return invitation;
   }
 
   /**
@@ -293,7 +352,7 @@ export class ShareableInvitationService {
       where: { token: shareableToken },
       include: {
         invitation: {
-          include: { 
+          include: {
             guests: {
               where: {
                 invitationType: 'SHAREABLE',
@@ -367,16 +426,9 @@ export class ShareableInvitationService {
   static async getShareableStats(invitationId: string, userId: string) {
     // Vérifier que l'invitation appartient à l'utilisateur
     const invitation = await prisma.invitation.findFirst({
-      where: { 
-        id: invitationId, 
-        userId 
-      },
-      include: {
-        user: {
-          select: {
-            id: true
-          }
-        }
+      where: {
+        id: invitationId,
+        userId
       }
     });
 
@@ -416,8 +468,8 @@ export class ShareableInvitationService {
       shareableExpiresAt: latestShareableLink ? latestShareableLink.expiresAt : null,
       guestsCount: shareableGuests,
       remainingGuests: remainingGuests,
-      shareableUrl: latestShareableLink ? 
-        `${process.env.FRONTEND_URL || 'http://localhost:3012'}/rsvp/shared/${latestShareableLink.token}` : 
+      shareableUrl: latestShareableLink ?
+        `${process.env.FRONTEND_URL || 'http://localhost:3012'}/rsvp/shared/${latestShareableLink.token}` :
         null
     };
   }
@@ -426,7 +478,7 @@ export class ShareableInvitationService {
    * Incrémenter le compteur d'utilisation d'un lien spécifique
    */
   static async incrementUsageCount(shareableToken: string) {
-    return await prisma.shareableLink.update({
+    const result = await prisma.shareableLink.update({
       where: { token: shareableToken },
       data: {
         usedCount: {
@@ -434,6 +486,9 @@ export class ShareableInvitationService {
         }
       }
     });
+
+    await cache.del(`invitation:shareable:${shareableToken}`);
+    return result;
   }
 
   /**
@@ -442,9 +497,9 @@ export class ShareableInvitationService {
   static async listShareableLinks(invitationId: string, userId: string) {
     // Vérifier que l'invitation appartient à l'utilisateur
     const invitation = await prisma.invitation.findFirst({
-      where: { 
-        id: invitationId, 
-        userId 
+      where: {
+        id: invitationId,
+        userId
       }
     });
 
