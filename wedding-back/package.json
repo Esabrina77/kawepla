@@ -29,7 +29,6 @@
     "@types/nodemailer": "^6.4.17",
     "@types/pg": "^8.15.4",
     "@types/web-push": "^3.6.4",
-    "aws-sdk": "^2.1691.0",
     "bcrypt": "^6.0.0",
     "bcryptjs": "^3.0.2",
     "compression": "^1.7.4",

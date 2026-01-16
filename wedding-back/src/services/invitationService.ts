@@ -4,7 +4,6 @@
  */
 import { prisma } from '../lib/prisma';
 import { Prisma, InvitationStatus as PrismaInvitationStatus } from '@prisma/client';
-import { S3Service } from '../utils/s3';
 
 // Types d'invitation
 type InvitationStatus = PrismaInvitationStatus;
@@ -245,13 +244,7 @@ export class InvitationService {
     const { FirebaseCleanupService } = await import('./firebaseCleanupService');
     await FirebaseCleanupService.deleteInvitationPhotos(id);
 
-    // Supprimer les fichiers S3 associés (ancien système)
-    if (invitation.photos) {
-      const photos = invitation.photos as { url: string }[];
-      for (const photo of photos) {
-        await S3Service.deleteFile(photo.url);
-      }
-    }
+
 
     return prisma.invitation.delete({
       where: { id }
@@ -452,13 +445,7 @@ export class InvitationService {
     const { FirebaseCleanupService } = await import('./firebaseCleanupService');
     await FirebaseCleanupService.deleteInvitationPhotos(id);
 
-    // Supprimer les fichiers S3 associés (ancien système)
-    if (invitation.photos) {
-      const photos = invitation.photos as { url: string }[];
-      for (const photo of photos) {
-        await S3Service.deleteFile(photo.url);
-      }
-    }
+
 
     return prisma.invitation.delete({
       where: { id }
