@@ -74,7 +74,6 @@ const allowedOrigins = [
   'https://kawepla.kaporelo.com',
   'https://kawepla-api.kaporelo.com',
   'https://kaweplay-api.kaporelo.com',
-  'https://kapescape.kaporelo.com',
 ];
 
 app.use(cors({
