@@ -73,6 +73,7 @@ const allowedOrigins = [
   'http://localhost:3012',
   'https://kawepla.kaporelo.com',
   'https://kawepla-api.kaporelo.com',
+  'https://kaweplay-api.kaporelo.com',
   'https://kapescape.kaporelo.com',
 ];
 
