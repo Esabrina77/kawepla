@@ -21,7 +21,8 @@
       "./node_modules/@types",
       "./src/types"
     ],
-    "moduleResolution": "node"
+    "moduleResolution": "node",
+    "rootDir": "src"
   },
   "ts-node": {
     "require": [
@@ -29,8 +30,7 @@
     ]
   },
   "include": [
-    "src/**/*",
-    "scripts/**/*"
+    "src/**/*"
   ],
   "exclude": [
     "node_modules",
