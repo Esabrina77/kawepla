@@ -225,25 +225,6 @@ export class ProviderConversationService {
         conversationId
       });
       
-      // Aussi envoyer aux salles personnelles des utilisateurs (fallback)
-      const clientPersonalRoom = `user_${conversation.clientId}`;
-      const clientsInPersonalRoom = io.sockets.adapter.rooms.get(clientPersonalRoom);
-      // console.log(`📡 [ProviderConversationService] Émission à la salle personnelle ${clientPersonalRoom}, clients:`, clientsInPersonalRoom?.size || 0);
-      io.to(clientPersonalRoom).emit('new_provider_message', {
-        message,
-        conversationId
-      });
-      
-      if (conversation.provider?.userId) {
-        const providerPersonalRoom = `user_${conversation.provider.userId}`;
-        const providersInPersonalRoom = io.sockets.adapter.rooms.get(providerPersonalRoom);
-        // console.log(`📡 [ProviderConversationService] Émission à la salle personnelle ${providerPersonalRoom}, clients:`, providersInPersonalRoom?.size || 0);
-        io.to(providerPersonalRoom).emit('new_provider_message', {
-          message,
-          conversationId
-        });
-      }
-      
       // Mettre à jour la liste des conversations pour les deux participants
       // Récupérer les IDs des participants
       const conversationWithParticipants = await prisma.providerConversation.findUnique({
@@ -259,14 +240,33 @@ export class ProviderConversationService {
       });
       
       if (conversationWithParticipants) {
-        // Notifier les deux participants pour mettre à jour leur liste de conversations
+        // Calculer les compteurs de non-lus exacts pour chaque participant
+        const clientUnreadCount = await prisma.providerMessage.count({
+          where: {
+            conversationId,
+            senderId: { not: conversationWithParticipants.clientId },
+            isRead: false
+          }
+        });
+
+        const providerUnreadCount = await prisma.providerMessage.count({
+          where: {
+            conversationId,
+            senderId: { not: conversationWithParticipants.provider.userId },
+            isRead: false
+          }
+        });
+
+        // Notifier les deux participants avec leur compteur respectif
         io.to(`user_${conversationWithParticipants.clientId}`).emit('provider_conversation_updated', {
           conversationId,
-          lastMessage: message
+          lastMessage: message,
+          unreadCount: clientUnreadCount
         });
         io.to(`user_${conversationWithParticipants.provider.userId}`).emit('provider_conversation_updated', {
           conversationId,
-          lastMessage: message
+          lastMessage: message,
+          unreadCount: providerUnreadCount
         });
       }
     } catch (error) {
@@ -365,7 +365,7 @@ export class ProviderConversationService {
    * Récupérer les conversations d'un client
    */
   static async getClientConversations(clientId: string) {
-    return prisma.providerConversation.findMany({
+    const conversations = await prisma.providerConversation.findMany({
       where: {
         clientId,
         status: 'ACTIVE'
@@ -385,9 +385,27 @@ export class ProviderConversationService {
         messages: {
           orderBy: { createdAt: 'desc' },
           take: 1
+        },
+        _count: {
+          select: {
+            messages: {
+              where: {
+                isRead: false,
+                senderId: { not: clientId }
+              }
+            }
+          }
         }
       },
       orderBy: { lastMessageAt: 'desc' }
+    });
+
+    return conversations.map(conv => {
+      const { _count, ...rest } = conv;
+      return {
+        ...rest,
+        unreadCount: _count?.messages || 0
+      };
     });
   }
 
@@ -395,7 +413,12 @@ export class ProviderConversationService {
    * Récupérer les conversations d'un provider
    */
   static async getProviderConversations(providerId: string) {
-    return prisma.providerConversation.findMany({
+    const provider = await prisma.providerProfile.findUnique({
+      where: { id: providerId },
+      select: { userId: true }
+    });
+
+    const conversations = await prisma.providerConversation.findMany({
       where: {
         providerId,
         status: 'ACTIVE'
@@ -410,9 +433,27 @@ export class ProviderConversationService {
         messages: {
           orderBy: { createdAt: 'desc' },
           take: 1
+        },
+        _count: {
+          select: {
+            messages: {
+              where: {
+                isRead: false,
+                senderId: { not: provider?.userId }
+              }
+            }
+          }
         }
       },
       orderBy: { lastMessageAt: 'desc' }
+    });
+
+    return conversations.map(conv => {
+      const { _count, ...rest } = conv;
+      return {
+        ...rest,
+        unreadCount: _count?.messages || 0
+      };
     });
   }
 
@@ -454,7 +495,7 @@ export class ProviderConversationService {
    * Marquer les messages comme lus
    */
   static async markAsRead(conversationId: string, userId: string): Promise<void> {
-    await prisma.providerMessage.updateMany({
+    const result = await prisma.providerMessage.updateMany({
       where: {
         conversationId,
         senderId: { not: userId }, // Marquer seulement les messages des autres
@@ -462,6 +503,24 @@ export class ProviderConversationService {
       },
       data: { isRead: true }
     });
+
+    if (result.count > 0) {
+      try {
+        const socketService = getSocketService();
+        const io = socketService.getIO();
+        
+        // Notifier les autres participants (qui ne sont pas userId)
+        io.to(`provider_conversation_${conversationId}`).emit('provider_messages_read', {
+          userId,
+          conversationId
+        });
+        
+        // S'informer soi-même (tous les onglets/clients) de reset le compteur 
+        io.to(`user_${userId}`).emit('provider_unread_reset', { conversationId });
+      } catch (error) {
+        console.warn('Erreur lors de l\'émission websocket pour markAsRead:', error);
+      }
+    }
   }
 
   /**

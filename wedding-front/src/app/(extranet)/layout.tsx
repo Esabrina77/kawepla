@@ -1,11 +1,11 @@
-'use client'
+"use client";
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/hooks/useAuth";
-import { useAutoNotificationPermission } from "@/hooks/useAutoNotificationPermission";
+import { NotificationPermissionModal } from "@/components/Modals/NotificationPermissionModal";
 import { RateLimitModal } from "@/components/RateLimitModal/RateLimitModal";
 import Chatbot from "@/components/Chatbot/Chatbot";
-import styles from './extranetLayout.module.css';
+import styles from "./extranetLayout.module.css";
 
 export default function ExtranetLayout({
   children,
@@ -14,29 +14,32 @@ export default function ExtranetLayout({
 }) {
   const { isAuthenticated, isLoading, user, handleSessionExpired } = useAuth();
   const router = useRouter();
-  
-  // Demander automatiquement la permission de notification à la connexion
-  useAutoNotificationPermission();
 
   useEffect(() => {
     if (!isLoading && !isAuthenticated) {
-      router.push('/auth/login');
+      router.push("/auth/login");
     }
   }, [isAuthenticated, isLoading, router]);
 
   // Écouter les erreurs de session expirée
   useEffect(() => {
     const handleSessionError = (event: CustomEvent) => {
-      if (event.detail?.error === 'Session expirée') {
+      if (event.detail?.error === "Session expirée") {
         handleSessionExpired();
       }
     };
 
     // Écouter les événements personnalisés d'erreur de session
-    window.addEventListener('sessionExpired', handleSessionError as EventListener);
-    
+    window.addEventListener(
+      "sessionExpired",
+      handleSessionError as EventListener,
+    );
+
     return () => {
-      window.removeEventListener('sessionExpired', handleSessionError as EventListener);
+      window.removeEventListener(
+        "sessionExpired",
+        handleSessionError as EventListener,
+      );
     };
   }, [handleSessionExpired]);
 
@@ -44,14 +47,16 @@ export default function ExtranetLayout({
   if (isLoading) {
     return (
       <div className={`${styles.layout}`}>
-        <div style={{ 
-          display: 'flex', 
-          justifyContent: 'center', 
-          alignItems: 'center', 
-          height: '100vh',
-          fontSize: '1.2rem',
-          color: 'var(--text-primary)'
-        }}>
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            height: "100vh",
+            fontSize: "1.2rem",
+            color: "var(--text-primary)",
+          }}
+        >
           Chargement...
         </div>
       </div>
@@ -67,7 +72,8 @@ export default function ExtranetLayout({
     <div className={`${styles.layout}`}>
       {children}
       <RateLimitModal />
+      <NotificationPermissionModal />
       <Chatbot />
     </div>
   );
-} 
+}

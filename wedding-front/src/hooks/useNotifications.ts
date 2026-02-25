@@ -114,17 +114,35 @@ export const useNotifications = () => {
 
   // Demander la permission
   const requestPermission = useCallback(async (): Promise<boolean> => {
-    if (!isSupported) return false;
+    console.log('🔔 [useNotifications] Demande de permission...');
+    if (!('Notification' in window)) {
+      alert("Ce navigateur ne supporte pas les notifications de bureau.");
+      return false;
+    }
 
     try {
+      // Certains navigateurs utilisent encore des callbacks, d'autres des promesses
       const result = await Notification.requestPermission();
+      console.log('🔔 [useNotifications] Résultat permission:', result);
       setPermission(result);
+      
+      if (result === 'granted') {
+        // Tester une notification immédiatement pour confirmer
+        new Notification('Kawepla', {
+          body: 'Les notifications sont maintenant activées !',
+          icon: '/favicon.ico',
+          silent: false
+        });
+      } else if (result === 'denied') {
+        alert("Les notifications sont bloquées. Veuillez les réactiver dans les paramètres de votre navigateur (cliquez sur l'icône à gauche de l'URL pour gérer les permissions).");
+      }
+      
       return result === 'granted';
     } catch (error) {
       console.error('❌ Erreur lors de la demande de permission:', error);
       return false;
     }
-  }, [isSupported]);
+  }, []);
 
   // S'abonner aux push notifications
   const subscribeToPushNotifications = useCallback(async (): Promise<boolean> => {

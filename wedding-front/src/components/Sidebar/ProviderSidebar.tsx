@@ -1,13 +1,13 @@
-'use client';
+"use client";
 
-import { useState, useEffect } from 'react';
-import Link from 'next/link';
-import { usePathname } from 'next/navigation';
-import styles from './Sidebar.module.css';
-import Image from 'next/image';
-import { useAuth } from '@/hooks/useAuth';
-import { useProviderProfile } from '@/hooks/useProviderProfile';
-import { Button } from '@/components/ui/button';
+import { useState, useEffect } from "react";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import styles from "./ProviderSidebar.module.css";
+import { useAuth } from "@/hooks/useAuth";
+import { useProviderProfile } from "@/hooks/useProviderProfile";
+import { useProviderConversations } from "@/hooks/useProviderConversations";
+import { Button } from "@/components/ui/button";
 import {
   LayoutDashboard,
   User,
@@ -23,53 +23,52 @@ import {
   MapPin,
   Camera,
   MessageCircle,
-  CreditCard
-} from 'lucide-react';
+  CreditCard,
+} from "lucide-react";
 
 const menuItems = [
   {
-    title: 'Tableau de bord',
-    path: '/provider/dashboard',
+    title: "Tableau de bord",
+    path: "/provider/dashboard",
     icon: LayoutDashboard,
-    description: 'Vue d\'ensemble de votre activité',
-    priority: 1
+    description: "Vue d'ensemble de votre activité",
+    priority: 1,
   },
   {
-    title: 'Messages',
-    path: '/provider/messages',
+    title: "Messages",
+    path: "/provider/messages",
     icon: MessageCircle,
-    description: 'Conversations avec vos clients',
-    priority: 1
+    description: "Conversations avec vos clients",
+    priority: 1,
   },
   {
-    title: 'Réservations',
-    path: '/provider/bookings',
+    title: "Réservations",
+    path: "/provider/bookings",
     icon: CalendarCheck,
-    description: 'Gérez vos réservations',
-    priority: 1
+    description: "Gérez vos réservations",
+    priority: 1,
   },
   {
-    title: 'Mes Services',
-    path: '/provider/services',
+    title: "Mes Services",
+    path: "/provider/services",
     icon: Briefcase,
-    description: 'Créez et gérez vos services',
-    priority: 1
+    description: "Créez et gérez vos services",
+    priority: 1,
   },
   {
-    title: 'Mon Profil',
-    path: '/provider/profile',
+    title: "Mon Profil",
+    path: "/provider/profile",
     icon: User,
-    description: 'Gérez votre profil provider',
-    priority: 2
+    description: "Gérez votre profil provider",
+    priority: 2,
   },
   {
-    title: 'Facturation',
-    path: '/provider/billing',
+    title: "Facturation",
+    path: "/provider/billing",
     icon: CreditCard,
-    description: 'Gérez vos abonnements et factures',
-    priority: 2
+    description: "Gérez vos abonnements et factures",
+    priority: 2,
   },
-
 ];
 
 export const ProviderSidebar = () => {
@@ -78,23 +77,28 @@ export const ProviderSidebar = () => {
   const pathname = usePathname();
   const { logout, user } = useAuth();
   const { profile } = useProviderProfile();
+  const { conversations } = useProviderConversations("PROVIDER");
 
-  // Déterminer le chemin de base pour la correspondance active
-  const basePath = pathname?.split('/').slice(0, 3).join('/');
+  // Compute total unread messages for the provider
+  const unreadMessagesCount = conversations.reduce((total, conv) => {
+    return total + (conv.unreadCount || 0);
+  }, 0);
+
+  const basePath = pathname?.split("/").slice(0, 3).join("/");
 
   const toggleSidebar = () => {
     const newState = !isCollapsed;
     setIsCollapsed(newState);
     // Mettre à jour l'attribut data sur le body pour le CSS
-    if (typeof document !== 'undefined') {
-      document.body.setAttribute('data-sidebar-collapsed', String(newState));
+    if (typeof document !== "undefined") {
+      document.body.setAttribute("data-sidebar-collapsed", String(newState));
     }
   };
 
   // Initialiser l'attribut data sur le body
   useEffect(() => {
-    if (typeof document !== 'undefined') {
-      document.body.setAttribute('data-sidebar-collapsed', String(isCollapsed));
+    if (typeof document !== "undefined") {
+      document.body.setAttribute("data-sidebar-collapsed", String(isCollapsed));
     }
   }, [isCollapsed]);
 
@@ -104,36 +108,49 @@ export const ProviderSidebar = () => {
 
   // Séparer les éléments pour mobile
   // Sur mobile : seulement 3 icônes principales + bouton "Plus"
-  const primaryItems = menuItems.filter(item => item.priority === 1).slice(0, 3);
+  const primaryItems = menuItems
+    .filter((item) => item.priority === 1)
+    .slice(0, 3);
   const secondaryItems = [
     // Les autres éléments de priorité 1 non affichés
-    ...menuItems.filter(item => item.priority === 1).slice(3),
+    ...menuItems.filter((item) => item.priority === 1).slice(3),
     // Les éléments de priorité 2
-    ...menuItems.filter(item => item.priority >= 2)
+    ...menuItems.filter((item) => item.priority >= 2),
   ];
 
   return (
     <>
       {/* Desktop Sidebar */}
-      <aside className={`${styles.sidebar} ${styles.providerSidebar} ${isCollapsed ? styles.collapsed : ''}`}>
+      <aside
+        className={`${styles.sidebar} ${styles.providerSidebar} ${isCollapsed ? styles.collapsed : ""}`}
+      >
         {/* Header Section */}
         <div className={styles.sidebarHeader}>
-          <Link href="/provider/dashboard" className={styles.logoLink} data-tutorial="logo">
-            <span className={styles.logoText}>Kawepla</span>
-          </Link>
-
-          <div className={styles.sidebarHeaderButtons}>
-            {!isCollapsed && (
-              <div className={styles.providerBadge}>
-                PROVIDER
-              </div>
+          <Link
+            href="/provider/dashboard"
+            className={styles.logoLink}
+            data-tutorial="logo"
+          >
+            {isCollapsed ? (
+              <span className={styles.logoTextCollapsed}>K</span>
+            ) : (
+              <>
+                <span className={styles.logoText}>KAWEPLA</span>
+                <span className={styles.providerBadge}>PROVIDER</span>
+              </>
             )}
+          </Link>
+          <div className={styles.headerActions}>
             <button
               onClick={toggleSidebar}
-              className={styles.toggleButton}
-              aria-label={isCollapsed ? "Développer le menu" : "Réduire le menu"}
+              className={styles.collapseBtn}
+              title={isCollapsed ? "Agrandir" : "Réduire"}
             >
-              {isCollapsed ? <ChevronRight className={styles.toggleIcon} /> : <ChevronLeft className={styles.toggleIcon} />}
+              {isCollapsed ? (
+                <ChevronRight size={18} />
+              ) : (
+                <ChevronLeft size={18} />
+              )}
             </button>
           </div>
         </div>
@@ -156,11 +173,11 @@ export const ProviderSidebar = () => {
                   <span>{profile.displayCity}</span>
                 </div>
                 <div className={styles.statusBadge}>
-                  {profile.status === 'APPROVED' ? (
+                  {profile.status === "APPROVED" ? (
                     <span className={styles.approved}>✓ Approuvé</span>
-                  ) : profile.status === 'PENDING' ? (
+                  ) : profile.status === "PENDING" ? (
                     <span className={styles.pending}>⏳ En attente</span>
-                  ) : profile.status === 'SUSPENDED' ? (
+                  ) : profile.status === "SUSPENDED" ? (
                     <span className={styles.suspended}>⚠️ Suspendu</span>
                   ) : (
                     <span className={styles.rejected}>❌ Rejeté</span>
@@ -178,21 +195,21 @@ export const ProviderSidebar = () => {
               <Link
                 key={item.path}
                 href={item.path}
-                className={`${styles.navItem} ${basePath?.includes(item.path) ? styles.active : ''
-                  }`}
-                title={item.description}
+                className={`${styles.navItem} ${pathname?.startsWith(item.path) ? styles.active : ""}`}
+                aria-label={item.title}
+                data-tooltip={item.title}
               >
                 <span className={styles.icon}>
                   {<item.icon className={styles.menuIcon} size={18} />}
                 </span>
                 {!isCollapsed && (
-                  <div className={styles.navContent}>
-                    <span className={styles.title}>{item.title}</span>
-                    {item.description && (
-                      <span className={styles.description}>{item.description}</span>
-                    )}
-                  </div>
+                  <span className={styles.title}>{item.title}</span>
                 )}
+                {item.title === "Messages" &&
+                  unreadMessagesCount > 0 &&
+                  !isCollapsed && (
+                    <span className={styles.badge}>{unreadMessagesCount}</span>
+                  )}
               </Link>
             ))}
           </div>
@@ -221,12 +238,14 @@ export const ProviderSidebar = () => {
             <Link
               key={item.path}
               href={item.path}
-              className={`${styles.mobileNavItem} ${basePath?.includes(item.path) ? styles.active : ''
-                }`}
+              className={`${styles.mobileNavItem} ${pathname?.startsWith(item.path) ? styles.active : ""}`}
               title={item.title}
             >
               <span className={styles.mobileIcon}>
                 {<item.icon className={styles.mobileMenuIcon} size={20} />}
+                {item.title === "Messages" && unreadMessagesCount > 0 && (
+                  <span className={styles.badge}>{unreadMessagesCount}</span>
+                )}
               </span>
               <span className={styles.mobileTitle}>{item.title}</span>
             </Link>
@@ -249,7 +268,10 @@ export const ProviderSidebar = () => {
       {/* Menu mobile popup */}
       {showMobileMenu && (
         <div className={styles.mobileMenuOverlay} onClick={toggleMobileMenu}>
-          <div className={styles.mobileMenuPopup} onClick={(e) => e.stopPropagation()}>
+          <div
+            className={styles.mobileMenuPopup}
+            onClick={(e) => e.stopPropagation()}
+          >
             <div className={styles.mobileMenuHeader}>
               <h3>Menu complet</h3>
               <button
@@ -271,7 +293,9 @@ export const ProviderSidebar = () => {
                 </span>
                 <div className={styles.mobileMenuItemContent}>
                   <span className={styles.title}>Accueil</span>
-                  <span className={styles.description}>Retourner à la page d'accueil</span>
+                  <span className={styles.description}>
+                    Retourner à la page d'accueil
+                  </span>
                 </div>
               </Link>
 
@@ -280,8 +304,7 @@ export const ProviderSidebar = () => {
                 <Link
                   key={item.path}
                   href={item.path}
-                  className={`${styles.mobileMenuItem} ${basePath?.includes(item.path) ? styles.active : ''
-                    }`}
+                  className={`${styles.mobileMenuItem} ${pathname?.startsWith(item.path) ? styles.active : ""}`}
                   onClick={toggleMobileMenu}
                 >
                   <span className={styles.icon}>
@@ -289,8 +312,13 @@ export const ProviderSidebar = () => {
                   </span>
                   <div className={styles.mobileMenuItemContent}>
                     <span className={styles.title}>{item.title}</span>
-                    <span className={styles.description}>{item.description}</span>
+                    <span className={styles.description}>
+                      {item.description}
+                    </span>
                   </div>
+                  {item.title === "Messages" && unreadMessagesCount > 0 && (
+                    <span className={styles.badge}>{unreadMessagesCount}</span>
+                  )}
                 </Link>
               ))}
 

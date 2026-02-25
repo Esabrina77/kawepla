@@ -16,11 +16,18 @@ import {
   extractBookingInfo as apiExtractBookingInfo
 } from '@/lib/api/providerConversations';
 import { useProviderSocket } from './useProviderSocket';
+import { useAuth } from './useAuth';
+import { useNotifications } from './useNotifications';
 
 export function useProviderConversations(userRole: 'HOST' | 'PROVIDER') {
+  const { user } = useAuth();
+  const { showNotification } = useNotifications();
   const [conversations, setConversations] = useState<ProviderConversation[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  
+  // Track message IDs that have already incremented the unread count to avoid duplicates
+  const countedMessageIdsRef = useRef<Set<string>>(new Set());
   
   // WebSocket pour mettre à jour la liste des conversations en temps réel
   const { on: socketOn } = useProviderSocket({ conversationId: null, enabled: true });
@@ -33,6 +40,8 @@ export function useProviderConversations(userRole: 'HOST' | 'PROVIDER') {
         ? await apiGetClientConversations()
         : await apiGetProviderConversations();
       setConversations(data || []);
+      // Resynchroniser le tracking des IDs comptés
+      countedMessageIdsRef.current.clear();
     } catch (err) {
       console.error('[useProviderConversations] Erreur lors du chargement des conversations:', err);
       setError(err instanceof Error ? err.message : 'Erreur lors du chargement des conversations');
@@ -49,8 +58,28 @@ export function useProviderConversations(userRole: 'HOST' | 'PROVIDER') {
 
   // Écouter les mises à jour de conversations via WebSocket (ZÉRO refresh)
   useEffect(() => {
-    socketOn({
-      onConversationUpdated: (data: { conversationId: string; lastMessage: ProviderMessage }) => {
+    if (!user?.id) return;
+
+    const cleanup = socketOn({
+      onConversationUpdated: (data: { conversationId: string; lastMessage: ProviderMessage; unreadCount: number }) => {
+        console.log('📩 [useProviderConversations] Message reçu via socket:', data.lastMessage.id);
+
+        // AFFICHER NOTIFICATION (HORS DU SETTER)
+        // On vérifie que le message vient d'autrui
+        if (data.lastMessage.senderId !== user?.id) {
+          showNotification({
+            title: `Nouveau message de ${data.lastMessage.sender?.firstName || 'Utilisateur'}`,
+            body: data.lastMessage.content,
+            tag: `msg_${data.conversationId}`,
+            sound: true
+          });
+
+          // Si les notifications ne sont pas actives, on prévient le modal pour qu'il puisse se montrer
+          if (Notification.permission !== 'granted') {
+            window.dispatchEvent(new CustomEvent('new-message-received'));
+          }
+        }
+
         // Mettre à jour la conversation dans la liste sans refresh
         setConversations(prev => {
           const index = prev.findIndex(c => c.id === data.conversationId);
@@ -59,21 +88,54 @@ export function useProviderConversations(userRole: 'HOST' | 'PROVIDER') {
             fetchConversations();
             return prev;
           }
+
+          // Éviter de traiter deux fois le même message (double sécurité)
+          const currentLastMsgId = prev[index].messages?.[0]?.id;
+          if (currentLastMsgId === data.lastMessage.id) {
+            return prev;
+          }
+
           // Mettre à jour la conversation existante avec le nouveau message
           const updated = [...prev];
+          
+          // PLUS DE CALCUL MANUEL : On utilise la valeur exacte envoyée par le serveur
+          const newUnreadCount = data.unreadCount;
+          console.log(`📩 [useProviderConversations] Mise à jour compteur par serveur: ${data.conversationId} -> ${newUnreadCount}`);
+
           updated[index] = {
             ...updated[index],
-            lastMessageAt: data.lastMessage.createdAt, // Garder le format string
-            messages: [data.lastMessage]
+            lastMessageAt: data.lastMessage.createdAt,
+            messages: [data.lastMessage],
+            unreadCount: newUnreadCount
           };
           // Trier par lastMessageAt (plus récent en premier) - comme WhatsApp
           return updated.sort((a, b) => 
             new Date(b.lastMessageAt).getTime() - new Date(a.lastMessageAt).getTime()
           );
         });
+      },
+      onUnreadReset: (data: { conversationId: string }) => {
+        setConversations(prev => {
+          const index = prev.findIndex(c => c.id === data.conversationId);
+          if (index === -1) return prev;
+          
+          if (prev[index].unreadCount === 0) return prev; // pas de changement
+
+          const updated = [...prev];
+          updated[index] = {
+            ...updated[index],
+            unreadCount: 0
+          };
+          return updated;
+        });
       }
     });
-  }, [socketOn, fetchConversations]);
+
+    return () => {
+      console.log('🧹 [useProviderConversations] Nettoyage socket listeners');
+      cleanup();
+    };
+  }, [socketOn, fetchConversations, user?.id]);
 
   const getOrCreateConversation = useCallback(async (
     data: CreateProviderConversationDto
@@ -97,6 +159,7 @@ export function useProviderConversations(userRole: 'HOST' | 'PROVIDER') {
 }
 
 export function useProviderConversation(conversationId: string | null) {
+  const { user } = useAuth();
   const [conversation, setConversation] = useState<ProviderConversation | null>(null);
   const [messages, setMessages] = useState<ProviderMessage[]>([]);
   const [loading, setLoading] = useState(true);
@@ -321,7 +384,12 @@ export function useProviderConversation(conversationId: string | null) {
       // Le flag addingInUpdaterRef sera nettoyé par le useEffect qui écoute messages
       return newMessages;
     });
-  }, [conversationId]);
+
+    // Marquer comme lu immédiatement si on reçoit un message d'autrui dans la conversation ouverte
+    if (message.senderId !== user?.id) {
+      apiMarkAsRead(conversationId).catch(err => console.error('Error marking as read on new message:', err));
+    }
+  }, [conversationId, user?.id]);
 
   // Configurer les événements WebSocket pour recevoir les messages en temps réel
   useEffect(() => {

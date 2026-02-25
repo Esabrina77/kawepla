@@ -1,24 +1,24 @@
-'use client';
+"use client";
 
-import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
-import { useAuth } from '@/hooks/useAuth';
-import { HeaderMobile } from '@/components/HeaderMobile';
-import { ConfirmModal } from '@/components/ui/modal';
-import { usersApi } from '@/lib/api/users';
-import { User, Mail, Phone, Trash2, AlertTriangle } from 'lucide-react';
-import { useToast } from '@/components/ui/toast';
-import styles from './profile.module.css';
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { useAuth } from "@/hooks/useAuth";
+import { HeaderMobile } from "@/components/HeaderMobile";
+import { ConfirmModal } from "@/components/ui/modal";
+import { usersApi } from "@/lib/api/users";
+import { User, Mail, Phone, Trash2, AlertTriangle, Bell } from "lucide-react";
+import { useToast } from "@/components/ui/toast";
+import { NotificationToggle } from "@/components/Settings/NotificationToggle";
+import styles from "./profile.module.css";
 
 export default function ProfilePage() {
   const router = useRouter();
   const { user, logout } = useAuth();
   const { addToast } = useToast();
   const [formData, setFormData] = useState({
-    firstName: user?.firstName || '',
-    lastName: user?.lastName || '',
-    email: user?.email || '',
-
+    firstName: user?.firstName || "",
+    lastName: user?.lastName || "",
+    email: user?.email || "",
   });
   const [isSaving, setIsSaving] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
@@ -27,9 +27,9 @@ export default function ProfilePage() {
   useEffect(() => {
     if (user) {
       setFormData({
-        firstName: user.firstName || '',
-        lastName: user.lastName || '',
-        email: user.email || '',
+        firstName: user.firstName || "",
+        lastName: user.lastName || "",
+        email: user.email || "",
       });
     }
   }, [user]);
@@ -44,20 +44,20 @@ export default function ProfilePage() {
       //   lastName: formData.lastName,
       //   phone: formData.phone,
       // });
-      console.log('Mise à jour du profil:', formData);
+      console.log("Mise à jour du profil:", formData);
       // Simuler un délai
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      await new Promise((resolve) => setTimeout(resolve, 1000));
       addToast({
-        type: 'success',
-        title: 'Succès',
-        message: 'Profil mis à jour avec succès !'
+        type: "success",
+        title: "Succès",
+        message: "Profil mis à jour avec succès !",
       });
     } catch (error) {
-      console.error('Erreur lors de la mise à jour du profil:', error);
+      console.error("Erreur lors de la mise à jour du profil:", error);
       addToast({
-        type: 'error',
-        title: 'Erreur',
-        message: 'Erreur lors de la mise à jour du profil'
+        type: "error",
+        title: "Erreur",
+        message: "Erreur lors de la mise à jour du profil",
       });
     } finally {
       setIsSaving(false);
@@ -65,8 +65,8 @@ export default function ProfilePage() {
   };
 
   const getInitials = () => {
-    const first = formData.firstName?.[0] || 'U';
-    const last = formData.lastName?.[0] || '';
+    const first = formData.firstName?.[0] || "U";
+    const last = formData.lastName?.[0] || "";
     return `${first}${last}`.toUpperCase();
   };
 
@@ -77,9 +77,7 @@ export default function ProfilePage() {
       <div className={styles.pageContent}>
         {/* Profile Header */}
         <div className={styles.profileHeader}>
-          <div className={styles.avatar}>
-            {getInitials()}
-          </div>
+          <div className={styles.avatar}>{getInitials()}</div>
           <div className={styles.profileInfo}>
             <h1 className={styles.profileName}>
               {formData.firstName} {formData.lastName}
@@ -96,7 +94,9 @@ export default function ProfilePage() {
           <div className={styles.formGrid}>
             {/* First Name */}
             <div className={styles.formField}>
-              <label className={styles.label} htmlFor="firstname">Prénom</label>
+              <label className={styles.label} htmlFor="firstname">
+                Prénom
+              </label>
               <div className={styles.inputWrapper}>
                 <User className={styles.inputIcon} size={18} />
                 <input
@@ -104,7 +104,12 @@ export default function ProfilePage() {
                   id="firstname"
                   type="text"
                   value={formData.firstName}
-                  onChange={(e) => setFormData(prev => ({ ...prev, firstName: e.target.value }))}
+                  onChange={(e) =>
+                    setFormData((prev) => ({
+                      ...prev,
+                      firstName: e.target.value,
+                    }))
+                  }
                   required
                   aria-required="true"
                   aria-label="Prénom"
@@ -115,7 +120,9 @@ export default function ProfilePage() {
 
             {/* Last Name */}
             <div className={styles.formField}>
-              <label className={styles.label} htmlFor="lastname">Nom</label>
+              <label className={styles.label} htmlFor="lastname">
+                Nom
+              </label>
               <div className={styles.inputWrapper}>
                 <User className={styles.inputIcon} size={18} />
                 <input
@@ -123,7 +130,12 @@ export default function ProfilePage() {
                   id="lastname"
                   type="text"
                   value={formData.lastName}
-                  onChange={(e) => setFormData(prev => ({ ...prev, lastName: e.target.value }))}
+                  onChange={(e) =>
+                    setFormData((prev) => ({
+                      ...prev,
+                      lastName: e.target.value,
+                    }))
+                  }
                   required
                   aria-required="true"
                   aria-label="Nom"
@@ -135,7 +147,9 @@ export default function ProfilePage() {
 
           {/* Email Field */}
           <div className={styles.formField}>
-            <label className={styles.label} htmlFor="email">Adresse email</label>
+            <label className={styles.label} htmlFor="email">
+              Adresse email
+            </label>
             <div className={styles.inputWrapper}>
               <Mail className={styles.inputIcon} size={18} />
               <input
@@ -148,7 +162,9 @@ export default function ProfilePage() {
                 aria-label="Email (non modifiable)"
               />
             </div>
-            <p className={styles.helpText}>L&apos;adresse email ne peut pas être modifiée</p>
+            <p className={styles.helpText}>
+              L&apos;adresse email ne peut pas être modifiée
+            </p>
           </div>
 
           {/* Save Button */}
@@ -158,10 +174,22 @@ export default function ProfilePage() {
               className={styles.saveButton}
               disabled={isSaving}
             >
-              {isSaving ? 'Enregistrement...' : 'Enregistrer les modifications'}
+              {isSaving ? "Enregistrement..." : "Enregistrer les modifications"}
             </button>
           </div>
         </form>
+
+        <section className={styles.settingsSection}>
+          <div className={styles.sectionHeader}>
+            <Bell size={20} className={styles.sectionIcon} />
+            <h3 className={styles.sectionTitle}>Paramètres de notifications</h3>
+          </div>
+          <p className={styles.sectionDescription}>
+            Gérez la manière dont vous recevez les alertes pour ne manquer aucun
+            message.
+          </p>
+          <NotificationToggle />
+        </section>
 
         {/* Danger Zone */}
         <div className={styles.dangerZone}>
@@ -170,7 +198,8 @@ export default function ProfilePage() {
             <h3 className={styles.dangerZoneTitle}>Zone de danger</h3>
           </div>
           <p className={styles.dangerZoneDescription}>
-            La suppression de votre compte est définitive et irréversible. Toutes vos données seront supprimées.
+            La suppression de votre compte est définitive et irréversible.
+            Toutes vos données seront supprimées.
           </p>
           <button
             type="button"
@@ -179,7 +208,7 @@ export default function ProfilePage() {
             disabled={isDeleting}
           >
             <Trash2 size={18} />
-            {isDeleting ? 'Suppression...' : 'Supprimer mon compte'}
+            {isDeleting ? "Suppression..." : "Supprimer mon compte"}
           </button>
         </div>
       </div>
@@ -193,13 +222,14 @@ export default function ProfilePage() {
           try {
             await usersApi.deleteAccount();
             logout();
-            router.push('/auth/login');
+            router.push("/auth/login");
           } catch (error) {
-            console.error('Erreur lors de la suppression du compte:', error);
+            console.error("Erreur lors de la suppression du compte:", error);
             addToast({
-              type: 'error',
-              title: 'Erreur',
-              message: 'Erreur lors de la suppression du compte. Veuillez réessayer.'
+              type: "error",
+              title: "Erreur",
+              message:
+                "Erreur lors de la suppression du compte. Veuillez réessayer.",
             });
             setIsDeleting(false);
             setShowDeleteModal(false);
@@ -214,4 +244,3 @@ export default function ProfilePage() {
     </div>
   );
 }
-
