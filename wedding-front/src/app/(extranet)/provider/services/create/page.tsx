@@ -163,7 +163,7 @@ export default function CreateServicePage() {
     <div className={styles.createContainer}>
       <HeaderMobile title="Créer un service" />
 
-      <main className={styles.main}>
+      <div className={styles.pageContent}>
         {/* Page Title */}
         <h1 className={styles.pageTitle}>Créer un nouveau service</h1>
 
@@ -456,7 +456,7 @@ export default function CreateServicePage() {
             </button>
           </div>
         </form>
-      </main>
+      </div>
 
       {/* Success Modal */}
       {showSuccessModal && (

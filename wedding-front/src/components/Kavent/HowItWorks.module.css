@@ -1,0 +1,224 @@
+.section {
+    position: relative;
+}
+
+.headerContainer {
+    padding-top: 5rem;
+    padding-bottom: 5rem;
+    padding-left: 1rem;
+    padding-right: 1rem;
+    background-color: var(--bg-primary);
+}
+
+.headerContent {
+    max-width: 80rem;
+    margin-left: auto;
+    margin-right: auto;
+    text-align: center;
+}
+
+.label {
+    font-size: 1rem;
+    /* Increased size */
+    text-transform: uppercase;
+    letter-spacing: 0.25em;
+    margin-bottom: 1rem;
+    color: #6366F1;
+    font-weight: 700;
+    /* Increased weight */
+}
+
+.title {
+    font-size: 2.25rem;
+    margin-bottom: 1.5rem;
+    font-weight: 500;
+    color: var(--text-primary);
+}
+
+@media (min-width: 768px) {
+    .title {
+        font-size: 3rem;
+    }
+}
+
+@media (min-width: 1024px) {
+    .title {
+        font-size: 3.75rem;
+    }
+}
+
+.subtitle {
+    font-size: 1.125rem;
+    color: var(--text-secondary);
+}
+
+.mainLayout {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+}
+
+@media (min-width: 1024px) {
+    .mainLayout {
+        flex-direction: row;
+    }
+}
+
+.imageSidebar {
+    display: none;
+}
+
+@media (min-width: 1024px) {
+    .imageSidebar {
+        display: block;
+        width: 40%;
+        position: relative;
+    }
+}
+
+.stickyImage {
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    overflow: hidden;
+}
+
+.bgImage {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.imageOverlay {
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    background: linear-gradient(135deg, rgba(99, 102, 241, 0.7) 0%, rgba(30, 27, 75, 0.85) 100%);
+}
+
+.edgeGradient {
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    width: 8rem;
+    background: linear-gradient(to right, transparent, rgba(0, 0, 0, 0.3));
+}
+
+.stepsContainer {
+    width: 100%;
+}
+
+@media (min-width: 1024px) {
+    .stepsContainer {
+        width: 60%;
+    }
+}
+
+.stepSection {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 5rem 2rem;
+    transition: background-color 700ms;
+}
+
+@media (min-width: 1024px) {
+    .stepSection {
+        padding-left: 5rem;
+        padding-right: 5rem;
+    }
+}
+
+.stepContent {
+    max-width: 42rem;
+    width: 100%;
+    position: relative;
+}
+
+.mobileImage {
+    margin-bottom: 3rem;
+    border-radius: 1rem;
+    overflow: hidden;
+    height: 16rem;
+    position: relative;
+}
+
+@media (min-width: 1024px) {
+    .mobileImage {
+        display: none;
+    }
+}
+
+.mobileImageImg {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.bgNumber {
+    position: absolute;
+    top: -2rem;
+    left: -1rem;
+    color: #6366F1;
+    pointer-events: none;
+    user-select: none;
+    font-size: 180px;
+    font-weight: 700;
+    line-height: 1;
+    opacity: 0.1;
+}
+
+@media (min-width: 1024px) {
+    .bgNumber {
+        left: -2rem;
+    }
+}
+
+.stepTitle {
+    position: relative;
+    z-index: 10;
+    font-size: 2.25rem;
+    margin-bottom: 1.5rem;
+    font-family: 'Montserrat, sans-serif';
+    font-weight: 500;
+    color: var(--text-primary);
+}
+
+@media (min-width: 1024px) {
+    .stepTitle {
+        font-size: 3rem;
+    }
+}
+
+.stepDescription {
+    position: relative;
+    z-index: 10;
+    font-size: 1.125rem;
+    font-size: 1.125rem;
+    line-height: 1.625;
+    color: var(--text-secondary);
+}
+
+@media (min-width: 1024px) {
+    .stepDescription {
+        font-size: 1.25rem;
+    }
+}
+
+.stepBadge {
+    position: relative;
+    z-index: 10;
+    margin-top: 2rem;
+    display: inline-block;
+    padding: 0.5rem 1rem;
+    border: 1px solid #6366F1;
+    color: #6366F1;
+    font-size: 0.875rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    font-weight: 500;
+}

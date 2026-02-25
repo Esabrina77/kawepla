@@ -12,6 +12,7 @@
     opacity: 0;
     transform: translateY(20px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -19,7 +20,7 @@
 }
 
 /* Main Content */
-.main {
+.pageContent {
   flex: 1;
   padding: 1rem;
   padding-bottom: 7rem;
@@ -30,6 +31,7 @@
   from {
     opacity: 0;
   }
+
   to {
     opacity: 1;
   }
@@ -57,8 +59,13 @@
 }
 
 @keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+  0% {
+    transform: rotate(0deg);
+  }
+
+  100% {
+    transform: rotate(360deg);
+  }
 }
 
 .errorContainer p {
@@ -436,15 +443,15 @@
   .infoGrid {
     grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
   }
-  
+
   .statsGrid {
     grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
   }
-  
+
   .table {
     font-size: 0.875rem;
   }
-  
+
   .table th,
   .table td {
     padding: var(--space-sm);
@@ -452,42 +459,42 @@
 }
 
 @media (max-width: 768px) {
-  .main {
+  .pageContent {
     padding: 1rem;
   }
-  
+
   .infoGrid {
     grid-template-columns: 1fr;
   }
-  
+
   .statsGrid {
     grid-template-columns: repeat(2, 1fr);
   }
-  
+
   .section {
     padding: var(--space-lg);
   }
-  
+
   .statCard {
     padding: var(--space-md);
   }
-  
+
   .statNumber {
     font-size: 2rem;
   }
-  
+
   .tableContainer {
     overflow-x: auto;
   }
-  
+
   .table {
     min-width: 800px;
   }
-  
+
   .actions {
     flex-direction: column;
   }
-  
+
   .actionButton {
     width: 100%;
     text-align: center;

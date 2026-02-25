@@ -5,11 +5,11 @@ import Link from 'next/link';
 import { useProviderServices } from '@/hooks/useProviderServices';
 import { Service } from '@/lib/api/providers';
 import { HeaderMobile } from '@/components/HeaderMobile/HeaderMobile';
-import { 
-  Briefcase, 
-  Plus, 
-  Edit, 
-  Trash2, 
+import {
+  Briefcase,
+  Plus,
+  Edit,
+  Trash2,
   Eye,
   Euro,
   Clock,
@@ -83,7 +83,7 @@ export default function ProviderServicesPage() {
     <div className={styles.servicesPage}>
       <HeaderMobile title="Mes services" />
 
-      <main className={styles.main}>
+      <div className={styles.pageContent}>
         {/* Page Title */}
         <div className={styles.pageHeader}>
           <h1 className={styles.pageTitle}>Mes services</h1>
@@ -104,7 +104,7 @@ export default function ProviderServicesPage() {
             <p className={styles.emptyText}>
               Commencez par créer votre premier service pour proposer vos prestations
             </p>
-            <Link 
+            <Link
               href="/provider/services/create"
               className={styles.createFirstButton}
             >
@@ -153,7 +153,7 @@ export default function ProviderServicesPage() {
                       <span>{formatDuration(service.duration)}</span>
                     </div>
                   )}
-                  
+
                   {service.capacity && (
                     <div className={styles.detailItem}>
                       <Users size={14} />
@@ -202,15 +202,15 @@ export default function ProviderServicesPage() {
                     <Eye size={16} />
                     Voir
                   </Link>
-                  
-                  <Link 
+
+                  <Link
                     href={`/provider/services/${service.id}/edit`}
                     className={`${styles.actionButton} ${styles.editButton}`}
                   >
                     <Edit size={16} />
                     Modifier
                   </Link>
-                  
+
                   {/* Désactivé : La suppression d'un service supprime aussi les réservations liées */}
                   {/* 
                   <button
@@ -227,7 +227,7 @@ export default function ProviderServicesPage() {
             ))}
           </div>
         )}
-      </main>
+      </div>
     </div>
   );
 }

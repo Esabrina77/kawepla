@@ -7,20 +7,20 @@ import styles from './Sidebar.module.css';
 import Image from 'next/image';
 import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
-import { 
-  LayoutDashboard, 
-  PaintBucket, 
-  Users, 
-  CalendarRange, 
-  BarChart3, 
-  MessageSquare, 
-  HelpCircle, 
-  LogOut, 
-  ChevronLeft, 
+import {
+  LayoutDashboard,
+  PaintBucket,
+  Users,
+  CalendarRange,
+  BarChart3,
+  MessageSquare,
+  HelpCircle,
+  LogOut,
+  ChevronLeft,
   ChevronRight,
   Plus,
-    Home,
-    Mail,
+  Home,
+  Mail,
   Package,
 } from 'lucide-react';
 
@@ -133,31 +133,24 @@ export const SuperAdminSidebar = () => {
   return (
     <>
       {/* Desktop Sidebar */}
-      <aside 
+      <aside
         className={`${styles.sidebar} ${styles.superAdminSidebar} ${isCollapsed ? styles.collapsed : ''}`}
         data-testid="super-admin-sidebar"
       >
         {/* Header Section */}
         <div className={styles.sidebarHeader}>
-          <Link href="/super-admin/dashboard" data-tutorial="logo">
-            <Image 
-              src="/images/logo.png" 
-              alt="Logo KaWePla" 
-              width={100} 
-              height={100} 
-              className={styles.logoImage}
-              priority
-            />
+          <Link href="/super-admin/dashboard" className={styles.logoLink} data-tutorial="logo">
+            <span className={styles.logoText}>Kawepla</span>
           </Link>
-          
+
           <div className={styles.sidebarHeaderButtons}>
             {!isCollapsed && (
               <div className={styles.superAdminBadge}>
                 SUPER ADMIN
               </div>
             )}
-            <button 
-              onClick={toggleSidebar} 
+            <button
+              onClick={toggleSidebar}
               className={styles.toggleButton}
               aria-label={isCollapsed ? "Développer le menu" : "Réduire le menu"}
             >
@@ -173,9 +166,8 @@ export const SuperAdminSidebar = () => {
               <Link
                 key={item.path}
                 href={item.path}
-                className={`${styles.navItem} ${
-                  basePath?.includes(item.path) ? styles.active : ''
-                }`}
+                className={`${styles.navItem} ${basePath?.includes(item.path) ? styles.active : ''
+                  }`}
                 title={item.description}
               >
                 <span className={styles.icon}>
@@ -223,9 +215,8 @@ export const SuperAdminSidebar = () => {
             <Link
               key={item.path}
               href={item.path}
-              className={`${styles.mobileNavItem} ${
-                basePath?.includes(item.path) ? styles.active : ''
-              }`}
+              className={`${styles.mobileNavItem} ${basePath?.includes(item.path) ? styles.active : ''
+                }`}
               title={item.title}
             >
               <span className={styles.mobileIcon}>
@@ -255,7 +246,7 @@ export const SuperAdminSidebar = () => {
           <div className={styles.mobileMenuPopup} onClick={(e) => e.stopPropagation()}>
             <div className={styles.mobileMenuHeader}>
               <h3>Menu complet</h3>
-              <button 
+              <button
                 onClick={toggleMobileMenu}
                 className={styles.closeMobileMenu}
               >
@@ -283,9 +274,8 @@ export const SuperAdminSidebar = () => {
                 <Link
                   key={item.path}
                   href={item.path}
-                  className={`${styles.mobileMenuItem} ${
-                    basePath?.includes(item.path) ? styles.active : ''
-                  }`}
+                  className={`${styles.mobileMenuItem} ${basePath?.includes(item.path) ? styles.active : ''
+                    }`}
                   onClick={toggleMobileMenu}
                 >
                   <span className={styles.icon}>
@@ -297,7 +287,7 @@ export const SuperAdminSidebar = () => {
                   </div>
                 </Link>
               ))}
-              
+
               <div className={styles.mobileMenuFooter}>
                 <Button
                   variant="outline"

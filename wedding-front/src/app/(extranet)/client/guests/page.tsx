@@ -26,7 +26,8 @@ import {
   AlertCircle,
   RefreshCw,
   FileSpreadsheet,
-  Printer
+  Printer,
+  Users
 } from 'lucide-react';
 import * as XLSX from 'xlsx';
 import jsPDF from 'jspdf';
@@ -34,7 +35,7 @@ import autoTable from 'jspdf-autotable';
 import { saveAs } from 'file-saver';
 import styles from './guests.module.css';
 
-// Modal pour ajouter un invité
+// ─── MODAL: AJOUTER UN INVITÉ ──────────────────────
 function AddGuestModal({
   isOpen,
   onClose,
@@ -103,7 +104,7 @@ function AddGuestModal({
         <div className={styles.modalHeader}>
           <h2>Ajouter un invité</h2>
           <button onClick={onClose} className={styles.modalClose}>
-            <X size={24} />
+            <X size={18} />
           </button>
         </div>
         <form onSubmit={handleSubmit} className={styles.modalBody}>
@@ -169,7 +170,7 @@ function AddGuestModal({
           </div>
           {formData.plusOne && (
             <div className={styles.formGroup}>
-              <label>Nom de l'accompagnant</label>
+              <label>Nom de l&apos;accompagnant</label>
               <input
                 type="text"
                 value={formData.plusOneName}
@@ -199,7 +200,7 @@ function AddGuestModal({
   );
 }
 
-// Modal pour l'import en masse
+// ─── MODAL: IMPORT EN MASSE (Stepper) ──────────────────────
 function BulkImportModal({
   isOpen,
   onClose,
@@ -217,6 +218,7 @@ function BulkImportModal({
   bulkImport: (file: File) => Promise<any>;
   downloadTemplate: (format: 'csv' | 'txt') => Promise<void>;
 }) {
+  const [step, setStep] = useState<1 | 2>(1);
   const [file, setFile] = useState<File | null>(null);
   const [preview, setPreview] = useState<any>(null);
   const [loading, setLoading] = useState(false);
@@ -248,11 +250,9 @@ function BulkImportModal({
     try {
       setImporting(true);
       setError(null);
-      const result = await bulkImport(file);
+      await bulkImport(file);
       onImport();
-      onClose();
-      setFile(null);
-      setPreview(null);
+      handleClose();
     } catch (err: any) {
       setError(err.message || 'Erreur lors de l\'import');
     } finally {
@@ -260,17 +260,37 @@ function BulkImportModal({
     }
   };
 
+  const handleClose = () => {
+    setStep(1);
+    setFile(null);
+    setPreview(null);
+    setError(null);
+    onClose();
+  };
+
   if (!isOpen) return null;
 
   return (
-    <div className={styles.modalOverlay} onClick={onClose}>
+    <div className={styles.modalOverlay} onClick={handleClose}>
       <div className={styles.modalContent} onClick={(e) => e.stopPropagation()}>
         <div className={styles.modalHeader}>
           <h2>Import en masse</h2>
-          <button onClick={onClose} className={styles.modalClose}>
-            <X size={24} />
+          <button onClick={handleClose} className={styles.modalClose}>
+            <X size={18} />
           </button>
         </div>
+
+        {/* Stepper indicator */}
+        <div className={styles.stepperBar}>
+          <div className={`${styles.stepDot} ${step >= 1 ? styles.stepActive : ''}`}>
+            <span>1</span>
+          </div>
+          <div className={`${styles.stepLine} ${step >= 2 ? styles.stepLineActive : ''}`} />
+          <div className={`${styles.stepDot} ${step >= 2 ? styles.stepActive : ''}`}>
+            <span>2</span>
+          </div>
+        </div>
+
         <div className={styles.modalBody}>
           {error && (
             <div className={styles.modalError}>
@@ -278,74 +298,106 @@ function BulkImportModal({
               {error}
             </div>
           )}
-          <div className={styles.formGroup}>
-            <label>Télécharger un template</label>
-            <div className={styles.templateButtons}>
-              <button
-                type="button"
-                onClick={() => downloadTemplate('csv')}
-                className={styles.templateButton}
-              >
-                <Download size={16} />
-                Template CSV
-              </button>
-              <button
-                type="button"
-                onClick={() => downloadTemplate('txt')}
-                className={styles.templateButton}
-              >
-                <Download size={16} />
-                Template TXT
-              </button>
-            </div>
-          </div>
-          <div className={styles.formGroup}>
-            <label>Fichier à importer *</label>
-            <input
-              type="file"
-              accept=".csv,.txt"
-              onChange={handleFileSelect}
-              disabled={loading}
-            />
-          </div>
-          {loading && <p>Prévisualisation en cours...</p>}
-          {preview && (
-            <div className={styles.previewSection}>
-              <h3>Prévisualisation</h3>
-              <p>Total: {preview.totalRows || preview.totalGuests} lignes</p>
-              <p>Valides: {preview.validRows || preview.validGuests?.length || 0}</p>
-              {preview.errors && preview.errors.length > 0 && (
-                <div className={styles.previewErrors}>
-                  <p>Erreurs: {preview.errors.length}</p>
-                  <ul>
-                    {preview.errors.slice(0, 5).map((err: any, idx: number) => (
-                      <li key={idx}>Ligne {err.row || err.line}: {err.error}</li>
-                    ))}
-                  </ul>
+
+          {/* ── STEP 1: Template ou import direct ── */}
+          {step === 1 && (
+            <>
+              <p className={styles.stepTitle}>Avez-vous besoin d&apos;un template ?</p>
+              <p className={styles.templateHint}>
+                Notre template garantit un import sans erreur. Téléchargez-le, remplissez-le avec vos invités, puis passez à l&apos;étape suivante.
+              </p>
+
+              <div className={styles.templateButtons}>
+                <button
+                  type="button"
+                  onClick={() => downloadTemplate('csv')}
+                  className={styles.templateButton}
+                >
+                  <Download size={14} />
+                  Template CSV
+                </button>
+                <button
+                  type="button"
+                  onClick={() => downloadTemplate('txt')}
+                  className={styles.templateButton}
+                >
+                  <Download size={14} />
+                  Template TXT
+                </button>
+              </div>
+
+              <div className={styles.modalFooter}>
+                <button type="button" onClick={handleClose} className={styles.modalButtonSecondary}>
+                  Annuler
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setStep(2)}
+                  className={styles.modalButtonPrimary}
+                >
+                  J&apos;ai mon fichier →
+                </button>
+              </div>
+            </>
+          )}
+
+          {/* ── STEP 2: Upload + Preview ── */}
+          {step === 2 && (
+            <>
+              <p className={styles.stepTitle}>Importez votre fichier</p>
+
+              <div className={styles.formGroup}>
+                <label>Fichier CSV ou TXT *</label>
+                <input
+                  type="file"
+                  accept=".csv,.txt"
+                  onChange={handleFileSelect}
+                  disabled={loading}
+                />
+              </div>
+
+              {loading && <p className={styles.templateHint}>Prévisualisation en cours...</p>}
+
+              {preview && (
+                <div className={styles.previewSection}>
+                  <h3>Prévisualisation</h3>
+                  <p>Total : {preview.totalRows || preview.totalGuests} lignes</p>
+                  <p>Valides : {preview.validRows || preview.validGuests?.length || 0}</p>
+                  {preview.errors && preview.errors.length > 0 && (
+                    <div className={styles.previewErrors}>
+                      <p>Erreurs : {preview.errors.length}</p>
+                      <ul>
+                        {preview.errors.slice(0, 5).map((err: any, idx: number) => (
+                          <li key={idx}>Ligne {err.row || err.line} : {err.error}</li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
                 </div>
               )}
-            </div>
+
+              <div className={styles.modalFooter}>
+                <button type="button" onClick={() => setStep(1)} className={styles.modalButtonSecondary}>
+                  ← Retour
+                </button>
+                <button
+                  type="button"
+                  onClick={handleImport}
+                  className={styles.modalButtonPrimary}
+                  disabled={!file || !preview || importing}
+                >
+                  {importing ? 'Import en cours...' : 'Importer'}
+                </button>
+              </div>
+            </>
           )}
-          <div className={styles.modalFooter}>
-            <button type="button" onClick={onClose} className={styles.modalButtonSecondary}>
-              Annuler
-            </button>
-            <button
-              type="button"
-              onClick={handleImport}
-              className={styles.modalButtonPrimary}
-              disabled={!file || !preview || importing}
-            >
-              {importing ? 'Import en cours...' : 'Importer'}
-            </button>
-          </div>
         </div>
       </div>
     </div>
   );
 }
 
-// Modal pour l'export
+// ─── MODAL: EXPORT ──────────────────────
 function ExportModal({
   isOpen,
   onClose,
@@ -365,62 +417,40 @@ function ExportModal({
         <div className={styles.modalHeader}>
           <h2>Exporter la liste</h2>
           <button onClick={onClose} className={styles.modalClose}>
-            <X size={24} />
+            <X size={18} />
           </button>
         </div>
         <div className={styles.modalBody}>
-          <p style={{ marginBottom: '1.5rem', color: 'var(--text-secondary)' }}>
-            Choisissez le format d'export adapté à vos besoins :
+          <p className={styles.introText}>
+            Choisissez le format d&apos;export adapté à vos besoins :
           </p>
 
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+          <div className={styles.exportOptions}>
             <button
               type="button"
               onClick={() => { onExportExcel(); onClose(); }}
-              className={styles.modalButtonSecondary}
-              style={{ justifyContent: 'flex-start', padding: '1rem', height: 'auto' }}
+              className={styles.exportOption}
             >
-              <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', width: '100%' }}>
-                <div style={{
-                  background: '#107c41',
-                  color: 'white',
-                  padding: '0.5rem',
-                  borderRadius: '0.5rem',
-                  display: 'flex'
-                }}>
-                  <FileSpreadsheet size={24} />
-                </div>
-                <div style={{ textAlign: 'left' }}>
-                  <div style={{ fontWeight: 'bold', color: 'var(--text-primary)' }}>Excel (Gestion)</div>
-                  <div style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>
-                    Toutes les données (RSVP, régimes, contacts...) pour votre organisation.
-                  </div>
-                </div>
+              <div className={`${styles.exportOptionIcon} ${styles.excel}`}>
+                <FileSpreadsheet size={20} />
+              </div>
+              <div className={styles.exportOptionText}>
+                <h4>Excel (Gestion)</h4>
+                <p>Toutes les données (RSVP, régimes, contacts...) pour votre organisation.</p>
               </div>
             </button>
 
             <button
               type="button"
               onClick={() => { onExportPDF(); onClose(); }}
-              className={styles.modalButtonSecondary}
-              style={{ justifyContent: 'flex-start', padding: '1rem', height: 'auto' }}
+              className={styles.exportOption}
             >
-              <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', width: '100%' }}>
-                <div style={{
-                  background: '#ea4335',
-                  color: 'white',
-                  padding: '0.5rem',
-                  borderRadius: '0.5rem',
-                  display: 'flex'
-                }}>
-                  <Printer size={24} />
-                </div>
-                <div style={{ textAlign: 'left' }}>
-                  <div style={{ fontWeight: 'bold', color: 'var(--text-primary)' }}>PDF (Jour J)</div>
-                  <div style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>
-                    Liste de présence épurée à imprimer pour l'émargement à l'entrée.
-                  </div>
-                </div>
+              <div className={`${styles.exportOptionIcon} ${styles.pdf}`}>
+                <Printer size={20} />
+              </div>
+              <div className={styles.exportOptionText}>
+                <h4>PDF (Jour J)</h4>
+                <p>Liste de présence épurée à imprimer pour l&apos;émargement à l&apos;entrée.</p>
               </div>
             </button>
           </div>
@@ -430,7 +460,7 @@ function ExportModal({
   );
 }
 
-// Composant pour gérer le lien partageable
+// ─── COMPOSANT: LIEN PARTAGEABLE ──────────────────────
 function ShareableLinkManager({ invitationId }: { invitationId: string }) {
   const [shareableLink, setShareableLink] = useState<{
     url: string;
@@ -459,7 +489,7 @@ function ShareableLinkManager({ invitationId }: { invitationId: string }) {
         });
       }
     } catch (error) {
-      // L'endpoint n'existe peut-être pas, on continue sans erreur
+      // endpoint might not exist
     }
   };
 
@@ -509,10 +539,9 @@ function ShareableLinkManager({ invitationId }: { invitationId: string }) {
       const newUrl = await regenerateShareableLink();
       if (newUrl) {
         await navigator.clipboard.writeText(newUrl);
-        // Lien copié silencieusement sans alerte
       }
     } catch (err) {
-      console.error('Erreur lors de la copie:', err);
+      console.error('Erreur copie:', err);
     }
   };
 
@@ -521,22 +550,17 @@ function ShareableLinkManager({ invitationId }: { invitationId: string }) {
 
     if (navigator.share) {
       try {
-        await navigator.share({
-          title: 'Invitation d\'événement',
-          text: message,
-          url: url
-        });
+        await navigator.share({ title: 'Invitation d\'événement', text: message, url });
         await regenerateShareableLink();
       } catch (err) {
-        console.log('Partage annulé ou erreur:', err);
+        console.log('Partage annulé:', err);
       }
     } else {
       try {
         await navigator.clipboard.writeText(message);
-        // Message copié silencieusement sans alerte
         await regenerateShareableLink();
       } catch (err) {
-        console.error('Erreur lors de la copie:', err);
+        console.error('Erreur copie:', err);
       }
     }
   };
@@ -544,7 +568,8 @@ function ShareableLinkManager({ invitationId }: { invitationId: string }) {
   if (!shareableLink) {
     return (
       <div className={styles.shareableSection}>
-        <p>Aucun lien partageable généré</p>
+        <p className={styles.shareableLabel}>Lien partageable</p>
+        <p className={styles.introText}>Aucun lien généré. Créez un lien pour inviter vos proches facilement.</p>
         <button
           onClick={generateShareableLink}
           className={styles.shareableButton}
@@ -564,35 +589,35 @@ function ShareableLinkManager({ invitationId }: { invitationId: string }) {
         <div className={styles.shareableUrl}>
           <input type="text" value={shareableLink.url} readOnly />
           <button onClick={copyToClipboard} className={styles.shareableCopyButton}>
-            <Copy size={16} />
+            <Copy size={14} />
           </button>
         </div>
         <div className={styles.shareableStats}>
-          <p>Utilisé: {shareableLink.usedCount}/{shareableLink.maxUses}</p>
-          <p>⏰ Le lien a une durée de 10 min avant d'être invalide</p>
+          <p>Utilisé : {shareableLink.usedCount}/{shareableLink.maxUses}</p>
+          <p>⏰ Durée : 10 min</p>
         </div>
       </div>
       <div className={styles.shareableActions}>
         <button
-          onClick={regenerateShareableLink}
+          onClick={() => regenerateShareableLink()}
           className={styles.shareableButton}
           disabled={loading}
         >
-          <RefreshCw size={16} />
-          {loading ? 'Génération...' : 'Générer un nouveau lien'}
+          <RefreshCw size={14} />
+          {loading ? 'Génération...' : 'Nouveau lien'}
         </button>
         <button
           onClick={() => shareLink(shareableLink.url)}
           className={styles.shareableButtonSecondary}
         >
-          <Share2 size={16} />
+          <Share2 size={14} />
           Partager
         </button>
         <button
           onClick={copyToClipboard}
           className={styles.shareableButtonSecondary}
         >
-          <Copy size={16} />
+          <Copy size={14} />
           Copier
         </button>
       </div>
@@ -600,13 +625,13 @@ function ShareableLinkManager({ invitationId }: { invitationId: string }) {
   );
 }
 
+// ─── PAGE PRINCIPALE ──────────────────────
 export default function GuestsPage() {
   const router = useRouter();
   const { invitations, loading: loadingInvitations } = useInvitations();
   const [limits, setLimits] = useState<{ usage: any; limits: any } | null>(null);
   const [selectedInvitationId, setSelectedInvitationId] = useState<string>('');
 
-  // Sélectionner automatiquement la première invitation publiée ou la première invitation
   useEffect(() => {
     if (invitations.length > 0 && !selectedInvitationId) {
       const publishedInvitation = invitations.find(inv => inv.status === 'PUBLISHED');
@@ -647,7 +672,6 @@ export default function GuestsPage() {
     setTimeout(() => setNotification(null), 3000);
   };
 
-  // Fermer les dropdowns quand on clique en dehors
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (rsvpFilterRef.current && !rsvpFilterRef.current.contains(event.target as Node)) {
@@ -657,14 +681,10 @@ export default function GuestsPage() {
         setShowTypeFilter(false);
       }
     };
-
     document.addEventListener('mousedown', handleClickOutside);
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
-    };
+    return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  // Charger les limites
   useEffect(() => {
     const loadLimits = async () => {
       try {
@@ -683,137 +703,93 @@ export default function GuestsPage() {
     }
   }, [selectedInvitationId, fetchGuests]);
 
-  // Filtrer les invités
   const filteredGuests = useMemo(() => {
-    return guests.filter(guest => {
-      // Recherche
+    const filtered = guests.filter(guest => {
       if (searchQuery) {
         const query = searchQuery.toLowerCase();
         const fullName = `${guest.firstName} ${guest.lastName}`.toLowerCase();
         const email = guest.email?.toLowerCase() || '';
         const phone = guest.phone?.toLowerCase() || '';
-
-        if (!fullName.includes(query) && !email.includes(query) && !phone.includes(query)) {
-          return false;
-        }
+        if (!fullName.includes(query) && !email.includes(query) && !phone.includes(query)) return false;
       }
-
-      // Filtre RSVP
       if (rsvpFilter !== 'all') {
-        // Pour "PENDING", inclure les invités sans RSVP (considérés comme "pending")
         if (rsvpFilter === 'PENDING') {
-          if (guest.rsvp && guest.rsvp.status !== 'PENDING') {
-            return false;
-          }
+          if (guest.rsvp && guest.rsvp.status !== 'PENDING') return false;
         } else {
-          // Pour CONFIRMED et DECLINED, vérifier le statut exact
-          if (guest.rsvp?.status !== rsvpFilter) {
-            return false;
-          }
+          if (guest.rsvp?.status !== rsvpFilter) return false;
         }
       }
-
-      // Filtre Type
       if (typeFilter !== 'all') {
-        if (guest.invitationType !== typeFilter) {
-          return false;
-        }
+        if (guest.invitationType !== typeFilter) return false;
       }
-
       return true;
+    });
+
+    // Tri par date de modification (le plus récent en premier)
+    return [...filtered].sort((a, b) => {
+      const dateA = new Date(a.updatedAt || a.createdAt).getTime();
+      const dateB = new Date(b.updatedAt || b.createdAt).getTime();
+      return dateB - dateA;
     });
   }, [guests, searchQuery, rsvpFilter, typeFilter]);
 
-  // Calculer le nombre d'invités sans réponse
-  const pendingGuestsCount = useMemo(() => {
-    return guests.filter(guest => !guest.rsvp || guest.rsvp.status === 'PENDING').length;
-  }, [guests]);
-
-  const handleAddGuest = () => {
-    setShowAddModal(true);
-  };
-
-  const handleBulkImport = () => {
-    setShowImportModal(true);
-  };
-
-  const handleExportClick = () => {
-    setShowExportModal(true);
-  };
+  // Stats
+  const confirmedCount = useMemo(() => guests.filter(g => g.rsvp?.status === 'CONFIRMED').length, [guests]);
+  const pendingCount = useMemo(() => guests.filter(g => !g.rsvp || g.rsvp.status === 'PENDING').length, [guests]);
+  const declinedCount = useMemo(() => guests.filter(g => g.rsvp?.status === 'DECLINED').length, [guests]);
 
   const handleSendInvitation = async (guestId: string) => {
     const success = await sendInvitation(guestId);
-    if (success) {
-      await fetchGuests();
-    }
+    if (success) await fetchGuests();
   };
 
   const handleSendReminder = async (guestId: string) => {
     const success = await sendReminder(guestId);
-    if (success) {
-      await fetchGuests();
-    }
+    if (success) await fetchGuests();
   };
 
   const handleDeleteGuest = async (guestId: string) => {
     if (confirm('Êtes-vous sûr de vouloir supprimer cet invité ?')) {
       const success = await deleteGuest(guestId);
-      if (success) {
-        await fetchGuests();
-      }
+      if (success) await fetchGuests();
     }
   };
 
-  // Envoyer les invitations à tous les invités sans réponse
   const handleSendInvitationsToPending = async () => {
-    // Filtrer les invités qui n'ont pas encore répondu (pas de RSVP ou RSVP.status === 'PENDING')
-    const pendingGuests = guests.filter(guest => {
-      return !guest.rsvp || guest.rsvp.status === 'PENDING';
-    });
-
+    const pendingGuests = guests.filter(guest => !guest.rsvp || guest.rsvp.status === 'PENDING');
     if (pendingGuests.length === 0) {
-      showNotification('Tous les invités ont déjà répondu à l\'invitation.', 'error');
+      showNotification('Tous les invités ont déjà répondu.', 'error');
       return;
     }
-
-    if (!confirm(`Envoyer l'invitation à ${pendingGuests.length} invité(s) sans réponse ?`)) {
-      return;
-    }
+    if (!confirm(`Envoyer l'invitation à ${pendingGuests.length} invité(s) sans réponse ?`)) return;
 
     try {
       const guestIds = pendingGuests.map(guest => guest.id);
       const result = await sendBulkInvitations(guestIds);
-
       if (result.failed && result.failed.length > 0) {
-        showNotification(`Invitations envoyées : ${result.sent.length} - Échecs : ${result.failed.length}`, 'error');
+        showNotification(`Envoyées: ${result.sent.length} — Échecs: ${result.failed.length}`, 'error');
       } else {
-        showNotification(`Invitations envoyées avec succès à ${result.sent.length} invité(s).`, 'success');
+        showNotification(`Invitations envoyées à ${result.sent.length} invité(s).`, 'success');
       }
-
       await fetchGuests();
     } catch (error: any) {
-      showNotification(`Erreur lors de l'envoi : ${error.message || 'Une erreur est survenue'}`, 'error');
+      showNotification(error.message || 'Erreur lors de l\'envoi', 'error');
     }
   };
 
   const getRSVPStatus = (guest: Guest) => {
     if (!guest.rsvp) return 'pending';
     switch (guest.rsvp.status) {
-      case 'CONFIRMED':
-        return 'confirmed';
-      case 'DECLINED':
-        return 'rejected';
-      default:
-        return 'pending';
+      case 'CONFIRMED': return 'confirmed';
+      case 'DECLINED': return 'rejected';
+      default: return 'pending';
     }
   };
 
   const formatDate = (dateString?: string) => {
     if (!dateString) return '';
     return new Date(dateString).toLocaleDateString('fr-FR', {
-      day: '2-digit',
-      month: '2-digit',
-      year: 'numeric'
+      day: '2-digit', month: '2-digit', year: 'numeric'
     });
   };
 
@@ -829,12 +805,9 @@ export default function GuestsPage() {
       'Restrictions Alimentaires': guest.dietaryRestrictions || '',
       'VIP': guest.isVIP ? 'Oui' : 'Non'
     }));
-
     const ws = XLSX.utils.json_to_sheet(data);
     const wb = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(wb, ws, "Invités");
-
-    // Téléchargement avec file-saver pour compatibilité maximale
     const wbout = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
     const blob = new Blob([wbout], { type: 'application/octet-stream' });
     saveAs(blob, "liste_invites.xlsx");
@@ -843,26 +816,31 @@ export default function GuestsPage() {
   const handleExportPDF = () => {
     const doc = new jsPDF();
 
-    const img = new Image();
-    img.src = '/images/logo.png';
-
-    const generatePDF = (hasLogo: boolean) => {
-      if (hasLogo) {
-        doc.addImage(img, 'PNG', 15, 10, 50, 20);
-      }
-
+    const generatePDF = () => {
+      // 1. Logo KAWEPLA (Indigo #6366F1)
+      doc.setFont('helvetica', 'bold');
+      doc.setTextColor(99, 102, 241); // #6366F1
       doc.setFontSize(22);
-      doc.setTextColor(40);
-      doc.text("Liste de Présence", hasLogo ? 70 : 15, 25);
+      doc.text("KAWEPLA", 15, 25);
 
+      // 2. Titre de la page
+      doc.setFont('helvetica', 'bold');
+      doc.setTextColor(40, 40, 40);
+      doc.setFontSize(20);
+      doc.text("Liste de Présence", 70, 25);
+
+      // 3. Sous-titre / Détails
+      doc.setFont('helvetica', 'normal');
       doc.setFontSize(11);
-      doc.setTextColor(100);
-      doc.text(`Événement: ${selectedInvitation?.eventTitle || 'Mariage'}`, hasLogo ? 70 : 15, 32);
-      doc.text(`Date: ${new Date().toLocaleDateString('fr-FR')}`, hasLogo ? 70 : 15, 38);
+      doc.setTextColor(100, 100, 100);
+      doc.text(`Événement : ${selectedInvitation?.eventTitle || 'Mon Événement'}`, 15, 38);
+      doc.text(`Date : ${new Date().toLocaleDateString('fr-FR')}`, 150, 38);
 
-      // Sort guests alphabetically
+      // Séparateur
+      doc.setDrawColor(220, 220, 220);
+      doc.line(15, 42, 195, 42);
+
       const sortedGuests = [...guests].sort((a, b) => a.lastName.localeCompare(b.lastName));
-
       const tableData = sortedGuests.map(guest => [
         guest.lastName.toUpperCase(),
         guest.firstName,
@@ -877,8 +855,18 @@ export default function GuestsPage() {
         head: [['Nom', 'Prénom', 'VIP', 'Accompagnant', 'Restrictions', 'Présent']],
         body: tableData,
         theme: 'grid',
-        headStyles: { fillColor: [66, 66, 66] },
-        styles: { fontSize: 10, cellPadding: 3, valign: 'middle', overflow: 'linebreak' },
+        headStyles: { 
+          fillColor: [99, 102, 241], // Primary Color
+          textColor: [255, 255, 255],
+          fontStyle: 'bold'
+        },
+        styles: { 
+          font: 'helvetica',
+          fontSize: 9, 
+          cellPadding: 3, 
+          valign: 'middle', 
+          overflow: 'linebreak' 
+        },
         columnStyles: {
           0: { fontStyle: 'bold', cellWidth: 35 },
           1: { cellWidth: 35 },
@@ -892,25 +880,24 @@ export default function GuestsPage() {
             const dim = 6;
             const x = data.cell.x + (data.cell.width - dim) / 2;
             const y = data.cell.y + (data.cell.height - dim) / 2;
-            doc.setDrawColor(100);
+            doc.setDrawColor(180, 180, 180);
             doc.rect(x, y, dim, dim);
           }
         }
       });
 
-      // Téléchargement avec file-saver pour compatibilité maximale
       const blob = doc.output('blob');
       saveAs(blob, "liste_presence.pdf");
     };
 
-    img.onload = () => generatePDF(true);
-    img.onerror = () => generatePDF(false);
+    generatePDF();
   };
 
+  // ─── LOADING STATE ──────
   if (loadingInvitations) {
     return (
       <div className={styles.guestsPage}>
-        <HeaderMobile title="Vos invités" />
+        <HeaderMobile title="Invités" />
         <div className={styles.loadingContainer}>
           <div className={styles.loadingContent}>
             <div className={styles.loadingSpinner}></div>
@@ -921,14 +908,16 @@ export default function GuestsPage() {
     );
   }
 
+  // ─── NO INVITATION ──────
   if (!selectedInvitationId || !selectedInvitation) {
     return (
       <div className={styles.guestsPage}>
-        <HeaderMobile title="Vos invités" />
+        <HeaderMobile title="Invités" />
         <div className={styles.errorContainer}>
           <div className={styles.errorContent}>
-            <h2>Aucune invitation</h2>
-            <p>Créez d'abord une invitation pour gérer vos invités.</p>
+            <Users size={48} className={styles.errorIcon} />
+            <h2>Aucun événement</h2>
+            <p>Créez d&apos;abord un événement pour gérer vos invités.</p>
           </div>
         </div>
       </div>
@@ -937,45 +926,64 @@ export default function GuestsPage() {
 
   return (
     <div className={styles.guestsPage}>
-      <HeaderMobile title="Vos invités" />
+      <HeaderMobile title="Invités" />
 
-      <main className={styles.main}>
+      <div className={styles.pageContent}>
         {/* Sélecteur d'invitation */}
         {invitations.length > 0 && (
           <div className={styles.invitationSection}>
-            <label className={styles.invitationLabel}>
-              <p className={styles.invitationLabelText}>Invitation</p>
-              <select
-                value={selectedInvitationId}
-                onChange={(e) => setSelectedInvitationId(e.target.value)}
-                className={styles.invitationSelect}
-              >
-                {invitations.map(invitation => (
-                  <option key={invitation.id} value={invitation.id}>
-                    {invitation.eventTitle}{invitation.eventDate ? ` - ${formatDate(invitation.eventDate)}` : ''}
-                  </option>
-                ))}
-              </select>
-            </label>
+            <span className={styles.invitationLabelText}>Événement</span>
+            <select
+              value={selectedInvitationId}
+              onChange={(e) => setSelectedInvitationId(e.target.value)}
+              className={styles.invitationSelect}
+            >
+              {invitations.map(invitation => (
+                <option key={invitation.id} value={invitation.id}>
+                  {invitation.eventTitle}{invitation.eventDate ? ` — ${formatDate(invitation.eventDate)}` : ''}
+                </option>
+              ))}
+            </select>
           </div>
         )}
+
         {selectedInvitation.status === 'DRAFT' ? (
-          <div className={styles.errorContainer} style={{ marginTop: '2rem' }}>
+          <div className={styles.errorContainer}>
             <div className={styles.errorContent}>
               <AlertCircle size={48} className={styles.errorIcon} />
-              <h2>Invitation en brouillon</h2>
-              <p>Vous devez publier votre invitation avant de pouvoir gérer la liste des invités.</p>
+              <h2>Événement en brouillon</h2>
+              <p>Publiez votre événement avant de gérer la liste des invités.</p>
               <button
                 className={styles.modalButtonPrimary}
                 onClick={() => router.push(`/client/invitations/${selectedInvitationId}`)}
-                style={{ marginTop: '1rem' }}
               >
-                Aller à l'invitation
+                Aller à l&apos;événement
               </button>
             </div>
           </div>
         ) : (
           <>
+            {/* Stats résumé */}
+            <div className={styles.statsRow}>
+              <div className={styles.statCard}>
+                <div className={styles.statValue}>{guests.length}</div>
+                <div className={styles.statLabel}>Total invités</div>
+              </div>
+              <div className={`${styles.statCard} ${styles.statConfirmed}`}>
+                <div className={styles.statValue}>{confirmedCount}</div>
+                <div className={styles.statLabel}>Confirmés</div>
+              </div>
+              <div className={`${styles.statCard} ${styles.statPending}`}>
+                <div className={styles.statValue}>{pendingCount}</div>
+                <div className={styles.statLabel}>En attente</div>
+              </div>
+              <div className={`${styles.statCard} ${styles.statDeclined}`}>
+                <div className={styles.statValue}>{declinedCount}</div>
+                <div className={styles.statLabel}>Refusés</div>
+              </div>
+            </div>
+
+            {/* Toggle Email / Lien */}
             <div className={styles.invitationTypeSection}>
               <div className={styles.invitationTypeToggle}>
                 <label className={styles.toggleOption}>
@@ -1001,61 +1009,55 @@ export default function GuestsPage() {
               </div>
             </div>
 
-            {/* Shareable Link Manager */}
-            {
-              invitationType === 'shareable' && selectedInvitation && (
-                <ShareableLinkManager invitationId={selectedInvitation.id} />
-              )
-            }
+            {/* Shareable Link */}
+            {invitationType === 'shareable' && selectedInvitation && (
+              <ShareableLinkManager invitationId={selectedInvitation.id} />
+            )}
 
-            {/* Actions Section */}
+            {/* Actions */}
             <div className={styles.actionsSection}>
               <div className={styles.actionsRow}>
                 <button
                   className={`${styles.actionButton} ${styles.primary}`}
-                  onClick={handleAddGuest}
+                  onClick={() => setShowAddModal(true)}
                 >
-                  <Plus size={20} />
-                  <span>Ajouter un invité</span>
+                  <Plus size={16} />
+                  Ajouter un invité
                 </button>
                 <button
-                  className={`${styles.actionButton} ${styles.secondary}`}
-                  onClick={handleBulkImport}
+                  className={styles.actionButton}
+                  onClick={() => setShowImportModal(true)}
                 >
-                  <Download size={20} />
-                  <span>Import en masse</span>
+                  <Download size={16} />
+                  Importer
                 </button>
                 <button
-                  className={`${styles.actionButton} ${styles.export}`}
-                  onClick={handleExportClick}
-                  title="Exporter la liste"
+                  className={styles.actionButton}
+                  onClick={() => setShowExportModal(true)}
                 >
-                  <Upload size={20} />
-                  <span>Exporter la liste</span>
+                  <Upload size={16} />
+                  Exporter
                 </button>
               </div>
-              {/* Bouton pour envoyer à tous les invités sans réponse */}
-              {pendingGuestsCount > 0 && (
+              {pendingCount > 0 && (
                 <div className={styles.bulkSendSection}>
                   <button
                     className={`${styles.actionButton} ${styles.bulkSend}`}
                     onClick={handleSendInvitationsToPending}
                     disabled={loadingGuests}
                   >
-                    <Send size={20} />
-                    <span>
-                      Envoyer à tous les invités sans réponse ({pendingGuestsCount})
-                    </span>
+                    <Send size={16} />
+                    Envoyer à tous les invités sans réponse ({pendingCount})
                   </button>
                 </div>
               )}
             </div>
 
-            {/* Search and Filters */}
+            {/* Search + Filters */}
             <div className={styles.searchFiltersSection}>
               <div className={styles.searchContainer}>
                 <div className={styles.searchWrapper}>
-                  <Search size={20} className={styles.searchIcon} />
+                  <Search size={16} className={styles.searchIcon} />
                   <input
                     type="search"
                     className={styles.searchInput}
@@ -1069,95 +1071,44 @@ export default function GuestsPage() {
                 <div className={styles.filterDropdown} ref={rsvpFilterRef}>
                   <button
                     className={`${styles.filterButton} ${rsvpFilter !== 'all' ? styles.filterActive : ''}`}
-                    onClick={() => {
-                      setShowRsvpFilter(!showRsvpFilter);
-                      setShowTypeFilter(false);
-                    }}
+                    onClick={() => { setShowRsvpFilter(!showRsvpFilter); setShowTypeFilter(false); }}
                   >
                     <span>Statut RSVP</span>
-                    <ChevronDown size={16} className={showRsvpFilter ? styles.chevronUp : ''} />
+                    <ChevronDown size={14} className={showRsvpFilter ? styles.chevronUp : ''} />
                   </button>
                   {showRsvpFilter && (
                     <div className={styles.filterDropdownMenu}>
-                      <button
-                        className={`${styles.filterOption} ${rsvpFilter === 'all' ? styles.filterOptionActive : ''}`}
-                        onClick={() => {
-                          setRsvpFilter('all');
-                          setShowRsvpFilter(false);
-                        }}
-                      >
-                        Tous
-                      </button>
-                      <button
-                        className={`${styles.filterOption} ${rsvpFilter === 'CONFIRMED' ? styles.filterOptionActive : ''}`}
-                        onClick={() => {
-                          setRsvpFilter('CONFIRMED');
-                          setShowRsvpFilter(false);
-                        }}
-                      >
-                        Confirmé
-                      </button>
-                      <button
-                        className={`${styles.filterOption} ${rsvpFilter === 'PENDING' ? styles.filterOptionActive : ''}`}
-                        onClick={() => {
-                          setRsvpFilter('PENDING');
-                          setShowRsvpFilter(false);
-                        }}
-                      >
-                        En attente
-                      </button>
-                      <button
-                        className={`${styles.filterOption} ${rsvpFilter === 'DECLINED' ? styles.filterOptionActive : ''}`}
-                        onClick={() => {
-                          setRsvpFilter('DECLINED');
-                          setShowRsvpFilter(false);
-                        }}
-                      >
-                        Refusé
-                      </button>
+                      {(['all', 'CONFIRMED', 'PENDING', 'DECLINED'] as const).map(value => (
+                        <button
+                          key={value}
+                          className={`${styles.filterOption} ${rsvpFilter === value ? styles.filterOptionActive : ''}`}
+                          onClick={() => { setRsvpFilter(value); setShowRsvpFilter(false); }}
+                        >
+                          {value === 'all' ? 'Tous' : value === 'CONFIRMED' ? 'Confirmé' : value === 'PENDING' ? 'En attente' : 'Refusé'}
+                        </button>
+                      ))}
                     </div>
                   )}
                 </div>
                 <div className={styles.filterDropdown} ref={typeFilterRef}>
                   <button
                     className={`${styles.filterButton} ${typeFilter !== 'all' ? styles.filterActive : ''}`}
-                    onClick={() => {
-                      setShowTypeFilter(!showTypeFilter);
-                      setShowRsvpFilter(false);
-                    }}
+                    onClick={() => { setShowTypeFilter(!showTypeFilter); setShowRsvpFilter(false); }}
                   >
                     <span>Type</span>
-                    <ChevronDown size={16} className={showTypeFilter ? styles.chevronUp : ''} />
+                    <ChevronDown size={14} className={showTypeFilter ? styles.chevronUp : ''} />
                   </button>
                   {showTypeFilter && (
                     <div className={styles.filterDropdownMenu}>
-                      <button
-                        className={`${styles.filterOption} ${typeFilter === 'all' ? styles.filterOptionActive : ''}`}
-                        onClick={() => {
-                          setTypeFilter('all');
-                          setShowTypeFilter(false);
-                        }}
-                      >
-                        Tous
-                      </button>
-                      <button
-                        className={`${styles.filterOption} ${typeFilter === 'PERSONAL' ? styles.filterOptionActive : ''}`}
-                        onClick={() => {
-                          setTypeFilter('PERSONAL');
-                          setShowTypeFilter(false);
-                        }}
-                      >
-                        Email
-                      </button>
-                      <button
-                        className={`${styles.filterOption} ${typeFilter === 'SHAREABLE' ? styles.filterOptionActive : ''}`}
-                        onClick={() => {
-                          setTypeFilter('SHAREABLE');
-                          setShowTypeFilter(false);
-                        }}
-                      >
-                        Lien partageable
-                      </button>
+                      {(['all', 'PERSONAL', 'SHAREABLE'] as const).map(value => (
+                        <button
+                          key={value}
+                          className={`${styles.filterOption} ${typeFilter === value ? styles.filterOptionActive : ''}`}
+                          onClick={() => { setTypeFilter(value); setShowTypeFilter(false); }}
+                        >
+                          {value === 'all' ? 'Tous' : value === 'PERSONAL' ? 'Email' : 'Lien partageable'}
+                        </button>
+                      ))}
                     </div>
                   )}
                 </div>
@@ -1176,8 +1127,8 @@ export default function GuestsPage() {
                   <h3>Aucun invité trouvé</h3>
                   <p>
                     {searchQuery || rsvpFilter !== 'all' || typeFilter !== 'all'
-                      ? 'Aucun invité ne correspond à vos critères de recherche.'
-                      : 'Commencez par ajouter vos premiers invités.'}
+                      ? 'Aucun invité ne correspond à vos critères.'
+                      : 'Commencez par ajouter vos premiers invités avec le bouton ci-dessus.'}
                   </p>
                 </div>
               ) : (
@@ -1193,21 +1144,15 @@ export default function GuestsPage() {
                             <p className={styles.guestName}>
                               {guest.firstName} {guest.lastName}
                             </p>
-                            {guest.isVIP && (
-                              <span className={styles.vipBadge}>VIP</span>
-                            )}
+                            {guest.isVIP && <span className={styles.vipBadge}>VIP</span>}
                           </div>
                           <span className={`${styles.rsvpStatus} ${styles[rsvpStatus]}`}>
                             {rsvpStatus === 'confirmed' && 'Confirmé'}
                             {rsvpStatus === 'pending' && 'En attente'}
                             {rsvpStatus === 'rejected' && 'Refusé'}
                           </span>
-                          {guest.email && (
-                            <p className={styles.guestContact}>{guest.email}</p>
-                          )}
-                          {guest.phone && (
-                            <p className={styles.guestContact}>{guest.phone}</p>
-                          )}
+                          {guest.email && <p className={styles.guestContact}>{guest.email}</p>}
+                          {guest.phone && <p className={styles.guestContact}>{guest.phone}</p>}
                         </div>
                         {guest.profilePhotoUrl ? (
                           <img
@@ -1217,7 +1162,7 @@ export default function GuestsPage() {
                           />
                         ) : (
                           <div className={styles.guestAvatar}>
-                            <User size={24} />
+                            <User size={20} />
                           </div>
                         )}
                       </div>
@@ -1225,44 +1170,35 @@ export default function GuestsPage() {
                       {(guest.plusOneName || guest.dietaryRestrictions || guest.invitationSentAt) && (
                         <div className={styles.guestDetails}>
                           {guest.plusOneName && (
-                            <p className={styles.guestDetailItem}>
-                              Accompagnant : {guest.plusOneName}
-                            </p>
+                            <p className={styles.guestDetailItem}>Accompagnant : {guest.plusOneName}</p>
                           )}
                           {guest.dietaryRestrictions && (
-                            <p className={styles.guestDetailItem}>
-                              Restrictions : {guest.dietaryRestrictions}
-                            </p>
+                            <p className={styles.guestDetailItem}>Restrictions : {guest.dietaryRestrictions}</p>
                           )}
                           {guest.invitationSentAt && (
-                            <p className={styles.guestDate}>
-                              Invitation envoyée le {formatDate(guest.invitationSentAt)}
-                            </p>
+                            <p className={styles.guestDate}>Invitation envoyée le {formatDate(guest.invitationSentAt)}</p>
                           )}
                         </div>
                       )}
 
                       <div className={styles.guestActions}>
-                        {/* Bouton Rappel uniquement pour les invités en attente qui ont déjà reçu une invitation */}
                         {rsvpStatus === 'pending' && guest.invitationSentAt ? (
                           <button
                             className={`${styles.guestActionButton} ${styles.reminder}`}
                             onClick={() => handleSendReminder(guest.id)}
                           >
-                            <Bell size={18} />
-                            <span>Rappel</span>
+                            <Bell size={14} />
+                            Rappel
                           </button>
-                        ) : /* Bouton Envoyer l'invitation pour les invités sans réponse */
-                          !hasRSVP || rsvpStatus === 'pending' ? (
-                            <button
-                              className={`${styles.guestActionButton} ${styles.send}`}
-                              onClick={() => handleSendInvitation(guest.id)}
-                            >
-                              <Send size={18} />
-                              <span>Envoyer l'invitation</span>
-                            </button>
-                          ) : /* Pas de bouton d'action pour les invités qui ont déjà répondu (confirmé ou décliné) */
-                            null}
+                        ) : !hasRSVP || rsvpStatus === 'pending' ? (
+                          <button
+                            className={`${styles.guestActionButton} ${styles.send}`}
+                            onClick={() => handleSendInvitation(guest.id)}
+                          >
+                            <Send size={14} />
+                            Envoyer
+                          </button>
+                        ) : null}
                         <button
                           className={`${styles.guestActionButton} ${styles.delete}`}
                           onClick={() => handleDeleteGuest(guest.id)}
@@ -1277,11 +1213,10 @@ export default function GuestsPage() {
             </div>
           </>
         )}
-
-      </main >
+      </div>
 
       {/* Modals */}
-      < AddGuestModal
+      <AddGuestModal
         isOpen={showAddModal}
         onClose={() => setShowAddModal(false)}
         onCreate={fetchGuests}
@@ -1296,7 +1231,6 @@ export default function GuestsPage() {
         bulkImport={bulkImport}
         downloadTemplate={downloadTemplate}
       />
-
       <ExportModal
         isOpen={showExportModal}
         onClose={() => setShowExportModal(false)}
@@ -1306,10 +1240,10 @@ export default function GuestsPage() {
 
       {notification && (
         <div className={`${styles.notificationToast} ${styles[notification.type]}`}>
-          {notification.type === 'success' ? <CheckCircle size={20} /> : <AlertCircle size={20} />}
+          {notification.type === 'success' ? <CheckCircle size={18} /> : <AlertCircle size={18} />}
           <span>{notification.message}</span>
         </div>
       )}
-    </div >
+    </div>
   );
 }

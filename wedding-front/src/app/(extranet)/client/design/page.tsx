@@ -7,7 +7,7 @@ import { useInvitations } from '@/hooks/useInvitations';
 import { Design } from '@/types';
 import DesignPreview from '@/components/DesignPreview';
 import { HeaderMobile } from '@/components/HeaderMobile';
-import { Search, Filter, Grid, List, Sparkles, Heart, Palette, LayoutTemplate, Trash2 } from 'lucide-react';
+import { Search, Sparkles, Heart, Palette, LayoutTemplate, Trash2 } from 'lucide-react';
 import { deleteFromFirebase } from '@/lib/firebase';
 import styles from './page.module.css';
 
@@ -28,9 +28,7 @@ export default function DesignsGalleryPage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [selectedPriceType, setSelectedPriceType] = useState<string>('all');
-  const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
 
-  // Gérer le paramètre d'URL pour l'onglet actif
   useEffect(() => {
     const tabParam = searchParams.get('tab');
     if (tabParam === 'personal' || tabParam === 'favorites' || tabParam === 'templates') {
@@ -38,18 +36,15 @@ export default function DesignsGalleryPage() {
     }
   }, [searchParams]);
 
-  // Charger les favoris depuis le localStorage
   useEffect(() => {
     const storedFavorites = JSON.parse(localStorage.getItem('favoriteDesigns') || '[]');
     setFavoriteIds(storedFavorites);
   }, []);
 
-  // Charger les invitations pour vérifier l'utilisation des designs
   useEffect(() => {
     fetchInvitations();
   }, [fetchInvitations]);
 
-  // Charger les designs selon l'onglet actif
   useEffect(() => {
     const loadData = async () => {
       if (activeTab === 'templates' || activeTab === 'favorites') {
@@ -63,7 +58,6 @@ export default function DesignsGalleryPage() {
     loadData();
   }, [activeTab, fetchTemplates, fetchUserDesigns]);
 
-  // Filtrer les designs
   useEffect(() => {
     let sourceDesigns: Design[] = [];
 
@@ -82,7 +76,6 @@ export default function DesignsGalleryPage() {
 
     let filtered = [...sourceDesigns];
 
-    // Filtre par recherche
     if (searchQuery.trim()) {
       filtered = filtered.filter(design =>
         design.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -91,14 +84,12 @@ export default function DesignsGalleryPage() {
       );
     }
 
-    // Filtre par tags
     if (selectedTags.length > 0) {
       filtered = filtered.filter(design =>
         selectedTags.some(tag => design.tags?.includes(tag))
       );
     }
 
-    // Filtre par prix (seulement pour les modèles)
     if (activeTab !== 'personal' && selectedPriceType !== 'all') {
       filtered = filtered.filter(design => design.priceType === selectedPriceType);
     }
@@ -110,27 +101,23 @@ export default function DesignsGalleryPage() {
 
   const handleCardClick = (design: Design) => {
     if (activeTab === 'personal') {
-      // Pour les designs personnels, on va directement dans l'éditeur pour modifier
       router.push(`/client/design/editor?designId=${design.id}`);
     } else {
-      // Pour les modèles, on va sur la page de détail
       router.push(`/client/design/${design.id}`);
     }
   };
 
   const handleUseDesign = (e: React.MouseEvent, design: Design) => {
-    e.stopPropagation(); // Empêcher le clic sur la carte
-    // Rediriger vers la création d'invitation avec ce design
+    e.stopPropagation();
     router.push(`/client/invitations?designId=${design.id}`);
   };
 
   const handleDelete = async (e: React.MouseEvent, design: Design) => {
     e.stopPropagation();
 
-    // Vérifier si le design est utilisé dans une invitation
     const isUsed = invitations.some(inv => inv.designId === design.id);
     if (isUsed) {
-      alert("Impossible de supprimer ce design car il est utilisé dans une ou plusieurs invitations.");
+      alert("Impossible de supprimer ce design car il est utilisé dans un événement.");
       return;
     }
 
@@ -138,7 +125,6 @@ export default function DesignsGalleryPage() {
       try {
         await deleteDesign(design.id);
 
-        // Supprimer les images de Firebase
         if (design.thumbnail && design.thumbnail.includes('firebasestorage')) {
           try { await deleteFromFirebase(design.thumbnail); } catch (e) { console.error(e); }
         }
@@ -146,7 +132,6 @@ export default function DesignsGalleryPage() {
           try { await deleteFromFirebase(design.previewImage); } catch (e) { console.error(e); }
         }
 
-        // Rafraîchir la liste
         const data = await fetchUserDesigns();
         setPersonalDesigns(data || []);
       } catch (error) {
@@ -156,39 +141,35 @@ export default function DesignsGalleryPage() {
     }
   };
 
+  const getIntroText = () => {
+    switch (activeTab) {
+      case 'templates':
+        return 'Parcourez nos modèles et choisissez celui qui vous correspond pour créer votre invitation.';
+      case 'favorites':
+        return 'Retrouvez ici tous les modèles que vous avez ajoutés à vos favoris.';
+      case 'personal':
+        return 'Vos créations personnalisées. Cliquez sur un design pour le modifier dans l\'éditeur.';
+    }
+  };
+
   return (
     <div className={styles.page}>
-      <HeaderMobile title="Mes Designs" />
+      <HeaderMobile title="Designs" />
 
-      <main className={styles.main}>
-        <p className={styles.subtitle}>Gérez vos modèles favoris et vos créations personnelles</p>
-
-        <div className={styles.viewControls}>
-          <button
-            onClick={() => setViewMode('grid')}
-            className={`${styles.viewButton} ${viewMode === 'grid' ? styles.active : ''}`}
-          >
-            <Grid size={20} />
-          </button>
-          <button
-            onClick={() => setViewMode('list')}
-            className={`${styles.viewButton} ${viewMode === 'list' ? styles.active : ''}`}
-          >
-            <List size={20} />
-          </button>
-        </div>
-
-        {/* Onglets */}
-        <div className={styles.tabs}>
+      <div className={styles.pageContent}>
+        {/* Tabs — underline style */}
+        <div className={styles.tabs} role="tablist">
           <button
             className={`${styles.tab} ${activeTab === 'templates' ? styles.activeTab : ''}`}
             onClick={() => {
               setActiveTab('templates');
               router.replace('/client/design?tab=templates');
             }}
+            role="tab"
+            aria-selected={activeTab === 'templates'}
           >
-            <LayoutTemplate size={18} />
-            Tous les modèles
+            <LayoutTemplate size={16} />
+            Modèles
           </button>
           <button
             className={`${styles.tab} ${activeTab === 'favorites' ? styles.activeTab : ''}`}
@@ -196,9 +177,11 @@ export default function DesignsGalleryPage() {
               setActiveTab('favorites');
               router.replace('/client/design?tab=favorites');
             }}
+            role="tab"
+            aria-selected={activeTab === 'favorites'}
           >
-            <Heart size={18} />
-            Vos favoris
+            <Heart size={16} />
+            Favoris
           </button>
           <button
             className={`${styles.tab} ${activeTab === 'personal' ? styles.activeTab : ''}`}
@@ -206,27 +189,30 @@ export default function DesignsGalleryPage() {
               setActiveTab('personal');
               router.replace('/client/design?tab=personal');
             }}
+            role="tab"
+            aria-selected={activeTab === 'personal'}
           >
-            <Palette size={18} />
-            Vos designs personnalisés
+            <Palette size={16} />
+            Mes créations
           </button>
         </div>
 
-        <div className={styles.filters}>
-          <div className={styles.searchBox}>
-            <Search size={20} className={styles.searchIcon} />
-            <input
-              type="text"
-              placeholder="Rechercher un design..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className={styles.searchInput}
-            />
-          </div>
+        {/* Intro + Search — same row */}
+        <div className={styles.searchBar}>
+          <p className={styles.introText}>{getIntroText()}</p>
 
-          <div className={styles.filterGroup}>
-            <Filter size={16} />
-            <span className={styles.filterLabel}>Filtres :</span>
+          <div className={styles.searchRight}>
+            <div className={styles.searchBox}>
+              <Search size={16} className={styles.searchIcon} />
+              <input
+                type="text"
+                placeholder="Rechercher..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className={styles.searchInput}
+                aria-label="Rechercher un design"
+              />
+            </div>
 
             {activeTab !== 'personal' && (
               <select
@@ -244,7 +230,7 @@ export default function DesignsGalleryPage() {
 
             {allTags.length > 0 && (
               <div className={styles.tagsFilter}>
-                {allTags.slice(0, 10).map(tag => (
+                {allTags.slice(0, 6).map(tag => (
                   <button
                     key={tag}
                     onClick={() => {
@@ -262,6 +248,7 @@ export default function DesignsGalleryPage() {
           </div>
         </div>
 
+        {/* Grid */}
         {loading ? (
           <div className={styles.loading}>Chargement...</div>
         ) : filteredDesigns.length === 0 ? (
@@ -269,13 +256,17 @@ export default function DesignsGalleryPage() {
             <Sparkles size={48} />
             <p>Aucun design trouvé</p>
             {activeTab === 'favorites' && <p>Ajoutez des modèles à vos favoris pour les retrouver ici.</p>}
-            {activeTab === 'personal' && <p>Vous n'avez pas encore créé de design personnalisé.</p>}
+            {activeTab === 'personal' && <p>Vous n&apos;avez pas encore créé de design.</p>}
           </div>
         ) : (
-          <div className={viewMode === 'grid' ? styles.grid : styles.list}>
+          <div className={styles.grid} role="tabpanel">
             {filteredDesigns.map(design => (
-              <div key={design.id} className={styles.designCard}>
-                <div className={styles.cardImage} onClick={() => handleCardClick(design)}>
+              <div
+                key={design.id}
+                className={styles.designCard}
+                onClick={() => handleCardClick(design)}
+              >
+                <div className={styles.cardImage}>
                   <DesignPreview
                     design={design}
                     width={300}
@@ -291,14 +282,15 @@ export default function DesignsGalleryPage() {
                     )}
                   </div>
                 </div>
+
                 <div className={styles.cardContent}>
                   <h3 className={styles.cardTitle}>{design.name}</h3>
                   {design.description && (
                     <p className={styles.cardDescription}>{design.description}</p>
                   )}
 
-                  {activeTab === 'personal' ? (
-                    <div className={styles.cardActions}>
+                  {activeTab === 'personal' && (
+                    <div className={styles.cardActions} onClick={e => e.stopPropagation()}>
                       <button
                         className={styles.secondaryButton}
                         onClick={(e) => {
@@ -309,12 +301,11 @@ export default function DesignsGalleryPage() {
                         Modifier
                       </button>
                       <button
-                        className={styles.secondaryButton}
-                        style={{ color: 'var(--alert-error)', borderColor: 'var(--alert-error)' }}
+                        className={`${styles.secondaryButton} ${styles.deleteButton}`}
                         onClick={(e) => handleDelete(e, design)}
                         title="Supprimer"
                       >
-                        <Trash2 size={16} />
+                        <Trash2 size={14} />
                       </button>
                       <button
                         className={styles.viewButton}
@@ -323,20 +314,13 @@ export default function DesignsGalleryPage() {
                         Utiliser
                       </button>
                     </div>
-                  ) : (
-                    <button
-                      className={styles.viewButton}
-                      onClick={() => handleCardClick(design)}
-                    >
-                      Voir
-                    </button>
                   )}
                 </div>
               </div>
             ))}
           </div>
         )}
-      </main>
+      </div>
     </div>
   );
 }

@@ -1,310 +1,205 @@
-/* ===== INVITATION DETAIL PAGE - EXACT MAQUETTE MATCH ===== */
+/* ===== KAWEPLA — DÉTAIL ÉVÉNEMENT — Friendly ===== */
 
 .invitationDetail {
-  background: var(--bg-primary);
-  min-height: 100vh;
   width: 100%;
-  color: var(--text-primary);
 }
 
-/* Main Content */
-.main {
-  flex: 1;
-  padding: 0;
-  padding-bottom: 6rem;
+.pageContent {
+  max-width: 1060px;
+  margin: 0 auto;
   display: flex;
   flex-direction: column;
-  height: calc(100vh - 60px);
-  overflow: hidden;
+  gap: 1.25rem;
 }
 
-/* Preview Section - Full Page */
+/* ===== LAYOUT 2-COL (desktop) ===== */
+@media (min-width: 768px) {
+  .pageContent {
+    display: grid;
+    grid-template-columns: 1fr 320px;
+    gap: 1.25rem;
+    align-items: start;
+  }
+}
+
+/* ===== PREVIEW ===== */
 .previewSection {
-  flex: 1;
-  width: 100%;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 16px;
   overflow: hidden;
-  display: flex;
-  flex-direction: column;
 }
 
 .previewContainer {
-  flex: 1;
-  width: 100%;
-  background: transparent;
-  overflow: auto;
-  display: flex;
-  align-items: flex-start;
-  justify-content: center;
-  padding: 1rem;
-  min-height: 0;
-}
-
-[data-theme="dark"] .previewContainer {
-  background: transparent;
-}
-
-.invitationPreview {
-  width: 100%;
-  max-width: 100%;
-  height: auto;
-  transform: scale(1);
-  transform-origin: top center;
-  overflow: visible;
-}
-
-/* Info Section - Compact */
-.infoSection {
-  display: flex;
-  flex-direction: column;
-  gap: 0.75rem;
-  background: transparent;
-  padding: 1rem;
-  border-top: 1px solid rgba(74, 74, 74, 0.2);
-  flex-shrink: 0;
-}
-
-[data-theme="dark"] .infoSection {
-  border-top-color: rgba(74, 74, 74, 0.5);
-  background: transparent;
-}
-
-.statusBadge {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
+  justify-content: center;
+  padding: 1.5rem;
+}
+
+.previewContainer img,
+.previewContainer canvas {
+  max-width: 100%;
+  max-height: 70vh;
+  width: auto;
+  height: auto;
+  object-fit: contain;
+  border-radius: 8px;
+}
+
+/* ===== INFO SIDEBAR ===== */
+.infoSection {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+/* Status */
+.statusBadge {
+  display: flex;
 }
 
 .status {
   padding: 0.25rem 0.75rem;
-  border-radius: 9999px;
-  font-size: 0.75rem;
-  font-weight: 500;
+  font-family: var(--font-body);
+  font-size: 0.65rem;
+  font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.05em;
+  border-radius: 100px;
 }
 
 .status.draft {
-  background: rgba(197, 168, 128, 0.1);
-  color: var(--luxury-champagne-gold);
+  background: var(--background);
+  border: 1px solid var(--border);
+  color: var(--text-secondary);
 }
 
 .status.published {
-  background: rgba(34, 197, 94, 0.8);
-  color: white;
+  background: #10B981;
+  color: #fff;
 }
 
+/* Design Info */
 .designInfo {
   display: flex;
   flex-direction: column;
-  gap: 0.25rem;
+  gap: 0.2rem;
 }
 
 .designLabel {
-  font-size: 0.75rem;
-  font-weight: 500;
-  color: var(--text-secondary);
+  font-family: var(--font-body);
+  font-size: 0.65rem;
+  font-weight: 600;
   text-transform: uppercase;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.06em;
+  color: var(--text-secondary);
 }
 
 .designName {
-  font-size: 0.875rem;
-  font-weight: 600;
-  color: var(--text-primary);
+  font-family: var(--font-body);
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--foreground);
 }
 
+/* ===== ACTIONS ===== */
 .actions {
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
-  margin-top: 0.5rem;
+  margin-top: auto;
 }
 
 .actionButton {
+  width: 100%;
+  padding: 0.65rem;
+  background: var(--background);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  font-family: var(--font-body);
+  font-weight: 600;
+  font-size: 0.78rem;
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 0.5rem;
-  width: 100%;
-  height: 3rem;
-  padding: 0 1.25rem;
-  background: var(--bg-secondary);
-  color: var(--text-primary);
-  border: 1px solid rgba(74, 74, 74, 0.2);
-  border-radius: 0.5rem;
-  font-size: 0.875rem;
-  font-weight: 600;
+  gap: 0.4rem;
   cursor: pointer;
-  transition: opacity var(--transition-normal);
+  color: var(--foreground);
+  transition: all 0.2s ease;
 }
 
-[data-theme="dark"] .actionButton {
-  border-color: rgba(74, 74, 74, 0.5);
-}
-
-.actionButton:hover:not(:disabled) {
-  opacity: 0.9;
-}
-
-.actionButton:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
-.actionButton svg {
-  flex-shrink: 0;
+.actionButton:hover {
+  border-color: var(--primary);
+  color: var(--primary);
+  background: color-mix(in srgb, var(--primary) 5%, transparent);
 }
 
 .actionButton.publishButton {
-  background: var(--luxury-champagne-gold);
-  color: var(--luxury-velvet-black);
+  background: var(--primary);
+  color: #fff;
   border: none;
 }
 
-[data-theme="dark"] .actionButton.publishButton {
-  color: var(--text-primary);
+.actionButton.publishButton:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 20px color-mix(in srgb, var(--primary) 25%, transparent);
 }
 
-/* Loading & Error States */
+/* ===== ERROR / LOADING ===== */
 .loadingContainer,
 .errorContainer {
   display: flex;
   align-items: center;
   justify-content: center;
   min-height: 50vh;
-  padding: 2rem;
 }
 
 .loadingContent,
 .errorContent {
-  text-align: center;
-  color: var(--text-primary);
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 1rem;
+  color: var(--text-secondary);
 }
 
 .loadingSpinner {
-  width: 40px;
-  height: 40px;
-  border: 3px solid var(--text-tertiary);
-  border-top-color: var(--text-primary);
+  width: 32px;
+  height: 32px;
+  border: 2.5px solid var(--border);
+  border-top-color: var(--primary);
   border-radius: 50%;
-  animation: spin 1s linear infinite;
+  animation: spin 0.8s linear infinite;
 }
 
-@keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
-}
+@keyframes spin { to { transform: rotate(360deg); } }
 
 .errorContent h2 {
-  font-size: 1.125rem;
-  font-weight: 600;
-  color: var(--text-primary);
-  margin: 0;
+  font-family: var(--font-body);
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--foreground);
 }
 
 .backButton {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.5rem;
-  padding: 0.75rem 1.5rem;
-  background: var(--bg-secondary);
-  color: var(--text-primary);
-  border: 1px solid rgba(74, 74, 74, 0.5);
-  border-radius: 0.5rem;
-  font-size: 0.875rem;
+  padding: 0.55rem 1.15rem;
+  background: var(--primary);
+  color: #fff;
+  border: none;
+  border-radius: 100px;
+  font-family: var(--font-body);
+  font-size: 0.78rem;
   font-weight: 600;
   cursor: pointer;
-  transition: opacity var(--transition-normal);
+  transition: all 0.25s ease;
 }
 
-.backButton:hover:not(:disabled) {
-  opacity: 0.8;
-}
-
-.backButton:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
-/* Responsive */
-@media (min-width: 768px) {
-  .previewContainer {
-    padding: 2rem;
-  }
-}
-
-@media (min-width: 1024px) {
-  .main {
-    flex-direction: row;
-    padding-bottom: 0;
-    max-width: 100%;
-    margin: 0;
-    gap: 0;
-    height: calc(100vh - 60px);
-  overflow: hidden;
-}
-
-  /* Preview Section - Desktop: Full height, no scroll */
-  .previewSection {
-    flex: 1;
-  overflow: hidden;
-    display: flex;
-    flex-direction: column;
-    min-height: 0;
-    height: 100%;
-  }
-
-  .previewContainer {
-    flex: 1;
-    overflow: hidden;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 2rem;
-    min-height: 0;
-    height: 100%;
-  }
-  
-  .invitationPreview {
-    width: 100%;
-    max-width: 100%;
-    height: 100%;
-    max-height: 100%;
-    transform: scale(1);
-    transform-origin: center center;
-    overflow: visible;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-
-  /* Ajuster le contenu HTML de la prévisualisation pour format A4 */
-  .invitationPreview > * {
-    max-width: 100%;
-    max-height: 100%;
-    width: auto;
-    height: auto;
-    object-fit: contain;
-  }
-
-  /* Info Section - Desktop: Right side, sticky */
-  .infoSection {
-    flex: 0 0 350px;
-    border-top: none;
-    border-left: 1px solid rgba(74, 74, 74, 0.2);
-    padding: 1.5rem;
-    align-self: stretch;
-    height: 100%;
-    overflow-y: auto;
-    max-height: 100%;
-  }
-
-  [data-theme="dark"] .infoSection {
-    border-left-color: rgba(74, 74, 74, 0.5);
-  }
+.backButton:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 20px color-mix(in srgb, var(--primary) 25%, transparent);
 }

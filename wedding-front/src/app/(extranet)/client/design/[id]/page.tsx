@@ -78,12 +78,12 @@ export default function DesignDetailPage({ params }: { params: { id: string } })
 
     return (
         <div className={styles.container}>
-            <HeaderMobile 
+            <HeaderMobile
                 title={design.name}
                 onBack={() => router.push('/client/design')}
             />
 
-            <main className={styles.main}>
+            <div className={styles.pageContent}>
                 <div className={styles.content}>
                     <div className={styles.previewSection}>
                         <DesignPreview
@@ -94,20 +94,30 @@ export default function DesignDetailPage({ params }: { params: { id: string } })
                     </div>
 
                     <div className={styles.infoSection}>
+                        {/* Title + badges */}
                         <div className={styles.header}>
-                            {design.category && (
-                                <span className={styles.category}>{design.category}</span>
-                            )}
-                            <h1 className={styles.title}>{design.name}</h1>
-                            <div className={styles.priceType}>
-                                {design.priceType === 'FREE' ? 'Gratuit' :
-                                    design.priceType === 'ESSENTIAL' ? 'Essentiel' :
-                                        design.priceType === 'ELEGANT' ? 'Élégant' : 'Luxe'}
+                            <div className={styles.topRow}>
+                                {design.category && (
+                                    <span className={styles.category}>{design.category}</span>
+                                )}
+                                <span className={styles.priceType}>
+                                    {design.priceType === 'FREE' ? 'Gratuit' :
+                                        design.priceType === 'ESSENTIAL' ? 'Essentiel' :
+                                            design.priceType === 'ELEGANT' ? 'Élégant' : 'Luxe'}
+                                </span>
                             </div>
+                            <h1 className={styles.title}>{design.name}</h1>
                         </div>
 
-                        <p className={styles.description}>{design.description}</p>
+                        {/* Description card */}
+                        {design.description && (
+                            <div className={styles.descriptionZone}>
+                                <div className={styles.descriptionLabel}>Description</div>
+                                <p className={styles.description}>{design.description}</p>
+                            </div>
+                        )}
 
+                        {/* Tags */}
                         {design.tags && design.tags.length > 0 && (
                             <div className={styles.tags}>
                                 {design.tags.map(tag => (
@@ -116,26 +126,30 @@ export default function DesignDetailPage({ params }: { params: { id: string } })
                             </div>
                         )}
 
-                        <div className={styles.actions}>
-                            <button
-                                onClick={handlePersonalize}
-                                className={styles.primaryButton}
-                            >
-                                <PaintBucket size={20} />
-                                {design.isTemplate ? 'Personnaliser ce modèle' : 'Modifier ce design'}
-                            </button>
+                        {/* Actions card */}
+                        <div className={styles.actionsZone}>
+                            <div className={styles.actionsLabel}>Actions</div>
+                            <div className={styles.actions}>
+                                <button
+                                    onClick={handlePersonalize}
+                                    className={styles.primaryButton}
+                                >
+                                    <PaintBucket size={18} />
+                                    {design.isTemplate ? 'Personnaliser ce modèle' : 'Modifier ce design'}
+                                </button>
 
-                            <button
-                                onClick={toggleFavorite}
-                                className={`${styles.secondaryButton} ${isFavorite ? styles.active : ''}`}
-                            >
-                                <Heart size={20} fill={isFavorite ? 'currentColor' : 'none'} />
-                                {isFavorite ? 'Favori' : 'Ajouter aux favoris'}
-                            </button>
+                                <button
+                                    onClick={toggleFavorite}
+                                    className={`${styles.secondaryButton} ${isFavorite ? styles.active : ''}`}
+                                >
+                                    <Heart size={18} fill={isFavorite ? 'currentColor' : 'none'} />
+                                    {isFavorite ? 'Favori' : 'Favoris'}
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </div>
-            </main>
+            </div>
         </div>
     );
 }

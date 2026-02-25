@@ -140,7 +140,7 @@ export default function SuperAdminDesignPage() {
     <div className={styles.designPage}>
       <HeaderMobile title="Designs" />
 
-      <main className={styles.main}>
+      <div className={styles.pageContent}>
         {/* Page Header */}
         <div className={styles.pageHeader}>
           <button
@@ -343,7 +343,7 @@ export default function SuperAdminDesignPage() {
             </div>
           </div>
         )}
-      </main>
+      </div>
     </div>
   );
 }

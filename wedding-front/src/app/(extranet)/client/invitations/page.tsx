@@ -159,14 +159,14 @@ export default function InvitationsPage() {
 
   // Calculer le pourcentage pour la barre de progression
   const invitationsPercent = limits ? Math.min(100, (limits.usage?.invitations || 0) / (limits.limits?.invitations || 1) * 100) : 0;
-  
+
   // Vérifier si la limite est atteinte
   const isLimitReached = limits && limits.usage?.invitations >= limits.limits?.invitations;
 
   if (loadingInvitations) {
     return (
       <div className={styles.invitationsPage}>
-        <HeaderMobile title="Vos invitations" />
+        <HeaderMobile title="Vos événements" />
         <div className={styles.loadingContainer}>
           <div className={styles.loadingContent}>
             <div className={styles.loadingSpinner}></div>
@@ -179,45 +179,34 @@ export default function InvitationsPage() {
 
   return (
     <div className={styles.invitationsPage}>
-      <HeaderMobile title="Vos invitations" />
+      <HeaderMobile title="Vos événements" />
 
-      <main className={styles.main}>
-        {/* Limits Section */}
-        {limits && (
-          <div className={styles.limitsSection}>
-            <div className={styles.limitsHeader}>
-              <p className={styles.limitsLabel}>Invitations utilisées</p>
-              <p className={styles.limitsValue}>
-                {limits.usage?.invitations || 0} / {limits.limits?.invitations || 0}
+      <div className={styles.pageContent}>
+        {/* Section Header: Limit info + Create button */}
+        <div className={styles.sectionHeader}>
+          <div>
+            {limits && (
+              <p className={styles.limitsLabel}>
+                Quota : {limits.usage?.invitations || 0} / {limits.limits?.invitations || 0} utilisés
               </p>
-            </div>
-            <div className={styles.limitsProgressBar}>
-              <div
-                className={`${styles.limitsProgressFill} ${isLimitReached ? styles.limitReached : ''}`}
-                style={{ width: `${invitationsPercent}%` }}
-              />
-            </div>
+            )}
           </div>
-        )}
-
-        {/* Create Button - Masqué si limite atteinte */}
-        {!showCreateForm && !isLimitReached && (
-          <div className={styles.createButtonSection}>
+          {!showCreateForm && !isLimitReached && (
             <button
               className={styles.createButton}
               onClick={handleCreateInvitation}
             >
-              <Plus size={20} />
-              <span>Créer une invitation</span>
+              <Plus size={16} />
+              Nouveau
             </button>
-          </div>
-        )}
+          )}
+        </div>
 
         {/* Create Form */}
         {showCreateForm && (
           <div className={styles.createFormContainer}>
             <div className={styles.formHeader}>
-              <h2 className={styles.formTitle}>Créer une nouvelle invitation</h2>
+              <h2 className={styles.formTitle}>Créer un nouvel évènement</h2>
               <button
                 onClick={() => {
                   setShowCreateForm(false);
@@ -419,9 +408,9 @@ export default function InvitationsPage() {
                 )}
               </div>
             ) : (
-              <div className={styles.invitationsGrid}>
+              <div className={styles.invitationsGrid} role="list" aria-label="Liste de vos invitations">
                 {invitations.map((invitation) => (
-                  <div key={invitation.id} className={styles.invitationCard}>
+                  <div key={invitation.id} className={styles.invitationCard} role="listitem">
                     {/* Image Preview */}
                     <div className={styles.invitationImageWrapper}>
                       {/* Utiliser DesignPreview pour l'image de l'invitation */}
@@ -463,6 +452,7 @@ export default function InvitationsPage() {
                         <button
                           className={`${styles.invitationActionButton} ${styles.view}`}
                           onClick={() => handleViewInvitation(invitation.id)}
+                          aria-label={`Voir l'invitation ${invitation.eventTitle}`}
                         >
                           Voir
                         </button>
@@ -470,6 +460,7 @@ export default function InvitationsPage() {
                           <button
                             className={`${styles.invitationActionButton} ${styles.edit}`}
                             onClick={() => handleEditInvitation(invitation.id)}
+                            aria-label={`Modifier l'invitation ${invitation.eventTitle}`}
                           >
                             Modifier
                           </button>
@@ -482,7 +473,7 @@ export default function InvitationsPage() {
             )}
           </>
         )}
-      </main>
+      </div>
     </div>
   );
 }

@@ -20,6 +20,7 @@ export interface ProviderProfile {
   portfolio?: string[];
   rating: number;
   reviewCount: number;
+  bookingCount: number;
   status: 'PENDING' | 'APPROVED' | 'SUSPENDED' | 'REJECTED';
   verifiedAt?: string;
   createdAt: string;
@@ -213,6 +214,13 @@ export const providersApi = {
 
     const query = searchParams.toString() ? `?${searchParams.toString()}` : '';
     return apiClient.get(`/providers${query}`);
+  },
+
+  /**
+   * Obtenir un provider par son ID
+   */
+  async getById(providerId: string): Promise<{ provider: ProviderProfile }> {
+    return apiClient.get(`/providers/${providerId}`);
   },
 
   /**

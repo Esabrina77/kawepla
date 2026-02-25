@@ -7,11 +7,11 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { ConfirmModal, SuccessModal, ErrorModal } from '@/components/ui/modal';
-import { 
-  CreditCard, 
-  Users, 
-  Image, 
-  Mail, 
+import {
+  CreditCard,
+  Users,
+  Image,
+  Mail,
   CheckCircle,
   AlertCircle,
   Crown,
@@ -35,7 +35,7 @@ export default function BillingPage() {
   const [loading, setLoading] = useState(true);
   const [upgrading, setUpgrading] = useState(false);
   const [purchasingService, setPurchasingService] = useState<string | null>(null);
-  
+
   // Modal states
   const [confirmModal, setConfirmModal] = useState<{
     isOpen: boolean;
@@ -83,14 +83,14 @@ export default function BillingPage() {
       const planId = urlParams.get('plan');
       const serviceId = urlParams.get('service');
       const sessionId = urlParams.get('session_id');
-      
+
       // Vérifier si on a déjà traité ce retour de paiement (éviter les doubles appels)
       const processedKey = `payment_processed_${sessionId || serviceId || planId}`;
       if (sessionStorage.getItem(processedKey)) {
         console.log('⚠️ Payment return already processed, skipping...');
         return;
       }
-      
+
       if (success === 'true') {
         if (planId) {
           sessionStorage.setItem(processedKey, 'true');
@@ -98,21 +98,21 @@ export default function BillingPage() {
         } else if (serviceId) {
           // Marquer comme traité immédiatement pour éviter les doubles appels
           sessionStorage.setItem(processedKey, 'true');
-          
+
           // Service supplémentaire acheté avec succès
           // En développement local, les webhooks ne sont pas reçus automatiquement
           // On appelle la confirmation manuelle comme fallback
           try {
             console.log('🔍 Confirming additional service purchase:', serviceId, 'session:', sessionId);
             const result = await stripeApi.confirmAdditionalService(serviceId, sessionId || undefined);
-            
+
             if (result.success) {
               setSuccessModal({
                 isOpen: true,
                 title: 'Achat réussi !',
                 message: result.message || 'Votre service supplémentaire a été ajouté à votre compte.'
               });
-              
+
               // Recharger les données après confirmation
               await loadBillingData();
             } else {
@@ -122,7 +122,7 @@ export default function BillingPage() {
                 title: 'Achat réussi !',
                 message: 'Votre service supplémentaire a été ajouté à votre compte.'
               });
-              
+
               // Recharger quand même les données
               setTimeout(async () => {
                 await loadBillingData();
@@ -136,7 +136,7 @@ export default function BillingPage() {
               title: 'Achat réussi !',
               message: 'Votre service supplémentaire sera ajouté à votre compte dans quelques instants.'
             });
-            
+
             setTimeout(async () => {
               await loadBillingData();
             }, 2000);
@@ -149,7 +149,7 @@ export default function BillingPage() {
           message: 'Vous avez annulé le processus de paiement.'
         });
       }
-      
+
       // Clean URL
       if (success || canceled) {
         window.history.replaceState({}, '', window.location.pathname);
@@ -169,12 +169,12 @@ export default function BillingPage() {
         stripeApi.getPlans(),
         stripeApi.getAdditionalServices()
       ]);
-      
+
       console.log('✅ Limits loaded:', limits);
       console.log('✅ Active purchases loaded:', activePurchasesData);
       console.log('✅ Plans loaded:', plans);
       console.log('✅ Additional services loaded:', services);
-      
+
       setUserLimits(limits);
       setActivePurchases(activePurchasesData);
       setAvailablePlans(plans);
@@ -195,14 +195,14 @@ export default function BillingPage() {
     try {
       console.log('🔍 Handling payment return for plan:', planId);
       const result = await stripeApi.confirmPayment(planId);
-      
+
       if (result.success) {
         setSuccessModal({
           isOpen: true,
           title: 'Paiement réussi !',
           message: result.message
         });
-        
+
         // Refresh billing data
         await loadBillingData();
       } else {
@@ -234,18 +234,18 @@ export default function BillingPage() {
 
   const handleConfirmUpgrade = async () => {
     if (!confirmModal.plan) return;
-    
+
     const plan = confirmModal.plan;
     setUpgrading(true);
-    
+
     try {
       console.log('🔍 Creating checkout session for plan:', plan.id);
       const session = await stripeApi.createCheckoutSession(plan.id);
       console.log('✅ Checkout session created:', session);
-      
+
       // Fermer la modal
       setConfirmModal({ isOpen: false, plan: null });
-      
+
       // Redirection vers Stripe Checkout
       if (session.url) {
         console.log('🔍 Redirecting to Stripe Checkout:', session.url);
@@ -281,16 +281,16 @@ export default function BillingPage() {
 
   const handleConfirmService = async () => {
     if (!serviceModal.service) return;
-    
+
     const service = serviceModal.service;
     setPurchasingService(service.id);
-    
+
     try {
       console.log('🔍 Processing service purchase:', service.id);
-      
+
       // Créer une session de checkout pour le service supplémentaire
       const result = await stripeApi.createAdditionalServiceCheckoutSession(service.id);
-      
+
       // Rediriger vers Stripe Checkout
       window.location.href = result.url;
     } catch (error) {
@@ -322,7 +322,7 @@ export default function BillingPage() {
     try {
       const result: any = await stripeApi.changePlan(planId);
       console.log('✅ Plan change result:', result);
-      
+
       if (result.url) {
         // Upgrade requiring payment
         console.log('🔍 Redirecting to payment URL:', result.url);
@@ -334,7 +334,7 @@ export default function BillingPage() {
           title: 'Forfait modifié !',
           message: `Vous êtes maintenant sur le forfait ${result.plan?.name}.`
         });
-        
+
         // Refresh billing data
         await loadBillingData();
       }
@@ -420,12 +420,12 @@ export default function BillingPage() {
     <div className={styles.billingPage}>
       {/* Header Sticky */}
       <HeaderMobile title="Facturation & Packs d'achat" />
-        
-      <main className={styles.main}>
+
+      <div className={styles.pageContent}>
         {/* Current Status Section */}
         <section className={styles.currentStatusSection}>
           <h2 className={styles.sectionTitle}>Votre statut actuel</h2>
-          
+
           {/* Packs achetés */}
           {activePurchases?.activePurchases?.length > 0 && (
             <div className={styles.purchasesList}>
@@ -459,13 +459,13 @@ export default function BillingPage() {
               <div className={styles.limitsList}>
                 <div className={styles.limitItem}>
                   <div className={styles.limitHeader}>
-                    <p className={styles.limitLabel}>Invitations</p>
+                    <p className={styles.limitLabel}>Événements</p>
                     <p className={styles.limitValue}>
-                    {userLimits?.usage?.invitations || 0} / {activePurchases.totalLimits.invitations || 0}
+                      {userLimits?.usage?.invitations || 0} / {activePurchases.totalLimits.invitations || 0}
                     </p>
                   </div>
                   <div className={styles.progressBar}>
-                    <div 
+                    <div
                       className={styles.progressFill}
                       style={{
                         width: `${Math.min(100, ((userLimits?.usage?.invitations || 0) / (activePurchases.totalLimits.invitations || 1)) * 100)}%`
@@ -477,11 +477,11 @@ export default function BillingPage() {
                   <div className={styles.limitHeader}>
                     <p className={styles.limitLabel}>Invités</p>
                     <p className={styles.limitValue}>
-                    {userLimits?.usage?.guests || 0} / {activePurchases.totalLimits.guests || 0}
+                      {userLimits?.usage?.guests || 0} / {activePurchases.totalLimits.guests || 0}
                     </p>
                   </div>
                   <div className={styles.progressBar}>
-                    <div 
+                    <div
                       className={styles.progressFill}
                       style={{
                         width: `${Math.min(100, ((userLimits?.usage?.guests || 0) / (activePurchases.totalLimits.guests || 1)) * 100)}%`
@@ -493,11 +493,11 @@ export default function BillingPage() {
                   <div className={styles.limitHeader}>
                     <p className={styles.limitLabel}>Photos</p>
                     <p className={styles.limitValue}>
-                    {userLimits?.usage?.photos || 0} / {activePurchases.totalLimits.photos || 0}
+                      {userLimits?.usage?.photos || 0} / {activePurchases.totalLimits.photos || 0}
                     </p>
                   </div>
                   <div className={styles.progressBar}>
-                    <div 
+                    <div
                       className={styles.progressFill}
                       style={{
                         width: `${Math.min(100, ((userLimits?.usage?.photos || 0) / (activePurchases.totalLimits.photos || 1)) * 100)}%`
@@ -513,7 +513,7 @@ export default function BillingPage() {
                     </p>
                   </div>
                   <div className={styles.progressBar}>
-                    <div 
+                    <div
                       className={styles.progressFill}
                       style={{
                         width: `${Math.min(100, ((userLimits?.usage?.aiRequests || 0) / (activePurchases.totalLimits.aiRequests || 1)) * 100)}%`,
@@ -527,7 +527,7 @@ export default function BillingPage() {
           )}
 
           {/* Bouton Historique */}
-          <button 
+          <button
             className={styles.historyButton}
             onClick={() => router.push('/client/billing/history')}
           >
@@ -536,25 +536,25 @@ export default function BillingPage() {
           </button>
         </section>
 
-      {/* Upgrade Section */}
+        {/* Upgrade Section */}
         <section className={styles.upgradeSection}>
           <h2 className={styles.upgradeTitle}>Upgradez votre expérience</h2>
           <div className={styles.plansGrid}>
             {availablePlans.map((plan) => {
               const isPopular = !!plan.isHighlighted;
-              
+
               return (
-                <div 
-                  key={plan.id} 
+                <div
+                  key={plan.id}
                   className={`${styles.planCard} ${isPopular ? styles.popular : ''}`}
                 >
                   {isPopular && (
                     <div className={styles.popularBadge}>POPULAIRE</div>
                   )}
-                  
+
                   <div className={styles.planHeader}>
                     <h3 className={styles.planName}>{plan.name}</h3>
-                    
+
                     {plan.price === 0 ? (
                       <p className={styles.currentPrice}>Gratuit</p>
                     ) : (
@@ -568,18 +568,18 @@ export default function BillingPage() {
                               {getOriginalPrice(plan.price).toLocaleString('fr-FR', { style: 'currency', currency: plan.currency || 'EUR' })}
                             </p>
                             <span className={styles.discountBadge}>
-                        -{getDiscountPercentage(plan.price)}%
+                              -{getDiscountPercentage(plan.price)}%
                             </span>
                           </>
                         )}
                       </div>
                     )}
-                    </div>
-                    
+                  </div>
+
                   <ul className={styles.featuresList}>
                     <li className={styles.featureItem}>
                       <CheckCircle className={styles.featureIcon} size={16} />
-                      <span>{formatNumber(plan.limits.invitations)} Invitations</span>
+                      <span>{formatNumber(plan.limits.invitations)} Événements</span>
                     </li>
                     <li className={styles.featureItem}>
                       <CheckCircle className={styles.featureIcon} size={16} />
@@ -594,7 +594,7 @@ export default function BillingPage() {
                       <span>{formatNumber(plan.limits.aiRequests || 0)} Requêtes IA</span>
                     </li>
                   </ul>
-                  
+
                   {plan.tier !== 'FREE' && (
                     <button
                       className={styles.buyButton}
@@ -603,14 +603,14 @@ export default function BillingPage() {
                     >
                       Acheter le pack
                     </button>
-                      )}
+                  )}
                 </div>
               );
             })}
           </div>
         </section>
 
-      {/* Additional Services Section */}
+        {/* Additional Services Section */}
         {additionalServices.length > 0 && (
           <section className={styles.upgradeSection}>
             <h2 className={styles.upgradeTitle}>Packs supplémentaires</h2>
@@ -654,8 +654,8 @@ export default function BillingPage() {
                 };
 
                 return (
-                  <div 
-                    key={service.id} 
+                  <div
+                    key={service.id}
                     className={styles.planCard}
                   >
                     <div className={styles.planHeader}>
@@ -669,16 +669,16 @@ export default function BillingPage() {
                         </p>
                       </div>
                     </div>
-                    
+
                     <p className={styles.serviceDescription}>{service.description}</p>
-                    
+
                     <ul className={styles.featuresList}>
                       <li className={styles.featureItem}>
                         <CheckCircle className={styles.featureIcon} size={16} />
                         <span>{getServiceLabel()}</span>
                       </li>
                     </ul>
-                    
+
                     <button
                       className={styles.buyButton}
                       onClick={() => handleServiceClick(service)}
@@ -692,7 +692,7 @@ export default function BillingPage() {
             </div>
           </section>
         )}
-      </main>
+      </div>
 
       {/* Confirm Upgrade Modal */}
       <ConfirmModal

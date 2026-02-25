@@ -56,7 +56,7 @@ export const useEditorStore = create<EditorState>((set, get) => ({
     zoom: 1,
     setZoom: (zoom) => set({ zoom }),
 
-    format: { width: 794, height: 1123, name: 'A4' }, // Default A4
+    format: { width: 794, height: 800, name: 'Custom' }, // Default compact
     setFormat: (format) => {
         set({ format });
         const { canvas } = get();

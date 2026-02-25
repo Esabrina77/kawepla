@@ -4,16 +4,16 @@ import { useState } from 'react';
 import styles from './users.module.css';
 import { useAdminUsers } from '@/hooks/useAdminUsers';
 import { HeaderMobile } from '@/components/HeaderMobile';
-import { 
-  Users, 
-  Search, 
-  Filter, 
-  Edit, 
-  Trash2, 
-  Power, 
-  PowerOff, 
-  Shield, 
-  Heart, 
+import {
+  Users,
+  Search,
+  Filter,
+  Edit,
+  Trash2,
+  Power,
+  PowerOff,
+  Shield,
+  Heart,
   User,
   CheckCircle,
   Calendar,
@@ -21,15 +21,15 @@ import {
 } from 'lucide-react';
 
 export default function UsersPage() {
-  const { 
-    users, 
-    loading, 
-    error, 
-    filters, 
-    setFilters, 
-    toggleUserStatus, 
-    changeUserRole, 
-    deleteUser 
+  const {
+    users,
+    loading,
+    error,
+    filters,
+    setFilters,
+    toggleUserStatus,
+    changeUserRole,
+    deleteUser
   } = useAdminUsers();
 
   const [editingUser, setEditingUser] = useState<string | null>(null);
@@ -106,169 +106,169 @@ export default function UsersPage() {
   return (
     <div className={styles.usersPage}>
       <HeaderMobile title="Utilisateurs" />
-      
-      <main className={styles.main}>
+
+      <div className={styles.pageContent}>
 
         {/* Filters */}
         <div className={styles.filtersContainer}>
-        <div className={styles.searchContainer}>
-          <Search className={styles.searchIcon} />
-          <input
-            type="text"
-            placeholder="Rechercher un utilisateur..."
-            value={filters.search || ''}
-            onChange={(e) => setFilters(prev => ({ ...prev, search: e.target.value }))}
-            className={styles.searchInput}
-          />
-        </div>
+          <div className={styles.searchContainer}>
+            <Search className={styles.searchIcon} />
+            <input
+              type="text"
+              placeholder="Rechercher un utilisateur..."
+              value={filters.search || ''}
+              onChange={(e) => setFilters(prev => ({ ...prev, search: e.target.value }))}
+              className={styles.searchInput}
+            />
+          </div>
 
-        <div className={styles.filterContainer}>
-          <Filter className={styles.filterIcon} />
-          <select 
-            className={styles.filterSelect}
-            value={filters.isActive === undefined ? 'all' : filters.isActive ? 'active' : 'inactive'}
-            onChange={(e) => {
-              const value = e.target.value;
-              setFilters(prev => ({ 
-                ...prev, 
-                isActive: value === 'all' ? undefined : value === 'active' 
-              }));
-            }}
-          >
-            <option value="all">Tous les statuts</option>
-            <option value="active">Actifs</option>
-            <option value="inactive">Inactifs</option>
-          </select>
-        </div>
+          <div className={styles.filterContainer}>
+            <Filter className={styles.filterIcon} />
+            <select
+              className={styles.filterSelect}
+              value={filters.isActive === undefined ? 'all' : filters.isActive ? 'active' : 'inactive'}
+              onChange={(e) => {
+                const value = e.target.value;
+                setFilters(prev => ({
+                  ...prev,
+                  isActive: value === 'all' ? undefined : value === 'active'
+                }));
+              }}
+            >
+              <option value="all">Tous les statuts</option>
+              <option value="active">Actifs</option>
+              <option value="inactive">Inactifs</option>
+            </select>
+          </div>
 
-        <div className={styles.filterContainer}>
-          <Filter className={styles.filterIcon} />
-          <select 
-            className={styles.filterSelect}
-            value={filters.role || 'all'}
-            onChange={(e) => {
-              const value = e.target.value;
-              setFilters(prev => ({ 
-                ...prev, 
-                role: value === 'all' ? undefined : value as 'ADMIN' | 'HOST' | 'GUEST' | 'PROVIDER'
-              }));
-            }}
-          >
-            <option value="all">Tous les rôles</option>
-            <option value="HOST">Organisateurs</option>
-            <option value="PROVIDER">Prestataires</option>
-            <option value="ADMIN">Admins</option>
-            <option value="GUEST">Invités</option>
-          </select>
+          <div className={styles.filterContainer}>
+            <Filter className={styles.filterIcon} />
+            <select
+              className={styles.filterSelect}
+              value={filters.role || 'all'}
+              onChange={(e) => {
+                const value = e.target.value;
+                setFilters(prev => ({
+                  ...prev,
+                  role: value === 'all' ? undefined : value as 'ADMIN' | 'HOST' | 'GUEST' | 'PROVIDER'
+                }));
+              }}
+            >
+              <option value="all">Tous les rôles</option>
+              <option value="HOST">Organisateurs</option>
+              <option value="PROVIDER">Prestataires</option>
+              <option value="ADMIN">Admins</option>
+              <option value="GUEST">Invités</option>
+            </select>
+          </div>
         </div>
-      </div>
 
         {/* Users Grid */}
         <div className={styles.usersGrid}>
-        {users.map((user) => (
-          <div key={user.id} className={styles.userCard}>
-            {/* User Header */}
-            <div className={styles.userHeader}>
-              <div className={styles.userAvatar}>
-                <div className={styles.avatarContent}>
-                  {user.email.charAt(0).toUpperCase()}
+          {users.map((user) => (
+            <div key={user.id} className={styles.userCard}>
+              {/* User Header */}
+              <div className={styles.userHeader}>
+                <div className={styles.userAvatar}>
+                  <div className={styles.avatarContent}>
+                    {user.email.charAt(0).toUpperCase()}
+                  </div>
+                </div>
+                <div className={styles.userInfo}>
+                  <h3 className={styles.userName}>{user.firstName} {user.lastName}</h3>
+                  <div className={styles.userEmail}>
+                    <Mail style={{ width: '14px', height: '14px' }} />
+                    {user.email}
+                  </div>
                 </div>
               </div>
-              <div className={styles.userInfo}>
-                <h3 className={styles.userName}>{user.firstName} {user.lastName}</h3>
-                <div className={styles.userEmail}>
-                  <Mail style={{ width: '14px', height: '14px' }} />
-                  {user.email}
-                </div>
-              </div>
-            </div>
 
-            {/* User Badges */}
-            <div className={styles.userBadges}>
-              <span className={`${styles.roleBadge} ${user.role === 'ADMIN' ? styles.roleAdmin : user.role === 'HOST' ? styles.roleorganisateur : user.role === 'PROVIDER' ? styles.roleProvider : styles.roleGuest}`}>
-                {getRoleIcon(user.role)}
-                {getRoleLabel(user.role)}
-              </span>
-              <span className={`${styles.statusBadge} ${user.isActive ? styles.statusActive : styles.statusInactive}`}>
-                {user.isActive ? 'Actif' : 'Inactif'}
-              </span>
-              {user.emailVerified && (
-                <span className={styles.verifiedBadge}>
-                  <CheckCircle style={{ width: '12px', height: '12px' }} />
-                  Vérifié
+              {/* User Badges */}
+              <div className={styles.userBadges}>
+                <span className={`${styles.roleBadge} ${user.role === 'ADMIN' ? styles.roleAdmin : user.role === 'HOST' ? styles.roleorganisateur : user.role === 'PROVIDER' ? styles.roleProvider : styles.roleGuest}`}>
+                  {getRoleIcon(user.role)}
+                  {getRoleLabel(user.role)}
                 </span>
-              )}
-            </div>
+                <span className={`${styles.statusBadge} ${user.isActive ? styles.statusActive : styles.statusInactive}`}>
+                  {user.isActive ? 'Actif' : 'Inactif'}
+                </span>
+                {user.emailVerified && (
+                  <span className={styles.verifiedBadge}>
+                    <CheckCircle style={{ width: '12px', height: '12px' }} />
+                    Vérifié
+                  </span>
+                )}
+              </div>
 
-            {/* User Meta */}
-            <div className={styles.userMeta}>
-              <div className={styles.metaItem}>
-                <Calendar style={{ width: '14px', height: '14px' }} />
-                <span>Créé le {new Date(user.createdAt).toLocaleDateString('fr-FR')}</span>
+              {/* User Meta */}
+              <div className={styles.userMeta}>
+                <div className={styles.metaItem}>
+                  <Calendar style={{ width: '14px', height: '14px' }} />
+                  <span>Créé le {new Date(user.createdAt).toLocaleDateString('fr-FR')}</span>
+                </div>
+              </div>
+
+              {/* Actions */}
+              <div className={styles.actionsContainer}>
+                {editingUser === user.id ? (
+                  <>
+                    <select
+                      className={styles.roleSelect}
+                      value={user.role}
+                      onChange={(e) => handleRoleChange(user.id, e.target.value as 'ADMIN' | 'HOST' | 'GUEST' | 'PROVIDER')}
+                    >
+                      <option value="HOST">Organisateur</option>
+                      <option value="PROVIDER">Prestataire</option>
+                      <option value="ADMIN">Admin</option>
+                      <option value="GUEST">Invité</option>
+                    </select>
+                    <button
+                      className={styles.closeButton}
+                      onClick={() => setEditingUser(null)}
+                    >
+                      Fermer
+                    </button>
+                  </>
+                ) : (
+                  <>
+                    <button
+                      className={styles.editButton}
+                      onClick={() => setEditingUser(user.id)}
+                    >
+                      <Edit style={{ width: '14px', height: '14px' }} />
+                      Éditer
+                    </button>
+
+                    <button
+                      className={styles.toggleButton}
+                      onClick={() => handleStatusToggle(user.id)}
+                    >
+                      {user.isActive ? (
+                        <>
+                          <PowerOff style={{ width: '14px', height: '14px' }} />
+                          Désactiver
+                        </>
+                      ) : (
+                        <>
+                          <Power style={{ width: '14px', height: '14px' }} />
+                          Activer
+                        </>
+                      )}
+                    </button>
+
+                    <button
+                      className={styles.deleteButton}
+                      onClick={() => handleDelete(user.id)}
+                    >
+                      <Trash2 style={{ width: '14px', height: '14px' }} />
+                      Supprimer
+                    </button>
+                  </>
+                )}
               </div>
             </div>
-
-            {/* Actions */}
-            <div className={styles.actionsContainer}>
-              {editingUser === user.id ? (
-                <>
-                  <select 
-                    className={styles.roleSelect}
-                    value={user.role}
-                    onChange={(e) => handleRoleChange(user.id, e.target.value as 'ADMIN' | 'HOST' | 'GUEST' | 'PROVIDER')}
-                  >
-                    <option value="HOST">Organisateur</option>
-                    <option value="PROVIDER">Prestataire</option>
-                    <option value="ADMIN">Admin</option>
-                    <option value="GUEST">Invité</option>
-                  </select>
-                  <button 
-                    className={styles.closeButton} 
-                    onClick={() => setEditingUser(null)}
-                  >
-                    Fermer
-                  </button>
-                </>
-              ) : (
-                <>
-                  <button 
-                    className={styles.editButton}
-                    onClick={() => setEditingUser(user.id)}
-                  >
-                    <Edit style={{ width: '14px', height: '14px' }} />
-                    Éditer
-                  </button>
-                  
-                  <button 
-                    className={styles.toggleButton}
-                    onClick={() => handleStatusToggle(user.id)}
-                  >
-                    {user.isActive ? (
-                      <>
-                        <PowerOff style={{ width: '14px', height: '14px' }} />
-                        Désactiver
-                      </>
-                    ) : (
-                      <>
-                        <Power style={{ width: '14px', height: '14px' }} />
-                        Activer
-                      </>
-                    )}
-                  </button>
-                  
-                  <button 
-                    className={styles.deleteButton}
-                    onClick={() => handleDelete(user.id)}
-                  >
-                    <Trash2 style={{ width: '14px', height: '14px' }} />
-                    Supprimer
-                  </button>
-                </>
-              )}
-            </div>
-          </div>
-        ))}
-      </div>
+          ))}
+        </div>
 
         {/* Empty State */}
         {users.length === 0 && (
@@ -277,13 +277,13 @@ export default function UsersPage() {
             <h3>Aucun utilisateur trouvé</h3>
             <p>
               {filters.search || filters.role || filters.isActive !== undefined
-                ? 'Aucun utilisateur ne correspond à vos critères de recherche' 
+                ? 'Aucun utilisateur ne correspond à vos critères de recherche'
                 : 'Aucun utilisateur enregistré pour le moment'
               }
             </p>
           </div>
         )}
-      </main>
+      </div>
     </div>
   );
 } 

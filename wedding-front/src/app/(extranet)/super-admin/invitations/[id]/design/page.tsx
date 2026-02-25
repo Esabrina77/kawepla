@@ -43,7 +43,7 @@ export default function InvitationDesignPage() {
       setError(null);
       const data = await apiClient.get<InvitationDesign>(`/admin/invitations/${invitationId}`);
       setInvitation(data);
-      
+
       // Déterminer quel design afficher (priorité: customDesign > customFabricData > design)
       if (data.customDesign) {
         setDisplayDesign(data.customDesign);
@@ -144,12 +144,12 @@ export default function InvitationDesignPage() {
 
   return (
     <div className={styles.designPage}>
-      <HeaderMobile 
-        title={invitation.eventTitle || 'Aperçu du design'} 
+      <HeaderMobile
+        title={invitation.eventTitle || 'Aperçu du design'}
         onBack={() => router.push(`/super-admin/invitations/${invitationId}`)}
       />
-      
-      <main className={styles.main}>
+
+      <div className={styles.pageContent}>
         {/* Page Header */}
         <div className={styles.pageHeader}>
           <p className={styles.pageSubtitle}>Aperçu comme vu par les invités</p>
@@ -167,9 +167,9 @@ export default function InvitationDesignPage() {
         <div className={styles.content}>
           {hasDesign && displayDesign ? (
             <div className={styles.section}>
-              <DesignPreview 
-                design={displayDesign} 
-                width={600} 
+              <DesignPreview
+                design={displayDesign}
+                width={600}
                 height={800}
                 className={styles.invitationRender}
               />
@@ -184,7 +184,7 @@ export default function InvitationDesignPage() {
             </div>
           )}
         </div>
-      </main>
+      </div>
     </div>
   );
 }

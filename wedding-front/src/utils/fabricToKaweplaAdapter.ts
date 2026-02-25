@@ -23,7 +23,7 @@ export function convertFabricToKawepla(
   const fabricJson = canvas.toJSON();
 
   const canvasWidth = canvas.width || 794;
-  const canvasHeight = canvas.height || 1123;
+  const canvasHeight = canvas.height || 800;
   const canvasFormat = getCanvasFormat(canvasWidth, canvasHeight);
 
   return {
@@ -61,6 +61,7 @@ export function getCanvasFormat(width: number, height: number): string {
 
 /**
  * Charge un design Kawepla dans un canvas Fabric.js
+ * Corrige le décalage du background image en le scalant pour couvrir tout le canvas
  */
 export function loadKaweplaDesignToFabric(
   design: { fabricData: any; canvasWidth?: number; canvasHeight?: number },
@@ -71,13 +72,36 @@ export function loadKaweplaDesignToFabric(
     return;
   }
 
+  const targetWidth = design.canvasWidth || canvas.width || 794;
+  const targetHeight = design.canvasHeight || canvas.height || 800;
+
   // Charger le JSON Fabric.js
   canvas.loadFromJSON(design.fabricData).then(() => {
-    // Ajuster les dimensions si nécessaire
-    if (design.canvasWidth && design.canvasHeight) {
-      canvas.setWidth(design.canvasWidth);
-      canvas.setHeight(design.canvasHeight);
+    // Ajuster les dimensions du canvas
+    canvas.setWidth(targetWidth);
+    canvas.setHeight(targetHeight);
+
+    // Corriger le background image pour qu'il couvre tout le canvas
+    const bgImage = canvas.backgroundImage;
+    if (bgImage && bgImage instanceof fabric.FabricImage) {
+      const imgWidth = bgImage.width || 1;
+      const imgHeight = bgImage.height || 1;
+
+      // Calculer le scale pour couvrir (cover) tout le canvas
+      const scaleX = targetWidth / imgWidth;
+      const scaleY = targetHeight / imgHeight;
+      const coverScale = Math.max(scaleX, scaleY);
+
+      bgImage.set({
+        scaleX: coverScale,
+        scaleY: coverScale,
+        left: 0,
+        top: 0,
+        originX: 'left',
+        originY: 'top',
+      });
     }
+
     canvas.renderAll();
     console.log('Canvas loaded and rendered from JSON');
   }).catch(err => {

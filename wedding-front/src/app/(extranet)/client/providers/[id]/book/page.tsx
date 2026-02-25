@@ -26,12 +26,12 @@ export default function BookServicePage() {
   const providerId = params.id as string;
   const serviceId = searchParams.get('serviceId') || '';
   const conversationIdParam = searchParams.get('conversationId') || '';
-  
+
   const { user } = useAuth();
   const { provider, services, loading: providerLoading } = useProviderDetail(providerId);
   const { conversation, loading: conversationLoading } = useProviderConversation(conversationIdParam || null);
   const { bookingInfo, fetchBookingInfo } = useBookingInfo(conversationIdParam || null);
-  
+
   const [selectedService, setSelectedService] = useState<any>(null);
   const [useCustomService, setUseCustomService] = useState(false);
   const [formData, setFormData] = useState({
@@ -89,7 +89,7 @@ export default function BookServicePage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!conversationIdParam) {
       setError('Vous devez d\'abord contacter le prestataire avant de réserver.');
       return;
@@ -158,13 +158,13 @@ export default function BookServicePage() {
       };
 
       const result = await bookingsApi.createBooking(bookingData);
-      
+
       // Rediriger vers la page de messages avec le conversationId
       if (conversationIdParam) {
-        router.push(`/client/providers/${providerId}/messages?conversationId=${conversationIdParam}&bookingSuccess=true`);
+        router.replace(`/client/providers/${providerId}/messages?conversationId=${conversationIdParam}&bookingSuccess=true`);
       } else {
         // Si pas de conversationId, rediriger vers la liste des providers
-        router.push(`/client/providers?bookingSuccess=true&bookingId=${result.booking.id}`);
+        router.replace(`/client/providers?bookingSuccess=true&bookingId=${result.booking.id}`);
       }
     } catch (err: any) {
       setError(err.message || 'Erreur lors de la création de la réservation');
@@ -219,281 +219,228 @@ export default function BookServicePage() {
 
   return (
     <div className={styles.bookPage}>
-      <HeaderMobile 
-        title="Réserver un service"
-        backUrl={`/client/providers/${providerId}/messages`}
-      />
+      <HeaderMobile title="Réserver un service" />
 
       <div className={styles.bookContainer}>
-        {/* Informations du prestataire */}
-        <div className={styles.providerCard}>
+        {/* En-tête Prestataire */}
+        <div className={styles.providerHeader}>
           <h2>{provider.businessName}</h2>
           {provider.category && (
             <p className={styles.category}>{provider.category.name}</p>
           )}
         </div>
 
-        {/* Sélection du service */}
-        <div className={styles.serviceSelection}>
-          <label className={styles.label}>Service *</label>
-          {services && services.length > 0 && (
-            <>
-              <div className={styles.serviceOptions}>
-                <label className={styles.radioLabel}>
-                  <input
-                    type="radio"
-                    name="serviceType"
-                    checked={!useCustomService}
-                    onChange={() => {
-                      setUseCustomService(false);
-                      if (services.length > 0 && !selectedService) {
-                        setSelectedService(services[0]);
-                      }
-                    }}
-                  />
-                  <span>Choisir parmi les services proposés</span>
-                </label>
-                <label className={styles.radioLabel}>
-                  <input
-                    type="radio"
-                    name="serviceType"
-                    checked={useCustomService}
-                    onChange={() => {
-                      setUseCustomService(true);
-                      setSelectedService(null);
-                    }}
-                  />
-                  <span>Demander un service personnalisé</span>
-                </label>
-              </div>
-              
-              {!useCustomService && (
-                <select
-                  value={selectedService?.id || ''}
-                  onChange={(e) => {
-                    const service = services.find(s => s.id === e.target.value);
-                    setSelectedService(service || null);
-                  }}
-                  className={styles.select}
-                  required={!useCustomService}
-                >
-                  <option value="">Sélectionnez un service</option>
-                  {services.map(service => (
-                    <option key={service.id} value={service.id}>
-                      {service.name} - {formatPrice(service.price, service.priceType)}
-                    </option>
-                  ))}
-                </select>
-              )}
-            </>
-          )}
+        {/* Section 1: Service */}
+        <section className={styles.section}>
+          <h3 className={styles.sectionTitle}>Sélection du service</h3>
           
-          {useCustomService && (
-            <div className={styles.customServiceFields}>
-              <div className={styles.formGroup}>
-                <label className={styles.label}>Nom du service personnalisé *</label>
+          <div className={styles.serviceSelection}>
+            <div className={styles.serviceOptions}>
+              <label className={styles.radioLabel}>
                 <input
-                  type="text"
-                  value={formData.customServiceName}
-                  onChange={(e) => setFormData({ ...formData, customServiceName: e.target.value })}
-                  className={styles.input}
-                  placeholder="Ex: Décoration florale sur mesure"
-                  required={useCustomService}
+                  type="radio"
+                  name="serviceType"
+                  className={styles.radioInput}
+                  checked={!useCustomService}
+                  onChange={() => {
+                    setUseCustomService(false);
+                    if (services.length > 0 && !selectedService) {
+                      setSelectedService(services[0]);
+                    }
+                  }}
                 />
-              </div>
-              <div className={styles.formGroup}>
-                <label className={styles.label}>Description du service (optionnel)</label>
-                <textarea
-                  value={formData.customServiceDescription}
-                  onChange={(e) => setFormData({ ...formData, customServiceDescription: e.target.value })}
-                  className={styles.textarea}
-                  placeholder="Décrivez vos besoins spécifiques..."
-                  rows={4}
-                />
-              </div>
-              <div className={styles.formGroup}>
-                <label className={styles.label}>
-                  <Euro size={16} />
-                  Montant estimé (€) *
-                </label>
+                <span>Catalogue</span>
+              </label>
+              <label className={styles.radioLabel}>
                 <input
-                  type="number"
-                  value={formData.customServicePrice}
-                  onChange={(e) => setFormData({ ...formData, customServicePrice: e.target.value })}
-                  className={styles.input}
-                  placeholder="0.00"
-                  min="0"
-                  step="0.01"
-                  required={useCustomService}
+                  type="radio"
+                  name="serviceType"
+                  className={styles.radioInput}
+                  checked={useCustomService}
+                  onChange={() => {
+                    setUseCustomService(true);
+                    setSelectedService(null);
+                  }}
                 />
-                <p className={styles.infoText}>
-                  💡 Entrez le montant convenu avec le prestataire ou votre estimation.
-                </p>
-              </div>
+                <span>Sur mesure</span>
+              </label>
             </div>
-          )}
-        </div>
 
-        {selectedService && (
-          <div className={styles.serviceInfo}>
-            <p className={styles.serviceDescription}>{selectedService.description}</p>
-            {selectedService.duration && (
-              <div className={styles.serviceDetail}>
-                <Clock size={16} />
-                <span>Durée : {selectedService.duration} minutes</span>
+            {!useCustomService ? (
+              <select
+                value={selectedService?.id || ''}
+                onChange={(e) => {
+                  const service = services.find(s => s.id === e.target.value);
+                  setSelectedService(service || null);
+                }}
+                className={styles.select}
+              >
+                <option value="">Choisir un service...</option>
+                {services.map(service => (
+                  <option key={service.id} value={service.id}>
+                    {service.name} — {formatPrice(service.price, service.priceType)}
+                  </option>
+                ))}
+              </select>
+            ) : (
+              <div className={styles.customServiceFields}>
+                <div className={styles.formGroup}>
+                  <label className={styles.label}>Nom du service personnalisé *</label>
+                  <input
+                    type="text"
+                    value={formData.customServiceName}
+                    onChange={(e) => setFormData({ ...formData, customServiceName: e.target.value })}
+                    className={styles.input}
+                    placeholder="Ex: Décoration florale"
+                  />
+                </div>
+                <div className={styles.formGroup} style={{ marginTop: '1rem' }}>
+                  <label className={styles.label}>Montant convenu (€) *</label>
+                  <input
+                    type="number"
+                    value={formData.customServicePrice}
+                    onChange={(e) => setFormData({ ...formData, customServicePrice: e.target.value })}
+                    className={styles.input}
+                    placeholder="0.00"
+                  />
+                </div>
               </div>
             )}
-            {selectedService.capacity && (
-              <div className={styles.serviceDetail}>
-                <Users size={16} />
-                <span>Capacité : {selectedService.capacity} personnes</span>
+
+            {selectedService && (
+              <div className={styles.serviceInfo}>
+                <p className={styles.serviceDescription}>{selectedService.description}</p>
+                <div style={{ display: 'flex', gap: '1.5rem' }}>
+                  {selectedService.duration && (
+                    <div className={styles.serviceDetail}>
+                      <Clock size={14} />
+                      <span>{selectedService.duration} min</span>
+                    </div>
+                  )}
+                  {selectedService.capacity && (
+                    <div className={styles.serviceDetail}>
+                      <Users size={14} />
+                      <span>Max. {selectedService.capacity} pers.</span>
+                    </div>
+                  )}
+                </div>
               </div>
             )}
           </div>
-        )}
+        </section>
 
-        {/* Formulaire de réservation */}
-        <form onSubmit={handleSubmit} className={styles.bookingForm}>
-          <div className={styles.formGroup}>
-            <label className={styles.label}>
-              <Calendar size={16} />
-              Date de l'événement *
-            </label>
-            <input
-              type="date"
-              value={formData.eventDate}
-              onChange={(e) => setFormData({ ...formData, eventDate: e.target.value })}
-              className={styles.input}
-              required
-              min={new Date().toISOString().split('T')[0]}
-            />
-          </div>
+        {/* Section 2: Détails de l'événement */}
+        <section className={styles.section}>
+          <h3 className={styles.sectionTitle}>Détails de l'événement</h3>
+          
+          <form onSubmit={handleSubmit} className={styles.bookingForm}>
+            <div className={styles.formGroup}>
+              <label className={styles.label}>
+                <Calendar size={14} /> Date *
+              </label>
+              <input
+                type="date"
+                value={formData.eventDate}
+                onChange={(e) => setFormData({ ...formData, eventDate: e.target.value })}
+                className={styles.input}
+                required
+                min={new Date().toISOString().split('T')[0]}
+              />
+            </div>
 
-          <div className={styles.formGroup}>
-            <label className={styles.label}>
-              <Clock size={16} />
-              Heure (optionnel)
-            </label>
-            <input
-              type="time"
-              value={formData.eventTime}
-              onChange={(e) => setFormData({ ...formData, eventTime: e.target.value })}
-              className={styles.input}
-            />
-          </div>
+            <div className={styles.formGroup}>
+              <label className={styles.label}>
+                <Clock size={14} /> Heure
+              </label>
+              <input
+                type="time"
+                value={formData.eventTime}
+                onChange={(e) => setFormData({ ...formData, eventTime: e.target.value })}
+                className={styles.input}
+              />
+            </div>
 
-          <div className={styles.formGroup}>
-            <label className={styles.label}>
-              Type d'événement *
-            </label>
-            <select
-              value={formData.eventType}
-              onChange={(e) => setFormData({ ...formData, eventType: e.target.value })}
-              className={styles.select}
-              required
-            >
-              {EVENT_TYPES.map(type => (
-                <option key={type.value} value={type.value}>
-                  {type.label}
-                </option>
-              ))}
-            </select>
-          </div>
+            <div className={styles.formGroup}>
+              <label className={styles.label}>Type d'événement *</label>
+              <select
+                value={formData.eventType}
+                onChange={(e) => setFormData({ ...formData, eventType: e.target.value })}
+                className={styles.select}
+                required
+              >
+                {EVENT_TYPES.map(type => (
+                  <option key={type.value} value={type.value}>
+                    {type.label}
+                  </option>
+                ))}
+              </select>
+            </div>
 
-          <div className={styles.formGroup}>
-            <label className={styles.label}>
-              <Users size={16} />
-              Nombre d'invités (optionnel)
-            </label>
-            <input
-              type="number"
-              value={formData.guestCount}
-              onChange={(e) => setFormData({ ...formData, guestCount: e.target.value })}
-              className={styles.input}
-              min="1"
-            />
-          </div>
+            <div className={styles.formGroup}>
+              <label className={styles.label}>
+                <Users size={14} /> Invités
+              </label>
+              <input
+                type="number"
+                value={formData.guestCount}
+                onChange={(e) => setFormData({ ...formData, guestCount: e.target.value })}
+                className={styles.input}
+                min="1"
+              />
+            </div>
 
-          <div className={styles.formGroup}>
-            <label className={styles.label}>
-              Téléphone (optionnel)
-            </label>
-            <input
-              type="tel"
-              value={formData.clientPhone}
-              onChange={(e) => setFormData({ ...formData, clientPhone: e.target.value })}
-              className={styles.input}
-              placeholder="06 12 34 56 78"
-            />
-          </div>
+            <div className={`${styles.formGroup} ${styles.fullWidth}`}>
+              <label className={styles.label}>Message au prestataire (optionnel)</label>
+              <textarea
+                value={formData.message}
+                onChange={(e) => setFormData({ ...formData, message: e.target.value })}
+                className={styles.textarea}
+                rows={3}
+                placeholder="Précisez vos besoins..."
+              />
+            </div>
 
-          <div className={styles.formGroup}>
-            <label className={styles.label}>
-              Message (optionnel)
-            </label>
-            <textarea
-              value={formData.message}
-              onChange={(e) => setFormData({ ...formData, message: e.target.value })}
-              className={styles.textarea}
-              rows={4}
-              placeholder="Informations complémentaires sur votre événement..."
-            />
-          </div>
-
-          {selectedService && (
-            <div className={styles.priceSummary}>
-              <div className={styles.priceRow}>
-                <span>Service : {selectedService.name}</span>
-                <span>{formatPrice(selectedService.price, selectedService.priceType)}</span>
-              </div>
-              {selectedService.priceType === 'PER_PERSON' && formData.guestCount && (
-                <div className={styles.priceRow}>
-                  <span>{formData.guestCount} invités × {selectedService.price}€</span>
-                  <span>{(selectedService.price * parseInt(formData.guestCount)).toFixed(2)}€</span>
+            {/* Actions & Résumé */}
+            <div className={styles.footerActions}>
+              {(selectedService || (useCustomService && formData.customServicePrice)) && (
+                <div className={styles.priceSummary}>
+                  <div className={styles.priceRow}>
+                    <span>{useCustomService ? formData.customServiceName : selectedService.name}</span>
+                    <span>{useCustomService ? `${formData.customServicePrice}€` : formatPrice(selectedService.price, selectedService.priceType)}</span>
+                  </div>
+                  <div className={styles.priceTotal}>
+                    <span>Total estimé</span>
+                    <span>
+                      {useCustomService 
+                        ? `${formData.customServicePrice}€`
+                        : selectedService.priceType === 'PER_PERSON' && formData.guestCount
+                          ? `${(selectedService.price * parseInt(formData.guestCount)).toFixed(2)}€`
+                          : `${selectedService.price}€`
+                      }
+                    </span>
+                  </div>
                 </div>
               )}
-              <div className={styles.priceTotal}>
-                <span>Total estimé</span>
-                <span>
-                  {selectedService.priceType === 'PER_PERSON' && formData.guestCount
-                    ? (selectedService.price * parseInt(formData.guestCount)).toFixed(2)
-                    : selectedService.price
-                  }€
-                </span>
-              </div>
-            </div>
-          )}
 
-          {error && (
-            <div className={styles.errorMessage}>
-              <X size={16} />
-              {error}
-            </div>
-          )}
+              {error && <div className={styles.errorMessage}>{error}</div>}
 
-          <button
-            type="submit"
-            disabled={
-              submitting || 
-              !formData.eventDate || 
-              (!useCustomService && !selectedService) ||
-              (useCustomService && (!formData.customServiceName.trim() || !formData.customServicePrice || parseFloat(formData.customServicePrice) <= 0))
-            }
-            className={styles.submitButton}
-          >
-            {submitting ? (
-              <>
-                <div className={styles.loadingSpinner}></div>
-                Création en cours...
-              </>
-            ) : (
-              <>
-                <CheckCircle size={20} />
-                Confirmer la réservation
-              </>
-            )}
-          </button>
-        </form>
+              <button
+                type="submit"
+                disabled={submitting}
+                className={styles.submitButton}
+              >
+                {submitting ? (
+                  <div className={styles.loadingSpinner}></div>
+                ) : (
+                  <>
+                    <CheckCircle size={18} />
+                    Confirmer la réservation
+                  </>
+                )}
+              </button>
+            </div>
+          </form>
+        </section>
       </div>
     </div>
   );

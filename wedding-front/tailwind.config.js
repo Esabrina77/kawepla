@@ -1,5 +1,6 @@
 /** @type {import('tailwindcss').Config} */
 module.exports = {
+  darkMode: 'class',
   content: [
     './src/pages/**/*.{js,ts,jsx,tsx,mdx}',
     './src/components/**/*.{js,ts,jsx,tsx,mdx}',
@@ -8,13 +9,15 @@ module.exports = {
   theme: {
     extend: {
       colors: {
+        primary: '#6366F1',
         background: 'var(--background)',
         foreground: 'var(--foreground)',
       },
       fontFamily: {
-        sans: ['Zain', 'sans-serif'],
+        sans: ['var(--font-montserrat)', 'var(--font-sans)'],
+        serif: ['var(--font-cinzel)', 'serif'],
       },
     },
   },
-  plugins: [],
+  plugins: [require("tailwindcss-animate")],
 }

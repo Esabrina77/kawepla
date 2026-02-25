@@ -1,45 +1,58 @@
+/* ===== PREMIUM RATE LIMIT MODAL ===== */
+
 .content {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: var(--space-md);
-  padding: var(--space-sm) 0;
+  gap: 1.5rem;
+  padding: 0.5rem 0;
 }
 
 .iconContainer {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 64px;
-  height: 64px;
+  width: 72px;
+  height: 72px;
   border-radius: 50%;
-  background: rgba(239, 68, 68, 0.1);
-  margin-bottom: var(--space-xs);
+  background: color-mix(in srgb, #ef4444 15%, transparent);
+  border: 1.5px solid color-mix(in srgb, #ef4444 30%, transparent);
+  margin-bottom: 0.5rem;
+  animation: pulseRotate 2s infinite ease-in-out;
+}
+
+@keyframes pulseRotate {
+  0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.4); }
+  50% { transform: scale(1.05); box-shadow: 0 0 0 15px rgba(239, 68, 68, 0); }
+  100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
 }
 
 .icon {
-  color: var(--alert-error);
+  color: #ef4444;
 }
 
 .message {
   color: var(--text-secondary);
-  font-size: var(--font-size-sm);
+  font-size: 0.95rem;
   line-height: 1.6;
   margin: 0;
   text-align: center;
-  font-family: var(--font-sans);
+  font-family: var(--font-body);
+  font-weight: 500;
 }
 
 .retryInfo {
   display: flex;
   align-items: center;
-  gap: var(--space-xs);
-  padding: var(--space-xs) var(--space-sm);
+  gap: 0.75rem;
+  padding: 0.75rem 1.25rem;
   background: var(--bg-secondary);
-  border-radius: var(--radius-md);
-  color: var(--text-secondary);
-  font-size: var(--font-size-xs);
-  font-family: var(--font-sans);
+  border-radius: 14px;
+  color: var(--primary);
+  font-size: 0.85rem;
+  font-family: var(--font-body);
+  font-weight: 700;
+  border: 1px solid var(--border);
 }
 
 .retryInfo svg {
@@ -48,6 +61,5 @@
 
 .actions {
   width: 100%;
-  margin-top: var(--space-sm);
+  margin-top: 1rem;
 }
-

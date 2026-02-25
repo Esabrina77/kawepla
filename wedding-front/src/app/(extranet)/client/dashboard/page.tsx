@@ -8,21 +8,10 @@ import { useGuests } from '@/hooks/useGuests';
 import { useAuth } from '@/hooks/useAuth';
 import { stripeApi } from '@/lib/api/stripe';
 import { todosApi } from '@/lib/api/todos';
-import { 
-  Users, 
-  Mail, 
-  CheckCircle, 
-  XCircle, 
-  Clock, 
-  Link as LinkIcon,
-  Plus,
-  MessageSquare,
-  ChevronDown,
-  Bell,
-  UserPlus,
-  Calendar,
-  Target,
-  AlertTriangle
+import {
+  CheckCircle, Clock,
+  Plus, ChevronDown, ChevronRight,
+  UserPlus, Calendar, AlertTriangle
 } from 'lucide-react';
 import { HeaderMobile } from '@/components/HeaderMobile/HeaderMobile';
 import styles from './dashboard.module.css';
@@ -34,436 +23,245 @@ export default function DashboardPage() {
   const [selectedInvitationId, setSelectedInvitationId] = useState<string>('');
   const [limits, setLimits] = useState<{ usage: any; limits: any; remaining: any } | null>(null);
   const [todosStats, setTodosStats] = useState({
-    total: 0,
-    completed: 0,
-    pending: 0,
-    inProgress: 0,
-    overdue: 0,
-    progress: 0
+    total: 0, completed: 0, pending: 0, inProgress: 0, overdue: 0, progress: 0
   });
 
-  // Vérification d'authentification
   useEffect(() => {
-    const token = localStorage.getItem('token');
-    if (!token) {
-      router.push('/auth/login');
-      return;
-    }
+    if (!localStorage.getItem('token')) router.push('/auth/login');
   }, [router]);
 
-  // Charger les limites
   useEffect(() => {
-    const loadLimits = async () => {
-      try {
-        const limitsData = await stripeApi.getUserLimitsAndUsage();
-        setLimits(limitsData);
-      } catch (error) {
-        console.error('Erreur chargement limites:', error);
-      }
-    };
-    if (user) {
-      loadLimits();
-    }
+    if (user) stripeApi.getUserLimitsAndUsage().then(setLimits).catch(() => {});
   }, [user]);
 
-  // Trouver l'invitation sélectionnée ou la première disponible
   const selectedInvitation = invitations.find(inv => inv.id === selectedInvitationId) || invitations[0];
 
-  // Sélectionner automatiquement la première invitation au chargement
   useEffect(() => {
     if (invitations.length > 0 && !selectedInvitationId) {
-      const publishedInvitation = invitations.find(inv => inv.status === 'PUBLISHED');
-      const defaultInvitation = publishedInvitation || invitations[0];
-      setSelectedInvitationId(defaultInvitation.id);
+      const pub = invitations.find(inv => inv.status === 'PUBLISHED');
+      setSelectedInvitationId((pub || invitations[0]).id);
     }
   }, [invitations, selectedInvitationId]);
 
-  // Hook pour récupérer les données des invités
-  const { guests, statistics, fetchGuests } = useGuests(selectedInvitationId);
+  const { guests, fetchGuests } = useGuests(selectedInvitationId);
+  useEffect(() => { if (selectedInvitationId) fetchGuests(); }, [selectedInvitationId, fetchGuests]);
 
-  // Charger les invités quand l'invitation est sélectionnée
   useEffect(() => {
-    if (selectedInvitationId) {
-      fetchGuests();
+    if (!selectedInvitationId) {
+      setTodosStats({ total: 0, completed: 0, pending: 0, inProgress: 0, overdue: 0, progress: 0 });
+      return;
     }
-  }, [selectedInvitationId, fetchGuests]);
-
-  // Charger les statistiques des tâches pour l'événement sélectionné
-  useEffect(() => {
-    const loadTodosStats = async () => {
-      if (!selectedInvitationId) {
-        setTodosStats({
-          total: 0,
-          completed: 0,
-          pending: 0,
-          inProgress: 0,
-          overdue: 0,
-          progress: 0
-        });
-        return;
-      }
-
-      try {
-        const todos = await todosApi.getTodosByInvitation(selectedInvitationId);
-        const tasks = todos.todos || [];
-        
-        const now = new Date();
-        const getDaysUntil = (dateString: string | Date | undefined) => {
-          if (!dateString) return Infinity;
-          const date = typeof dateString === 'string' ? new Date(dateString) : dateString;
-          const diffTime = date.getTime() - now.getTime();
-          return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-        };
-
-        const completed = tasks.filter(t => t.status === 'COMPLETED').length;
-        const pending = tasks.filter(t => t.status === 'PENDING').length;
-        const inProgress = tasks.filter(t => t.status === 'IN_PROGRESS').length;
-        const overdue = tasks.filter(t => {
-          if (t.status === 'COMPLETED' || !t.dueDate) return false;
-          return getDaysUntil(t.dueDate) < 0;
-        }).length;
-        const progress = tasks.length > 0 ? (completed / tasks.length) * 100 : 0;
-
-        setTodosStats({
-          total: tasks.length,
-          completed,
-          pending,
-          inProgress,
-          overdue,
-          progress
-        });
-      } catch (error) {
-        console.error('Erreur chargement tâches:', error);
-      }
-    };
-
-    loadTodosStats();
+    todosApi.getTodosByInvitation(selectedInvitationId).then(todos => {
+      const tasks = todos.todos || [];
+      const now = new Date();
+      const completed = tasks.filter(t => t.status === 'COMPLETED').length;
+      const pending = tasks.filter(t => t.status === 'PENDING').length;
+      const inProgress = tasks.filter(t => t.status === 'IN_PROGRESS').length;
+      const overdue = tasks.filter(t => {
+        if (t.status === 'COMPLETED' || !t.dueDate) return false;
+        return new Date(t.dueDate).getTime() - now.getTime() < 0;
+      }).length;
+      setTodosStats({
+        total: tasks.length, completed, pending, inProgress, overdue,
+        progress: tasks.length > 0 ? (completed / tasks.length) * 100 : 0
+      });
+    }).catch(() => {});
   }, [selectedInvitationId]);
 
-  // Calculer les statistiques
-  const guestsWithEmails = guests.filter((g: any) => g.invitationType === 'PERSONAL');
-  const guestsViaLink = guests.filter((g: any) => g.invitationType === 'SHAREABLE');
   const confirmedGuests = guests.filter((g: any) => g.rsvp?.status === 'CONFIRMED');
   const declinedGuests = guests.filter((g: any) => g.rsvp?.status === 'DECLINED');
   const pendingGuests = guests.filter((g: any) => !g.rsvp || g.rsvp?.status === 'PENDING');
-  const invitedGuests = guests.filter((g: any) => g.invitationSentAt);
-
-  const quickActions = [
-    {
-      title: 'Créer une invitation',
-      description: 'Commencer un nouvel événement',
-      icon: Plus,
-      path: '/client/invitations'
-    },
-    {
-      title: 'Ajouter des invités',
-      description: 'Élargir votre liste d\'invités',
-      icon: UserPlus,
-      path: '/client/guests'
-    },
-    {
-      title: 'Planning & Tâches',
-      description: 'Organiser votre événement',
-      icon: Calendar,
-      path: '/client/tools/planning'
-    }
-  ];
+  const guestsWithEmails = guests.filter((g: any) => g.invitationType === 'PERSONAL');
+  const guestsViaLink = guests.filter((g: any) => g.invitationType === 'SHAREABLE');
 
   if (loadingInvitations) {
     return (
-      <div style={{ 
-        display: 'flex', 
-        alignItems: 'center', 
-        justifyContent: 'center', 
-        minHeight: '50vh',
-        color: 'var(--luxury-pearl-gray)'
-      }}>
-        <div style={{ textAlign: 'center' }}>
-          <div style={{
-            width: '40px',
-            height: '40px',
-            border: '3px solid var(--luxury-pearl-gray)',
-            borderTop: '3px solid transparent',
-            borderRadius: '50%',
-            animation: 'spin 1s linear infinite',
-            margin: '0 auto 16px'
-          }} />
-          <p>Chargement des invitations...</p>
-        </div>
+      <div className={styles.dashboard}>
+        <HeaderMobile title="Tableau de bord" showBackButton={false} />
+        <div className={styles.loadingState}><div className={styles.spinner} /></div>
       </div>
     );
   }
 
-  // Calculer les pourcentages pour les barres de progression
-  const invitationsPercent = limits ? Math.min(100, (limits.usage?.invitations || 0) / (limits.limits?.invitations || 1) * 100) : 0;
-  const guestsPercent = limits ? Math.min(100, (limits.usage?.guests || 0) / (limits.limits?.guests || 1) * 100) : 0;
-  const photosPercent = limits ? Math.min(100, (limits.usage?.photos || 0) / (limits.limits?.photos || 1) * 100) : 0;
-  const aiRequestsPercent = limits ? Math.min(100, ((limits.usage?.aiRequests || 0) / (limits.limits?.aiRequests || 1)) * 100) : 0;
+  const pct = (u: number, m: number) => Math.min(100, (u / (m || 1)) * 100);
+  const stat = (u: number, m: number) => {
+    const p = pct(u, m);
+    return p >= 100 ? 'crit' : p >= 75 ? 'warn' : '';
+  };
 
-  // Vérifier si les limites sont atteintes
-  const isInvitationsLimitReached = limits && (limits.usage?.invitations || 0) >= (limits.limits?.invitations || 0);
-  const isGuestsLimitReached = limits && (limits.usage?.guests || 0) >= (limits.limits?.guests || 0);
-  const isPhotosLimitReached = limits && (limits.usage?.photos || 0) >= (limits.limits?.photos || 0);
-  const isAiRequestsLimitReached = limits && (limits.usage?.aiRequests || 0) >= (limits.limits?.aiRequests || 0);
+  const limitItems = limits ? [
+    { label: 'Evenements', used: limits.usage?.invitations || 0, max: limits.limits?.invitations || 0 },
+    { label: 'Invités', used: limits.usage?.guests || 0, max: limits.limits?.guests || 0 },
+    { label: 'Photos', used: limits.usage?.photos || 0, max: limits.limits?.photos || 0 },
+    { label: 'Requêtes IA', used: limits.usage?.aiRequests || 0, max: limits.limits?.aiRequests || 0 },
+  ] : [];
+
+  const circumference = 2 * Math.PI * 46;
+  const dashOffset = circumference - (todosStats.progress / 100) * circumference;
+  const remaining = todosStats.pending + todosStats.inProgress;
 
   return (
     <div className={styles.dashboard}>
-      <HeaderMobile title={`Bonjour ${user?.firstName || 'Utilisateur'}`} />
+      <HeaderMobile title="Tableau de bord" showBackButton={false} />
 
-      <main className={styles.main}>
-        {/* Page Title */}
-        <h1 className={styles.pageTitle}>Tableau de bord</h1>
+      <div className={styles.grid}>
+        {/* Welcome */}
+        <div className={styles.welcome}>
+          <div className={styles.welcomeLeft}>
+            <h1>Hey {user?.firstName || 'Utilisateur'} 
+              <span>
+                <img className={styles.chick} src="/gif/poussin.gif" alt="chick" />
+              </span>
+            </h1>
+            <p>{selectedInvitation ? `Tout roule pour ${selectedInvitation.eventTitle}` : 'Bienvenue sur votre espace'}</p>
+          </div>
+          {invitations.length > 0 && (
+            <div className={styles.selectWrap}>
+              <select
+                value={selectedInvitationId}
+                onChange={(e) => setSelectedInvitationId(e.target.value)}
+                className={styles.eventSelect}
+                aria-label="Sélectionner l'événement"
+              >
+                {invitations.map(inv => (
+                  <option key={inv.id} value={inv.id}>
+                    {inv.eventTitle}{inv.eventDate && ` — ${new Date(inv.eventDate).toLocaleDateString('fr-FR')}`}
+                  </option>
+                ))}
+              </select>
+              <ChevronDown className={styles.selectIcon} size={16} />
+            </div>
+          )}
+        </div>
 
-        {/* Limites d'abonnement - Section inline */}
+        {/* Stat cards — first one highlighted */}
         {limits && (
-          <section className={styles.limitsSection}>
-            <div className={styles.limitRow}>
-              <div className={styles.limitHeader}>
-                <p className={styles.limitLabel}>Invitations</p>
-                <p className={styles.limitValue}>
-                  {limits.usage?.invitations || 0} / {limits.limits?.invitations || 0}
-                </p>
-              </div>
-              <div className={styles.progressBar}>
-                <div 
-                  className={`${styles.progressFill} ${isInvitationsLimitReached ? styles.limitReached : ''}`}
-                  style={{ width: `${invitationsPercent}%` }}
-                />
-              </div>
-            </div>
-            <div className={styles.limitRow}>
-              <div className={styles.limitHeader}>
-                <p className={styles.limitLabel}>Invités</p>
-                <p className={styles.limitValue}>
-                  {limits.usage?.guests || 0} / {limits.limits?.guests || 0}
-                </p>
-              </div>
-              <div className={styles.progressBar}>
-                <div 
-                  className={`${styles.progressFill} ${isGuestsLimitReached ? styles.limitReached : ''}`}
-                  style={{ width: `${guestsPercent}%` }}
-                />
-              </div>
-            </div>
-            <div className={styles.limitRow}>
-              <div className={styles.limitHeader}>
-                <p className={styles.limitLabel}>Photos</p>
-                <p className={styles.limitValue}>
-                  {limits.usage?.photos || 0} / {limits.limits?.photos || 0}
-        </p>
-      </div>
-              <div className={styles.progressBar}>
-                <div 
-                  className={`${styles.progressFill} ${styles.secondary} ${isPhotosLimitReached ? styles.limitReached : ''}`}
-                  style={{ width: `${photosPercent}%` }}
-                />
-              </div>
-            </div>
-            <div className={styles.limitRow}>
-              <div className={styles.limitHeader}>
-                <p className={styles.limitLabel}>Requêtes IA</p>
-                <p className={styles.limitValue}>
-                  {limits.usage?.aiRequests || 0} / {limits.limits?.aiRequests || 0}
-                </p>
-              </div>
-              <div className={styles.progressBar}>
-                <div 
-                  className={`${styles.progressFill} ${isAiRequestsLimitReached ? styles.limitReached : ''}`}
-                  style={{ 
-                    width: `${aiRequestsPercent}%`,
-                    backgroundColor: !isAiRequestsLimitReached && (limits?.remaining?.aiRequests || 0) <= 5 ? '#f59e0b' : undefined
-                  }}
-                />
-              </div>
-            </div>
-          </section>
+          <>
+            {limitItems.map((item, i) => {
+              const s = stat(item.used, item.max);
+              const remaining = item.max - item.used;
+              return (
+                <div key={item.label} className={`${styles.card} ${i === 0 ? styles.statHighlight : ''}`}>
+                  <div className={styles.statLabel}>{item.label}</div>
+                  <div className={styles.statValue}>{item.used}<span> / {item.max}</span></div>
+                  <div className={styles.statBar}>
+                    <div className={`${styles.statBarFill} ${s ? styles[s] : ''}`} style={{ width: `${pct(item.used, item.max)}%` }} />
+                  </div>
+                  <div className={`${styles.statSub} ${remaining <= 2 ? styles.statSubRed : styles.statSubGreen}`}>
+                    {remaining > 0 ? `${remaining} restant${remaining > 1 ? 's' : ''}` : 'Limite atteinte'}
+                  </div>
+                </div>
+              );
+            })}
+          </>
         )}
 
-      {/* Sélecteur d'événement */}
-      {invitations.length > 0 && (
-        <div className={styles.eventSelector}>
-                <select
-                  value={selectedInvitationId}
-                  onChange={(e) => setSelectedInvitationId(e.target.value)}
-            className={styles.eventSelect}
-                >
-                  {invitations.map(invitation => (
-                    <option key={invitation.id} value={invitation.id}>
-                      {invitation.eventTitle}
-                      {invitation.eventDate && ` - ${new Date(invitation.eventDate).toLocaleDateString('fr-FR')}`}
-                    </option>
-                  ))}
-                </select>
-          <ChevronDown className={styles.selectIcon} size={20} />
+        {/* Progress (2 cols) + Alert/IA (1 col) */}
+        {selectedInvitation && todosStats.total > 0 && (
+          <>
+            <div className={`${styles.card} ${styles.progressCard}`}>
+              <div className={styles.cardHeader}>
+                <h2 className={styles.cardTitle}>Avancement</h2>
+                <Link href="/client/tools/planning" className={styles.cardLink}>Planning →</Link>
               </div>
-            )}
-            
-      {/* Section Avancement de l'organisation */}
-      {selectedInvitation && selectedInvitationId && todosStats.total > 0 && (
-        <section className={styles.progressSection}>
-          <div className={styles.progressHeader}>
-            <h2 className={styles.sectionTitle}>Avancement de l'organisation</h2>
-            <Link href="/client/tools/planning" className={styles.viewAllLink}>
-              Voir le planning
-            </Link>
-          </div>
-          
-          <div className={styles.progressCard}>
-            <div className={styles.progressBarLarge}>
-              <div 
-                className={styles.progressFillLarge}
-                style={{ width: `${todosStats.progress}%` }}
-              />
-            </div>
-            <div className={styles.progressStats}>
-              <span className={styles.progressText}>
-                {todosStats.completed} sur {todosStats.total} tâches terminées
-              </span>
-              <span className={styles.progressPercent}>
-                {Math.round(todosStats.progress)}%
-              </span>
-            </div>
-          </div>
-
-          <div className={styles.statsGrid}>
-            <div className={styles.statCard}>
-              <div className={`${styles.statIconWrapper} ${styles.success}`}>
-                <CheckCircle size={20} />
-              </div>
-              <div className={styles.statValue}>{todosStats.completed}</div>
-              <div className={styles.statLabel}>Terminées</div>
-            </div>
-            
-            <div className={styles.statCard}>
-              <div className={styles.statIconWrapper}>
-                <Clock size={20} />
-              </div>
-              <div className={styles.statValue}>{todosStats.pending}</div>
-              <div className={styles.statLabel}>À faire</div>
-            </div>
-            
-            <div className={styles.statCard}>
-              <div className={styles.statIconWrapper}>
-                <Clock size={20} />
-              </div>
-              <div className={styles.statValue}>{todosStats.inProgress}</div>
-              <div className={styles.statLabel}>En cours</div>
-            </div>
-            
-            {todosStats.overdue > 0 && (
-              <div className={styles.statCard}>
-                <div className={`${styles.statIconWrapper} ${styles.error}`}>
-                  <AlertTriangle size={20} />
+              <div className={styles.progressBody}>
+                <div className={styles.ringWrap}>
+                  <svg className={styles.ringSvg} viewBox="0 0 110 110">
+                    <circle className={styles.ringBg} cx="55" cy="55" r="46" />
+                    <circle className={styles.ringFill} cx="55" cy="55" r="46"
+                      strokeDasharray={circumference} strokeDashoffset={dashOffset} />
+                  </svg>
+                  <div className={styles.ringLabel}>
+                    <span className={styles.ringPercent}>{Math.round(todosStats.progress)}%</span>
+                    <span className={styles.ringSubtext}>complété</span>
+                  </div>
                 </div>
-                <div className={styles.statValue}>{todosStats.overdue}</div>
-                <div className={styles.statLabel}>En retard</div>
-              </div>
-            )}
-          </div>
-        </section>
-      )}
-
-      {/* Section Statistiques */}
-      {selectedInvitation && selectedInvitationId && (
-        <section className={styles.statsSection}>
-          <h2 className={styles.sectionTitle}>Statistiques de l'événement</h2>
-          
-          <div className={styles.statsGrid}>
-            {/* Total invités */}
-            <div className={styles.statCard}>
-              <div className={styles.statIconWrapper}>
-                <Users size={20} />
-              </div>
-                <div className={styles.statValue}>{guests.length}</div>
-                <div className={styles.statLabel}>Total invités</div>
-            </div>
-            
-            {/* Via email */}
-            <div className={styles.statCard}>
-              <div className={styles.statIconWrapper}>
-                <Mail size={20} />
-              </div>
-                <div className={styles.statValue}>{guestsWithEmails.length}</div>
-              <div className={styles.statLabel}>Via email</div>
-            </div>
-            
-            {/* Via lien */}
-            <div className={styles.statCard}>
-              <div className={styles.statIconWrapper}>
-                <LinkIcon size={20} />
-              </div>
-                <div className={styles.statValue}>{guestsViaLink.length}</div>
-                <div className={styles.statLabel}>Via lien</div>
-            </div>
-            
-            {/* Confirmés */}
-            <div className={styles.statCard}>
-              <div className={`${styles.statIconWrapper} ${styles.success}`}>
-                <CheckCircle size={20} />
-              </div>
-                <div className={styles.statValue}>{confirmedGuests.length}</div>
-                <div className={styles.statLabel}>Confirmés</div>
-            </div>
-            
-            {/* Refusés */}
-            <div className={styles.statCard}>
-              <div className={`${styles.statIconWrapper} ${styles.error}`}>
-                <XCircle size={20} />
-              </div>
-                <div className={styles.statValue}>{declinedGuests.length}</div>
-                <div className={styles.statLabel}>Refusés</div>
-            </div>
-            
-            {/* En attente */}
-            <div className={styles.statCard}>
-              <div className={`${styles.statIconWrapper} ${styles.warning}`}>
-                <Clock size={20} />
-              </div>
-                <div className={styles.statValue}>{pendingGuests.length}</div>
-                <div className={styles.statLabel}>En attente</div>
-            </div>
-          </div>
-        </section>
-      )}
-
-      {/* Actions rapides */}
-      <section className={styles.quickActions}>
-        <h2 className={styles.sectionTitle}>Actions rapides</h2>
-        <div className={styles.actionsGrid}>
-          {quickActions.map((action, index) => {
-              const IconComponent = action.icon;
-            
-            return (
-              <Link
-                key={index}
-                href={action.path}
-                  className={styles.actionCard}
-              >
-                  <div className={styles.actionLeft}>
-                    <div className={styles.actionIconWrapper}>
-                      <IconComponent size={24} />
-                </div>
-                <div className={styles.actionContent}>
-                      <div className={styles.actionTitle}>{action.title}</div>
-                      <div className={styles.actionDescription}>{action.description}</div>
+                <div className={styles.progressMeta}>
+                  <div className={styles.progressLine}>
+                    <span className={`${styles.progressDot} ${styles.green}`} />
+                    <span className={styles.progressLineLabel}>Terminées</span>
+                    <span className={styles.progressLineValue}>{todosStats.completed}</span>
+                  </div>
+                  <div className={styles.progressLine}>
+                    <span className={`${styles.progressDot} ${styles.indigo}`} />
+                    <span className={styles.progressLineLabel}>Restantes</span>
+                    <span className={styles.progressLineValue}>{remaining}</span>
+                  </div>
+                  {todosStats.overdue > 0 && (
+                    <div className={styles.progressLine}>
+                      <span className={`${styles.progressDot} ${styles.red}`} />
+                      <span className={styles.progressLineLabel}>En retard</span>
+                      <span className={styles.progressLineValue}>{todosStats.overdue}</span>
                     </div>
+                  )}
                 </div>
-                <div className={styles.actionArrow}>
-                    <ChevronDown size={20} style={{ transform: 'rotate(-90deg)' }} />
-                </div>
-              </Link>
-            );
-          })}
-        </div>
-      </section>
-      </main>
+              </div>
+            </div>
 
-      <style jsx>{`
-        @keyframes spin {
-          0% { transform: rotate(0deg); }
-          100% { transform: rotate(360deg); }
-        }
-      `}</style>
+            {/* Alert card if overdue */}
+            {todosStats.overdue > 0 && (
+              <div className={styles.alertCard}>
+                <div className={styles.alertIcon}><AlertTriangle size={20} /></div>
+                <h3>{todosStats.overdue} en retard</h3>
+                <p>Vous avez {todosStats.overdue} tâche{todosStats.overdue > 1 ? 's' : ''} dont la date limite est dépassée.</p>
+                <Link href="/client/tools/planning" className={styles.alertLink}>
+                  Voir le planning <ChevronRight size={14} />
+                </Link>
+              </div>
+            )}
+          </>
+        )}
+
+
+
+        {/* Guests (2 cols) + Actions (1 col) */}
+        {selectedInvitation && selectedInvitationId && (
+          <>
+            <div className={`${styles.card} ${styles.guestCard}`}>
+              <div className={styles.cardHeader}>
+                <h2 className={styles.cardTitle}>Invités</h2>
+              </div>
+              <div className={styles.guestGrid}>
+                {[
+                  { label: 'Total', value: guests.length, color: 'purple' },
+                  { label: 'Via email', value: guestsWithEmails.length, color: 'sky' },
+                  { label: 'Via lien', value: guestsViaLink.length, color: 'slate' },
+                  { label: 'Confirmés', value: confirmedGuests.length, color: 'green' },
+                  { label: 'Refusés', value: declinedGuests.length, color: 'red' },
+                  { label: 'En attente', value: pendingGuests.length, color: 'amber' },
+                ].map((item, i) => (
+                  <div key={i} className={styles.guestItem}>
+                    <div className={`${styles.guestItemValue} ${styles[item.color]}`}>{item.value}</div>
+                    <div className={styles.guestItemLabel}>{item.label}</div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div className={styles.card}>
+              <div className={styles.cardHeader}>
+                <h2 className={styles.cardTitle}>Actions</h2>
+              </div>
+              <div className={styles.actionsGrid}>
+                {[
+                  { title: 'Créer une invitation', desc: 'Nouvel événement', icon: Plus, path: '/client/invitations', c: 'indigo' },
+                  { title: 'Ajouter des invités', desc: 'Élargir la liste', icon: UserPlus, path: '/client/guests', c: 'emerald' },
+                  { title: 'Planning', desc: 'Gérer les tâches', icon: Calendar, path: '/client/tools/planning', c: 'amber' },
+                ].map((a, i) => {
+                  const Icon = a.icon;
+                  return (
+                    <Link key={i} href={a.path} className={styles.actionRow}>
+                      <div className={`${styles.actionDot} ${styles[a.c]}`}><Icon size={18} /></div>
+                      <div className={styles.actionInfo}><h3>{a.title}</h3><p>{a.desc}</p></div>
+                      <ChevronRight size={14} className={styles.actionArrow} />
+                    </Link>
+                  );
+                })}
+              </div>
+            </div>
+          </>
+        )}
+      </div>
     </div>
   );
-} 
+}

@@ -33,7 +33,7 @@ export default function LoginPage() {
 
     try {
       const result = await login(email, password);
-      
+
       if (!result.success) {
         // Vérifier si l'erreur est liée à la vérification d'email
         if (result.error && (result.error.includes('vérifier votre email') || result.error.includes('email non vérifié'))) {
@@ -44,7 +44,7 @@ export default function LoginPage() {
             // Le modal RateLimitModal va s'afficher automatiquement via l'événement rateLimitExceeded
             // Ne rien faire ici
           } else {
-          setFormError(result.error || 'Erreur lors de la connexion');
+            setFormError(result.error || 'Erreur lors de la connexion');
           }
         }
       }
@@ -54,7 +54,7 @@ export default function LoginPage() {
         // Le modal RateLimitModal va s'afficher automatiquement via l'événement rateLimitExceeded
         // Ne rien faire ici
       } else {
-      setFormError(err.message || 'Erreur lors de la connexion');
+        setFormError(err.message || 'Erreur lors de la connexion');
       }
     } finally {
       setIsSubmitting(false);
@@ -74,13 +74,13 @@ export default function LoginPage() {
       <div className={styles.container}>
         <div className={`${styles.authCard} ${styles.loginCard}`}>
           <div className={styles.header}>
-            <h1>Connexion</h1>
+            <h1 id="auth-title">Connexion</h1>
             <p>Accédez à votre espace personnel Kawepla</p>
           </div>
 
           <form className={styles.form} onSubmit={handleSubmit}>
             {displayError && (
-              <div className={styles.error}>
+              <div className={styles.error} role="alert" aria-live="polite">
                 <p>{displayError}</p>
               </div>
             )}
@@ -109,6 +109,8 @@ export default function LoginPage() {
                 className={styles.fullWidth}
                 placeholder="votre@email.com"
                 disabled={isSubmitting || authLoading}
+                aria-required="true"
+                aria-describedby={displayError ? "auth-error" : undefined}
               />
             </div>
 
@@ -124,12 +126,14 @@ export default function LoginPage() {
                   className={styles.fullWidth}
                   placeholder="••••••••"
                   disabled={isSubmitting || authLoading}
+                  aria-required="true"
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
                   className={styles.passwordToggle}
                   disabled={isSubmitting || authLoading}
+                  aria-label={showPassword ? "Masquer le mot de passe" : "Afficher le mot de passe"}
                 >
                   {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
                 </button>
@@ -137,12 +141,6 @@ export default function LoginPage() {
             </div>
 
             <div className={styles.passwordOptions}>
-              <div className={styles.rememberMe}>
-                <label>
-                  <input type="checkbox" name="remember" disabled={isSubmitting || authLoading} />
-                  <span>Se souvenir de moi</span>
-                </label>
-              </div>
               <Link href="/auth/forgot-password" className={styles.forgotPassword}>
                 Mot de passe oublié ?
               </Link>

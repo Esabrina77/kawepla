@@ -171,7 +171,7 @@ export default function AdminInvitationsPage() {
     <div className={styles.invitationsPage}>
       <HeaderMobile title="Invitations" />
 
-      <main className={styles.main}>
+      <div className={styles.pageContent}>
 
         {/* Stats Section */}
         <section className={styles.statsSection}>
@@ -315,7 +315,7 @@ export default function AdminInvitationsPage() {
             ))}
           </div>
         )}
-      </main>
+      </div>
     </div>
   );
 }

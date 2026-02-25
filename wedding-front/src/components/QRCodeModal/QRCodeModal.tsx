@@ -42,6 +42,9 @@ export function QRCodeModal({ isOpen, onClose, albumTitle, albumId }: QRCodeModa
               showActions={true}
             />
           </div>
+          <p className={styles.description}>
+            Partagez ce QR Code avec vos invités pour qu'ils puissent télécharger leurs photos directement dans l'album "{albumTitle}".
+          </p>
         </div>
       </div>
     </div>

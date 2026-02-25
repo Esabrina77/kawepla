@@ -8,14 +8,14 @@ import Image from 'next/image';
 import { useAuth } from '@/hooks/useAuth';
 import { useProviderProfile } from '@/hooks/useProviderProfile';
 import { Button } from '@/components/ui/button';
-import { 
-  LayoutDashboard, 
-  User, 
-  Briefcase, 
-  CalendarCheck, 
-  Settings, 
-  LogOut, 
-  ChevronLeft, 
+import {
+  LayoutDashboard,
+  User,
+  Briefcase,
+  CalendarCheck,
+  Settings,
+  LogOut,
+  ChevronLeft,
   ChevronRight,
   Plus,
   Home,
@@ -118,25 +118,18 @@ export const ProviderSidebar = () => {
       <aside className={`${styles.sidebar} ${styles.providerSidebar} ${isCollapsed ? styles.collapsed : ''}`}>
         {/* Header Section */}
         <div className={styles.sidebarHeader}>
-          <Link href="/provider/dashboard" data-tutorial="logo">
-            <Image 
-              src="/images/logo.png" 
-              alt="Kawepla Provider" 
-              width={100} 
-              height={100} 
-              className={styles.logoImage}
-              priority
-            />
+          <Link href="/provider/dashboard" className={styles.logoLink} data-tutorial="logo">
+            <span className={styles.logoText}>Kawepla</span>
           </Link>
-          
+
           <div className={styles.sidebarHeaderButtons}>
             {!isCollapsed && (
               <div className={styles.providerBadge}>
                 PROVIDER
               </div>
             )}
-            <button 
-              onClick={toggleSidebar} 
+            <button
+              onClick={toggleSidebar}
               className={styles.toggleButton}
               aria-label={isCollapsed ? "Développer le menu" : "Réduire le menu"}
             >
@@ -185,9 +178,8 @@ export const ProviderSidebar = () => {
               <Link
                 key={item.path}
                 href={item.path}
-                className={`${styles.navItem} ${
-                  basePath?.includes(item.path) ? styles.active : ''
-                }`}
+                className={`${styles.navItem} ${basePath?.includes(item.path) ? styles.active : ''
+                  }`}
                 title={item.description}
               >
                 <span className={styles.icon}>
@@ -229,9 +221,8 @@ export const ProviderSidebar = () => {
             <Link
               key={item.path}
               href={item.path}
-              className={`${styles.mobileNavItem} ${
-                basePath?.includes(item.path) ? styles.active : ''
-              }`}
+              className={`${styles.mobileNavItem} ${basePath?.includes(item.path) ? styles.active : ''
+                }`}
               title={item.title}
             >
               <span className={styles.mobileIcon}>
@@ -261,7 +252,7 @@ export const ProviderSidebar = () => {
           <div className={styles.mobileMenuPopup} onClick={(e) => e.stopPropagation()}>
             <div className={styles.mobileMenuHeader}>
               <h3>Menu complet</h3>
-              <button 
+              <button
                 onClick={toggleMobileMenu}
                 className={styles.closeMobileMenu}
               >
@@ -289,9 +280,8 @@ export const ProviderSidebar = () => {
                 <Link
                   key={item.path}
                   href={item.path}
-                  className={`${styles.mobileMenuItem} ${
-                    basePath?.includes(item.path) ? styles.active : ''
-                  }`}
+                  className={`${styles.mobileMenuItem} ${basePath?.includes(item.path) ? styles.active : ''
+                    }`}
                   onClick={toggleMobileMenu}
                 >
                   <span className={styles.icon}>
@@ -303,7 +293,7 @@ export const ProviderSidebar = () => {
                   </div>
                 </Link>
               ))}
-              
+
               <div className={styles.mobileMenuFooter}>
                 <Button
                   variant="outline"

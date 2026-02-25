@@ -9,18 +9,13 @@ export const useTheme = () => {
   useEffect(() => {
     // Récupérer le thème depuis localStorage
     const savedTheme = localStorage.getItem('theme') as Theme;
-    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-    
-    let initialTheme: Theme = 'light';
-    
-    if (savedTheme) {
-      initialTheme = savedTheme;
-    } else if (prefersDark) {
-      initialTheme = 'dark';
-    }
-    
+
+    // Toujours clair par défaut, sauf si l'utilisateur a explicitement choisi un thème
+    const initialTheme: Theme = savedTheme || 'light';
+
     setTheme(initialTheme);
     document.documentElement.setAttribute('data-theme', initialTheme);
+    document.documentElement.classList.toggle('dark', initialTheme === 'dark');
     setIsLoaded(true);
   }, []);
 
@@ -28,12 +23,14 @@ export const useTheme = () => {
     const newTheme = theme === 'light' ? 'dark' : 'light';
     setTheme(newTheme);
     document.documentElement.setAttribute('data-theme', newTheme);
+    document.documentElement.classList.toggle('dark', newTheme === 'dark');
     localStorage.setItem('theme', newTheme);
   };
 
   const setThemeMode = (newTheme: Theme) => {
     setTheme(newTheme);
     document.documentElement.setAttribute('data-theme', newTheme);
+    document.documentElement.classList.toggle('dark', newTheme === 'dark');
     localStorage.setItem('theme', newTheme);
   };
 

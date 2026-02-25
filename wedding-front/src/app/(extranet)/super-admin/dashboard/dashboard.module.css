@@ -12,6 +12,7 @@
     opacity: 0;
     transform: translateY(20px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -34,16 +35,7 @@
 /* Desktop avec sidebar */
 @media (min-width: 769px) {
   .header {
-    padding-left: 190px;
     padding-right: 1rem;
-    transition: padding-left var(--transition-normal);
-  }
-}
-
-/* Desktop avec sidebar collapsed */
-@media (min-width: 769px) {
-  :global(body[data-sidebar-collapsed="true"]) .header {
-    padding-left: 80px;
   }
 }
 
@@ -90,7 +82,7 @@
 }
 
 /* Main Content */
-.main {
+.pageContent {
   flex: 1;
   padding: 1rem;
   padding-bottom: 7rem;
@@ -101,6 +93,7 @@
   from {
     opacity: 0;
   }
+
   to {
     opacity: 1;
   }
@@ -122,6 +115,7 @@
     opacity: 0;
     transform: translateY(-10px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -150,8 +144,13 @@
 }
 
 @keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+  0% {
+    transform: rotate(0deg);
+  }
+
+  100% {
+    transform: rotate(360deg);
+  }
 }
 
 .errorContainer p {
@@ -189,12 +188,29 @@
   transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
-.statCard:nth-child(1) { animation-delay: 0.5s; }
-.statCard:nth-child(2) { animation-delay: 0.55s; }
-.statCard:nth-child(3) { animation-delay: 0.6s; }
-.statCard:nth-child(4) { animation-delay: 0.65s; }
-.statCard:nth-child(5) { animation-delay: 0.7s; }
-.statCard:nth-child(6) { animation-delay: 0.75s; }
+.statCard:nth-child(1) {
+  animation-delay: 0.5s;
+}
+
+.statCard:nth-child(2) {
+  animation-delay: 0.55s;
+}
+
+.statCard:nth-child(3) {
+  animation-delay: 0.6s;
+}
+
+.statCard:nth-child(4) {
+  animation-delay: 0.65s;
+}
+
+.statCard:nth-child(5) {
+  animation-delay: 0.7s;
+}
+
+.statCard:nth-child(6) {
+  animation-delay: 0.75s;
+}
 
 .statCard:hover {
   transform: translateY(-4px);
@@ -206,6 +222,7 @@
     opacity: 0;
     transform: scale(0.9);
   }
+
   to {
     opacity: 1;
     transform: scale(1);

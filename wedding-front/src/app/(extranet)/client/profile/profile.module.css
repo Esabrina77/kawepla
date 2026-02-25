@@ -1,79 +1,110 @@
-/* ===== PROFILE PAGE - EXACT MAQUETTE MATCH ===== */
+/* ===== KAWEPLA PROFILE PAGE ===== */
 
 .profilePage {
-  background: var(--bg-primary);
+  background: var(--background);
   min-height: 100vh;
   width: 100%;
-  color: var(--text-primary);
+  animation: fadeIn 0.4s ease-out;
 }
 
-/* Main Content */
-.main {
-  flex: 1;
-  padding: 2rem 1rem;
-  padding-bottom: 7rem;
-}
-
-/* Profile Header */
-.profileHeader {
+.pageContent {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 2rem 1.25rem 6rem;
   display: flex;
   flex-direction: column;
+  gap: 1.5rem;
+}
+
+/* ===== HERO HEADER CARD ===== */
+.profileHeader {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 24px;
+  padding: 2rem;
+  display: flex;
   align-items: center;
-  gap: 1rem;
-  margin-bottom: 2.5rem;
+  gap: 1.5rem;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
+  transition: box-shadow 0.3s ease;
+}
+
+.profileHeader:hover {
+  box-shadow: 0 8px 30px rgba(99, 102, 241, 0.06);
 }
 
 .avatar {
-  width: 7rem;
-  height: 7rem;
-  border-radius: 50%;
-  background: var(--luxury-champagne-gold);
-  color: var(--luxury-velvet-black);
+  width: 72px;
+  height: 72px;
+  background: linear-gradient(135deg, #6366F1, #818CF8);
+  color: #fff;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 2.25rem;
-  font-weight: 700;
+  font-family: 'Helvetica', 'Arial', sans-serif;
+  font-size: 1.6rem;
+  font-weight: 900;
+  border-radius: 22px;
   flex-shrink: 0;
-}
-
-[data-theme="dark"] .avatar {
-  color: var(--text-primary);
+  letter-spacing: -0.04em;
+  box-shadow: 0 8px 24px rgba(99, 102, 241, 0.25);
 }
 
 .profileInfo {
   display: flex;
   flex-direction: column;
-  align-items: center;
-  justify-content: center;
   gap: 0.25rem;
 }
 
 .profileName {
-  font-size: 1.5rem;
-  font-weight: 700;
-  color: var(--text-primary);
-  line-height: 1.2;
-  letter-spacing: -0.015em;
+  font-family: var(--font-heading);
+  font-size: 1.4rem;
+  font-weight: 900;
+  color: var(--foreground);
+  letter-spacing: -0.03em;
   margin: 0;
 }
 
 .profileEmail {
-  font-size: 1rem;
-  font-weight: 400;
+  font-family: var(--font-body);
+  font-size: 0.875rem;
   color: var(--text-secondary);
-  opacity: 0.6;
+  font-weight: 500;
+  margin: 0;
 }
 
-[data-theme="dark"] .profileEmail {
-  opacity: 1;
-}
-
-/* Profile Form */
+/* ===== FORM CARD ===== */
 .profileForm {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 24px;
+  padding: 1.75rem;
   display: flex;
   flex-direction: column;
+  gap: 1.25rem;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.02);
+}
+
+.formSectionTitle {
+  font-family: var(--font-heading);
+  font-size: 0.7rem;
+  font-weight: 800;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin-bottom: 0.25rem;
+}
+
+.formGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
   gap: 1rem;
+}
+
+@media (max-width: 600px) {
+  .formGrid {
+    grid-template-columns: 1fr;
+  }
 }
 
 .formField {
@@ -83,15 +114,11 @@
 }
 
 .label {
-  font-size: 0.875rem;
-  font-weight: 500;
-  color: var(--text-primary);
-  opacity: 0.8;
-  margin-bottom: 0.5rem;
-}
-
-[data-theme="dark"] .label {
-  opacity: 1;
+  font-family: var(--font-body);
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--text-secondary);
+  letter-spacing: 0.01em;
 }
 
 .inputWrapper {
@@ -102,170 +129,161 @@
 
 .inputIcon {
   position: absolute;
-  left: 0.75rem;
-  top: 50%;
-  transform: translateY(-50%);
-  color: var(--luxury-champagne-gold);
-  pointer-events: none;
-  z-index: 1;
-}
-
-.inputIcon[data-disabled="true"] {
+  left: 0.9rem;
   color: var(--text-secondary);
+  opacity: 0.5;
+  pointer-events: none;
 }
 
 .input {
   width: 100%;
-  height: 3.5rem;
-  padding: 0 1rem 0 2.75rem;
-  border: 1px solid var(--text-secondary);
-  border-opacity: 0.5;
-  border-radius: 0.5rem;
-  background: var(--bg-card);
-  color: var(--text-primary);
-  font-size: 1rem;
-  font-family: var(--font-sans);
-  transition: all var(--transition-normal);
-}
-
-[data-theme="dark"] .input {
-  background: var(--bg-card);
-  border-color: var(--text-secondary);
-  opacity: 0.5;
-}
-
-.input::placeholder {
-  color: var(--text-secondary);
+  padding: 0.75rem 0.9rem 0.75rem 2.75rem;
+  background: var(--bg-secondary);
+  border: 1.5px solid var(--border);
+  border-radius: 14px;
+  font-family: var(--font-body);
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: var(--foreground);
+  transition: all 0.2s ease;
+  outline: none;
 }
 
 .input:focus {
-  outline: none;
-  border-color: var(--luxury-champagne-gold);
-  box-shadow: 0 0 0 1px var(--luxury-champagne-gold);
+  border-color: #6366F1;
+  background: var(--card);
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.08);
 }
 
 .inputDisabled {
+  opacity: 0.55;
   cursor: not-allowed;
-  background: var(--bg-card);
-  opacity: 0.5;
-}
-
-[data-theme="dark"] .inputDisabled {
-  opacity: 0.5;
+  background: var(--bg-secondary);
 }
 
 .helpText {
-  margin-top: 0.5rem;
-  font-size: 0.75rem;
+  font-family: var(--font-body);
+  font-size: 0.72rem;
   color: var(--text-secondary);
+  opacity: 0.7;
+  margin-top: -0.2rem;
 }
 
-/* Save Button */
+/* ===== SAVE BUTTON ===== */
 .saveButtonContainer {
-  margin-top: 2rem;
+  padding-top: 0.5rem;
 }
 
 .saveButton {
   width: 100%;
-  height: 3.5rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: var(--luxury-champagne-gold);
-  color: var(--luxury-velvet-black);
+  padding: 0.9rem;
+  background: #6366F1;
+  color: #fff;
   border: none;
-  border-radius: 0.5rem;
-  font-size: 1rem;
-  font-weight: 700;
+  border-radius: 16px;
+  font-family: var(--font-body);
+  font-weight: 800;
+  font-size: 0.9rem;
   cursor: pointer;
-  transition: opacity var(--transition-normal);
-}
-
-[data-theme="dark"] .saveButton {
-  color: var(--text-primary);
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 12px rgba(99, 102, 241, 0.2);
+  letter-spacing: -0.01em;
 }
 
 .saveButton:hover:not(:disabled) {
-  opacity: 0.9;
+  filter: brightness(1.1);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(99, 102, 241, 0.3);
 }
 
 .saveButton:disabled {
-  background: var(--text-secondary);
   opacity: 0.5;
-  color: var(--text-secondary);
   cursor: not-allowed;
+  transform: none;
 }
 
-[data-theme="dark"] .saveButton:disabled {
-  color: rgba(255, 255, 255, 0.6);
-}
-
-/* Danger Zone */
+/* ===== DANGER ZONE ===== */
 .dangerZone {
-  margin-top: 3rem;
+  background: #fff1f2;
+  border: 1.5px solid #fecdd3;
+  border-radius: 20px;
   padding: 1.5rem;
-  border: 1px solid var(--alert-error);
-  border-radius: 0.5rem;
-  background: var(--bg-card);
+  transition: border-color 0.2s ease;
+}
+
+:global(.dark) .dangerZone {
+  background: rgba(239, 68, 68, 0.04);
+  border-color: rgba(239, 68, 68, 0.2);
 }
 
 .dangerZoneHeader {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
+  gap: 0.6rem;
   margin-bottom: 0.75rem;
 }
 
 .dangerIcon {
-  color: var(--alert-error);
+  color: #ef4444;
 }
 
 .dangerZoneTitle {
-  font-size: 1.125rem;
-  font-weight: 600;
-  color: var(--alert-error);
+  font-family: var(--font-heading);
+  font-size: 1rem;
+  font-weight: 800;
+  color: #b91c1c;
   margin: 0;
 }
 
+:global(.dark) .dangerZoneTitle {
+  color: #f87171;
+}
+
 .dangerZoneDescription {
-  font-size: 0.875rem;
-  color: var(--text-secondary);
-  margin-bottom: 1rem;
+  font-family: var(--font-body);
+  font-size: 0.85rem;
+  color: #9f1239;
+  margin-bottom: 1.25rem;
+  font-weight: 500;
   line-height: 1.5;
 }
 
+:global(.dark) .dangerZoneDescription {
+  color: #fca5a5;
+}
+
 .deleteAccountButton {
+  width: 100%;
+  padding: 0.85rem;
+  background: #ef4444;
+  color: #fff;
+  border: none;
+  border-radius: 14px;
+  font-family: var(--font-body);
+  font-weight: 800;
+  font-size: 0.875rem;
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 0.5rem;
-  width: 100%;
-  height: 3rem;
-  background: var(--alert-error);
-  color: white;
-  border: none;
-  border-radius: 0.5rem;
-  font-size: 0.9375rem;
-  font-weight: 600;
+  gap: 0.6rem;
   cursor: pointer;
-  transition: opacity var(--transition-normal);
+  transition: all 0.2s ease;
+  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.2);
 }
 
 .deleteAccountButton:hover:not(:disabled) {
-  opacity: 0.9;
+  background: #dc2626;
+  transform: translateY(-1px);
+  box-shadow: 0 8px 20px rgba(239, 68, 68, 0.3);
 }
 
 .deleteAccountButton:disabled {
-  opacity: 0.6;
+  opacity: 0.5;
   cursor: not-allowed;
 }
 
-/* Responsive */
-@media (min-width: 768px) {
-  .main {
-    padding: 2rem;
-    max-width: 600px;
-    margin: 0 auto;
-  }
+/* ===== ANIMATION ===== */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
 }
-

@@ -7,15 +7,15 @@ import { useAuth } from '@/hooks/useAuth';
 import { HeaderMobile } from '@/components/HeaderMobile';
 import { MessagesAPI, Conversation } from '@/lib/api/messages';
 import { useSocket } from '@/hooks/useSocket';
-import { 
-  MessageCircle, 
-  Search, 
-  Filter, 
-  RefreshCw, 
-  Archive, 
-  RotateCcw, 
-  User, 
-  Mail, 
+import {
+  MessageCircle,
+  Search,
+  Filter,
+  RefreshCw,
+  Archive,
+  RotateCcw,
+  User,
+  Mail,
   Calendar,
   Clock,
   CheckCircle,
@@ -59,7 +59,7 @@ export default function AdminDiscussionsPage() {
     socket.on({
       onNewClientMessage: (data) => {
         loadConversations();
-        
+
         if (selectedConversation && data.conversationId === selectedConversation.id) {
           setMessages(prev => {
             const messageExists = prev.some(msg => msg.id === data.message.id);
@@ -117,12 +117,12 @@ export default function AdminDiscussionsPage() {
 
     try {
       socket.joinConversation(conversation.id);
-      
+
       const messagesData = await MessagesAPI.getMessages(conversation.id);
       setMessages(messagesData.messages);
-      
+
       await MessagesAPI.markAsRead(conversation.id);
-      
+
     } catch (err) {
       setError('Erreur lors du chargement des messages');
       console.error(err);
@@ -180,9 +180,9 @@ export default function AdminDiscussionsPage() {
     if (statusFilter !== 'ALL' && conv.status !== statusFilter) {
       return false;
     }
-    
+
     if (!searchQuery) return true;
-    
+
     const query = searchQuery.toLowerCase();
     return (
       conv.user.firstName.toLowerCase().includes(query) ||
@@ -197,11 +197,11 @@ export default function AdminDiscussionsPage() {
     if (!conversation.messages || conversation.messages.length === 0) {
       return 'Aucun message';
     }
-    
+
     const lastMessage = conversation.messages[0];
     const isOwn = lastMessage.senderId === user?.id;
     const prefix = isOwn ? 'Vous: ' : '';
-    
+
     return `${prefix}${lastMessage.content.substring(0, 50)}${lastMessage.content.length > 50 ? '...' : ''}`;
   };
 
@@ -209,7 +209,7 @@ export default function AdminDiscussionsPage() {
     const date = new Date(dateString);
     const now = new Date();
     const diffInHours = (now.getTime() - date.getTime()) / (1000 * 60 * 60);
-    
+
     if (diffInHours < 24) {
       return date.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
     } else {
@@ -258,8 +258,8 @@ export default function AdminDiscussionsPage() {
   return (
     <div className={styles.discussionsPage}>
       <HeaderMobile title="Discussions" />
-      
-      <main className={styles.main}>
+
+      <div className={styles.pageContent}>
         {/* Sidebar */}
         <div className={styles.sidebar}>
           {/* Sidebar Header */}
@@ -269,212 +269,211 @@ export default function AdminDiscussionsPage() {
             </button>
           </div>
 
-        {/* Filters */}
-        <div className={styles.filtersContainer}>
-          <div className={styles.searchContainer}>
-            <Search className={styles.searchIcon} />
-            <input
-              type="text"
-              placeholder="Rechercher une conversation..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className={styles.searchInput}
-            />
+          {/* Filters */}
+          <div className={styles.filtersContainer}>
+            <div className={styles.searchContainer}>
+              <Search className={styles.searchIcon} />
+              <input
+                type="text"
+                placeholder="Rechercher une conversation..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className={styles.searchInput}
+              />
+            </div>
+
+            <div className={styles.filterContainer}>
+              <Filter className={styles.filterIcon} />
+              <select
+                value={statusFilter}
+                onChange={(e) => setStatusFilter(e.target.value as 'ALL' | 'ACTIVE' | 'ARCHIVED' | 'CLOSED')}
+                className={styles.filterSelect}
+              >
+                <option value="ALL">Toutes les conversations</option>
+                <option value="ACTIVE">Conversations actives</option>
+                <option value="ARCHIVED">Conversations archivées</option>
+                <option value="CLOSED">Conversations fermées</option>
+              </select>
+            </div>
           </div>
 
-          <div className={styles.filterContainer}>
-            <Filter className={styles.filterIcon} />
-            <select
-              value={statusFilter}
-              onChange={(e) => setStatusFilter(e.target.value as 'ALL' | 'ACTIVE' | 'ARCHIVED' | 'CLOSED')}
-              className={styles.filterSelect}
-            >
-              <option value="ALL">Toutes les conversations</option>
-              <option value="ACTIVE">Conversations actives</option>
-              <option value="ARCHIVED">Conversations archivées</option>
-              <option value="CLOSED">Conversations fermées</option>
-            </select>
-          </div>
-        </div>
-
-        {/* Conversations List */}
-        <div className={styles.conversationsList}>
-          {loading && (
-            <div className={styles.loadingItem}>
-              <div className={styles.loadingSpinner}></div>
-              <span>Chargement des conversations...</span>
-            </div>
-          )}
-
-          {!loading && filteredConversations.length === 0 && (
-            <div className={styles.emptyConversations}>
-              <MessageCircle style={{ width: '48px', height: '48px', marginBottom: 'var(--space-md)' }} />
-              <h3>Aucune conversation trouvée</h3>
-              <p>
-                {searchQuery || statusFilter !== 'ALL'
-                  ? 'Aucune conversation ne correspond à vos critères'
-                  : 'Aucune conversation en cours'
-                }
-              </p>
-            </div>
-          )}
-
-          {filteredConversations.map((conversation) => (
-            <div
-              key={conversation.id}
-              className={`${styles.conversationItem} ${
-                selectedConversation?.id === conversation.id ? styles.selected : ''
-              }`}
-              onClick={() => selectConversation(conversation)}
-            >
-              {/* User Info */}
-              <div className={styles.userInfo}>
-                <div className={styles.userAvatar}>
-                  <div className={styles.avatarContent}>
-                    {conversation.user.firstName.charAt(0).toUpperCase()}
-                  </div>
-                </div>
-                <div className={styles.userDetails}>
-                  <h3 className={styles.userName}>
-                    {conversation.user.firstName} {conversation.user.lastName}
-                  </h3>
-                  <div className={styles.userEmail}>
-                    <Mail style={{ width: '12px', height: '12px' }} />
-                    {conversation.user.email}
-                  </div>
-                </div>
+          {/* Conversations List */}
+          <div className={styles.conversationsList}>
+            {loading && (
+              <div className={styles.loadingItem}>
+                <div className={styles.loadingSpinner}></div>
+                <span>Chargement des conversations...</span>
               </div>
+            )}
 
-              {/* Conversation Meta */}
-              <div className={styles.conversationMeta}>
-                <div className={styles.metaRow}>
-                  <div className={styles.timeInfo}>
-                    <Clock style={{ width: '12px', height: '12px' }} />
-                    <span>{formatTime(conversation.lastMessageAt)}</span>
-                  </div>
-                  <span className={`${styles.statusBadge} ${styles[`status${conversation.status}`]}`}>
-                    {getStatusIcon(conversation.status)}
-                    {getStatusLabel(conversation.status)}
-                  </span>
-                </div>
-                
-                {conversation._count && conversation._count.messages > 0 && (
-                  <div className={styles.unreadBadge}>
-                    {conversation._count.messages}
-                  </div>
-                )}
+            {!loading && filteredConversations.length === 0 && (
+              <div className={styles.emptyConversations}>
+                <MessageCircle style={{ width: '48px', height: '48px', marginBottom: 'var(--space-md)' }} />
+                <h3>Aucune conversation trouvée</h3>
+                <p>
+                  {searchQuery || statusFilter !== 'ALL'
+                    ? 'Aucune conversation ne correspond à vos critères'
+                    : 'Aucune conversation en cours'
+                  }
+                </p>
               </div>
+            )}
 
-              {/* Invitation Info */}
-              <div className={styles.invitationInfo}>
-                <div className={styles.invitationName}>
-                  {conversation.invitation?.title || conversation.invitation?.organisateurName}
+            {filteredConversations.map((conversation) => (
+              <div
+                key={conversation.id}
+                className={`${styles.conversationItem} ${selectedConversation?.id === conversation.id ? styles.selected : ''
+                  }`}
+                onClick={() => selectConversation(conversation)}
+              >
+                {/* User Info */}
+                <div className={styles.userInfo}>
+                  <div className={styles.userAvatar}>
+                    <div className={styles.avatarContent}>
+                      {conversation.user.firstName.charAt(0).toUpperCase()}
+                    </div>
+                  </div>
+                  <div className={styles.userDetails}>
+                    <h3 className={styles.userName}>
+                      {conversation.user.firstName} {conversation.user.lastName}
+                    </h3>
+                    <div className={styles.userEmail}>
+                      <Mail style={{ width: '12px', height: '12px' }} />
+                      {conversation.user.email}
+                    </div>
+                  </div>
                 </div>
-                <div className={styles.lastMessage}>
-                  {formatLastMessage(conversation)}
-                </div>
-              </div>
 
-              {/* Actions */}
-              <div className={styles.conversationActions}>
-                {conversation.status === 'ACTIVE' && (
-                  <>
-                    {!conversation.adminId && (
+                {/* Conversation Meta */}
+                <div className={styles.conversationMeta}>
+                  <div className={styles.metaRow}>
+                    <div className={styles.timeInfo}>
+                      <Clock style={{ width: '12px', height: '12px' }} />
+                      <span>{formatTime(conversation.lastMessageAt)}</span>
+                    </div>
+                    <span className={`${styles.statusBadge} ${styles[`status${conversation.status}`]}`}>
+                      {getStatusIcon(conversation.status)}
+                      {getStatusLabel(conversation.status)}
+                    </span>
+                  </div>
+
+                  {conversation._count && conversation._count.messages > 0 && (
+                    <div className={styles.unreadBadge}>
+                      {conversation._count.messages}
+                    </div>
+                  )}
+                </div>
+
+                {/* Invitation Info */}
+                <div className={styles.invitationInfo}>
+                  <div className={styles.invitationName}>
+                    {conversation.invitation?.title || conversation.invitation?.organisateurName}
+                  </div>
+                  <div className={styles.lastMessage}>
+                    {formatLastMessage(conversation)}
+                  </div>
+                </div>
+
+                {/* Actions */}
+                <div className={styles.conversationActions}>
+                  {conversation.status === 'ACTIVE' && (
+                    <>
+                      {!conversation.adminId && (
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            assignToMe(conversation);
+                          }}
+                          className={styles.assignButton}
+                        >
+                          <User style={{ width: '12px', height: '12px' }} />
+                          M'assigner
+                        </button>
+                      )}
                       <button
                         onClick={(e) => {
                           e.stopPropagation();
-                          assignToMe(conversation);
+                          archiveConversation(conversation);
                         }}
-                        className={styles.assignButton}
+                        className={styles.archiveButton}
                       >
-                        <User style={{ width: '12px', height: '12px' }} />
-                        M'assigner
+                        <Archive style={{ width: '12px', height: '12px' }} />
+                        Archiver
                       </button>
-                    )}
+                    </>
+                  )}
+                  {conversation.status === 'ARCHIVED' && (
                     <button
                       onClick={(e) => {
                         e.stopPropagation();
-                        archiveConversation(conversation);
+                        restoreConversation(conversation);
                       }}
-                      className={styles.archiveButton}
+                      className={styles.restoreButton}
                     >
-                      <Archive style={{ width: '12px', height: '12px' }} />
-                      Archiver
+                      <RotateCcw style={{ width: '12px', height: '12px' }} />
+                      Restaurer
                     </button>
-                  </>
-                )}
-                {conversation.status === 'ARCHIVED' && (
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      restoreConversation(conversation);
-                    }}
-                    className={styles.restoreButton}
-                  >
-                    <RotateCcw style={{ width: '12px', height: '12px' }} />
-                    Restaurer
-                  </button>
-                )}
+                  )}
+                </div>
               </div>
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
-      </div>
 
-      {/* Chat Area */}
-      <div className={styles.chatArea}>
-        {selectedConversation ? (
-          <div className={styles.chatContainer}>
-            <div className={styles.chatHeader}>
-              <div className={styles.chatUserInfo}>
-                <div className={styles.chatUserAvatar}>
-                  <div className={styles.avatarContent}>
-                    {selectedConversation.user.firstName.charAt(0).toUpperCase()}
+        {/* Chat Area */}
+        <div className={styles.chatArea}>
+          {selectedConversation ? (
+            <div className={styles.chatContainer}>
+              <div className={styles.chatHeader}>
+                <div className={styles.chatUserInfo}>
+                  <div className={styles.chatUserAvatar}>
+                    <div className={styles.avatarContent}>
+                      {selectedConversation.user.firstName.charAt(0).toUpperCase()}
+                    </div>
+                  </div>
+                  <div className={styles.chatUserDetails}>
+                    <h3 className={styles.chatUserName}>
+                      {selectedConversation.user.firstName} {selectedConversation.user.lastName}
+                    </h3>
+                    <div className={styles.chatUserEmail}>
+                      <Mail style={{ width: '12px', height: '12px' }} />
+                      {selectedConversation.user.email}
+                    </div>
+                    <div className={styles.chatInvitation}>
+                      {selectedConversation.invitation?.title || selectedConversation.invitation?.organisateurName}
+                    </div>
                   </div>
                 </div>
-                <div className={styles.chatUserDetails}>
-                  <h3 className={styles.chatUserName}>
-                    {selectedConversation.user.firstName} {selectedConversation.user.lastName}
-                  </h3>
-                  <div className={styles.chatUserEmail}>
-                    <Mail style={{ width: '12px', height: '12px' }} />
-                    {selectedConversation.user.email}
-                  </div>
-                  <div className={styles.chatInvitation}>
-                    {selectedConversation.invitation?.title || selectedConversation.invitation?.organisateurName}
-                  </div>
+                <div className={styles.chatActions}>
+                  <button
+                    onClick={() => archiveConversation(selectedConversation)}
+                    className={styles.archiveButton}
+                  >
+                    <Archive style={{ width: '14px', height: '14px' }} />
+                    Archiver
+                  </button>
                 </div>
               </div>
-              <div className={styles.chatActions}>
-                <button
-                  onClick={() => archiveConversation(selectedConversation)}
-                  className={styles.archiveButton}
-                >
-                  <Archive style={{ width: '14px', height: '14px' }} />
-                  Archiver
-                </button>
-              </div>
+
+              <ChatBox
+                messages={messages}
+                currentUserId={user?.id || ''}
+                typingUsers={typingUsers}
+                connected={socket.connected}
+                onSendMessage={sendMessage}
+                onStartTyping={() => socket.startTyping(selectedConversation.id)}
+                onStopTyping={() => socket.stopTyping(selectedConversation.id)}
+                onMarkAsRead={() => socket.markAsRead(selectedConversation.id)}
+              />
             </div>
-
-            <ChatBox
-              messages={messages}
-              currentUserId={user?.id || ''}
-              typingUsers={typingUsers}
-              connected={socket.connected}
-              onSendMessage={sendMessage}
-              onStartTyping={() => socket.startTyping(selectedConversation.id)}
-              onStopTyping={() => socket.stopTyping(selectedConversation.id)}
-              onMarkAsRead={() => socket.markAsRead(selectedConversation.id)}
-            />
-          </div>
-        ) : (
-          <div className={styles.noChatSelected}>
-            <MessageCircle style={{ width: '64px', height: '64px', marginBottom: 'var(--space-md)' }} />
-            <h3>Sélectionnez une conversation</h3>
-            <p>Choisissez une conversation dans la liste pour commencer à discuter avec un client.</p>
-          </div>
-        )}
-      </div>
+          ) : (
+            <div className={styles.noChatSelected}>
+              <MessageCircle style={{ width: '64px', height: '64px', marginBottom: 'var(--space-md)' }} />
+              <h3>Sélectionnez une conversation</h3>
+              <p>Choisissez une conversation dans la liste pour commencer à discuter avec un client.</p>
+            </div>
+          )}
+        </div>
 
         {/* Error Banner */}
         {error && (
@@ -486,7 +485,7 @@ export default function AdminDiscussionsPage() {
             </button>
           </div>
         )}
-      </main>
+      </div>
     </div>
   );
 }

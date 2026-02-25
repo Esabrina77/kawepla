@@ -1,4 +1,4 @@
-/* Theme Toggle - Réutilisable */
+/* ===== KAWEPLA FLOATING THEME TOGGLE ===== */
 
 .themeToggle {
   display: flex;
@@ -6,72 +6,111 @@
   justify-content: center;
   border-radius: 50%;
   cursor: pointer;
-  transition: all var(--transition-normal);
-  border: 1px solid var(--border-color);
-  background: var(--bg-card);
-  color: var(--text-primary);
+  border: 1.5px solid var(--border);
+  background: var(--card);
+  color: var(--foreground);
   user-select: none;
   -webkit-tap-highlight-color: transparent;
+  transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  position: relative;
+  overflow: hidden;
+}
+
+/* Glow ripple on click */
+.themeToggle::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(99, 102, 241, 0.15) 0%, transparent 70%);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.themeToggle:hover::before {
+  opacity: 1;
 }
 
 .themeToggle:hover {
-  transform: scale(1.1);
-  box-shadow: var(--shadow-md);
+  transform: scale(1.12) rotate(15deg);
+  border-color: #6366F1;
+  box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.12),
+              0 8px 24px rgba(99, 102, 241, 0.15);
 }
 
 .themeToggle:active {
-  transform: scale(0.95);
+  transform: scale(0.9) rotate(0deg);
 }
 
-.themeToggle:focus {
-  outline: 2px solid var(--luxury-champagne-gold);
-  outline-offset: 2px;
+.themeToggle:focus-visible {
+  outline: 2px solid #6366F1;
+  outline-offset: 3px;
 }
 
+/* Icon transition */
 .icon {
-  transition: transform var(--transition-fast);
+  transition: transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1),
+              opacity 0.3s ease;
+  position: relative;
+  z-index: 1;
 }
 
 .themeToggle:hover .icon {
-  transform: rotate(180deg);
+  transform: rotate(20deg) scale(1.1);
 }
 
-/* Variant Floating (pour usage fixe si nécessaire) */
-.themeToggle.floating {
-  position: fixed;
-  z-index: 9999;
-  width: 56px;
-  height: 56px;
-  box-shadow: var(--shadow-lg);
-  backdrop-filter: blur(10px);
-  border: 2px solid var(--border-color);
-  animation: floatIn 0.5s ease-out;
-}
-
-.themeToggle.floating.darkMode {
-  background: rgba(51, 51, 51, 0.9);
-  color: var(--luxury-champagne-gold);
-  border-color: var(--luxury-champagne-gold);
-}
-
-.themeToggle.floating.lightMode {
-  background: rgba(255, 255, 255, 0.9);
-  color: var(--luxury-velvet-black);
-  border-color: var(--luxury-champagne-gold);
-}
-
-/* Variant Inline (pour usage dans headers, sidebars, etc.) */
+/* ===== INLINE VARIANT ===== */
 .themeToggle.inline {
   width: 2.5rem;
   height: 2.5rem;
   flex-shrink: 0;
 }
 
-/* Animation d'apparition */
+/* ===== FLOATING VARIANT ===== */
+.themeToggle.floating {
+  position: fixed;
+  bottom: 2rem;
+  right: 2rem;
+  z-index: 9998;
+  width: 52px;
+  height: 52px;
+  border-width: 1.5px;
+  border-color: rgba(99, 102, 241, 0.3);
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  box-shadow:
+    0 4px 24px rgba(99, 102, 241, 0.15),
+    0 2px 8px rgba(0, 0, 0, 0.08);
+  animation: floatIn 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+/* Dark mode floating variant */
+:global(.dark) .themeToggle.floating {
+  background: rgba(17, 24, 39, 0.7);
+  border-color: rgba(99, 102, 241, 0.4);
+  box-shadow:
+    0 4px 24px rgba(99, 102, 241, 0.2),
+    0 2px 8px rgba(0, 0, 0, 0.4);
+}
+
+/* Sun icon in dark mode = warm yellow */
+:global(.dark) .themeToggle .icon {
+  color: #fbbf24;
+  filter: drop-shadow(0 0 6px rgba(251, 191, 36, 0.4));
+}
+
+/* Moon icon in light mode = indigo */
+:global(:not(.dark)) .themeToggle .icon {
+  color: #6366F1;
+  filter: drop-shadow(0 0 4px rgba(99, 102, 241, 0.3));
+}
+
+/* Float-in animation */
 @keyframes floatIn {
   from {
     opacity: 0;
-    transform: scale(0.5) translateY(20px);
+    transform: scale(0.4) translateY(20px);
   }
   to {
     opacity: 1;
@@ -79,15 +118,15 @@
   }
 }
 
-/* Responsive */
+/* ===== RESPONSIVE ===== */
 @media (max-width: 768px) {
   .themeToggle.floating {
-    width: 48px;
-    height: 48px;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
-    border-width: 3px;
+    bottom: 6.5rem; /* Above mobile nav bar */
+    right: 1.25rem;
+    width: 46px;
+    height: 46px;
   }
-  
+
   .themeToggle.inline {
     width: 2.25rem;
     height: 2.25rem;
@@ -98,10 +137,8 @@
   .themeToggle.floating {
     width: 44px;
     height: 44px;
-    min-width: 44px;
-    min-height: 44px;
   }
-  
+
   .themeToggle.inline {
     width: 2rem;
     height: 2rem;

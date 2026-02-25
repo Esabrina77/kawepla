@@ -12,6 +12,7 @@
     opacity: 0;
     transform: translateY(20px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -31,25 +32,13 @@
   from {
     opacity: 0;
   }
+
   to {
     opacity: 1;
   }
 }
 
-/* Desktop avec sidebar - aligné avec HeaderMobile */
-@media (min-width: 769px) {
-  .messagesLayout {
-    padding-left: 190px;
-    transition: padding-left var(--transition-normal);
-  }
-}
 
-/* Desktop avec sidebar collapsed */
-@media (min-width: 769px) {
-  :global(body[data-sidebar-collapsed="true"]) .messagesLayout {
-    padding-left: 80px;
-  }
-}
 
 /* Liste des conversations (sidebar) */
 .conversationsList {
@@ -295,7 +284,8 @@
 
 @media (max-width: 768px) {
   .messagesList {
-    padding-bottom: 100px; /* Espace pour le formulaire fixe + navigation */
+    padding-bottom: 100px;
+    /* Espace pour le formulaire fixe + navigation */
   }
 }
 
@@ -314,6 +304,7 @@
     opacity: 0;
     transform: translateY(5px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -447,7 +438,8 @@
 @media (max-width: 768px) {
   .messageForm {
     position: fixed;
-    bottom: 80px; /* Hauteur de la navigation mobile (mobileBottomNav) */
+    bottom: 80px;
+    /* Hauteur de la navigation mobile (mobileBottomNav) */
     left: 0;
     right: 0;
     z-index: 999;
@@ -457,13 +449,15 @@
 
   /* Ajouter un padding-bottom à la liste des messages pour éviter qu'elle soit cachée */
   .messagesList {
-    padding-bottom: 100px; /* Hauteur du formulaire + marge */
+    padding-bottom: 100px;
+    /* Hauteur du formulaire + marge */
   }
 }
 
 @media (max-width: 480px) {
   .messageForm {
-    bottom: 70px; /* Hauteur réduite sur très petits écrans */
+    bottom: 70px;
+    /* Hauteur réduite sur très petits écrans */
   }
 }
 
@@ -531,7 +525,9 @@
 }
 
 @keyframes spin {
-  to { transform: rotate(360deg); }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 /* Responsive */
@@ -558,4 +554,3 @@
   }
 
 }
-

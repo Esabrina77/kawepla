@@ -4,16 +4,16 @@ import { useState, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { bookingsApi, Booking } from '@/lib/api/bookings';
 import { HeaderMobile } from '@/components/HeaderMobile/HeaderMobile';
-import { 
-  Calendar, 
-  Filter, 
-  CheckCircle, 
-  Clock, 
+import {
+  Calendar,
+  Filter,
+  CheckCircle,
+  Clock,
   XCircle,
   Euro,
   Users,
-  Phone, 
-  Mail, 
+  Phone,
+  Mail,
   MessageSquare,
   ChevronDown,
   Eye
@@ -44,7 +44,7 @@ export default function ProviderBookingsPage() {
       try {
         setLoading(true);
         setError(null);
-        
+
         // Si on a un conversationId, récupérer le booking correspondant
         if (conversationId) {
           try {
@@ -57,12 +57,12 @@ export default function ProviderBookingsPage() {
             console.error('Booking non trouvé pour cette conversation:', err);
           }
         }
-        
+
         const response = await bookingsApi.getProviderBookings({
           status: selectedFilter !== 'all' ? selectedFilter : undefined,
           limit: 100
         });
-        
+
         setBookings(response.bookings || []);
       } catch (err) {
         setError(err instanceof Error ? err.message : 'Erreur lors du chargement des réservations');
@@ -159,14 +159,14 @@ export default function ProviderBookingsPage() {
   const handleStatusUpdate = async (bookingId: string, newStatus: string) => {
     try {
       await bookingsApi.updateBookingStatus(bookingId, newStatus);
-      
+
       // Mettre à jour localement
-      setBookings(prev => prev.map(booking => 
-        booking.id === bookingId 
+      setBookings(prev => prev.map(booking =>
+        booking.id === bookingId
           ? { ...booking, status: newStatus as any }
           : booking
       ));
-      
+
       // Recharger les stats
       const response = await bookingsApi.getBookingStats();
       setStats({
@@ -205,14 +205,14 @@ export default function ProviderBookingsPage() {
     <div className={styles.bookingsPage}>
       <HeaderMobile title="Mes réservations" />
 
-      <main className={styles.main}>
+      <div className={styles.pageContent}>
         {/* Page Title */}
         <h1 className={styles.pageTitle}>Mes réservations</h1>
 
         {/* Section Statistiques */}
         <section className={styles.statsSection}>
           <h2 className={styles.sectionTitle}>Statistiques</h2>
-          
+
           <div className={styles.statsGrid}>
             {/* Total réservations */}
             <div className={styles.statCard}>
@@ -222,7 +222,7 @@ export default function ProviderBookingsPage() {
               <div className={styles.statValue}>{stats.total}</div>
               <div className={styles.statLabel}>Total réservations</div>
             </div>
-            
+
             {/* En attente */}
             <div className={styles.statCard}>
               <div className={`${styles.statIconWrapper} ${styles.warning}`}>
@@ -231,7 +231,7 @@ export default function ProviderBookingsPage() {
               <div className={styles.statValue}>{stats.pending}</div>
               <div className={styles.statLabel}>En attente</div>
             </div>
-            
+
             {/* Confirmées */}
             <div className={styles.statCard}>
               <div className={`${styles.statIconWrapper} ${styles.success}`}>
@@ -240,7 +240,7 @@ export default function ProviderBookingsPage() {
               <div className={styles.statValue}>{stats.confirmed}</div>
               <div className={styles.statLabel}>Confirmées</div>
             </div>
-            
+
             {/* Terminées */}
             <div className={styles.statCard}>
               <div className={styles.statIconWrapper}>
@@ -249,7 +249,7 @@ export default function ProviderBookingsPage() {
               <div className={styles.statValue}>{stats.completed}</div>
               <div className={styles.statLabel}>Terminées</div>
             </div>
-            
+
             {/* Annulées */}
             <div className={styles.statCard}>
               <div className={`${styles.statIconWrapper} ${styles.error}`}>
@@ -258,7 +258,7 @@ export default function ProviderBookingsPage() {
               <div className={styles.statValue}>{stats.cancelled}</div>
               <div className={styles.statLabel}>Annulées</div>
             </div>
-            
+
             {/* Chiffre d'affaires */}
             <div className={styles.statCard}>
               <div className={styles.statIconWrapper}>
@@ -274,7 +274,7 @@ export default function ProviderBookingsPage() {
         <div className={styles.filtersContainer}>
           <div className={styles.filterGroup}>
             <Filter size={16} />
-            <select 
+            <select
               value={selectedFilter}
               onChange={(e) => setSelectedFilter(e.target.value)}
               className={styles.filterSelect}
@@ -292,140 +292,140 @@ export default function ProviderBookingsPage() {
         {/* Bookings List */}
         {filteredBookings.length === 0 ? (
           <div className={styles.emptyState}>
-          <Calendar className={styles.emptyIcon} />
-          <h3 className={styles.emptyTitle}>Aucune réservation</h3>
-          <p className={styles.emptyText}>
-            {selectedFilter === 'all' 
-              ? 'Vous n\'avez pas encore de réservations'
-              : `Aucune réservation avec le statut "${selectedFilter}"`
-            }
-          </p>
+            <Calendar className={styles.emptyIcon} />
+            <h3 className={styles.emptyTitle}>Aucune réservation</h3>
+            <p className={styles.emptyText}>
+              {selectedFilter === 'all'
+                ? 'Vous n\'avez pas encore de réservations'
+                : `Aucune réservation avec le statut "${selectedFilter}"`
+              }
+            </p>
           </div>
         ) : (
-        <div className={styles.bookingsGrid}>
-          {filteredBookings.map((booking) => {
-            const statusInfo = getStatusInfo(booking.status);
-            const StatusIcon = statusInfo.icon;
-            
-            return (
-            <div key={booking.id} className={styles.bookingCard}>
-                {/* Status Badge */}
-                <div 
+          <div className={styles.bookingsGrid}>
+            {filteredBookings.map((booking) => {
+              const statusInfo = getStatusInfo(booking.status);
+              const StatusIcon = statusInfo.icon;
+
+              return (
+                <div key={booking.id} className={styles.bookingCard}>
+                  {/* Status Badge */}
+                  <div
                     className={styles.statusBadge}
-                  style={{ backgroundColor: statusInfo.color + '20', borderColor: statusInfo.color }}
+                    style={{ backgroundColor: statusInfo.color + '20', borderColor: statusInfo.color }}
                   >
-                  <StatusIcon size={12} />
-                  <span style={{ color: statusInfo.color }}>{statusInfo.label}</span>
-                </div>
-
-                {/* Booking Header */}
-                <div className={styles.bookingHeader}>
-                  <h3 className={styles.clientName}>{booking.clientName}</h3>
-                  <div className={styles.serviceName}>
-                    {booking.service?.name || booking.customServiceName || 'Service personnalisé'}
+                    <StatusIcon size={12} />
+                    <span style={{ color: statusInfo.color }}>{statusInfo.label}</span>
                   </div>
-              </div>
 
-                {/* Event Details */}
-                <div className={styles.eventDetails}>
-                  <div className={styles.eventDate}>
-                    <Calendar size={14} />
-                    <span>{formatDate(booking.eventDate)}</span>
-                  </div>
-                  
-                  {booking.eventTime && (
-                    <div className={styles.eventTime}>
-                      <Clock size={14} />
-                      <span>{formatTime(booking.eventTime)}</span>
+                  {/* Booking Header */}
+                  <div className={styles.bookingHeader}>
+                    <h3 className={styles.clientName}>{booking.clientName}</h3>
+                    <div className={styles.serviceName}>
+                      {booking.service?.name || booking.customServiceName || 'Service personnalisé'}
                     </div>
-                  )}
-                  
-                  <div className={styles.eventType}>
-                    {getEventTypeLabel(booking.eventType)}
                   </div>
-                </div>
 
-                {/* Client Info */}
-                <div className={styles.clientInfo}>
-                  <div className={styles.clientContact}>
-                    <Mail size={14} />
-                    <span>{booking.clientEmail}</span>
+                  {/* Event Details */}
+                  <div className={styles.eventDetails}>
+                    <div className={styles.eventDate}>
+                      <Calendar size={14} />
+                      <span>{formatDate(booking.eventDate)}</span>
+                    </div>
+
+                    {booking.eventTime && (
+                      <div className={styles.eventTime}>
+                        <Clock size={14} />
+                        <span>{formatTime(booking.eventTime)}</span>
+                      </div>
+                    )}
+
+                    <div className={styles.eventType}>
+                      {getEventTypeLabel(booking.eventType)}
+                    </div>
                   </div>
-                  
-                  {booking.clientPhone && (
+
+                  {/* Client Info */}
+                  <div className={styles.clientInfo}>
                     <div className={styles.clientContact}>
-                      <Phone size={14} />
-                      <span>{booking.clientPhone}</span>
+                      <Mail size={14} />
+                      <span>{booking.clientEmail}</span>
+                    </div>
+
+                    {booking.clientPhone && (
+                      <div className={styles.clientContact}>
+                        <Phone size={14} />
+                        <span>{booking.clientPhone}</span>
+                      </div>
+                    )}
+
+                    {booking.guestCount && (
+                      <div className={styles.guestCount}>
+                        <Users size={14} />
+                        <span>{booking.guestCount} personnes</span>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Message */}
+                  {booking.message && (
+                    <div className={styles.clientMessage}>
+                      <MessageSquare size={14} />
+                      <p>{booking.message}</p>
                     </div>
                   )}
-                  
-                  {booking.guestCount && (
-                    <div className={styles.guestCount}>
-                      <Users size={14} />
-                      <span>{booking.guestCount} personnes</span>
-                    </div>
-                  )}
-                </div>
 
-                {/* Message */}
-                {booking.message && (
-                  <div className={styles.clientMessage}>
-                    <MessageSquare size={14} />
-                    <p>{booking.message}</p>
-                </div>
-                )}
+                  {/* Price */}
+                  <div className={styles.bookingPrice}>
+                    <Euro size={16} />
+                    <span>{booking.totalPrice}€</span>
+                  </div>
 
-                {/* Price */}
-                <div className={styles.bookingPrice}>
-                  <Euro size={16} />
-                  <span>{booking.totalPrice}€</span>
-                </div>
-
-                {/* Actions */}
-              <div className={styles.bookingActions}>
-                <Link
-                  href={`/provider/bookings/${booking.id}`}
-                  className={`${styles.actionButton} ${styles.viewButton}`}
-                >
-                  <Eye size={16} />
-                  Voir les détails
-                </Link>
-                
-                {booking.status === 'PENDING' && (
-                  <>
-                    <button
-                        onClick={() => handleStatusUpdate(booking.id, 'CONFIRMED')}
-                        className={`${styles.actionButton} ${styles.confirmButton}`}
+                  {/* Actions */}
+                  <div className={styles.bookingActions}>
+                    <Link
+                      href={`/provider/bookings/${booking.id}`}
+                      className={`${styles.actionButton} ${styles.viewButton}`}
                     >
+                      <Eye size={16} />
+                      Voir les détails
+                    </Link>
+
+                    {booking.status === 'PENDING' && (
+                      <>
+                        <button
+                          onClick={() => handleStatusUpdate(booking.id, 'CONFIRMED')}
+                          className={`${styles.actionButton} ${styles.confirmButton}`}
+                        >
+                          <CheckCircle size={16} />
+                          Confirmer
+                        </button>
+                        <button
+                          onClick={() => handleStatusUpdate(booking.id, 'CANCELLED')}
+                          className={`${styles.actionButton} ${styles.cancelButton}`}
+                        >
+                          <XCircle size={16} />
+                          Refuser
+                        </button>
+                      </>
+                    )}
+
+                    {booking.status === 'CONFIRMED' && (
+                      <button
+                        onClick={() => handleStatusUpdate(booking.id, 'COMPLETED')}
+                        className={`${styles.actionButton} ${styles.completeButton}`}
+                      >
                         <CheckCircle size={16} />
-                      Confirmer
-                    </button>
-                    <button
-                        onClick={() => handleStatusUpdate(booking.id, 'CANCELLED')}
-                        className={`${styles.actionButton} ${styles.cancelButton}`}
-                    >
-                        <XCircle size={16} />
-                      Refuser
-                    </button>
-                  </>
-                )}
-                
-                {booking.status === 'CONFIRMED' && (
-                  <button
-                      onClick={() => handleStatusUpdate(booking.id, 'COMPLETED')}
-                      className={`${styles.actionButton} ${styles.completeButton}`}
-                  >
-                      <CheckCircle size={16} />
-                    Marquer comme terminé
-                  </button>
-                )}
+                        Marquer comme terminé
+                      </button>
+                    )}
+                  </div>
                 </div>
-              </div>
-            );
-          })}
-        </div>
+              );
+            })}
+          </div>
         )}
-      </main>
+      </div>
     </div>
   );
 }

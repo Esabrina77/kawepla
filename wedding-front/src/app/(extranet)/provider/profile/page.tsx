@@ -9,11 +9,11 @@ import { HeaderMobile } from '@/components/HeaderMobile/HeaderMobile';
 import { ConfirmModal } from '@/components/ui/modal';
 import { usersApi } from '@/lib/api/users';
 import { useAuth } from '@/hooks/useAuth';
-import { 
-  User, 
-  MapPin, 
-  Camera, 
-  Save, 
+import {
+  User,
+  MapPin,
+  Camera,
+  Save,
   Plus,
   X,
   Star,
@@ -28,7 +28,7 @@ export default function ProviderProfilePage() {
   const { logout } = useAuth();
   const { profile, loading, error, createProfile, updateProfile } = useProviderProfile();
   const { categories } = useServiceCategories();
-  
+
   const [formData, setFormData] = useState<CreateProviderProfileDto>({
     businessName: '',
     description: '',
@@ -44,7 +44,7 @@ export default function ProviderProfilePage() {
     tiktok: '',
     facebook: ''
   });
-  
+
   const [uploading, setUploading] = useState(false);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [showErrorModal, setShowErrorModal] = useState(false);
@@ -79,14 +79,14 @@ export default function ProviderProfilePage() {
 
   const handlePhotoUpload = async (file: File, type: 'profile' | 'portfolio') => {
     if (!file) return;
-    
+
     // Validation
     if (file.size > 5 * 1024 * 1024) { // 5MB
       setErrorMessage('La photo ne doit pas dépasser 5MB');
       setShowErrorModal(true);
       return;
     }
-    
+
     if (!file.type.startsWith('image/')) {
       setErrorMessage('Veuillez sélectionner une image valide');
       setShowErrorModal(true);
@@ -99,7 +99,7 @@ export default function ProviderProfilePage() {
       const timestamp = Date.now();
       const fileName = `provider-${type}-${timestamp}-${file.name}`;
       const firebaseUrl = await uploadToFirebase(file, fileName, type === 'profile' ? 'provider-profile' : 'provider-portfolio');
-      
+
       if (type === 'profile') {
         setFormData(prev => ({ ...prev, profilePhoto: firebaseUrl }));
       } else {
@@ -123,7 +123,7 @@ export default function ProviderProfilePage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!formData.businessName || !formData.categoryId || !formData.displayCity) {
       setErrorMessage('Veuillez remplir tous les champs obligatoires');
       setShowErrorModal(true);
@@ -170,253 +170,253 @@ export default function ProviderProfilePage() {
     <div className={styles.profilePage}>
       <HeaderMobile title={profile ? 'Mon profil' : 'Créer mon profil'} />
 
-      <main className={styles.main}>
+      <div className={styles.pageContent}>
         {/* Page Title */}
         <h1 className={styles.pageTitle}>
           {profile ? 'Mon profil prestataire' : 'Créer votre profil prestataire'}
         </h1>
 
         <form onSubmit={handleSubmit} className={styles.profileForm}>
-        <div className={styles.formGrid}>
-          {/* Informations de base */}
-          <div className={styles.formSection}>
-            <h2 className={styles.sectionTitle}>Informations de base</h2>
-            
-            <div className={styles.formField}>
-              <label className={styles.formLabel}>Nom de l'entreprise *</label>
-              <input
-                type="text"
-                name="businessName"
-                value={formData.businessName}
-                onChange={handleInputChange}
-                className={styles.formInput}
-                placeholder="Ex: Studio Photo Marie"
-                required
-              />
-            </div>
+          <div className={styles.formGrid}>
+            {/* Informations de base */}
+            <div className={styles.formSection}>
+              <h2 className={styles.sectionTitle}>Informations de base</h2>
 
-            <div className={styles.formField}>
-              <label className={styles.formLabel}>Catégorie *</label>
-              <select
-                name="categoryId"
-                value={formData.categoryId}
-                onChange={handleInputChange}
-                className={styles.formSelect}
-                required
-              >
-                <option value="">Sélectionnez une catégorie</option>
-                {categories.map(category => (
-                  <option key={category.id} value={category.id}>
-                    {category.icon} {category.name}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            <div className={styles.formField}>
-              <label className={styles.formLabel}>Ville *</label>
-              <input
-                type="text"
-                name="displayCity"
-                value={formData.displayCity}
-                onChange={handleInputChange}
-                className={styles.formInput}
-                placeholder="Ex: Paris, Lyon, Marseille"
-                required
-              />
-            </div>
-
-            <div className={styles.formField}>
-              <label className={styles.formLabel}>Téléphone *</label>
-              <input
-                type="tel"
-                name="phone"
-                value={formData.phone}
-                onChange={handleInputChange}
-                className={styles.formInput}
-                placeholder="Ex: +33 1 23 45 67 89"
-                required
-              />
-            </div>
-
-            <div className={styles.formField}>
-              <label className={styles.formLabel}>Description</label>
-              <textarea
-                name="description"
-                value={formData.description}
-                onChange={handleInputChange}
-                className={styles.formTextarea}
-                placeholder="Décrivez votre entreprise, vos spécialités, votre expérience..."
-                rows={4}
-              />
-            </div>
-          </div>
-
-          {/* Réseaux sociaux */}
-          <div className={styles.formSection}>
-            <h2 className={styles.sectionTitle}>Réseaux sociaux *</h2>
-            <p className={styles.sectionDescription}>
-              Veuillez fournir au moins un lien (site web, Instagram, TikTok ou Facebook)
-            </p>
-            
-            <div className={styles.formField}>
-              <label className={styles.formLabel}>
-                <WebsiteIcon size={16} />
-                Site web personnel
-              </label>
-              <input
-                type="url"
-                name="website"
-                value={formData.website}
-                onChange={handleInputChange}
-                className={styles.formInput}
-                placeholder="https://www.votre-site.com"
-              />
-            </div>
-
-            <div className={styles.formField}>
-              <label className={styles.formLabel}>
-                <InstagramIcon size={16} />
-                Instagram
-              </label>
-              <input
-                type="url"
-                name="instagram"
-                value={formData.instagram}
-                onChange={handleInputChange}
-                className={styles.formInput}
-                placeholder="https://www.instagram.com/votre-compte"
-              />
-            </div>
-
-            <div className={styles.formField}>
-              <label className={styles.formLabel}>
-                <TikTokIcon size={16} />
-                TikTok
-              </label>
-              <input
-                type="url"
-                name="tiktok"
-                value={formData.tiktok}
-                onChange={handleInputChange}
-                className={styles.formInput}
-                placeholder="https://www.tiktok.com/@votre-compte"
-              />
-            </div>
-
-            <div className={styles.formField}>
-              <label className={styles.formLabel}>
-                <FacebookIcon size={16} />
-                Facebook
-              </label>
-              <input
-                type="url"
-                name="facebook"
-                value={formData.facebook}
-                onChange={handleInputChange}
-                className={styles.formInput}
-                placeholder="https://www.facebook.com/votre-page"
-              />
-            </div>
-          </div>
-
-          {/* Photos */}
-          <div className={styles.formSection}>
-            <h2 className={styles.sectionTitle}>Photos</h2>
-            
-            {/* Photo de profil */}
-            <div className={styles.formField}>
-              <label className={styles.formLabel}>Photo de profil</label>
-              <div className={styles.photoUpload}>
-                {formData.profilePhoto ? (
-                  <div className={styles.photoPreview}>
-                    <img src={formData.profilePhoto} alt="Photo de profil" />
-                    <button
-                      type="button"
-                      onClick={() => setFormData(prev => ({ ...prev, profilePhoto: '' }))}
-                      className={styles.removePhotoButton}
-                    >
-                      <X size={16} />
-                    </button>
-                  </div>
-                ) : (
-                  <div className={styles.photoPlaceholder}>
-                    <Camera size={32} />
-                    <span>Ajouter une photo de profil</span>
-                  </div>
-                )}
-                
+              <div className={styles.formField}>
+                <label className={styles.formLabel}>Nom de l'entreprise *</label>
                 <input
-                  type="file"
-                  accept="image/*"
-                  onChange={(e) => {
-                    const file = e.target.files?.[0];
-                    if (file) handlePhotoUpload(file, 'profile');
-                  }}
-                  className={styles.fileInput}
-                  disabled={uploading}
+                  type="text"
+                  name="businessName"
+                  value={formData.businessName}
+                  onChange={handleInputChange}
+                  className={styles.formInput}
+                  placeholder="Ex: Studio Photo Marie"
+                  required
+                />
+              </div>
+
+              <div className={styles.formField}>
+                <label className={styles.formLabel}>Catégorie *</label>
+                <select
+                  name="categoryId"
+                  value={formData.categoryId}
+                  onChange={handleInputChange}
+                  className={styles.formSelect}
+                  required
+                >
+                  <option value="">Sélectionnez une catégorie</option>
+                  {categories.map(category => (
+                    <option key={category.id} value={category.id}>
+                      {category.icon} {category.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div className={styles.formField}>
+                <label className={styles.formLabel}>Ville *</label>
+                <input
+                  type="text"
+                  name="displayCity"
+                  value={formData.displayCity}
+                  onChange={handleInputChange}
+                  className={styles.formInput}
+                  placeholder="Ex: Paris, Lyon, Marseille"
+                  required
+                />
+              </div>
+
+              <div className={styles.formField}>
+                <label className={styles.formLabel}>Téléphone *</label>
+                <input
+                  type="tel"
+                  name="phone"
+                  value={formData.phone}
+                  onChange={handleInputChange}
+                  className={styles.formInput}
+                  placeholder="Ex: +33 1 23 45 67 89"
+                  required
+                />
+              </div>
+
+              <div className={styles.formField}>
+                <label className={styles.formLabel}>Description</label>
+                <textarea
+                  name="description"
+                  value={formData.description}
+                  onChange={handleInputChange}
+                  className={styles.formTextarea}
+                  placeholder="Décrivez votre entreprise, vos spécialités, votre expérience..."
+                  rows={4}
                 />
               </div>
             </div>
 
-            {/* Portfolio */}
-            <div className={styles.formField}>
-              <label className={styles.formLabel}>Portfolio (max 10 photos)</label>
-              <div className={styles.portfolioGrid}>
-                {(formData.portfolio || []).map((photo, index) => (
-                  <div key={index} className={styles.portfolioItem}>
-                    <img src={photo} alt={`Portfolio ${index + 1}`} />
-                    <button
-                      type="button"
-                      onClick={() => removePortfolioImage(index)}
-                      className={styles.removePortfolioButton}
-                    >
-                      <X size={16} />
-                    </button>
-                  </div>
-                ))}
-                
-                {(formData.portfolio || []).length < 10 && (
-                  <div className={styles.addPortfolioItem}>
-                    <Plus size={24} />
-                    <span>Ajouter une photo</span>
-                    <input
-                      type="file"
-                      accept="image/*"
-                      onChange={(e) => {
-                        const file = e.target.files?.[0];
-                        if (file) handlePhotoUpload(file, 'portfolio');
-                      }}
-                      className={styles.fileInput}
-                      disabled={uploading}
-                    />
-                  </div>
-                )}
+            {/* Réseaux sociaux */}
+            <div className={styles.formSection}>
+              <h2 className={styles.sectionTitle}>Réseaux sociaux *</h2>
+              <p className={styles.sectionDescription}>
+                Veuillez fournir au moins un lien (site web, Instagram, TikTok ou Facebook)
+              </p>
+
+              <div className={styles.formField}>
+                <label className={styles.formLabel}>
+                  <WebsiteIcon size={16} />
+                  Site web personnel
+                </label>
+                <input
+                  type="url"
+                  name="website"
+                  value={formData.website}
+                  onChange={handleInputChange}
+                  className={styles.formInput}
+                  placeholder="https://www.votre-site.com"
+                />
+              </div>
+
+              <div className={styles.formField}>
+                <label className={styles.formLabel}>
+                  <InstagramIcon size={16} />
+                  Instagram
+                </label>
+                <input
+                  type="url"
+                  name="instagram"
+                  value={formData.instagram}
+                  onChange={handleInputChange}
+                  className={styles.formInput}
+                  placeholder="https://www.instagram.com/votre-compte"
+                />
+              </div>
+
+              <div className={styles.formField}>
+                <label className={styles.formLabel}>
+                  <TikTokIcon size={16} />
+                  TikTok
+                </label>
+                <input
+                  type="url"
+                  name="tiktok"
+                  value={formData.tiktok}
+                  onChange={handleInputChange}
+                  className={styles.formInput}
+                  placeholder="https://www.tiktok.com/@votre-compte"
+                />
+              </div>
+
+              <div className={styles.formField}>
+                <label className={styles.formLabel}>
+                  <FacebookIcon size={16} />
+                  Facebook
+                </label>
+                <input
+                  type="url"
+                  name="facebook"
+                  value={formData.facebook}
+                  onChange={handleInputChange}
+                  className={styles.formInput}
+                  placeholder="https://www.facebook.com/votre-page"
+                />
+              </div>
+            </div>
+
+            {/* Photos */}
+            <div className={styles.formSection}>
+              <h2 className={styles.sectionTitle}>Photos</h2>
+
+              {/* Photo de profil */}
+              <div className={styles.formField}>
+                <label className={styles.formLabel}>Photo de profil</label>
+                <div className={styles.photoUpload}>
+                  {formData.profilePhoto ? (
+                    <div className={styles.photoPreview}>
+                      <img src={formData.profilePhoto} alt="Photo de profil" />
+                      <button
+                        type="button"
+                        onClick={() => setFormData(prev => ({ ...prev, profilePhoto: '' }))}
+                        className={styles.removePhotoButton}
+                      >
+                        <X size={16} />
+                      </button>
+                    </div>
+                  ) : (
+                    <div className={styles.photoPlaceholder}>
+                      <Camera size={32} />
+                      <span>Ajouter une photo de profil</span>
+                    </div>
+                  )}
+
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={(e) => {
+                      const file = e.target.files?.[0];
+                      if (file) handlePhotoUpload(file, 'profile');
+                    }}
+                    className={styles.fileInput}
+                    disabled={uploading}
+                  />
+                </div>
+              </div>
+
+              {/* Portfolio */}
+              <div className={styles.formField}>
+                <label className={styles.formLabel}>Portfolio (max 10 photos)</label>
+                <div className={styles.portfolioGrid}>
+                  {(formData.portfolio || []).map((photo, index) => (
+                    <div key={index} className={styles.portfolioItem}>
+                      <img src={photo} alt={`Portfolio ${index + 1}`} />
+                      <button
+                        type="button"
+                        onClick={() => removePortfolioImage(index)}
+                        className={styles.removePortfolioButton}
+                      >
+                        <X size={16} />
+                      </button>
+                    </div>
+                  ))}
+
+                  {(formData.portfolio || []).length < 10 && (
+                    <div className={styles.addPortfolioItem}>
+                      <Plus size={24} />
+                      <span>Ajouter une photo</span>
+                      <input
+                        type="file"
+                        accept="image/*"
+                        onChange={(e) => {
+                          const file = e.target.files?.[0];
+                          if (file) handlePhotoUpload(file, 'portfolio');
+                        }}
+                        className={styles.fileInput}
+                        disabled={uploading}
+                      />
+                    </div>
+                  )}
+                </div>
               </div>
             </div>
           </div>
-        </div>
 
-        {/* Actions */}
-        <div className={styles.formActions}>
-          <button 
-            type="submit" 
-            className={styles.saveButton}
-            disabled={uploading}
-          >
-            {uploading ? (
-              <>
-                <div className={styles.loadingSpinner}></div>
-                Sauvegarde...
-              </>
-            ) : (
-              <>
-                <Save size={20} />
-                {profile ? 'Mettre à jour' : 'Créer le profil'}
-              </>
-            )}
-          </button>
-        </div>
+          {/* Actions */}
+          <div className={styles.formActions}>
+            <button
+              type="submit"
+              className={styles.saveButton}
+              disabled={uploading}
+            >
+              {uploading ? (
+                <>
+                  <div className={styles.loadingSpinner}></div>
+                  Sauvegarde...
+                </>
+              ) : (
+                <>
+                  <Save size={20} />
+                  {profile ? 'Mettre à jour' : 'Créer le profil'}
+                </>
+              )}
+            </button>
+          </div>
         </form>
 
         {/* Danger Zone */}
@@ -438,7 +438,7 @@ export default function ProviderProfilePage() {
             {isDeleting ? 'Suppression...' : 'Supprimer mon compte'}
           </button>
         </div>
-      </main>
+      </div>
 
       {/* Success Modal */}
       {showSuccessModal && (
@@ -449,7 +449,7 @@ export default function ProviderProfilePage() {
               <h3>Profil sauvegardé avec succès !</h3>
             </div>
             <p>Votre profil provider a été {profile ? 'mis à jour' : 'créé'} avec succès.</p>
-            <button 
+            <button
               onClick={() => setShowSuccessModal(false)}
               className={styles.modalButton}
             >
@@ -468,7 +468,7 @@ export default function ProviderProfilePage() {
               <h3>Erreur</h3>
             </div>
             <p>{errorMessage}</p>
-            <button 
+            <button
               onClick={() => setShowErrorModal(false)}
               className={styles.modalButton}
             >

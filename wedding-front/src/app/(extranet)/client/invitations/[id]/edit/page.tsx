@@ -11,7 +11,6 @@ import {
   X,
   AlertTriangle,
   CheckCircle,
-  Edit,
   Palette
 } from 'lucide-react';
 import styles from './edit.module.css';
@@ -36,7 +35,6 @@ export default function InvitationEditPage() {
   });
   const [showDesignModal, setShowDesignModal] = useState(false);
 
-  // NOUVELLE ARCHITECTURE SIMPLIFIÉE
   const [formData, setFormData] = useState({
     eventTitle: '',
     eventDate: '',
@@ -53,7 +51,7 @@ export default function InvitationEditPage() {
     }
   }, [params.id]);
 
-  const showModal = (title: string, message: string, type: 'success' | 'error' | 'warning' = 'error') => {
+  const showModalFn = (title: string, message: string, type: 'success' | 'error' | 'warning' = 'error') => {
     setModal({ show: true, title, message, type });
   };
 
@@ -82,23 +80,21 @@ export default function InvitationEditPage() {
 
     if (!invitation) return;
 
-    // Validation côté frontend
     if (!formData.eventTitle.trim()) {
-      showModal('Erreur de validation', 'Le titre de l\'événement est obligatoire');
+      showModalFn('Erreur de validation', 'Le titre de l\'événement est obligatoire');
       return;
     }
 
     if (!formData.eventDate) {
-      showModal('Erreur de validation', 'La date de l\'événement est obligatoire');
+      showModalFn('Erreur de validation', 'La date de l\'événement est obligatoire');
       return;
     }
 
     if (!formData.location.trim()) {
-      showModal('Erreur de validation', 'Le lieu de l\'événement est obligatoire');
+      showModalFn('Erreur de validation', 'Le lieu de l\'événement est obligatoire');
       return;
     }
 
-    // Préparer les données pour l'API (comme dans la création)
     const dataToSend = {
       eventTitle: formData.eventTitle,
       eventDate: formData.eventDate,
@@ -107,38 +103,32 @@ export default function InvitationEditPage() {
       eventType: formData.eventType,
       customText: formData.customText || undefined,
       moreInfo: formData.moreInfo || undefined,
-      designId: invitation.designId // Inclure l'ID du design (potentiellement modifié)
+      designId: invitation.designId
     };
-
-    console.log('🔍 Debug update invitation - DataToSend:', dataToSend);
-    console.log('🔍 Debug update invitation - Invitation ID:', invitation.id);
 
     try {
       const result = await updateInvitation(invitation.id, dataToSend);
       if (result) {
-        showModal('Succès', 'Invitation mise à jour avec succès !', 'success');
+        showModalFn('Succès', 'Événement mis à jour avec succès !', 'success');
         setTimeout(() => {
           router.push(`/client/invitations/${invitation.id}`);
         }, 2000);
       }
     } catch (error) {
-      console.error('❌ Erreur lors de la mise à jour:', error);
-
-      // Gestion spécifique des erreurs
       const errorMessage = error instanceof Error ? error.message : 'Erreur inconnue';
 
       if (errorMessage.includes('publiée') || errorMessage.includes('published')) {
-        showModal('Invitation publiée',
-          'Cette invitation a déjà été publiée et ne peut plus être modifiée.\n\n' +
-          'Pour modifier une invitation publiée, vous devez d\'abord la dépublier depuis la page de gestion des invitations.',
+        showModalFn('Événement publié',
+          'Cet événement a déjà été publié et ne peut plus être modifié.\n\n' +
+          'Pour le modifier, vous devez d\'abord le dépublier.',
           'warning'
         );
       } else if (errorMessage.includes('permission') || errorMessage.includes('unauthorized')) {
-        showModal('Erreur de permission', 'Vous n\'avez pas les permissions nécessaires pour modifier cette invitation.');
+        showModalFn('Erreur de permission', 'Vous n\'avez pas les permissions pour modifier cet événement.');
       } else if (errorMessage.includes('not found') || errorMessage.includes('introuvable')) {
-        showModal('Invitation introuvable', 'Cette invitation n\'existe plus ou a été supprimée.');
+        showModalFn('Événement introuvable', 'Cet événement n\'existe plus ou a été supprimé.');
       } else {
-        showModal('Erreur de mise à jour', `Erreur lors de la mise à jour : ${errorMessage}`);
+        showModalFn('Erreur', `Erreur lors de la mise à jour : ${errorMessage}`);
       }
     }
   };
@@ -153,16 +143,12 @@ export default function InvitationEditPage() {
     setShowDesignModal(false);
   };
 
-  // Filtrer uniquement les designs personnalisés de l'utilisateur (pas les templates)
-  // On suppose que les templates ont isTemplate=true ou que l'utilisateur a ses propres designs
   const userDesigns = designs.filter(d => !d.isTemplate);
-
-
 
   if (loading) {
     return (
       <div className={styles.editPage}>
-        <HeaderMobile title="Modifier l'invitation" />
+        <HeaderMobile title="Modifier l'événement" />
         <div className={styles.loadingContainer}>
           <div className={styles.loadingContent}>
             <div className={styles.loadingSpinner}></div>
@@ -176,12 +162,12 @@ export default function InvitationEditPage() {
   if (!invitation) {
     return (
       <div className={styles.editPage}>
-        <HeaderMobile title="Modifier l'invitation" />
+        <HeaderMobile title="Modifier l'événement" />
         <div className={styles.errorContainer}>
           <div className={styles.errorContent}>
-            <h2>Invitation non trouvée</h2>
+            <h2>Événement non trouvé</h2>
             <button onClick={() => router.push('/client/invitations')} className={styles.backButton}>
-              Retour aux invitations
+              Retour aux événements
             </button>
           </div>
         </div>
@@ -191,15 +177,15 @@ export default function InvitationEditPage() {
 
   return (
     <div className={styles.editPage}>
-      {/* Modal d'erreur/succès */}
+      {/* Modal feedback */}
       {modal.show && (
-        <div className={styles.modalOverlay}>
+        <div className={styles.modalOverlay} role="dialog" aria-modal="true">
           <div className={`${styles.modal} ${styles[modal.type]}`}>
             <div className={styles.modalHeader}>
               <div className={styles.modalIcon}>
-                {modal.type === 'success' && <CheckCircle size={24} />}
-                {modal.type === 'error' && <AlertTriangle size={24} />}
-                {modal.type === 'warning' && <AlertTriangle size={24} />}
+                {modal.type === 'success' && <CheckCircle size={22} />}
+                {modal.type === 'error' && <AlertTriangle size={22} />}
+                {modal.type === 'warning' && <AlertTriangle size={22} />}
               </div>
               <h3 className={styles.modalTitle}>{modal.title}</h3>
             </div>
@@ -207,10 +193,7 @@ export default function InvitationEditPage() {
               <p style={{ whiteSpace: 'pre-line' }}>{modal.message}</p>
             </div>
             <div className={styles.modalActions}>
-              <button
-                className={styles.modalButton}
-                onClick={closeModal}
-              >
+              <button className={styles.modalButton} onClick={closeModal}>
                 {modal.type === 'success' ? 'Continuer' : 'Fermer'}
               </button>
             </div>
@@ -218,15 +201,15 @@ export default function InvitationEditPage() {
         </div>
       )}
 
-      <HeaderMobile title={`Modifier - ${invitation.eventTitle || 'Invitation'}`} />
+      <HeaderMobile title={`Modifier — ${invitation.eventTitle || 'Événement'}`} />
 
-      <main className={styles.main}>
+      <div className={styles.pageContent}>
         <div className={styles.editContainer}>
+          {/* Form */}
           <div className={styles.formSection}>
             <form onSubmit={handleSave} className={styles.form}>
-              {/* Type d'événement */}
               <div className={styles.formGroup}>
-                <h3>Type d'événement *</h3>
+                <h3>Type d&apos;événement *</h3>
                 <div className={styles.formField}>
                   <select
                     value={formData.eventType}
@@ -240,42 +223,39 @@ export default function InvitationEditPage() {
                     <option value="ANNIVERSARY">Anniversaire de mariage</option>
                     <option value="GRADUATION">Remise de diplôme</option>
                     <option value="BABY_SHOWER">Baby shower</option>
-                    <option value="CORPORATE">Événement d'entreprise</option>
+                    <option value="CORPORATE">Événement d&apos;entreprise</option>
                     <option value="OTHER">Autre</option>
                   </select>
                 </div>
               </div>
 
-              {/* 1. Titre de l'événement (affiché en premier dans l'invitation) */}
               <div className={styles.formGroup}>
-                <h3>1. Titre de l'événement *</h3>
+                <h3>1. Titre *</h3>
                 <div className={styles.formField}>
                   <input
                     type="text"
                     value={formData.eventTitle}
                     onChange={(e) => setFormData(prev => ({ ...prev, eventTitle: e.target.value }))}
                     className={styles.formInput}
-                    placeholder="Ex: Marie & Pierre, Anniversaire de Marie, Baptême de Lucas"
+                    placeholder="Ex: Marie & Pierre"
                     required
                   />
                 </div>
               </div>
 
-              {/* 2. Texte personnalisé (affiché en deuxième dans l'invitation) */}
               <div className={styles.formGroup}>
-                <h3>2. Message personnalisé (optionnel)</h3>
+                <h3>2. Message personnalisé</h3>
                 <div className={styles.formField}>
                   <textarea
                     value={formData.customText}
                     onChange={(e) => setFormData(prev => ({ ...prev, customText: e.target.value }))}
                     className={styles.formTextarea}
-                    placeholder="Ex: Vous êtes cordialement invités à célébrer avec nous..."
+                    placeholder="Vous êtes cordialement invités..."
                     rows={3}
                   />
                 </div>
               </div>
 
-              {/* 3. Date et heure (affichées en troisième et quatrième dans l'invitation) */}
               <div className={styles.formGroup}>
                 <h3>3. Date et heure *</h3>
                 <div className={styles.formRow}>
@@ -301,30 +281,28 @@ export default function InvitationEditPage() {
                 </div>
               </div>
 
-              {/* 4. Lieu (affiché en cinquième dans l'invitation) */}
               <div className={styles.formGroup}>
-                <h3>4. Lieu de l'événement *</h3>
+                <h3>4. Lieu *</h3>
                 <div className={styles.formField}>
                   <input
                     type="text"
                     value={formData.location}
                     onChange={(e) => setFormData(prev => ({ ...prev, location: e.target.value }))}
                     className={styles.formInput}
-                    placeholder="Ex: Château de Versailles, 1 Place d'Armes, 78000 Versailles"
+                    placeholder="Ex: Château de Versailles, 78000 Versailles"
                     required
                   />
                 </div>
               </div>
 
-              {/* 5. Informations complémentaires (affichées en dernier dans l'invitation) */}
               <div className={styles.formGroup}>
-                <h3>5. Détails supplémentaires (optionnel)</h3>
+                <h3>5. Détails supplémentaires</h3>
                 <div className={styles.formField}>
                   <textarea
                     value={formData.moreInfo}
                     onChange={(e) => setFormData(prev => ({ ...prev, moreInfo: e.target.value }))}
                     className={styles.formTextarea}
-                    placeholder="Ex: Tenue élégante souhaitée. Parking disponible. Contact: marie@email.com"
+                    placeholder="Tenue élégante souhaitée. Parking disponible."
                     rows={4}
                   />
                 </div>
@@ -336,20 +314,18 @@ export default function InvitationEditPage() {
                   className={styles.cancelButton}
                   onClick={() => router.push(`/client/invitations/${invitation.id}`)}
                 >
-                  <X size={18} />
+                  <X size={16} />
                   Annuler
                 </button>
-                <button
-                  type="submit"
-                  className={styles.saveButton}
-                >
-                  <Save size={18} />
+                <button type="submit" className={styles.saveButton}>
+                  <Save size={16} />
                   Sauvegarder
                 </button>
               </div>
             </form>
           </div>
 
+          {/* Preview */}
           <div className={styles.previewSection}>
             <div className={styles.previewContainer}>
               {getSelectedDesign() && (
@@ -361,108 +337,66 @@ export default function InvitationEditPage() {
               )}
             </div>
             {invitation && (
-              <div style={{ marginTop: '1rem', textAlign: 'center' }}>
-                <button
-                  type="button"
-                  onClick={() => setShowDesignModal(true)}
-                  style={{
-                    padding: '0.75rem 1.5rem',
-                    background: 'white',
-                    border: '1px solid #e2e8f0',
-                    borderRadius: '0.5rem',
-                    fontWeight: 600,
-                    cursor: 'pointer',
-                    display: 'inline-flex',
-                    alignItems: 'center',
-                    gap: '0.5rem',
-                    color: '#1e293b'
-                  }}
-                >
-                  <Palette size={16} />
-                  Changer de design
-                </button>
-              </div>
+              <button
+                type="button"
+                onClick={() => setShowDesignModal(true)}
+                className={styles.changeDesignBtn}
+              >
+                <Palette size={16} />
+                Changer de design
+              </button>
             )}
           </div>
         </div>
-      </main>
+      </div>
 
-      {/* Modal de sélection de design */}
+      {/* Design picker modal */}
       {showDesignModal && (
         <div className={styles.modalOverlay} onClick={() => setShowDesignModal(false)}>
-          <div className={styles.modal} style={{ maxWidth: '800px', width: '90%' }} onClick={e => e.stopPropagation()}>
+          <div className={`${styles.modal} ${styles.designModal}`} onClick={e => e.stopPropagation()}>
             <div className={styles.modalHeader}>
-              <div className={styles.modalIcon}>
-                <Palette size={24} />
+              <div className={styles.modalIcon} style={{ background: 'color-mix(in srgb, var(--primary) 10%, transparent)', color: 'var(--primary)' }}>
+                <Palette size={22} />
               </div>
               <h3 className={styles.modalTitle}>Choisir un design</h3>
             </div>
-            <div className={styles.modalContent} style={{ maxHeight: '60vh', overflowY: 'auto' }}>
-              <p style={{ marginBottom: '1rem' }}>Sélectionnez l'un de vos designs personnalisés :</p>
+            <div className={styles.modalContent}>
+              <p className={styles.designModalIntro}>Sélectionnez l&apos;un de vos designs personnalisés :</p>
 
               {userDesigns.length === 0 ? (
-                <div style={{ textAlign: 'center', padding: '2rem', color: '#64748b' }}>
-                  <p>Vous n'avez pas encore de designs personnalisés.</p>
+                <div className={styles.emptyDesigns}>
+                  <p>Vous n&apos;avez pas encore de designs personnalisés.</p>
                   <button
                     onClick={() => router.push('/client/design')}
-                    style={{
-                      marginTop: '1rem',
-                      padding: '0.5rem 1rem',
-                      background: '#000',
-                      color: 'white',
-                      borderRadius: '0.25rem',
-                      border: 'none',
-                      cursor: 'pointer'
-                    }}
+                    className={styles.emptyDesignsBtn}
                   >
-                    Créer un nouveau design
+                    Créer un design
                   </button>
                 </div>
               ) : (
-                <div style={{
-                  display: 'grid',
-                  gridTemplateColumns: 'repeat(auto-fill, minmax(150px, 1fr))',
-                  gap: '1rem'
-                }}>
+                <div className={styles.designGrid}>
                   {userDesigns.map(design => (
                     <div
                       key={design.id}
                       onClick={() => handleDesignSelect(design.id)}
-                      style={{
-                        border: invitation.designId === design.id ? '2px solid #000' : '1px solid #e2e8f0',
-                        borderRadius: '0.5rem',
-                        overflow: 'hidden',
-                        cursor: 'pointer',
-                        position: 'relative'
-                      }}
+                      className={`${styles.designGridItem} ${invitation.designId === design.id ? styles.selected : ''}`}
                     >
-                      <div style={{ aspectRatio: '2/3', background: '#f1f5f9', position: 'relative' }}>
+                      <div className={styles.designGridThumb}>
                         {design.thumbnail || design.previewImage ? (
                           <img
                             src={design.thumbnail || design.previewImage}
                             alt={design.name}
-                            style={{ width: '100%', height: '100%', objectFit: 'cover' }}
                           />
                         ) : (
-                          <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#cbd5e1' }}>
-                            <Palette size={32} />
-                          </div>
+                          <Palette size={28} />
                         )}
                         {invitation.designId === design.id && (
-                          <div style={{
-                            position: 'absolute',
-                            top: '0.5rem',
-                            right: '0.5rem',
-                            background: '#000',
-                            color: 'white',
-                            borderRadius: '50%',
-                            padding: '0.25rem'
-                          }}>
-                            <CheckCircle size={16} />
+                          <div className={styles.selectedBadge}>
+                            <CheckCircle size={14} />
                           </div>
                         )}
                       </div>
-                      <div style={{ padding: '0.5rem', fontSize: '0.875rem', fontWeight: 500, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                      <div className={styles.designGridName}>
                         {design.name}
                       </div>
                     </div>
@@ -475,7 +409,7 @@ export default function InvitationEditPage() {
                 className={styles.modalButton}
                 onClick={() => setShowDesignModal(false)}
               >
-                Annuler
+                Fermer
               </button>
             </div>
           </div>

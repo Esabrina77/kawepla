@@ -167,7 +167,7 @@ export default function InvitationDetailPage() {
     <div className={styles.invitationDetail}>
       <HeaderMobile title={invitation.title || 'Détail de l\'invitation'} />
 
-      <main className={styles.main}>
+      <div className={styles.pageContent}>
         {/* Page Header */}
         <div className={styles.pageHeader}>
           <span className={`${styles.statusBadge} ${getStatusColor(invitation.status)}`}>
@@ -291,7 +291,7 @@ export default function InvitationDetailPage() {
             </div>
           </div>
         </div>
-      </main>
+      </div>
     </div>
   );
 } 

@@ -6,8 +6,8 @@ import { stripeApi } from '@/lib/api/stripe';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { HeaderMobile } from '@/components/HeaderMobile';
-import { 
-  CreditCard, 
+import {
+  CreditCard,
   Clock,
   CheckCircle,
   AlertCircle,
@@ -53,10 +53,10 @@ export default function ProviderBillingPage() {
     try {
       setLoading(true);
       setError(null);
-      
+
       // Charger uniquement l'historique (plus de plans providers - tous ont 20 requêtes IA fixes)
       const historyData = await stripeApi.getPurchaseHistory() as PurchaseHistoryData;
-      
+
       setPurchaseHistory(historyData);
     } catch (error) {
       console.error('❌ Error loading billing data:', error);
@@ -145,7 +145,7 @@ export default function ProviderBillingPage() {
     );
   }
 
-  const allPurchases = (purchaseHistory?.purchaseHistory || []).filter(p => 
+  const allPurchases = (purchaseHistory?.purchaseHistory || []).filter(p =>
     p.tier.startsWith('PROVIDER_')
   ).map(p => ({
     ...p,
@@ -159,11 +159,11 @@ export default function ProviderBillingPage() {
     <div className={styles.billingPage}>
       <HeaderMobile title="Facturation" />
 
-      <main className={styles.main}>
+      <div className={styles.pageContent}>
         {/* Info Section - Tous les providers ont 20 requêtes IA */}
         <div className={styles.plansSection}>
           <h2 className={styles.sectionTitle}>Votre forfait</h2>
-          
+
           <div className={styles.planCard}>
             <div className={styles.planHeader}>
               <h3 className={styles.planName}>Forfait Provider</h3>
@@ -171,9 +171,9 @@ export default function ProviderBillingPage() {
                 <span className={styles.freePrice}>Gratuit</span>
               </div>
             </div>
-            
+
             <p className={styles.planDescription}>Tous les providers bénéficient de 20 requêtes IA par mois pour améliorer les descriptions de leurs services.</p>
-            
+
             <div className={styles.planFeatures}>
               <div className={styles.featureItem}>
                 <Zap size={16} />
@@ -221,7 +221,7 @@ export default function ProviderBillingPage() {
         {allPurchases.length > 0 && (
           <div className={styles.historySection}>
             <h2 className={styles.sectionTitle}>Historique des achats</h2>
-            
+
             <div className={styles.purchaseList}>
               {allPurchases.map((purchase) => (
                 <div key={purchase.id} className={styles.purchaseCard}>
@@ -234,7 +234,7 @@ export default function ProviderBillingPage() {
                       {purchase.displayPrice}
                     </div>
                   </div>
-                  
+
                   <div className={styles.purchaseActions}>
                     <Button
                       onClick={() => handleDownloadInvoice(purchase)}
@@ -250,7 +250,7 @@ export default function ProviderBillingPage() {
             </div>
           </div>
         )}
-      </main>
+      </div>
     </div>
   );
 }

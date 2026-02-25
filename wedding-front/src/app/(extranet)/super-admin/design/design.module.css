@@ -35,16 +35,7 @@
 /* Desktop avec sidebar */
 @media (min-width: 769px) {
   .header {
-    padding-left: 190px;
     padding-right: 1rem;
-    transition: padding-left var(--transition-normal);
-  }
-}
-
-/* Desktop avec sidebar collapsed */
-@media (min-width: 769px) {
-  :global(body[data-sidebar-collapsed="true"]) .header {
-    padding-left: 80px;
   }
 }
 
@@ -91,7 +82,7 @@
 }
 
 /* Main Content */
-.main {
+.pageContent {
   flex: 1;
   padding: 1rem;
   padding-bottom: 7rem;
@@ -716,7 +707,7 @@
 
 /* Responsive */
 @media (max-width: 768px) {
-  .designPage {
+  .pageContent {
     padding: var(--space-md);
   }
 
@@ -807,6 +798,7 @@
     transform: scale(0.5);
   }
 }
+
 /* View Mode Toggles */
 .viewModeContainer {
   display: flex;
@@ -845,4 +837,3 @@
   height: 2px;
   background: var(--luxury-champagne-gold);
 }
-

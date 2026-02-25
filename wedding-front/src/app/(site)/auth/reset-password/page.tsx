@@ -3,7 +3,7 @@
 import { useState, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
-import { Lock, Eye, EyeOff, Check, X, ArrowLeft } from 'lucide-react';
+import { Eye, EyeOff, Check, X, ArrowLeft } from 'lucide-react';
 import styles from '@/styles/site/auth.module.css';
 
 function ResetPasswordContent() {
@@ -19,7 +19,6 @@ function ResetPasswordContent() {
   const [error, setError] = useState('');
   const [success, setSuccess] = useState(false);
 
-  // Validation du mot de passe
   const passwordValidation = {
     length: formData.password.length >= 8,
   };
@@ -49,7 +48,6 @@ function ResetPasswordContent() {
     setLoading(true);
 
     try {
-      // Simuler la réinitialisation
       await new Promise(resolve => setTimeout(resolve, 2000));
       setSuccess(true);
     } catch (err) {
@@ -72,18 +70,16 @@ function ResetPasswordContent() {
         <div className={styles.container}>
           <div className={`${styles.authCard} ${styles.loginCard}`}>
             <div className={styles.header}>
-              <Lock size={48} className={styles.icon} />
               <h1>Mot de passe réinitialisé</h1>
               <p>Votre mot de passe a été modifié avec succès</p>
             </div>
 
-            <div className={styles.messageBox}>
-              <Check size={48} className={styles.iconSuccess} />
-              <p className={styles.success}>Mot de passe mis à jour avec succès !</p>
-              <p>Vous pouvez maintenant vous connecter avec votre nouveau mot de passe.</p>
+            <div className={`${styles.messageBox} ${styles.success}`}>
+              <Check size={20} />
+              <span>Mot de passe mis à jour ! Vous pouvez maintenant vous connecter.</span>
             </div>
 
-            <Link href="/auth/login" className={styles.submitButton}>
+            <Link href="/auth/login" className={styles.submitButton} style={{ textDecoration: 'none', marginTop: '1.5rem' }}>
               Se connecter
             </Link>
           </div>
@@ -97,8 +93,7 @@ function ResetPasswordContent() {
       <div className={styles.container}>
         <div className={`${styles.authCard} ${styles.loginCard}`}>
           <div className={styles.header}>
-            <Lock size={48} className={styles.icon} />
-            <h1>Réinitialiser votre mot de passe</h1>
+            <h1 className={styles.smallTitle}>Réinitialiser le mot de passe</h1>
             <p>Choisissez un nouveau mot de passe sécurisé</p>
           </div>
 
@@ -131,8 +126,7 @@ function ResetPasswordContent() {
                   {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
                 </button>
               </div>
-              
-              {/* Validation mot de passe */}
+
               <div className={styles.validationItem}>
                 <div className={`${styles.validationIcon} ${isPasswordValid ? styles.valid : styles.invalid}`}>
                   {isPasswordValid ? <Check size={16} /> : <X size={16} />}
@@ -163,8 +157,7 @@ function ResetPasswordContent() {
                   {showConfirmPassword ? <EyeOff size={20} /> : <Eye size={20} />}
                 </button>
               </div>
-              
-              {/* Validation confirmation */}
+
               {formData.confirmPassword && (
                 <div className={styles.validationItem}>
                   <div className={`${styles.validationIcon} ${passwordsMatch ? styles.valid : styles.invalid}`}>
@@ -189,7 +182,7 @@ function ResetPasswordContent() {
           <div className={styles.footer}>
             <Link href="/auth/login" className={styles.actionButton}>
               <ArrowLeft size={16} />
-              Retour à la connexion
+              <span>Retour à la connexion</span>
             </Link>
           </div>
         </div>
@@ -205,7 +198,6 @@ export default function ResetPasswordPage() {
         <div className={styles.container}>
           <div className={`${styles.authCard} ${styles.loginCard}`}>
             <div className={styles.header}>
-              <Lock size={48} className={styles.icon} />
               <h1>Chargement...</h1>
               <p>Préparation de la réinitialisation</p>
             </div>

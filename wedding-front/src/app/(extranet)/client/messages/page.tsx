@@ -1,123 +1,71 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import { useRSVPMessages } from '@/hooks/useRSVPMessages';
 import { useInvitations } from '@/hooks/useInvitations';
-import { useNotifications } from '@/hooks/useNotifications';
 import { RSVPMessage } from '@/types';
 import { HeaderMobile } from '@/components/HeaderMobile';
 import styles from './messages.module.css';
 
-import { 
-  MessageSquare, 
-  Search, 
-  CheckCircle, 
-  XCircle, 
-  Clock, 
+import {
+  MessageSquare,
+  Search,
+  CheckCircle,
+  XCircle,
+  Clock,
   User,
   Calendar,
   Mail,
   Eye,
   Phone,
-  Users,
-  Heart,
   Filter,
-  Bell,
-  X
+  X,
+  ArrowRight,
+  Info
 } from 'lucide-react';
 
-
 export default function MessagesPage() {
-  const router = useRouter();
   const { invitations, loading: loadingInvitations } = useInvitations();
-  const [selectedInvitationId, setSelectedInvitationId] = useState<string>('');
   const { messages, loading: loadingMessages, error, refetch } = useRSVPMessages();
-  const { notifyRSVPConfirmed, notifyRSVPDeclined } = useNotifications();
   
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedMessage, setSelectedMessage] = useState<RSVPMessage | null>(null);
-  const [showModal, setShowModal] = useState(false);
 
-  // Sélectionner automatiquement la première invitation
-  useEffect(() => {
-    if (invitations.length > 0 && !selectedInvitationId) {
-      const publishedInvitation = invitations.find(inv => inv.status === 'PUBLISHED');
-      const defaultInvitation = publishedInvitation || invitations[0];
-      setSelectedInvitationId(defaultInvitation.id);
-    }
-  }, [invitations, selectedInvitationId]);
+  // Stats calculation
+  const stats = useMemo(() => {
+    const total = messages.length;
+    const confirmed = messages.filter(m => m.status === 'CONFIRMED').length;
+    const declined = messages.filter(m => m.status === 'DECLINED').length;
+    const pending = messages.filter(m => m.status === 'PENDING').length;
+    return { total, confirmed, declined, pending };
+  }, [messages]);
 
-  // Test des notifications
-  const testNotifications = () => {
-    notifyRSVPConfirmed('Marie Dupont', 'événement de Sophie & Thomas');
-    setTimeout(() => {
-      notifyRSVPDeclined('Jean Martin', 'événement de Sophie & Thomas');
-    }, 2000);
-  };
-
-  // Fonction helper pour vérifier si une chaîne contient le terme de recherche
-  const containsSearchTerm = (value: string | null | undefined, searchTerm: string): boolean => {
-    if (!value || !searchTerm) return false;
-    return value.toLowerCase().includes(searchTerm.toLowerCase());
-  };
-
-  // Filtrer les messages : uniquement ceux qui ont un message non vide
-  const filteredMessages = messages.filter(message => {
-    // Exclure les messages vides ou null
-    if (!message.message || message.message.trim() === '') {
-      return false;
-    }
-    
-    // Si pas de recherche, retourner tous les messages avec contenu
-    if (!searchQuery.trim()) return true;
-    
-    // Filtrer par terme de recherche
-    return (
-      containsSearchTerm(message.guest.firstName, searchQuery) ||
-      containsSearchTerm(message.guest.lastName, searchQuery) ||
-      containsSearchTerm(message.guest.email, searchQuery) ||
-      containsSearchTerm(message.invitation.eventTitle, searchQuery) ||
-      containsSearchTerm(message.message, searchQuery)
-    );
-  });
-
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'CONFIRMED':
-        return 'var(--alert-success)';
-      case 'DECLINED':
-        return 'var(--alert-error)';
-      case 'PENDING':
-        return 'var(--text-secondary)';
-      default:
-        return 'var(--text-secondary)';
-    }
-  };
-
-  const getStatusIcon = (status: string) => {
-    switch (status) {
-      case 'CONFIRMED':
-        return <CheckCircle style={{ width: '16px', height: '16px' }} />;
-      case 'DECLINED':
-        return <XCircle style={{ width: '16px', height: '16px' }} />;
-      case 'PENDING':
-        return <Clock style={{ width: '16px', height: '16px' }} />;
-      default:
-        return <Clock style={{ width: '16px', height: '16px' }} />;
-    }
-  };
+  // Combined messages filtering (search + has Content)
+  const filteredMessages = useMemo(() => {
+    return messages.filter(message => {
+      // Search logic
+      if (searchQuery.trim()) {
+        const query = searchQuery.toLowerCase();
+        const matchesSearch = 
+          message.guest.firstName.toLowerCase().includes(query) ||
+          message.guest.lastName.toLowerCase().includes(query) ||
+          message.guest.email.toLowerCase().includes(query) ||
+          (message.message && message.message.toLowerCase().includes(query)) ||
+          message.invitation.eventTitle.toLowerCase().includes(query);
+        
+        if (!matchesSearch) return false;
+      }
+      return true;
+    });
+  }, [messages, searchQuery]);
 
   const getStatusLabel = (status: string) => {
     switch (status) {
-      case 'CONFIRMED':
-        return 'Confirmé';
-      case 'DECLINED':
-        return 'Décliné';
-      case 'PENDING':
-        return 'En attente';
-      default:
-        return status;
+      case 'CONFIRMED': return 'Confirmé';
+      case 'DECLINED': return 'Décliné';
+      case 'PENDING': return 'En attente';
+      default: return status;
     }
   };
 
@@ -134,17 +82,13 @@ export default function MessagesPage() {
     return `${firstName.charAt(0)}${lastName.charAt(0)}`.toUpperCase();
   };
 
-  const truncateText = (text: string, maxLength: number = 30) => {
-    if (text.length <= maxLength) return text;
-    return text.substring(0, maxLength) + '...';
-  };
-
-  if (loadingMessages) {
+  if (loadingMessages || loadingInvitations) {
     return (
-      <div className={styles.loadingContainer}>
-        <div className={styles.loadingContent}>
+      <div className={styles.pageContainer}>
+        <HeaderMobile title="Réponses" />
+        <div className={styles.loadingContainer}>
           <div className={styles.loadingSpinner}></div>
-          <p className={styles.loadingText}>Chargement des messages...</p>
+          <p className={styles.loadingText}>Chargement de vos messages...</p>
         </div>
       </div>
     );
@@ -152,13 +96,13 @@ export default function MessagesPage() {
 
   if (error) {
     return (
-      <div className={styles.errorContainer}>
-        <div className={styles.errorContent}>
-          <p className={styles.errorText}>{error}</p>
-          <button 
-            onClick={refetch}
-            className={styles.retryButton}
-          >
+      <div className={styles.pageContainer}>
+        <HeaderMobile title="Réponses" />
+        <div className={styles.emptyContainer}>
+          <Info className={styles.emptyIcon} style={{ color: '#EF4444' }} />
+          <h3 className={styles.emptyTitle}>Une erreur est survenue</h3>
+          <p className={styles.emptyText}>{error}</p>
+          <button onClick={() => refetch()} className={styles.modalButtonPrimary} style={{ width: 'auto', marginTop: '1rem' }}>
             Réessayer
           </button>
         </div>
@@ -168,191 +112,192 @@ export default function MessagesPage() {
 
   return (
     <div className={styles.pageContainer}>
-      <HeaderMobile title="Vos Messages" />
+      <HeaderMobile title="Réponses" />
+
+      {/* Header Info */}
+      <div className={styles.searchBar}>
+        <div>
+          <p className={styles.introText}>
+            <span style={{ display: 'block' }}>Consultez les messages et confirmations de vos invités.</span>
+            <span style={{ display: 'block' }}>Cliquez sur un message pour voir tous les détails de la réponse.</span>
+          </p>
+        </div>
+      </div>
 
       {/* Search Bar */}
-      <div className={styles.searchContainer}>
-        <div className={styles.searchWrapper}>
-          <Search className={styles.searchIcon} />
-          <input
-            type="text"
-            placeholder="Rechercher par nom, email ou message..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className={styles.searchInput}
-          />
+      <div className={styles.searchFiltersSection}>
+        <div className={styles.searchContainer}>
+          <div className={styles.searchWrapper}>
+            <Search size={18} className={styles.searchIcon} />
+            <input
+              type="text"
+              placeholder="Rechercher par nom, email ou contenu..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className={styles.searchInput}
+            />
+          </div>
         </div>
       </div>
 
       {/* Messages Grid */}
       <div className={styles.messagesGrid}>
         {filteredMessages.map((message) => {
-          const hasMessage = message.message && message.message.trim() !== '';
           const statusClass = message.status.toLowerCase();
           const avatarClass = `avatar${statusClass.charAt(0).toUpperCase() + statusClass.slice(1)}`;
-          
+          const hasMessage = message.message && message.message.trim() !== '';
+
           return (
-            <div key={message.id} className={styles.messageCard}>
-              {/* Header avec avatar, nom, email et statut */}
-            <div className={styles.messageCardHeader}>
+            <div 
+              key={message.id} 
+              className={styles.messageCard}
+              onClick={() => setSelectedMessage(message)}
+            >
+              <div className={styles.messageCardHeader}>
                 <div className={`${styles.guestAvatar} ${styles[avatarClass]}`}>
-                {getInitials(message.guest.firstName, message.guest.lastName)}
-              </div>
-              
-              <div className={styles.guestInfo}>
+                  {getInitials(message.guest.firstName, message.guest.lastName)}
+                </div>
+
+                <div className={styles.guestInfo}>
                   <p className={styles.guestName}>
-                  {message.guest.firstName} {message.guest.lastName}
+                    {message.guest.firstName} {message.guest.lastName}
                   </p>
                   <p className={styles.guestEmail}>
-                  {message.guest.email}
+                    <Mail size={12} /> {message.guest.email}
                   </p>
                 </div>
-                
+
                 <div className={`${styles.statusBadge} ${styles[statusClass]}`}>
-                  <div className={styles.statusDot}></div>
                   {getStatusLabel(message.status)}
                 </div>
               </div>
-              
-              {/* Contenu : titre invitation, message, date */}
-              <div className={styles.messageContent}>
+
+              <div className={styles.messageBody}>
                 <p className={styles.invitationTitle}>
-                {message.invitation.eventTitle}
+                   <Calendar size={12} /> {message.invitation.eventTitle}
                 </p>
-                <p className={`${styles.messageText} ${!hasMessage ? styles.noMessage : ''}`}>
-                  {hasMessage ? message.message : 'Aucun message'}
-                </p>
-                <p className={styles.messageDate}>
-                  {formatDate(message.createdAt)}
-                </p>
+                <div className={`${styles.messageText} ${!hasMessage ? styles.noMessage : ''}`}>
+                  {hasMessage ? (
+                    message.message.length > 120 
+                      ? `${message.message.substring(0, 120)}...` 
+                      : message.message
+                  ) : 'Aucun message particulier'}
+                </div>
               </div>
 
-              {/* Bouton Voir détails */}
-              <button
-                onClick={() => setSelectedMessage(message)}
-                className={styles.viewDetailsButton}
-              >
-                Voir détail du message
-              </button>
+              <div className={styles.messageFooter}>
+                <p className={styles.messageDate}>
+                  <Clock size={12} /> {formatDate(message.createdAt)}
+                </p>
+                <div className={styles.viewAction}>
+                  Détails <ArrowRight size={12} />
+                </div>
+              </div>
             </div>
           );
         })}
       </div>
 
-      {/* Empty State */}
+      {/* Empty State (Texte uniquement, pas de cadre) */}
       {filteredMessages.length === 0 && (
-        <div className={styles.emptyStateContainer}>
-          <MessageSquare className={styles.emptyStateIcon} />
-          <h3 className={styles.emptyStateTitle}>
-            {searchQuery ? 'Aucun message trouvé' : 'Aucun message pour le moment'}
+        <div className={styles.emptyContainer}>
+          <h3 className={styles.emptyTitle}>
+            {searchQuery ? 'Aucun résultat' : 'Aucune réponse'}
           </h3>
-          <p className={styles.emptyStateText}>
-            {searchQuery 
-              ? 'Essayez de modifier vos critères de recherche' 
-              : 'Les messages de vos invités apparaîtront ici'
+          <p className={styles.emptyText}>
+            {searchQuery
+              ? `Nous n'avons trouvé aucun message correspondant à "${searchQuery}"`
+              : 'Les réponses de vos invités apparaîtront ici dès qu\'ils auront complété leur RSVP.'
             }
           </p>
         </div>
       )}
 
-      {/* Modal pour les détails */}
+      {/* Details Modal */}
       {selectedMessage && (
         <div className={styles.modalOverlay} onClick={() => setSelectedMessage(null)}>
           <div className={styles.modalContent} onClick={(e) => e.stopPropagation()}>
-            {/* Modal Header */}
             <div className={styles.modalHeader}>
-              <h2 className={styles.modalTitle}>Détail du message</h2>
-            <button
-              onClick={() => setSelectedMessage(null)}
-              className={styles.modalCloseButton}
-            >
+              <h2 className={styles.modalTitle}>Détails de la réponse</h2>
+              <button
+                onClick={() => setSelectedMessage(null)}
+                className={styles.modalClose}
+              >
                 <X size={20} />
-            </button>
-              </div>
-              
-            {/* Modal Body */}
+              </button>
+            </div>
+
             <div className={styles.modalBody}>
-              <div className={styles.modalDetailRow}>
-                <span className={styles.modalDetailLabel}>Nom complet</span>
-                <span className={styles.modalDetailValue}>
-                  {selectedMessage.guest.firstName} {selectedMessage.guest.lastName}
-                </span>
+              <div className={styles.detailSection}>
+                <p className={styles.detailLabel}>Invité</p>
+                <p className={styles.detailValue}>
+                  <User size={16} /> {selectedMessage.guest.firstName} {selectedMessage.guest.lastName}
+                </p>
               </div>
-                
-              <div className={styles.modalDetailRow}>
-                <span className={styles.modalDetailLabel}>Email</span>
-                <span className={`${styles.modalDetailValue} ${styles.modalEmail}`}>
-                  {selectedMessage.guest.email}
-                </span>
-                </div>
-                
-                {selectedMessage.guest.phone && (
-                <div className={styles.modalDetailRow}>
-                  <span className={styles.modalDetailLabel}>Téléphone</span>
-                  <span className={styles.modalDetailValue}>
-                    {selectedMessage.guest.phone}
+
+              <div className={styles.detailSection}>
+                <p className={styles.detailLabel}>Contact & Statut</p>
+                <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
+                  <p className={styles.detailValue}><Mail size={14} /> {selectedMessage.guest.email}</p>
+                  {selectedMessage.guest.phone && (
+                    <p className={styles.detailValue}><Phone size={14} /> {selectedMessage.guest.phone}</p>
+                  )}
+                  <span className={`${styles.statusBadge} ${styles[selectedMessage.status.toLowerCase()]}`}>
+                    {getStatusLabel(selectedMessage.status)}
                   </span>
-                  </div>
-                )}
-                
-              <div className={styles.modalDivider}></div>
-
-              <div className={styles.modalDetailRow}>
-                <span className={styles.modalDetailLabel}>Statut RSVP</span>
-                <span className={styles.modalDetailValue}>
-                  {getStatusLabel(selectedMessage.status)} {selectedMessage.status === 'CONFIRMED' && '✅'}
-                </span>
+                </div>
               </div>
 
-              <div className={styles.modalDetailRow}>
-                <span className={styles.modalDetailLabel}>Titre invitation</span>
-                <span className={styles.modalDetailValue}>
-                  {selectedMessage.invitation.eventTitle}
-                </span>
+              <div className={styles.detailSection}>
+                <p className={styles.detailLabel}>Événement</p>
+                <p className={styles.detailValue}>
+                  <Calendar size={16} /> {selectedMessage.invitation.eventTitle}
+                </p>
               </div>
 
-              <div className={styles.modalMessageSection}>
-                <span className={styles.modalDetailLabel}>Message</span>
+              <div className={styles.detailSection}>
+                <p className={styles.detailLabel}>Message de l'invité</p>
                 <div className={styles.modalMessageBox}>
-                  {selectedMessage.message && selectedMessage.message.trim() !== '' 
-                    ? selectedMessage.message 
-                    : 'Aucun message'}
+                  {selectedMessage.message && selectedMessage.message.trim() !== ''
+                    ? selectedMessage.message
+                    : 'L\'invité n\'a pas laissé de message particulier.'}
                 </div>
               </div>
 
-              <div className={styles.modalDivider}></div>
+              {/* Extras */}
+              {(selectedMessage.guest.plusOne || selectedMessage.guest.dietaryRestrictions) && (
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+                   {selectedMessage.guest.plusOne && (
+                    <div className={styles.detailSection}>
+                      <p className={styles.detailLabel}>Accompagnants</p>
+                      <p className={styles.detailValue}>
+                        {selectedMessage.guest.plusOneName || '1 personne'}
+                      </p>
+                    </div>
+                  )}
+                  {selectedMessage.guest.dietaryRestrictions && (
+                    <div className={styles.detailSection}>
+                      <p className={styles.detailLabel}>Régime / Allégie</p>
+                      <p className={styles.detailValue}>
+                        {selectedMessage.guest.dietaryRestrictions}
+                      </p>
+                    </div>
+                  )}
+                </div>
+              )}
 
-              {selectedMessage.guest.plusOne && (
-                <div className={styles.modalDetailRow}>
-                  <span className={styles.modalDetailLabel}>Accompagnants</span>
-                  <span className={styles.modalDetailValue}>
-                    {selectedMessage.guest.plusOneName ? '1' : '0'}
-                  </span>
-                  </div>
-                )}
-                
-                {selectedMessage.guest.dietaryRestrictions && (
-                <div className={styles.modalMessageSection}>
-                  <span className={styles.modalDetailLabel}>Restrictions alimentaires</span>
-                  <p className={styles.modalDetailValue}>
-                    {selectedMessage.guest.dietaryRestrictions}
-                  </p>
-                  </div>
-                )}
-
-              <div className={styles.modalDetailRow}>
-                <span className={styles.modalDetailLabel}>Répondu le</span>
-                <span className={styles.modalDetailValue}>
-                {formatDate(selectedMessage.createdAt)}
-                </span>
+              <div className={styles.detailSection}>
+                <p className={styles.detailLabel}>Répondu le</p>
+                <p className={styles.detailValue}>
+                  <Clock size={16} /> {formatDate(selectedMessage.createdAt)}
+                </p>
               </div>
             </div>
 
-            {/* Modal Footer */}
             <div className={styles.modalFooter}>
               <button
                 onClick={() => setSelectedMessage(null)}
-                className={styles.modalCloseButtonMain}
+                className={styles.modalButtonPrimary}
               >
                 Fermer
               </button>
@@ -360,8 +305,6 @@ export default function MessagesPage() {
           </div>
         </div>
       )}
-
-
     </div>
   );
-} 
+}

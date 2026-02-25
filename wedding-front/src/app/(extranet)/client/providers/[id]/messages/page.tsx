@@ -11,6 +11,36 @@ import styles from './messages.module.css';
 import Link from 'next/link';
 import { useToast } from '@/components/ui/toast';
 
+// Composant Séparateur de Date (Style WhatsApp)
+const DateSeparator = ({ date }: { date: string }) => {
+  const d = new Date(date);
+  const today = new Date();
+  const yesterday = new Date();
+  yesterday.setDate(today.getDate() - 1);
+
+  let label = '';
+  if (d.toDateString() === today.toDateString()) {
+    label = "Aujourd'hui";
+  } else if (d.toDateString() === yesterday.toDateString()) {
+    label = "Hier";
+  } else {
+    label = d.toLocaleDateString('fr-FR', {
+      day: 'numeric',
+      month: 'long'
+    });
+    // Ajouter l'année si ce n'est pas l'année en cours
+    if (d.getFullYear() !== today.getFullYear()) {
+      label += ` ${d.getFullYear()}`;
+    }
+  }
+
+  return (
+    <div className={styles.dateSeparator}>
+      <span>{label}</span>
+    </div>
+  );
+};
+
 // Composant Message mémorisé pour éviter les re-renders inutiles
 const MessageItem = memo(({
   message,
@@ -25,9 +55,75 @@ const MessageItem = memo(({
   const isBookingMessage = message.messageType?.startsWith('BOOKING_');
   const isClient = message.sender?.role === 'HOST' || message.sender?.role === 'GUEST';
 
+  const renderBookingContent = (content: string) => {
+    // Nettoyage des emojis pour le rendu pro
+    const cleanContent = content.replace(/[✅📅👥💰]/g, '');
+    
+    // Extraction des informations clés via Regex
+    const eventDateMatch = content.match(/Date de l'événement : ([^👥💰Statut]+)/);
+    const guestMatch = content.match(/Type : ([^💰Statut]+)/);
+    const priceMatch = content.match(/Montant : ([^Statut]+)/);
+    const statusMatch = content.match(/Statut : (.+)/);
+
+    // Déterminer le titre en fonction du type de message
+    let cardTitle = "Mise à jour réservation";
+    if (message.messageType === 'BOOKING_CREATED') cardTitle = "Demande de réservation";
+    if (message.messageType === 'BOOKING_CONFIRMED') cardTitle = "Réservation confirmée";
+    if (message.messageType === 'BOOKING_CANCELLED') cardTitle = "Réservation annulée";
+
+    return (
+      <div className={styles.bookingCard}>
+        <div className={styles.bookingCardStatus}>
+          <Calendar size={14} className={styles.statusIcon} />
+          <span>{cardTitle}</span>
+        </div>
+        
+        <div className={styles.bookingGrid}>
+          {eventDateMatch && (
+            <div className={styles.bookingInfoItem}>
+              <Calendar size={12} className={styles.infoIcon} />
+              <div className={styles.infoTextGroup}>
+                <span className={styles.itemLabel}>Date événement</span>
+                <span className={styles.itemValue}>{eventDateMatch[1].trim()}</span>
+              </div>
+            </div>
+          )}
+          
+          {guestMatch && (
+            <div className={styles.bookingInfoItem}>
+              <Users size={12} className={styles.infoIcon} />
+              <div className={styles.infoTextGroup}>
+                <span className={styles.itemLabel}>Type</span>
+                <span className={styles.itemValue}>{guestMatch[1].trim()}</span>
+              </div>
+            </div>
+          )}
+          
+          {priceMatch && (
+            <div className={`${styles.bookingInfoItem} ${styles.priceItem}`}>
+              <div className={styles.infoTextGroup}>
+                <span className={styles.itemLabel}>Total</span>
+                <span className={styles.priceValue}>{priceMatch[1].trim()}</span>
+              </div>
+            </div>
+          )}
+        </div>
+        
+        {statusMatch && (
+          <div className={styles.bookingFooter}>
+            <span className={styles.statusBadge}>
+              {statusMatch[1].trim()}
+            </span>
+          </div>
+        )}
+      </div>
+    );
+  };
+
   return (
     <div
       className={`${styles.message} ${isSystem ? styles.systemMessage : ''} ${isBookingMessage ? styles.bookingMessage : ''} ${isClient ? styles.clientMessage : styles.providerMessage}`}
+      role="listitem"
     >
       {!isSystem && (
         <div className={styles.messageAvatar}>
@@ -54,7 +150,7 @@ const MessageItem = memo(({
             </span>
           </div>
         )}
-        <div className={styles.messageText}>{message.content}</div>
+        {isBookingMessage ? renderBookingContent(message.content) : <div className={styles.messageText}>{message.content}</div>}
       </div>
     </div>
   );
@@ -87,14 +183,30 @@ export default function ProviderMessagesPage() {
   // Mémoriser la liste des messages pour éviter les re-renders inutiles
   const memoizedMessages = useMemo(() => {
     if (!provider) return [];
-    return messages.map((message) => (
-      <MessageItem
-        key={message.id}
-        message={message}
-        providerBusinessName={provider.businessName}
-        isSystemMessage={isSystemMessage}
-      />
-    ));
+    
+    const elements: React.ReactNode[] = [];
+    let lastDate: string | null = null;
+
+    messages.forEach((message) => {
+      const messageDate = new Date(message.createdAt).toDateString();
+      
+      // Ajouter un séparateur si le jour change
+      if (messageDate !== lastDate) {
+        elements.push(<DateSeparator key={`sep-${message.createdAt}`} date={message.createdAt} />);
+        lastDate = messageDate;
+      }
+
+      elements.push(
+        <MessageItem
+          key={message.id}
+          message={message}
+          providerBusinessName={provider.businessName}
+          isSystemMessage={isSystemMessage}
+        />
+      );
+    });
+    
+    return elements;
   }, [messages, provider?.businessName, isSystemMessage]);
 
   // Sélectionner le premier service par défaut
@@ -260,20 +372,25 @@ export default function ProviderMessagesPage() {
         </div>
 
         {/* Messages */}
-        <div className={styles.messagesList}>
+        <div
+          className={styles.messagesList}
+          role="list"
+          aria-label="Historique des messages"
+          aria-live="polite"
+        >
           {messagesLoading && messages.length === 0 ? (
-            <div className={styles.loadingMessages}>
+            <div className={styles.loadingMessages} role="status" aria-label="Chargement des messages">
               <div className={styles.loadingSpinner}></div>
             </div>
           ) : messages.length === 0 ? (
             <div className={styles.emptyMessages}>
-              <MessageCircle size={48} />
+              <MessageCircle size={48} aria-hidden="true" />
               <p>Commencez la conversation avec {provider.businessName}</p>
             </div>
           ) : (
             memoizedMessages
           )}
-          <div ref={messagesEndRef} />
+          <div ref={messagesEndRef} aria-hidden="true" />
         </div>
 
         {/* Formulaire d'envoi */}

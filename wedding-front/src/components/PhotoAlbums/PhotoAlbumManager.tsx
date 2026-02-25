@@ -570,17 +570,18 @@ export function PhotoAlbumManager({ invitationId }: PhotoAlbumManagerProps) {
 
               {/* Barre d'outils de sélection */}
               {selectionMode === album.id && (
-                <div className={styles.selectionToolbar} style={{ marginBottom: '1rem', padding: '1rem', background: '#f5f5f5', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '1rem' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-                    <span style={{ fontWeight: 'bold' }}>{selectedPhotos.size} sélectionnée(s)</span>
-                    <button onClick={() => selectAllPhotos(album)} className={styles.textButton} style={{ fontSize: '0.9rem', textDecoration: 'underline', background: 'none', border: 'none', cursor: 'pointer' }}>Tout sélectionner</button>
-                    <button onClick={deselectAllPhotos} className={styles.textButton} style={{ fontSize: '0.9rem', textDecoration: 'underline', background: 'none', border: 'none', cursor: 'pointer' }}>Tout désélectionner</button>
+                <div className={styles.selectionToolbar}>
+                  <div className={styles.selectionInfo}>
+                    <span className={styles.selectionCount}>{selectedPhotos.size} sélectionnée(s)</span>
+                    <div className={styles.selectionControls}>
+                      <button onClick={() => selectAllPhotos(album)} className={styles.textButton}>Tout sélectionner</button>
+                      <button onClick={deselectAllPhotos} className={styles.textButton}>Tout désélectionner</button>
+                    </div>
                   </div>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                  <div className={styles.selectionActions}>
                     <button
                       onClick={() => toggleSelectionMode(album.id)}
                       className={styles.secondaryButton}
-                      style={{ padding: '0.5rem 1rem', border: '1px solid #ccc', borderRadius: '4px', background: 'white', cursor: 'pointer' }}
                     >
                       Annuler
                     </button>
@@ -588,19 +589,17 @@ export function PhotoAlbumManager({ invitationId }: PhotoAlbumManagerProps) {
                       onClick={() => handleDownloadSelected(album)}
                       className={styles.primaryButton}
                       disabled={selectedPhotos.size === 0 || isDownloading}
-                      style={{ padding: '0.5rem 1rem', background: '#d4af37', color: 'white', borderRadius: '4px', display: 'flex', alignItems: 'center', gap: '0.5rem', border: 'none', cursor: selectedPhotos.size === 0 || isDownloading ? 'not-allowed' : 'pointer', opacity: selectedPhotos.size === 0 || isDownloading ? 0.7 : 1 }}
                     >
                       {isDownloading ? <Loader2 size={16} className={styles.spin} /> : <Download size={16} />}
-                      {isDownloading ? `Téléchargement ${downloadProgress}%` : 'Télécharger'}
+                      <span>{isDownloading ? `Téléchargement ${downloadProgress}%` : 'Télécharger'}</span>
                     </button>
                     <button
                       onClick={() => handleDeleteSelected(album)}
                       className={styles.dangerButton}
                       disabled={selectedPhotos.size === 0 || isDownloading}
-                      style={{ padding: '0.5rem 1rem', background: '#e53935', color: 'white', borderRadius: '4px', display: 'flex', alignItems: 'center', gap: '0.5rem', border: 'none', cursor: selectedPhotos.size === 0 || isDownloading ? 'not-allowed' : 'pointer', opacity: selectedPhotos.size === 0 || isDownloading ? 0.7 : 1 }}
                     >
                       <Trash2 size={16} />
-                      Supprimer
+                      <span>Supprimer</span>
                     </button>
                   </div>
                 </div>
@@ -638,8 +637,7 @@ export function PhotoAlbumManager({ invitationId }: PhotoAlbumManagerProps) {
                     return (
                       <div
                         key={photo.id || index}
-                        className={styles.albumPhoto}
-                        style={selectionMode === album.id && selectedPhotos.has(photo.id) ? { border: '3px solid #d4af37', transform: 'scale(0.98)' } : {}}
+                        className={`${styles.albumPhoto} ${selectionMode === album.id && selectedPhotos.has(photo.id) ? styles.selectedPhoto : ''}`}
                         onClick={() => {
                           if (selectionMode === album.id) {
                             togglePhotoSelection(photo.id);
@@ -648,14 +646,14 @@ export function PhotoAlbumManager({ invitationId }: PhotoAlbumManagerProps) {
                       >
                         {/* Checkbox overlay */}
                         {selectionMode === album.id && (
-                          <div className={styles.selectionOverlay} style={{ position: 'absolute', top: '10px', right: '10px', zIndex: 10, cursor: 'pointer' }} onClick={(e) => { e.stopPropagation(); togglePhotoSelection(photo.id); }}>
+                          <div className={styles.selectionOverlay} onClick={(e) => { e.stopPropagation(); togglePhotoSelection(photo.id); }}>
                             {selectedPhotos.has(photo.id) ? (
-                              <div style={{ background: '#d4af37', borderRadius: '4px', padding: '2px', display: 'flex' }}>
+                              <div className={styles.checkedIcon}>
                                 <CheckSquare color="white" size={24} />
                               </div>
                             ) : (
-                              <div style={{ background: 'rgba(255,255,255,0.8)', borderRadius: '4px', padding: '2px', display: 'flex' }}>
-                                <Square color="#333" size={24} />
+                              <div className={styles.uncheckedIcon}>
+                                <Square size={24} />
                               </div>
                             )}
                           </div>

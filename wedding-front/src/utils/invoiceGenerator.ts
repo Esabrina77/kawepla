@@ -35,204 +35,166 @@ const COMPANY_INFO: CompanyInfo = {
 export async function generateInvoicePDF(data: InvoiceData): Promise<void> {
   const doc = new jsPDF();
   const pageWidth = doc.internal.pageSize.getWidth();
-  const margin = 25;
+  const pageHeight = doc.internal.pageSize.getHeight();
+  const margin = 20;
   let yPosition = margin;
 
-  // Couleurs élégantes
-  const textColor = [30, 30, 30];
-  const lightGray = [220, 220, 220];
-  const accentColor = [197, 168, 128]; // Or/doré Kawepla
-  const darkGray = [100, 100, 100];
+  // Couleurs Professionnelles (KAWEPLA BRAND)
+  const primaryColor = [99, 102, 241]; // #6366F1
+  const secondaryColor = [31, 41, 55]; // Gray-800
+  const lightGray = [243, 244, 246]; // Gray-100
+  const borderGray = [229, 231, 235]; // Gray-200
+  const mutedGray = [107, 114, 128]; // Gray-500
 
-  // Ligne décorative en haut
-  doc.setFillColor(accentColor[0], accentColor[1], accentColor[2]);
-  doc.rect(0, 0, pageWidth, 3, 'F');
+  // Header Background Accent
+  doc.setFillColor(primaryColor[0], primaryColor[1], primaryColor[2]);
+  doc.rect(0, 0, pageWidth, 2, 'F');
 
-  // Charger et ajouter le logo (plus petit)
-  try {
-    const logoUrl = '/images/logo.png';
-    const logoResponse = await fetch(logoUrl);
-    const logoBlob = await logoResponse.blob();
-    const logoDataUrl = await new Promise<string>((resolve) => {
-      const reader = new FileReader();
-      reader.onloadend = () => resolve(reader.result as string);
-      reader.readAsDataURL(logoBlob);
-    });
-
-    // Logo plus petit (hauteur 22px)
-    const logoHeight = 22;
-    const logoWidth = logoHeight * 2.5;
-    doc.addImage(logoDataUrl, 'PNG', margin, 8, logoWidth, logoHeight);
-  } catch (error) {
-    console.warn('Impossible de charger le logo, utilisation du texte:', error);
-    // Fallback: texte Kawepla stylisé
-    doc.setFontSize(18);
-    doc.setFont('helvetica', 'bold');
-    doc.setTextColor(accentColor[0], accentColor[1], accentColor[2]);
-    doc.text('Kawepla', margin, 20);
-  }
+  // LOGO KAWEPLA (Helvetica Bold #6366F1)
+  doc.setFontSize(24);
+  doc.setFont('helvetica', 'bold');
+  doc.setTextColor(primaryColor[0], primaryColor[1], primaryColor[2]);
+  doc.text('KAWEPLA', margin, 25);
   
-  // Titre de la facture (à droite, plus élégant)
-  doc.setTextColor(textColor[0], textColor[1], textColor[2]);
+  // Title (Right)
+  doc.setTextColor(secondaryColor[0], secondaryColor[1], secondaryColor[2]);
   doc.setFontSize(28);
+  doc.text('FACTURE', pageWidth - margin, 25, { align: 'right' });
+  
+  yPosition = 50;
+
+  // Invoice Meta Info (Number & Date) - Top Center
+  doc.setFontSize(10);
+  doc.setFont('helvetica', 'normal');
+  doc.setTextColor(mutedGray[0], mutedGray[1], mutedGray[2]);
+  doc.text(`NUMÉRO DE FACTURE`, pageWidth - margin, yPosition, { align: 'right' });
+  yPosition += 6;
+  doc.setTextColor(secondaryColor[0], secondaryColor[1], secondaryColor[2]);
   doc.setFont('helvetica', 'bold');
-  doc.text('FACTURE', pageWidth - margin, 22, { align: 'right' });
-  
-  // Ligne fine sous le titre
-  doc.setDrawColor(lightGray[0], lightGray[1], lightGray[2]);
-  doc.setLineWidth(0.5);
-  doc.line(pageWidth - margin - 60, 26, pageWidth - margin, 26);
-
-  yPosition = 40;
-
-  // Informations de l'entreprise (avec style amélioré)
-  doc.setFillColor(245, 245, 245);
-  doc.roundedRect(margin - 3, yPosition - 8, 80, 50, 2, 2, 'F');
-  
-  doc.setTextColor(textColor[0], textColor[1], textColor[2]);
   doc.setFontSize(11);
+  doc.text(data.invoiceNumber, pageWidth - margin, yPosition, { align: 'right' });
+  
+  yPosition += 10;
+  doc.setFontSize(10);
+  doc.setFont('helvetica', 'normal');
+  doc.setTextColor(mutedGray[0], mutedGray[1], mutedGray[2]);
+  doc.text(`DATE D'ÉMISSION`, pageWidth - margin, yPosition, { align: 'right' });
+  yPosition += 6;
+  doc.setTextColor(secondaryColor[0], secondaryColor[1], secondaryColor[2]);
   doc.setFont('helvetica', 'bold');
+  doc.setFontSize(11);
+  doc.text(formatDate(data.purchaseDate), pageWidth - margin, yPosition, { align: 'right' });
+
+  // Reset Y for Address Sections
+  yPosition = 50;
+
+  // Company Section
+  doc.setFontSize(10);
+  doc.setFont('helvetica', 'normal');
+  doc.setTextColor(mutedGray[0], mutedGray[1], mutedGray[2]);
   doc.text('ÉMETTEUR', margin, yPosition);
   
-  doc.setFont('helvetica', 'normal');
-  doc.setFontSize(9.5);
-  yPosition += 7;
-  doc.text(COMPANY_INFO.name, margin, yPosition);
-  yPosition += 5.5;
-  doc.setTextColor(darkGray[0], darkGray[1], darkGray[2]);
-  doc.text(`${COMPANY_INFO.postalCode} ${COMPANY_INFO.city}`, margin, yPosition);
-  yPosition += 5;
-  doc.text(COMPANY_INFO.country, margin, yPosition);
-  yPosition += 5;
-  doc.setFontSize(8.5);
-  doc.text(`Email: ${COMPANY_INFO.email}`, margin, yPosition);
-  yPosition += 4.5;
-  doc.text(`Site: ${COMPANY_INFO.website}`, margin, yPosition);
-
-  // Informations du client (à droite, avec style amélioré)
-  const clientX = pageWidth - margin - 75;
-  yPosition = 40;
-  doc.setFillColor(245, 245, 245);
-  doc.roundedRect(clientX - 3, yPosition - 8, 75, 35, 2, 2, 'F');
-  
-  doc.setTextColor(textColor[0], textColor[1], textColor[2]);
+  yPosition += 6;
+  doc.setTextColor(secondaryColor[0], secondaryColor[1], secondaryColor[2]);
   doc.setFont('helvetica', 'bold');
   doc.setFontSize(11);
-  doc.text('FACTURÉ À', clientX, yPosition);
+  doc.text(COMPANY_INFO.name.toUpperCase(), margin, yPosition);
   
   doc.setFont('helvetica', 'normal');
-  doc.setFontSize(9.5);
-  yPosition += 7;
-  doc.text(data.customerName, clientX, yPosition);
-  yPosition += 5.5;
-  doc.setTextColor(darkGray[0], darkGray[1], darkGray[2]);
-  doc.setFontSize(8.5);
-  doc.text(data.customerEmail, clientX, yPosition);
+  doc.setFontSize(10);
+  yPosition += 6;
+  doc.text(`${COMPANY_INFO.postalCode} ${COMPANY_INFO.city}, ${COMPANY_INFO.country}`, margin, yPosition);
+  yPosition += 5;
+  doc.text(COMPANY_INFO.email, margin, yPosition);
 
-  // Informations de la facture (style amélioré)
-  yPosition = 100;
-  doc.setTextColor(textColor[0], textColor[1], textColor[2]);
+  // Client Section
+  yPosition += 15;
   doc.setFont('helvetica', 'normal');
-  doc.setFontSize(9);
-  doc.text(`N° Facture:`, margin, yPosition);
-  doc.setFont('helvetica', 'bold');
-  doc.text(data.invoiceNumber, margin + 28, yPosition);
+  doc.setTextColor(mutedGray[0], mutedGray[1], mutedGray[2]);
+  doc.setFontSize(10);
+  doc.text('DESTINATAIRE', margin, yPosition);
   
   yPosition += 6;
-  doc.setFont('helvetica', 'normal');
-  doc.text(`Date:`, margin, yPosition);
-  doc.text(formatDate(data.purchaseDate), margin + 15, yPosition);
-  
-  if (data.stripePaymentId) {
-    yPosition += 6;
-    doc.text(`Référence paiement:`, margin, yPosition);
-    doc.setFontSize(8);
-    doc.setTextColor(darkGray[0], darkGray[1], darkGray[2]);
-    doc.text(data.stripePaymentId.substring(0, 30) + '...', margin + 38, yPosition);
-  }
-
-  // Ligne de séparation stylisée
-  yPosition += 12;
-  doc.setDrawColor(accentColor[0], accentColor[1], accentColor[2]);
-  doc.setLineWidth(1);
-  doc.line(margin, yPosition, pageWidth - margin, yPosition);
-  
-  // Petite ligne décorative
-  doc.setDrawColor(lightGray[0], lightGray[1], lightGray[2]);
-  doc.setLineWidth(0.3);
-  doc.line(margin, yPosition + 0.5, pageWidth - margin, yPosition + 0.5);
-
-  // Tableau des articles (style amélioré)
-  yPosition += 8;
-  
-  // En-tête du tableau avec fond
-  doc.setFillColor(250, 250, 250);
-  doc.roundedRect(margin, yPosition - 6, pageWidth - (margin * 2), 10, 1, 1, 'F');
-  
-  doc.setTextColor(textColor[0], textColor[1], textColor[2]);
-  doc.setFont('helvetica', 'bold');
-  doc.setFontSize(10);
-  doc.text('Description', margin + 2, yPosition);
-  doc.text('Qté', margin + 105, yPosition);
-  doc.text('Prix unitaire', margin + 130, yPosition);
-  doc.text('Total', pageWidth - margin - 2, yPosition, { align: 'right' });
-
-  yPosition += 2;
-  doc.setDrawColor(lightGray[0], lightGray[1], lightGray[2]);
-  doc.setLineWidth(0.5);
-  doc.line(margin, yPosition, pageWidth - margin, yPosition);
-
-  // Détails de l'article (avec fond alterné)
-  yPosition += 8;
-  doc.setFillColor(255, 255, 255);
-  doc.roundedRect(margin, yPosition - 6, pageWidth - (margin * 2), 10, 1, 1, 'F');
-  
-  doc.setFont('helvetica', 'normal');
-  doc.setFontSize(9.5);
-  doc.setTextColor(textColor[0], textColor[1], textColor[2]);
-  doc.text(data.itemName, margin + 2, yPosition);
-  doc.text(data.quantity.toString(), margin + 105, yPosition);
-  doc.text(formatPrice(data.unitPrice, data.currency), margin + 130, yPosition);
-  doc.setFont('helvetica', 'bold');
-  doc.text(formatPrice(data.totalPrice, data.currency), pageWidth - margin - 2, yPosition, { align: 'right' });
-
-  // Ligne de séparation stylisée
-  yPosition += 4;
-  doc.setDrawColor(accentColor[0], accentColor[1], accentColor[2]);
-  doc.setLineWidth(1);
-  doc.line(margin, yPosition, pageWidth - margin, yPosition);
-
-  // Total (style amélioré avec encadré)
-  yPosition += 12;
-  const totalBoxWidth = 80;
-  const totalBoxX = pageWidth - margin - totalBoxWidth;
-  
-  // Encadré pour le total
-  doc.setFillColor(250, 250, 250);
-  doc.setDrawColor(accentColor[0], accentColor[1], accentColor[2]);
-  doc.setLineWidth(1.5);
-  doc.roundedRect(totalBoxX, yPosition - 8, totalBoxWidth, 15, 2, 2, 'FD');
-  
+  doc.setTextColor(secondaryColor[0], secondaryColor[1], secondaryColor[2]);
   doc.setFont('helvetica', 'bold');
   doc.setFontSize(11);
-  doc.setTextColor(textColor[0], textColor[1], textColor[2]);
-  doc.text('Total TTC:', totalBoxX + 5, yPosition);
+  doc.text(data.customerName, margin, yPosition);
   
-  doc.setFontSize(13);
-  doc.setTextColor(accentColor[0], accentColor[1], accentColor[2]);
-  doc.text(formatPrice(data.totalPrice, data.currency), pageWidth - margin - 5, yPosition + 3, { align: 'right' });
-
-  // Mentions légales en bas
-  const footerY = doc.internal.pageSize.getHeight() - 40;
   doc.setFont('helvetica', 'normal');
-  doc.setFontSize(8);
-  doc.setTextColor(150, 150, 150);
-  doc.text('Facture générée automatiquement par Kawepla', pageWidth / 2, footerY, { align: 'center' });
-  doc.text('Cette facture est valable à des fins comptables et fiscales', pageWidth / 2, footerY + 5, { align: 'center' });
-  doc.text(`Date d'émission: ${formatDate(new Date().toISOString())}`, pageWidth / 2, footerY + 10, { align: 'center' });
+  doc.setFontSize(10);
+  yPosition += 6;
+  doc.text(data.customerEmail, margin, yPosition);
 
-  // Télécharger le PDF
-  doc.save(`facture-${data.invoiceNumber}.pdf`);
+  // Table Section
+  yPosition += 25;
+  
+  // Table Header
+  doc.setFillColor(lightGray[0], lightGray[1], lightGray[2]);
+  doc.rect(margin, yPosition, pageWidth - (margin * 2), 10, 'F');
+  
+  doc.setTextColor(secondaryColor[0], secondaryColor[1], secondaryColor[2]);
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(10);
+  doc.text('DESCRIPTION', margin + 5, yPosition + 6.5);
+  doc.text('QUANTITÉ', margin + 100, yPosition + 6.5, { align: 'center' });
+  doc.text('PRIX UNITAIRE', margin + 140, yPosition + 6.5, { align: 'center' });
+  doc.text('TOTAL', pageWidth - margin - 5, yPosition + 6.5, { align: 'right' });
+
+  // Table Row
+  yPosition += 10;
+  doc.setDrawColor(borderGray[0], borderGray[1], borderGray[2]);
+  doc.line(margin, yPosition + 10, pageWidth - margin, yPosition + 10);
+  
+  doc.setFont('helvetica', 'normal');
+  doc.text(data.itemName, margin + 5, yPosition + 6.5);
+  doc.text(data.quantity.toString(), margin + 100, yPosition + 6.5, { align: 'center' });
+  doc.text(formatPrice(data.unitPrice, data.currency), margin + 140, yPosition + 6.5, { align: 'center' });
+  doc.setFont('helvetica', 'bold');
+  doc.text(formatPrice(data.totalPrice, data.currency), pageWidth - margin - 5, yPosition + 6.5, { align: 'right' });
+
+  // Summary (Totals)
+  yPosition += 40;
+  const colX = pageWidth - margin - 60;
+  
+  doc.setFont('helvetica', 'normal');
+  doc.setFontSize(11);
+  doc.setTextColor(mutedGray[0], mutedGray[1], mutedGray[2]);
+  doc.text('SOUS-TOTAL', colX, yPosition);
+  doc.setTextColor(secondaryColor[0], secondaryColor[1], secondaryColor[2]);
+  doc.text(formatPrice(data.totalPrice, data.currency), pageWidth - margin, yPosition, { align: 'right' });
+  
+  yPosition += 8;
+  doc.setTextColor(mutedGray[0], mutedGray[1], mutedGray[2]);
+  doc.text('TVA (0%)', colX, yPosition);
+  doc.setTextColor(secondaryColor[0], secondaryColor[1], secondaryColor[2]);
+  doc.text('0,00 €', pageWidth - margin, yPosition, { align: 'right' });
+  
+  // Final Total Line
+  yPosition += 6;
+  doc.setDrawColor(primaryColor[0], primaryColor[1], primaryColor[2]);
+  doc.setLineWidth(0.5);
+  doc.line(colX, yPosition, pageWidth - margin, yPosition);
+  
+  yPosition += 10;
+  doc.setFontSize(16);
+  doc.setTextColor(primaryColor[0], primaryColor[1], primaryColor[2]);
+  doc.text('TOTAL', colX, yPosition);
+  doc.text(formatPrice(data.totalPrice, data.currency), pageWidth - margin, yPosition, { align: 'right' });
+
+  // Footer Policy
+  const footerY = pageHeight - 30;
+  doc.setDrawColor(borderGray[0], borderGray[1], borderGray[2]);
+  doc.setLineWidth(0.1);
+  doc.line(margin, footerY - 5, pageWidth - margin, footerY - 5);
+  
+  doc.setFontSize(8);
+  doc.setTextColor(mutedGray[0], mutedGray[1], mutedGray[2]);
+  doc.text('MERCI POUR VOTRE ACHAT', pageWidth / 2, footerY, { align: 'center' });
+  doc.text('Kawepla - Solutions de Planification d\'Événements - © 2026', pageWidth / 2, footerY + 5, { align: 'center' });
+  doc.text('Toute question peut être adressée à hello@kawepla.com', pageWidth / 2, footerY + 10, { align: 'center' });
+
+  // Download the PDF
+  doc.save(`KAWEPLA_FACTURE_${data.invoiceNumber}.pdf`);
 }
 
 function formatDate(dateString: string): string {

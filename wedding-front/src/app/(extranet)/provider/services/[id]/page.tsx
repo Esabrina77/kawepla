@@ -6,7 +6,7 @@ import Link from 'next/link';
 import { useProviderServices } from '@/hooks/useProviderServices';
 import { Service } from '@/lib/api/providers';
 import { HeaderMobile } from '@/components/HeaderMobile/HeaderMobile';
-import { 
+import {
   Edit,
   Euro,
   Clock,
@@ -23,7 +23,7 @@ export default function ServiceDetailPage() {
   const router = useRouter();
   const serviceId = params.id as string;
   const { services, loading } = useProviderServices();
-  
+
   const [service, setService] = useState<Service | null>(null);
 
   useEffect(() => {
@@ -81,10 +81,10 @@ export default function ServiceDetailPage() {
     <div className={styles.serviceDetailPage}>
       <HeaderMobile title={service.name} />
 
-      <main className={styles.main}>
+      <div className={styles.pageContent}>
         {/* Page Header with Edit Button */}
         <div className={styles.pageHeader}>
-          <Link 
+          <Link
             href={`/provider/services/${service.id}/edit`}
             className={styles.editButton}
           >
@@ -205,7 +205,7 @@ export default function ServiceDetailPage() {
             </div>
           )}
         </div>
-      </main>
+      </div>
     </div>
   );
 }

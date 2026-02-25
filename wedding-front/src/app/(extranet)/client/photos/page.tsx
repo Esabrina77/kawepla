@@ -9,19 +9,8 @@ import { useInvitations } from '@/hooks/useInvitations';
 import { usePhotoAlbums, PhotoAlbum } from '@/hooks/usePhotoAlbums';
 import { HeaderMobile } from '@/components/HeaderMobile';
 import { PhotoAlbumManager } from '@/components/PhotoAlbums/PhotoAlbumManager';
-import { 
-  FileImage,
-  UploadCloud,
-  CheckCircle,
-  Share2,
-  ImagePlus,
-  Verified,
-  Clock,
-  Camera, 
-  Check,
-  X,
-  Globe, 
-  Trash2,
+import {
+  Camera,
   Image as ImageIcon
 } from 'lucide-react';
 import styles from './photos.module.css';
@@ -43,10 +32,8 @@ export default function PhotosPage() {
   if (loading) {
     return (
       <div className={styles.loadingContainer}>
-        <div className={styles.loadingContent}>
-          <div className={styles.loadingSpinner}></div>
-          <p className={styles.loadingText}>Chargement de vos albums photos...</p>
-        </div>
+        <div className={styles.loadingSpinner}></div>
+        <p className={styles.loadingText}>Chargement de vos albums photos...</p>
       </div>
     );
   }
@@ -56,17 +43,15 @@ export default function PhotosPage() {
       <div className={styles.emptyContainer}>
         <div className={styles.emptyContent}>
           <Camera className={styles.emptyIcon} />
-          <h2 className={styles.emptyTitle}>
-            Aucune invitation trouvée
-          </h2>
+          <h2 className={styles.emptyTitle}>Aucune invitation</h2>
           <p className={styles.emptyText}>
-            Créez d'abord votre invitation de événement pour gérer vos albums photos.
+            Créez d'abord votre invitation pour gérer vos albums photos.
           </p>
           <button
-            onClick={() => window.location.href = '/client/invitations'}
+            onClick={() => router.push('/client/invitations')}
             className={styles.primaryButton}
           >
-            <ImageIcon className={styles.buttonIcon} />
+            <ImageIcon size={18} />
             Créer une invitation
           </button>
         </div>
@@ -83,17 +68,16 @@ export default function PhotosPage() {
     });
   };
 
-
   return (
     <div className={styles.photosPage}>
-      <HeaderMobile title="Vos albums photos" />
-        
-      <main className={styles.main}>
-        {/* Sélecteur d'invitation */}
+      <HeaderMobile title="Albums Photos" />
+
+      <div className={styles.pageContent}>
+        {/* Sélecteur d'invitation - Toujours visible pour "tout voir et comprendre" */}
         <div className={styles.invitationSection}>
           <label className={styles.invitationLabel}>
-            <p className={styles.invitationLabelText}>Invitation</p>
-            <select 
+            <span className={styles.invitationLabelText}>Sélectionner un événement</span>
+            <select
               value={selectedInvitationId}
               onChange={(e) => setSelectedInvitationId(e.target.value)}
               className={styles.invitationSelect}
@@ -107,72 +91,35 @@ export default function PhotosPage() {
           </label>
         </div>
 
-        {/* Section Publiez votre invitation */}
-        {currentInvitation && currentInvitation.status !== 'PUBLISHED' && (
+        {/* Content Area */}
+        {currentInvitation?.status === 'PUBLISHED' ? (
+          <div className={styles.activeContent}>
+            <PhotoAlbumManager invitationId={currentInvitation.id} />
+          </div>
+        ) : (
           <div className={styles.publishSection}>
             <div className={styles.publishContent}>
               <div className={styles.publishText}>
-                <p className={styles.publishTitle}>Publiez votre invitation</p>
+                <p className={styles.publishTitle}>Action requise</p>
                 <p className={styles.publishSubtitle}>
-                  Cette fonctionnalité n'est disponible qu'une fois votre invitation publiée.
+                  Publiez votre invitation pour activer la gestion des photos et permettre à vos invités de contribuer.
                 </p>
               </div>
               <button
                 onClick={() => router.push('/client/invitations')}
                 className={styles.publishButton}
               >
-                Publier maintenant
+                Gérer mes invitations
               </button>
+            </div>
+            
+            <div className={styles.inactiveState}>
+              <ImageIcon className={styles.inactiveIcon} size={48} />
+              <p>L'album photo est verrouillé tant que l'invitation n'est pas publique.</p>
             </div>
           </div>
         )}
-
-        {/* Section Comment ça marche ? */}
-        <h3 className={styles.sectionTitle}>Comment ça marche ?</h3>
-        <div className={styles.infoGrid}>
-          <div className={styles.infoCard}>
-            <FileImage className={styles.infoCardIcon} size={24} />
-            <div className={styles.infoCardContent}>
-              <h4 className={styles.infoCardTitle}>Créez vos albums</h4>
-              <p className={styles.infoCardText}>Organisez par moments clés</p>
-            </div>
-          </div>
-          
-          <div className={styles.infoCard}>
-            <UploadCloud className={styles.infoCardIcon} size={24} />
-            <div className={styles.infoCardContent}>
-              <h4 className={styles.infoCardTitle}>Vos invités contribuent</h4>
-              <p className={styles.infoCardText}>Ils ajoutent leurs photos</p>
-            </div>
-          </div>
-          
-          <div className={styles.infoCard}>
-            <CheckCircle className={styles.infoCardIcon} size={24} />
-            <div className={styles.infoCardContent}>
-              <h4 className={styles.infoCardTitle}>Approuvez les photos</h4>
-              <div className={styles.infoCardText}>
-                <span><Check size={14} className={styles.inlineIcon} /> Approuver</span>
-                <span><Globe size={14} className={styles.inlineIcon} /> Publier</span>
-                <span><X size={14} className={styles.inlineIcon} /> Rejeter</span>
-                <span><Trash2 size={14} className={styles.inlineIcon} /> Supprimer</span>
-              </div>
-            </div>
-          </div>
-          
-          <div className={styles.infoCard}>
-            <Share2 className={styles.infoCardIcon} size={24} />
-            <div className={styles.infoCardContent}>
-              <h4 className={styles.infoCardTitle}>Partagez publiquement</h4>
-              <p className={styles.infoCardText}>Rendez la galerie accessible</p>
-          </div>
-        </div>
       </div>
-
-        {/* Section Vos Albums - PhotoAlbumManager */}
-        {currentInvitation && currentInvitation.status === 'PUBLISHED' ? (
-          <PhotoAlbumManager invitationId={currentInvitation.id} />
-        ) : null}
-      </main>
     </div>
   );
-} 
+}

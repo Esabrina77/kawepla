@@ -22,7 +22,10 @@ import {
   UtensilsCrossed,
   Flower2,
   Palette,
-  Building2
+  Building2,
+  ChevronRight,
+  Sparkles,
+  ArrowLeft
 } from 'lucide-react';
 import { WebsiteIcon, InstagramIcon, TikTokIcon, FacebookIcon } from '@/components/icons/SocialIcons';
 import { useToast } from '@/components/ui/toast';
@@ -121,319 +124,278 @@ export default function ProviderDetailPage() {
     );
   }
 
+  // Calculer le prix minimum si disponible
+  const minPrice = services.length > 0 
+    ? Math.min(...services.map(s => s.price).filter(p => p > 0)) 
+    : 0;
+
   return (
     <div className={styles.providerDetailPage}>
-      <HeaderMobile title={provider.businessName} />
-
-      <main className={styles.main}>
-        {/* Hero Section */}
-        <section className={styles.heroSection}>
-          {/* Provider Image */}
-          <div
-            className={styles.providerImage}
-            style={{
-              backgroundImage: provider.profilePhoto
-                ? `url(${provider.profilePhoto})`
-                : 'none',
-              backgroundSize: 'cover',
-              backgroundPosition: 'center',
-              backgroundRepeat: 'no-repeat'
-            }}
+      {/* Immersive Vitrine Hero */}
+      <section className={styles.heroSection}>
+        <div className={styles.providerCover}>
+          <img 
+            src={provider.profilePhoto || 'https://images.unsplash.com/photo-1511795409834-ef04bbd61622?q=80&w=2069&auto=format&fit=crop'} 
+            alt={provider.businessName} 
+            loading="eager"
           />
-
-          {/* Provider Info */}
-          <div className={styles.providerInfo}>
-            <div className={styles.providerHeader}>
-              <div className={styles.providerHeaderLeft}>
-                <div className={styles.providerNameRow}>
-                  <h1 className={styles.providerName}>{provider.businessName}</h1>
-                  {provider.category?.name && (
-                    <div className={styles.categoryBadge}>
-                      {getCategoryIcon(provider.category.name)}
-                      <span>{provider.category.name}</span>
-                    </div>
-                  )}
-                </div>
-              </div>
-
-              {/* Actions - Desktop only */}
-              <div className={styles.actionsRow}>
-                <button
-                  className={styles.contactButton}
-                  onClick={handleContact}
-                >
-                  <MessageCircle size={18} />
-                  Contacter
-                </button>
-                <button
-                  className={`${styles.actionButton} ${isFavorite ? styles.favoriteActive : ''}`}
-                  onClick={handleFavorite}
-                >
-                  <Heart size={18} fill={isFavorite ? 'currentColor' : 'none'} />
-                </button>
-                <button
-                  className={styles.actionButton}
-                  onClick={handleShare}
-                >
-                  <Share2 size={18} />
-                </button>
-              </div>
-            </div>
-
-            <p className={styles.providerDescription}>
-              {provider.description || 'Prestataire professionnel pour vos événements.'}
-            </p>
-
-            <div className={styles.providerMeta}>
-              <div className={styles.ratingRow}>
-                <Star className={styles.starIcon} size={16} fill="currentColor" />
-                <span className={styles.ratingValue}>
-                  {provider.rating.toFixed(1)}
-                </span>
-                <span>({provider.reviewCount} avis)</span>
-              </div>
-
-              {/* Location */}
-              <div className={styles.locationRow}>
-                <MapPin size={16} />
-                <span>{provider.displayCity}</span>
-              </div>
-
-              {/* Réseaux sociaux */}
-              {(provider.website || provider.instagram || provider.tiktok || provider.facebook) && (
-                <div className={styles.socialLinks}>
-                  {provider.website && (
-                    <a
-                      href={provider.website}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className={styles.socialLink}
-                      title="Site web"
-                    >
-                      <WebsiteIcon size={18} />
-                    </a>
-                  )}
-                  {provider.instagram && (
-                    <a
-                      href={provider.instagram}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className={styles.socialLink}
-                      title="Instagram"
-                    >
-                      <InstagramIcon size={18} />
-                    </a>
-                  )}
-                  {provider.tiktok && (
-                    <a
-                      href={provider.tiktok}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className={styles.socialLink}
-                      title="TikTok"
-                    >
-                      <TikTokIcon size={18} />
-                    </a>
-                  )}
-                  {provider.facebook && (
-                    <a
-                      href={provider.facebook}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className={styles.socialLink}
-                      title="Facebook"
-                    >
-                      <FacebookIcon size={18} />
-                    </a>
-                  )}
-                </div>
-              )}
-            </div>
-          </div>
-
-          {/* Actions - Mobile only */}
-          <div className={styles.actionsRowMobile}>
-            <button
-              className={styles.contactButton}
-              onClick={handleContact}
-            >
-              <MessageCircle size={18} />
-              Contacter
-            </button>
-            <button
-              className={`${styles.actionButton} ${isFavorite ? styles.favoriteActive : ''}`}
-              onClick={handleFavorite}
-            >
-              <Heart size={18} fill={isFavorite ? 'currentColor' : 'none'} />
-            </button>
-            <button
-              className={styles.actionButton}
-              onClick={handleShare}
-            >
-              <Share2 size={18} />
-            </button>
-          </div>
-        </section>
-
-        {/* Tabs Navigation */}
-        <div className={styles.tabsNavigation}>
-          <button
-            className={`${styles.tabButton} ${activeTab === 'services' ? styles.active : ''}`}
-            onClick={() => setActiveTab('services')}
-          >
-            <Briefcase size={18} />
-            <span>Services</span>
-            {services.length > 0 && (
-              <span className={styles.tabCount}>({services.length})</span>
-            )}
-          </button>
-          <button
-            className={`${styles.tabButton} ${activeTab === 'portfolio' ? styles.active : ''}`}
-            onClick={() => setActiveTab('portfolio')}
-          >
-            <Camera size={18} />
-            <span>Portfolio</span>
-            {provider.portfolio && provider.portfolio.length > 0 && (
-              <span className={styles.tabCount}>({provider.portfolio.length})</span>
-            )}
-          </button>
-          <button
-            className={`${styles.tabButton} ${activeTab === 'reviews' ? styles.active : ''}`}
-            onClick={() => setActiveTab('reviews')}
-          >
-            <Star size={18} />
-            <span>Avis</span>
-            {provider.reviewCount > 0 && (
-              <span className={styles.tabCount}>({provider.reviewCount})</span>
-            )}
-          </button>
+        </div>
+        <div className={styles.heroOverlay} />
+        
+        {/* Navigation & Status - Anchored to Hero Top */}
+        <button className={styles.backButton} onClick={() => router.back()}>
+          <ArrowLeft size={24} />
+        </button>
+        
+        <div className={styles.categoryBadge}>
+          {getCategoryIcon(provider.category?.name)}
+          <span>{provider.category?.name || 'Artisan d\'Exception'}</span>
         </div>
 
-        {/* Tab Content */}
-        <div className={styles.tabContent}>
-          {activeTab === 'services' && (
-            <div className={styles.servicesSection}>
-              {services.length > 0 ? (
-                <div className={styles.servicesList}>
-                  {services.map((service) => (
-                    <div key={service.id} className={styles.serviceCard}>
-                      <div className={styles.serviceHeader}>
-                        <h3 className={styles.serviceName}>{service.name}</h3>
-                        <div className={styles.servicePrice}>
-                          {formatPrice(service.price, service.priceType)}
-                        </div>
-                      </div>
-
-                      {service.description && (
-                        <p className={styles.serviceDescription}>
-                          {service.description}
-                        </p>
-                      )}
-
-                      <div className={styles.serviceMeta}>
-                        {service.duration && (
-                          <div className={styles.serviceMetaItem}>
-                            <Clock size={14} />
-                            <span>{service.duration} min</span>
-                          </div>
-                        )}
-                        {service.capacity && (
-                          <div className={styles.serviceMetaItem}>
-                            <Users size={14} />
-                            <span>Jusqu'à {service.capacity} personnes</span>
-                          </div>
-                        )}
-                        {service.isActive ? (
-                          <div className={styles.serviceStatus}>
-                            <CheckCircle size={14} />
-                            <span>Disponible</span>
-                          </div>
-                        ) : (
-                          <div className={`${styles.serviceStatus} ${styles.inactive}`}>
-                            <Clock size={14} />
-                            <span>Indisponible</span>
-                          </div>
-                        )}
-                      </div>
-
-                      <button
-                        className={styles.requestButton}
-                        onClick={handleContact}
-                      >
-                        Demander un devis
-                      </button>
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <div className={styles.emptyState}>
-                  <Briefcase size={48} />
-                  <h3>Aucun service disponible</h3>
-                  <p>Ce prestataire n'a pas encore ajouté de services.</p>
-                </div>
-              )}
-            </div>
-          )}
-
-          {activeTab === 'portfolio' && (
-            <div className={styles.portfolioSection}>
-              {provider.portfolio && provider.portfolio.length > 0 ? (
-                <div className={styles.portfolioGrid}>
-                  {provider.portfolio.map((photo, index) => (
-                    <div
-                      key={index}
-                      className={styles.portfolioItem}
-                      onClick={() => {
-                        // TODO: Ouvrir une lightbox pour voir l'image en grand
-                        window.open(photo, '_blank');
-                      }}
-                    >
-                      <img src={photo} alt={`Portfolio ${index + 1}`} />
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <div className={styles.emptyState}>
-                  <Camera size={48} />
-                  <h3>Aucune photo dans le portfolio</h3>
-                  <p>Ce prestataire n'a pas encore ajouté de photos à son portfolio.</p>
-                </div>
-              )}
-            </div>
-          )}
-
-          {activeTab === 'reviews' && (
-            <div className={styles.reviewsSection}>
-              <div className={styles.reviewsSummary}>
-                <div className={styles.ratingSummary}>
-                  <div className={styles.ratingNumber}>
-                    {provider.rating.toFixed(1)}
-                  </div>
+        <div className={styles.heroContent}>
+          <h1 className={styles.providerName}>{provider.businessName}</h1>
+          
+          {/* Integrated Credentials Box */}
+          <div className={styles.metaDimmedBox}>
+            <p className={styles.providerDescription}>
+              {provider.description || "Une expérience d'exception pour sublimer votre plus beau jour. Un savoir-faire unique dédié à la création de moments inoubliables."}
+            </p>
+            
+            <div className={styles.metaGrid}>
+              {/* Ratings Segment */}
+              <div className={styles.metaInfoGroup}>
+                <span className={styles.metaLabel}>Note & Avis</span>
+                <div className={styles.metaValue}>
                   <div className={styles.ratingStars}>
                     {[...Array(5)].map((_, i) => (
-                      <Star
-                        key={i}
-                        size={20}
-                        className={i < Math.floor(provider.rating) ? styles.filled : styles.empty}
-                        fill={i < Math.floor(provider.rating) ? 'currentColor' : 'none'}
+                      <Star 
+                        key={i} 
+                        size={18} 
+                        fill={i < Math.floor(provider.rating) ? "currentColor" : "none"} 
+                        stroke={i < Math.floor(provider.rating) ? "currentColor" : "rgba(255,255,255,0.4)"}
                       />
                     ))}
                   </div>
-                  <div className={styles.ratingCount}>
-                    {provider.reviewCount} avis
-                  </div>
+                  <span>{provider.rating.toFixed(1)}</span>
+                  <span style={{ opacity: 0.6, fontSize: '0.85rem' }}>({provider.reviewCount})</span>
                 </div>
               </div>
 
+              {/* Location Segment */}
+              <div className={styles.metaInfoGroup}>
+                <span className={styles.metaLabel}>Localisation</span>
+                <div className={styles.metaValue}>
+                  <MapPin size={20} style={{ color: 'var(--primary)' }} />
+                  <span>{provider.displayCity}</span>
+                </div>
+              </div>
+
+              {/* Integrated Social Segment */}
+              {(provider.website || provider.instagram || provider.facebook) && (
+                <div className={styles.metaInfoGroup}>
+                  <span className={styles.metaLabel}>Retrouver son Univers</span>
+                  <div className={styles.integratedSocials}>
+                    {provider.instagram && (
+                      <a href={provider.instagram} target="_blank" rel="noopener noreferrer" className={styles.socialIconLink} title="Instagram">
+                        <InstagramIcon size={20} />
+                      </a>
+                    )}
+                    {provider.facebook && (
+                      <a href={provider.facebook} target="_blank" rel="noopener noreferrer" className={styles.socialIconLink} title="Facebook">
+                        <FacebookIcon size={20} />
+                      </a>
+                    )}
+                    {provider.website && (
+                      <a href={provider.website} target="_blank" rel="noopener noreferrer" className={styles.socialIconLink} title="Site Internet">
+                        <WebsiteIcon size={20} />
+                      </a>
+                    )}
+                    {provider.tiktok && (
+                      <a href={provider.tiktok} target="_blank" rel="noopener noreferrer" className={styles.socialIconLink} title="TikTok">
+                        <TikTokIcon size={20} />
+                      </a>
+                    )}
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Action Command Center */}
+      <div className={styles.actionPanelContainer}>
+        <div className={styles.actionPanel}>
+          <div className={styles.actionContent}>
+            <div className={styles.statGroup}>
+              <span className={styles.statValue}>{provider.bookingCount}</span>
+              <span className={styles.statLabel}>
+                {provider.bookingCount > 1 ? 'Expériences' : 'Expérience'}
+              </span>
+            </div>
+            <div className={styles.statGroup}>
+              <span className={styles.statValue}>{services.length}</span>
+              <span className={styles.statLabel}>
+                {services.length > 1 ? 'Prestations' : 'Prestation'}
+              </span>
+            </div>
+            {minPrice > 0 && (
+              <div className={styles.statGroup}>
+                <span className={styles.statValue}>{minPrice}€</span>
+                <span className={styles.statLabel}>Tarif dès</span>
+              </div>
+            )}
+          </div>
+
+          <div className={styles.buttonGroup}>
+            <button className={styles.contactButton} onClick={handleContact}>
+              Entrer en contact
+            </button>
+            <button 
+              className={`${styles.circleActionBtn} ${isFavorite ? styles.favoriteActive : ''}`}
+              onClick={handleFavorite}
+            >
+              <Heart size={22} fill={isFavorite ? 'currentColor' : 'none'} />
+            </button>
+            <button className={styles.circleActionBtn} onClick={handleShare}>
+              <Share2 size={22} />
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* Navigation */}
+      <div className={styles.tabNavContainer}>
+        <nav className={styles.tabNav}>
+          <button 
+            className={`${styles.tabBtn} ${activeTab === 'services' ? styles.active : ''}`}
+            onClick={() => setActiveTab('services')}
+          >
+            Prestations
+          </button>
+          <button 
+            className={`${styles.tabBtn} ${activeTab === 'portfolio' ? styles.active : ''}`}
+            onClick={() => setActiveTab('portfolio')}
+          >
+            Portfolio
+          </button>
+          <button 
+            className={`${styles.tabBtn} ${activeTab === 'reviews' ? styles.active : ''}`}
+            onClick={() => setActiveTab('reviews')}
+          >
+            Avis
+          </button>
+        </nav>
+      </div>
+
+      {/* Content Panels */}
+      <div className={styles.tabContent}>
+        {activeTab === 'services' && (
+          <div className={styles.servicesGrid}>
+            {services.length > 0 ? (
+              services.map((service) => (
+                <div key={service.id} className={styles.serviceCard}>
+                  <div className={styles.serviceHeader}>
+                    <h3 className={styles.serviceName}>{service.name}</h3>
+                    <div className={styles.servicePrice}>
+                      {formatPrice(service.price, service.priceType)}
+                    </div>
+                  </div>
+                  <p className={styles.serviceDesc}>{service.description || "Une prestation d'exception sur mesure pour votre événement."}</p>
+                  <div className={styles.serviceMeta}>
+                    {service.duration && (
+                      <div className={styles.metaItem}>
+                        <Clock size={16} />
+                        <span>{service.duration} min</span>
+                      </div>
+                    )}
+                    <div className={styles.metaItem}>
+                      <CheckCircle size={16} style={{ color: '#10b981' }} />
+                      <span>Disponible</span>
+                    </div>
+                  </div>
+                  <button className={styles.contactButton} style={{ width: '100%', marginTop: 'auto' }} onClick={handleContact}>
+                    Commander
+                  </button>
+                </div>
+              ))
+            ) : (
               <div className={styles.emptyState}>
-                <Star size={48} />
-                <h3>Aucun avis pour le moment</h3>
-                <p>Soyez le premier à laisser un avis pour ce prestataire.</p>
+                <div className={styles.emptyIconWrapper}>
+                  <MessageCircle size={40} />
+                </div>
+                <h3>Information sur les tarifs</h3>
+                <p>Ce prestataire n'a pas encore renseigné sa grille tarifaire. Nous vous invitons à le contacter directement pour obtenir un devis personnalisé selon vos besoins.</p>
+                <button className={styles.contactButton} onClick={handleContact}>
+                  Contacter le prestataire
+                </button>
+              </div>
+            )}
+          </div>
+        )}
+
+        {activeTab === 'portfolio' && (
+          <div className={styles.portfolioGrid}>
+            {provider.portfolio && provider.portfolio.length > 0 ? (
+              provider.portfolio.map((photo, index) => (
+                <div key={index} className={styles.portfolioItem} onClick={() => window.open(photo, '_blank')}>
+                  <img src={photo} alt={`Univers ${index + 1}`} loading="lazy" />
+                </div>
+              ))
+            ) : (
+              <div className={styles.emptyState}>
+                <div className={styles.emptyIconWrapper}>
+                  <Camera size={40} />
+                </div>
+                <h3>Portfolio en préparation</h3>
+                <p>Les réalisations de ce prestataire seront prochainement disponibles dans sa galerie.</p>
+              </div>
+            )}
+          </div>
+        )}
+
+        {activeTab === 'reviews' && (
+          <div className={styles.reviewsContainer}>
+            <div className={styles.ratingSummary}>
+              <div className={styles.ratingLarge}>
+                <div className={styles.ratingNumber}>{provider.rating.toFixed(1)}</div>
+                <div className={styles.ratingStarsLarge}>
+                  {[...Array(5)].map((_, i) => (
+                    <Star
+                      key={i}
+                      size={20}
+                      fill={i < Math.floor(provider.rating) ? "#ffd700" : "none"}
+                      stroke={i < Math.floor(provider.rating) ? "#ffd700" : "currentColor"}
+                    />
+                  ))}
+                </div>
+                <div className={styles.ratingCount}>{provider.reviewCount} avis</div>
+              </div>
+              
+              <div className={styles.ratingDistribution}>
+                {[5, 4, 3, 2, 1].map((rating) => (
+                  <div key={rating} className={styles.distLine}>
+                    <div className={styles.distLabel}>{rating} ★</div>
+                    <div className={styles.distBarBg}>
+                      <div 
+                        className={styles.distBarFill} 
+                        style={{ width: provider.reviewCount > 0 ? (rating === 5 ? '100%' : '0%') : '0%' }}
+                      />
+                    </div>
+                    <div className={styles.distCount}>{provider.reviewCount > 0 ? (rating === 5 ? '100%' : '0%') : '0%'}</div>
+                  </div>
+                ))}
               </div>
             </div>
-          )}
-        </div>
-      </main>
+
+            <div className={styles.reviewsList}>
+              <div className={styles.emptyReviews}>
+                <p>Aucun avis n'a encore été publié pour ce prestataire.</p>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
     </div>
   );
 }

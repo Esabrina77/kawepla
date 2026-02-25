@@ -225,7 +225,7 @@ export default function EditServicePage() {
     <div className={styles.editContainer}>
       <HeaderMobile title="Modifier le service" />
 
-      <main className={styles.main}>
+      <div className={styles.pageContent}>
         <h1 className={styles.pageTitle}>Modifier le service</h1>
 
         <form onSubmit={handleSubmit} className={styles.editForm}>
@@ -516,7 +516,7 @@ export default function EditServicePage() {
             </button>
           </div>
         </form>
-      </main>
+      </div>
 
       {/* Success Modal */}
       {showSuccessModal && (

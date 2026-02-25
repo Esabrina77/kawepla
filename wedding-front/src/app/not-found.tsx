@@ -1,121 +1,70 @@
 'use client';
 
+import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { 
-  Home, 
-  Calendar, 
-  Heart, 
-  Gift, 
-  Camera, 
-  Users, 
-  Music,
-  Sparkles,
-  Star,
-  Moon,
-  ArrowLeft
-} from 'lucide-react';
+import { ArrowLeft, Home } from 'lucide-react';
 import styles from './not-found.module.css';
 
 export default function NotFound() {
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    const savedTheme = localStorage.getItem('theme') || 'light';
+    document.documentElement.setAttribute('data-theme', savedTheme);
+    document.documentElement.classList.toggle('dark', savedTheme === 'dark');
+    setMounted(true);
+  }, []);
+
   return (
-    <div className={styles.notFoundContainer}>
-      {/* Étoiles animées */}
-      <div className={styles.starsContainer}>
-        {/* Étoiles principales */}
-        <div className={`${styles.star} ${styles.starLarge} ${styles.animateTwinkle}`} style={{ top: '5rem', left: '5rem' }}></div>
-        <div className={`${styles.star} ${styles.starSmall} ${styles.animateTwinkleDelay}`} style={{ top: '8rem', right: '8rem' }}></div>
-        <div className={`${styles.star} ${styles.starMedium} ${styles.animateTwinkleDelay2}`} style={{ top: '10rem', left: '50%' }}></div>
-        <div className={`${styles.star} ${styles.starSmall} ${styles.animateTwinkle}`} style={{ top: '15rem', right: '5rem' }}></div>
-        <div className={`${styles.star} ${styles.starLarge} ${styles.animateTwinkleDelay}`} style={{ top: '20rem', left: '10rem' }}></div>
-        <div className={`${styles.star} ${styles.starSmall} ${styles.animateTwinkleDelay2}`} style={{ top: '24rem', right: '33%' }}></div>
-        
-        {/* Étoiles secondaires */}
-        <div className={`${styles.star} ${styles.starSmall} ${styles.animateTwinkle}`} style={{ bottom: '10rem', left: '5rem' }}></div>
-        <div className={`${styles.star} ${styles.starMedium} ${styles.animateTwinkleDelay}`} style={{ bottom: '15rem', right: '10rem' }}></div>
-        <div className={`${styles.star} ${styles.starSmall} ${styles.animateTwinkleDelay2}`} style={{ bottom: '20rem', left: '33%' }}></div>
-        <div className={`${styles.star} ${styles.starSmall} ${styles.animateTwinkle}`} style={{ bottom: '8rem', right: '5rem' }}></div>
-        
-        {/* Constellation */}
-        <div className={`${styles.star} ${styles.starLarge} ${styles.animateTwinkle}`} style={{ top: '25%', left: '25%' }}></div>
-        <div className={`${styles.star} ${styles.starLarge} ${styles.animateTwinkle}`} style={{ top: '25%', left: '25%' }}></div>
-        <div className={`${styles.star} ${styles.starSmall} ${styles.animateTwinkleDelay}`} style={{ top: '33%', left: '33%' }}></div>
-        <div className={`${styles.star} ${styles.starMedium} ${styles.animateTwinkleDelay2}`} style={{ top: '50%', left: '50%' }}></div>
+    <div className={styles.page} style={{ opacity: mounted ? 1 : 0, transition: 'opacity 0.3s ease' }}>
+      {/* Decorative glowing orbs */}
+      <div className={styles.orbTop} aria-hidden="true" />
+      <div className={styles.orbBottom} aria-hidden="true" />
+
+      {/* Floating particles */}
+      <div className={styles.particles} aria-hidden="true">
+        <span className={styles.particle} style={{ top: '12%', left: '8%', animationDelay: '0s' }} />
+        <span className={styles.particle} style={{ top: '25%', right: '12%', animationDelay: '1.5s' }} />
+        <span className={styles.particle} style={{ top: '60%', left: '15%', animationDelay: '3s' }} />
+        <span className={styles.particle} style={{ top: '75%', right: '20%', animationDelay: '0.8s' }} />
+        <span className={styles.particle} style={{ top: '40%', left: '5%', animationDelay: '2.2s' }} />
+        <span className={styles.particle} style={{ top: '85%', left: '40%', animationDelay: '4s' }} />
+        <span className={`${styles.particle} ${styles.particleLg}`} style={{ top: '18%', right: '25%', animationDelay: '1s' }} />
+        <span className={`${styles.particle} ${styles.particleLg}`} style={{ top: '70%', left: '30%', animationDelay: '2.5s' }} />
       </div>
 
-      {/* Planète décorative */}
-      <div className={styles.planetContainer}>
-        <div className={styles.planet}>
-          <div className={`${styles.crater} ${styles.craterLarge}`}></div>
-          <div className={`${styles.crater} ${styles.craterMedium}`}></div>
-          <div className={`${styles.crater} ${styles.craterSmall}`}></div>
-        </div>
-          </div>
+      {/* Animated rings */}
+      <div className={styles.ring} aria-hidden="true" />
+      <div className={styles.ringSmall} aria-hidden="true" />
 
-      <div className={styles.contentContainer}>
-        {/* 404 Number avec style spatial */}
-        <div className={styles.errorNumber}>
-          <div className={styles.errorNumberMain}>404</div>
-          <div className={styles.errorNumberGlow}>404</div>
+      <div className={styles.content}>
+        {/* 404 number */}
+        <div className={styles.number}>
+          <span className={styles.numberText}>404</span>
+          <span className={styles.numberGlow} aria-hidden="true">404</span>
         </div>
-        
-        {/* Contenu principal */}
-        <div className={`${styles.mainContent} ${styles.animateFadeInUp}`}>
-      
-          
-          <div className={styles.textContent}>
-            <p className={`${styles.mainText} ${styles.animateSlideInRight}`}>
-              Nous ne trouvons pas la page que vous cherchez
-            </p>
-            <p className={`${styles.secondaryText} ${styles.animateSlideInRightDelay}`}>
-              Elle organise peut-être un événement avec Kawepla !
-              </p>
-            </div>
-        </div>
-        
-        {/* Boutons d'action */}
-        <div className={`${styles.actionContainer} ${styles.animateFadeInUpDelay}`}>
-          <button 
-            onClick={() => window.history.back()} 
-            className={`${styles.actionButton} ${styles.secondaryButton}`}
+
+        {/* Text */}
+        <h1 className={styles.title}>Page introuvable</h1>
+        <p className={styles.subtitle}>
+          La page que vous cherchez n'existe pas ou a été déplacée.
+        </p>
+
+        {/* Actions */}
+        <div className={styles.actions}>
+          <button
+            onClick={() => window.history.back()}
+            className={styles.btnSecondary}
           >
-            <ArrowLeft className={styles.buttonIcon} />
-            Retour
+            <ArrowLeft size={18} />
+            <span>Retour</span>
           </button>
-          <Link href="/" className={styles.actionButton}>
-            <Home className={styles.buttonIcon} />
-            Retour à l'accueil
+          <Link href="/" className={styles.btnPrimary}>
+            <Home size={18} />
+            <span>Accueil</span>
           </Link>
-        </div>
-
-        {/* Éléments flottants supplémentaires */}
-        <div className={`${styles.floatingElement} ${styles.animateFloatSlow}`} style={{ top: '8rem', left: '3rem' }}>
-          <Heart className={styles.floatingIcon} />
-        </div>
-        <div className={`${styles.floatingElementSmall} ${styles.animateFloatSlowDelay}`} style={{ top: '12rem', right: '5rem' }}>
-          <Star className={styles.floatingIcon} />
-        </div>
-        <div className={`${styles.floatingElementSmall} ${styles.animateFloatSlowDelay2}`} style={{ bottom: '12rem', left: '6rem' }}>
-          <Moon className={styles.floatingIcon} />
-        </div>
-        <div className={`${styles.floatingElement} ${styles.animateFloatSlow}`} style={{ bottom: '8rem', right: '4rem' }}>
-          <Gift className={styles.floatingIcon} />
-        </div>
-        <div className={`${styles.floatingElementTiny} ${styles.animateFloatSlowDelay}`} style={{ top: '25%', left: '1rem' }}>
-          <Camera className={styles.floatingIcon} />
-        </div>
-        <div className={`${styles.floatingElementTiny} ${styles.animateFloatSlowDelay2}`} style={{ top: '35%', right: '1rem' }}>
-          <Sparkles className={styles.floatingIcon} />
-        </div>
-        <div className={`${styles.floatingElementTiny} ${styles.animateFloatSlowDelay}`} style={{ top: '65%', left: '1.5rem' }}>
-          <Users className={styles.floatingIcon} />
-        </div>
-        <div className={`${styles.floatingElementTiny} ${styles.animateFloatSlowDelay2}`} style={{ top: '75%', right: '1.5rem' }}>
-          <Music className={styles.floatingIcon} />
-        </div>
-        <div className={`${styles.floatingElementTiny} ${styles.animateFloatSlow}`} style={{ top: '15%', right: '8rem' }}>
-          <Heart className={styles.floatingIcon} />
         </div>
       </div>
     </div>
   );
-} 
+}

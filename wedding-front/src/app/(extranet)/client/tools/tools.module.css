@@ -10,6 +10,7 @@
     opacity: 0;
     transform: translateY(20px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -18,7 +19,7 @@
 
 
 /* Main Content */
-.main {
+.pageContent {
   flex: 1;
   padding: 1rem;
   padding-bottom: 7rem;
@@ -27,25 +28,10 @@
 
 /* Desktop avec sidebar - aligné avec HeaderMobile */
 @media (min-width: 768px) {
-  .main {
+  .pageContent {
     padding: 2rem;
     max-width: 1200px;
     margin: 0 auto;
-  }
-}
-
-@media (min-width: 769px) {
-  .main {
-    padding-left: 190px;
-    padding-right: 2rem;
-    transition: padding-left var(--transition-normal);
-  }
-}
-
-/* Desktop avec sidebar collapsed */
-@media (min-width: 769px) {
-  :global(body[data-sidebar-collapsed="true"]) .main {
-    padding-left: 80px;
   }
 }
 
@@ -53,6 +39,7 @@
   from {
     opacity: 0;
   }
+
   to {
     opacity: 1;
   }
@@ -74,6 +61,7 @@
     opacity: 0;
     transform: translateY(-10px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -91,6 +79,7 @@
     opacity: 0;
     transform: translateY(20px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -125,10 +114,21 @@
   overflow: hidden;
 }
 
-.actionCard:nth-child(1) { animation-delay: 0.5s; }
-.actionCard:nth-child(2) { animation-delay: 0.55s; }
-.actionCard:nth-child(3) { animation-delay: 0.6s; }
-.actionCard:nth-child(4) { animation-delay: 0.65s; }
+.actionCard:nth-child(1) {
+  animation-delay: 0.5s;
+}
+
+.actionCard:nth-child(2) {
+  animation-delay: 0.55s;
+}
+
+.actionCard:nth-child(3) {
+  animation-delay: 0.6s;
+}
+
+.actionCard:nth-child(4) {
+  animation-delay: 0.65s;
+}
 
 .actionCard::before {
   content: '';
@@ -168,6 +168,7 @@
     opacity: 0;
     transform: translateX(-20px);
   }
+
   to {
     opacity: 1;
     transform: translateX(0);
@@ -257,4 +258,3 @@
     font-size: 1.5rem;
   }
 }
-

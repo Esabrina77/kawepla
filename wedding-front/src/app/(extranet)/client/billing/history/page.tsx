@@ -211,7 +211,7 @@ export default function PurchaseHistoryPage() {
       {/* Header Sticky */}
       <HeaderMobile title="Historique des achats" />
 
-      <main className={styles.main}>
+      <div className={styles.pageContent}>
         {/* Summary Cards */}
         <div className={styles.summarySection}>
           <div className={styles.summaryGrid}>
@@ -331,7 +331,7 @@ export default function PurchaseHistoryPage() {
             </div>
           </div>
         )}
-      </main>
+      </div>
     </div>
   );
 }

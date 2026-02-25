@@ -11,15 +11,15 @@ import styles from './messages.module.css';
 import Link from 'next/link';
 
 // Composant Message mémorisé pour éviter les re-renders inutiles
-const MessageItem = memo(({ 
-  message, 
-  providerBusinessName, 
+const MessageItem = memo(({
+  message,
+  providerBusinessName,
   clientName,
   isSystemMessage,
   isProvider,
   conversationId
-}: { 
-  message: ProviderMessage; 
+}: {
+  message: ProviderMessage;
   providerBusinessName?: string;
   clientName?: string;
   isSystemMessage: (type: string) => boolean;
@@ -28,7 +28,7 @@ const MessageItem = memo(({
 }) => {
   const isSystem = isSystemMessage(message.messageType);
   const isBookingMessage = message.messageType?.startsWith('BOOKING_');
-  
+
   return (
     <div
       className={`${styles.message} ${isSystem ? styles.systemMessage : ''} ${isBookingMessage ? styles.bookingMessage : ''} ${isProvider ? styles.providerMessage : styles.clientMessage}`}
@@ -59,7 +59,7 @@ const MessageItem = memo(({
         <div className={styles.messageText}>
           {message.content}
           {isBookingMessage && conversationId && isProvider && (
-            <Link 
+            <Link
               href={`/provider/bookings?conversationId=${conversationId}`}
               className={styles.viewBookingButton}
             >
@@ -78,11 +78,11 @@ export default function ProviderMessagesPage() {
   const router = useRouter();
   const { profile } = useProviderProfile();
   const { conversations, loading: conversationsLoading, refetch } = useProviderConversations('PROVIDER');
-  
+
   const [selectedConversationId, setSelectedConversationId] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const messagesEndRef = useRef<HTMLDivElement>(null);
-  
+
   const { conversation, messages, sendMessage, markAsRead, loading: messagesLoading } = useProviderConversation(selectedConversationId);
 
   // Filtrer les conversations selon la recherche
@@ -108,7 +108,7 @@ export default function ProviderMessagesPage() {
   // Marquer comme lu quand on sélectionne une conversation (une seule fois)
   const markAsReadRef = useRef(markAsRead);
   const hasMarkedAsReadRef = useRef<string | null>(null);
-  
+
   useEffect(() => {
     markAsReadRef.current = markAsRead;
   }, [markAsRead]);
@@ -162,7 +162,7 @@ export default function ProviderMessagesPage() {
     const now = new Date();
     const diff = now.getTime() - date.getTime();
     const days = Math.floor(diff / (1000 * 60 * 60 * 24));
-    
+
     if (days === 0) {
       return date.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
     } else if (days === 1) {
@@ -265,7 +265,7 @@ export default function ProviderMessagesPage() {
         </aside>
 
         {/* Zone de messages */}
-        <main className={styles.messagesArea}>
+        <div className={styles.messagesArea}>
           {!selectedConversationId ? (
             <div className={styles.noConversationSelected}>
               <MessageCircle size={64} />
@@ -321,10 +321,10 @@ export default function ProviderMessagesPage() {
                 ) : (
                   messages.map((message) => {
                     const isProviderMessage = Boolean(
-                      message.sender?.role === 'PROVIDER' || 
+                      message.sender?.role === 'PROVIDER' ||
                       (profile && message.senderId === profile.userId)
                     );
-                    
+
                     return (
                       <MessageItem
                         key={message.id}
@@ -361,7 +361,7 @@ export default function ProviderMessagesPage() {
               </form>
             </>
           )}
-        </main>
+        </div>
       </div>
     </div>
   );

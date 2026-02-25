@@ -13,6 +13,8 @@
 .layout h5,
 .layout h6 {
   font-family: var(--font-heading);
+  letter-spacing: 0.05em;
+  font-weight: 500;
 }
 
 /* Styles pour les différents modes d'accessibilité */
@@ -25,4 +27,4 @@
   .layout {
     flex-direction: column;
   }
-} 
+}

@@ -55,7 +55,7 @@ export default function InvitationDetailPage() {
   if (loading) {
     return (
       <div className={styles.invitationDetail}>
-        <HeaderMobile title="Détail de l'invitation" />
+        <HeaderMobile title="Détail événement" />
         <div className={styles.loadingContainer}>
           <div className={styles.loadingContent}>
             <div className={styles.loadingSpinner}></div>
@@ -69,12 +69,12 @@ export default function InvitationDetailPage() {
   if (!invitation) {
     return (
       <div className={styles.invitationDetail}>
-        <HeaderMobile title="Détail de l'invitation" />
+        <HeaderMobile title="Détail événement" />
         <div className={styles.errorContainer}>
           <div className={styles.errorContent}>
             <h2>Invitation non trouvée</h2>
             <button onClick={() => router.push('/client/invitations')} className={styles.backButton}>
-              Retour aux invitations
+              Retour aux événements
             </button>
           </div>
         </div>
@@ -86,15 +86,15 @@ export default function InvitationDetailPage() {
     <div className={styles.invitationDetail}>
       <HeaderMobile title={invitation.eventTitle || 'Invitation sans titre'} />
 
-      <main className={styles.main}>
+      <div className={styles.pageContent}>
         {/* Preview Section - Full Page */}
         <div className={styles.previewSection}>
           <div className={styles.previewContainer}>
             {getSelectedDesign() && (
               <DesignPreview
                 design={getSelectedDesign()!}
-                width={800}
-                height={1100}
+                width={500}
+                height={700}
               />
             )}
           </div>
@@ -135,7 +135,7 @@ export default function InvitationDetailPage() {
             )}
           </div>
         </div>
-      </main>
+      </div>
     </div>
   );
 } 

@@ -1,20 +1,30 @@
 'use client';
 
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useState, useEffect, Suspense } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { useAuth } from '@/hooks/useAuth';
 import { Eye, EyeOff } from 'lucide-react';
 import styles from '@/styles/site/auth.module.css';
 
-export default function RegisterPage() {
+function RegisterForm() {
   const { register, isLoading: authLoading } = useAuth();
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [error, setError] = useState<string>('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [userType, setUserType] = useState<'HOST' | 'PROVIDER'>('HOST');
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+
+  useEffect(() => {
+    const roleParam = searchParams.get('role');
+    if (roleParam === 'PROVIDER') {
+      setUserType('PROVIDER');
+    } else if (roleParam === 'HOST') {
+      setUserType('HOST');
+    }
+  }, [searchParams]);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -64,13 +74,13 @@ export default function RegisterPage() {
       <div className={`${styles.container} ${styles.registerContainer}`}>
         <div className={`${styles.authCard} ${styles.loginCard} ${styles.registerCard}`}>
           <div className={styles.header}>
-            <h1>Création de compte</h1>
-            <p>Rejoignez Kawepla et créez vos invitations d'événements numériques</p>
+            <h1 id="register-title">Création de compte</h1>
+            <p>{userType === 'HOST' ? "Rejoignez Kawepla et créez vos invitations d'événements numériques" : "Rejoignez Kawepla et proposez vos services aux organisateurs"}</p>
           </div>
 
           <form className={styles.form} onSubmit={handleSubmit}>
             {error && (
-              <div className={styles.error}>
+              <div className={styles.error} role="alert" aria-live="polite">
                 <p>{error}</p>
               </div>
             )}
@@ -78,8 +88,8 @@ export default function RegisterPage() {
             <div className={styles.registerLayout}>
               {/* Colonne gauche : Sélection du type d'utilisateur */}
               <div className={styles.registerLeftColumn}>
-                <div className={styles.userTypeSelector}>
-                  <h3>Je suis un :</h3>
+                <div role="radiogroup" aria-labelledby="user-type-label" className={styles.userTypeSelector}>
+                  <h3 id="user-type-label">Je suis un :</h3>
                   <div className={styles.userTypeOptions}>
                     <label className={`${styles.userTypeOption} ${userType === 'HOST' ? styles.selected : ''}`}>
                       <input
@@ -89,16 +99,17 @@ export default function RegisterPage() {
                         checked={userType === 'HOST'}
                         onChange={(e) => setUserType(e.target.value as 'HOST' | 'PROVIDER')}
                         disabled={isSubmitting}
+                        aria-label="Organisateur"
                       />
                       <div className={styles.userTypeContent}>
-                        <div className={styles.userTypeIcon}>💒</div>
+                        <div className={styles.userTypeIcon} aria-hidden="true">💒</div>
                         <div className={styles.userTypeText}>
                           <strong>Organisateur</strong>
                           <span>Organiser mon événement</span>
                         </div>
                       </div>
                     </label>
-                    
+
                     <label className={`${styles.userTypeOption} ${userType === 'PROVIDER' ? styles.selected : ''}`}>
                       <input
                         type="radio"
@@ -107,9 +118,10 @@ export default function RegisterPage() {
                         checked={userType === 'PROVIDER'}
                         onChange={(e) => setUserType(e.target.value as 'HOST' | 'PROVIDER')}
                         disabled={isSubmitting}
+                        aria-label="Prestataire"
                       />
                       <div className={styles.userTypeContent}>
-                        <div className={styles.userTypeIcon}>🎯</div>
+                        <div className={styles.userTypeIcon} aria-hidden="true">🎯</div>
                         <div className={styles.userTypeText}>
                           <strong>Prestataire</strong>
                           <span>Proposer mes services</span>
@@ -180,7 +192,8 @@ export default function RegisterPage() {
                       type="button"
                       onClick={() => setShowPassword(!showPassword)}
                       className={styles.passwordToggle}
-                    disabled={isSubmitting}
+                      disabled={isSubmitting}
+                      aria-label={showPassword ? "Masquer le mot de passe" : "Afficher le mot de passe"}
                     >
                       {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
                     </button>
@@ -208,6 +221,7 @@ export default function RegisterPage() {
                       onClick={() => setShowConfirmPassword(!showConfirmPassword)}
                       className={styles.passwordToggle}
                       disabled={isSubmitting}
+                      aria-label={showConfirmPassword ? "Masquer la confirmation du mot de passe" : "Afficher la confirmation du mot de passe"}
                     >
                       {showConfirmPassword ? <EyeOff size={20} /> : <Eye size={20} />}
                     </button>
@@ -226,7 +240,7 @@ export default function RegisterPage() {
                 </div>
 
                 <button
-                  type="submit" 
+                  type="submit"
                   disabled={isSubmitting}
                   className={`${styles.submitButton} ${isSubmitting ? styles.loading : ''}`}
                 >
@@ -245,4 +259,12 @@ export default function RegisterPage() {
       </div>
     </div>
   );
-} 
+}
+
+export default function RegisterPage() {
+  return (
+    <Suspense fallback={<div className={styles.auth}>Chargement...</div>}>
+      <RegisterForm />
+    </Suspense>
+  );
+}

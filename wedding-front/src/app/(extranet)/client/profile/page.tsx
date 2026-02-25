@@ -74,7 +74,7 @@ export default function ProfilePage() {
     <div className={styles.profilePage}>
       <HeaderMobile title="Profil Utilisateur" />
 
-      <main className={styles.main}>
+      <div className={styles.pageContent}>
         {/* Profile Header */}
         <div className={styles.profileHeader}>
           <div className={styles.avatar}>
@@ -90,61 +90,66 @@ export default function ProfilePage() {
 
         {/* Profile Form */}
         <form onSubmit={handleSubmit} className={styles.profileForm}>
-          {/* First Name Field */}
-          <div className={styles.formField}>
-            <label className={styles.label} htmlFor="firstname">
-              Prénom
-            </label>
-            <div className={styles.inputWrapper}>
-              <User className={styles.inputIcon} size={20} />
-              <input
-                className={styles.input}
-                id="firstname"
-                type="text"
-                value={formData.firstName}
-                onChange={(e) => setFormData(prev => ({ ...prev, firstName: e.target.value }))}
-                required
-              />
-            </div>
-          </div>
+          <p className={styles.formSectionTitle}>Informations personnelles</p>
 
-          {/* Last Name Field */}
-          <div className={styles.formField}>
-            <label className={styles.label} htmlFor="lastname">
-              Nom
-            </label>
-            <div className={styles.inputWrapper}>
-              <User className={styles.inputIcon} size={20} />
-              <input
-                className={styles.input}
-                id="lastname"
-                type="text"
-                value={formData.lastName}
-                onChange={(e) => setFormData(prev => ({ ...prev, lastName: e.target.value }))}
-                required
-              />
+          {/* Name Fields - Grid */}
+          <div className={styles.formGrid}>
+            {/* First Name */}
+            <div className={styles.formField}>
+              <label className={styles.label} htmlFor="firstname">Prénom</label>
+              <div className={styles.inputWrapper}>
+                <User className={styles.inputIcon} size={18} />
+                <input
+                  className={styles.input}
+                  id="firstname"
+                  type="text"
+                  value={formData.firstName}
+                  onChange={(e) => setFormData(prev => ({ ...prev, firstName: e.target.value }))}
+                  required
+                  aria-required="true"
+                  aria-label="Prénom"
+                  placeholder="Votre prénom"
+                />
+              </div>
+            </div>
+
+            {/* Last Name */}
+            <div className={styles.formField}>
+              <label className={styles.label} htmlFor="lastname">Nom</label>
+              <div className={styles.inputWrapper}>
+                <User className={styles.inputIcon} size={18} />
+                <input
+                  className={styles.input}
+                  id="lastname"
+                  type="text"
+                  value={formData.lastName}
+                  onChange={(e) => setFormData(prev => ({ ...prev, lastName: e.target.value }))}
+                  required
+                  aria-required="true"
+                  aria-label="Nom"
+                  placeholder="Votre nom"
+                />
+              </div>
             </div>
           </div>
 
           {/* Email Field */}
           <div className={styles.formField}>
-            <label className={styles.label} htmlFor="email">
-              Email
-            </label>
+            <label className={styles.label} htmlFor="email">Adresse email</label>
             <div className={styles.inputWrapper}>
-              <Mail className={styles.inputIcon} size={20} />
+              <Mail className={styles.inputIcon} size={18} />
               <input
                 className={`${styles.input} ${styles.inputDisabled}`}
                 id="email"
                 type="email"
                 value={formData.email}
                 disabled
+                aria-disabled="true"
+                aria-label="Email (non modifiable)"
               />
             </div>
-            <p className={styles.helpText}>L'email ne peut pas être modifié</p>
+            <p className={styles.helpText}>L&apos;adresse email ne peut pas être modifiée</p>
           </div>
-
-
 
           {/* Save Button */}
           <div className={styles.saveButtonContainer}>
@@ -177,7 +182,7 @@ export default function ProfilePage() {
             {isDeleting ? 'Suppression...' : 'Supprimer mon compte'}
           </button>
         </div>
-      </main>
+      </div>
 
       {/* Delete Account Confirmation Modal */}
       <ConfirmModal

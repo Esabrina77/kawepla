@@ -33,21 +33,21 @@ const menuItems = [
     title: 'Tableau de bord',
     path: '/client/dashboard',
     icon: LayoutDashboard,
-    description: 'Vue d\'ensemble de votre invitation',
+    description: 'Vue d\'ensemble de votre événement',
     priority: 1
   },
   {
     title: 'Créer l\'événement',
     path: '/client/invitations',
     icon: CalendarRange,
-    description: 'Gérez vos invitations',
+    description: 'Gérez vos événements',
     priority: 1
   },
   {
     title: 'Design',
     path: '/client/design',
     icon: PaintBucket,
-    description: 'Personnalisez votre invitation',
+    description: 'Personnalisez votre événement',
     priority: 1
   },
   {
@@ -58,10 +58,10 @@ const menuItems = [
     priority: 1
   },
   {
-    title: 'Réponses Invitations',
+    title: 'Réponses Convives',
     path: '/client/messages',
     icon: MessageSquare,
-    description: 'Consultez les messages de vos invités',
+    description: 'Consultez les messages de vos convives',
     priority: 1
   },
   // {
@@ -155,15 +155,11 @@ export const Sidebar = () => {
       <aside className={`${styles.sidebar} ${isCollapsed ? styles.collapsed : ''}`}>
         {/* Header Section */}
         <div className={styles.sidebarHeader}>
-          <Link href="/" data-tutorial="logo">
-            <NextImage
-              src="/images/logo.png"
-              alt="WeddInvite"
-              width={130}
-              height={90}
-              className={styles.logoImage}
-              priority
-            />
+          <Link href="/" className={styles.logoLink} data-tutorial="logo">
+            {isCollapsed
+              ? <span className={styles.logoTextCollapsed}>K</span>
+              : <span className={styles.logoText}>KAWEPLA</span>
+            }
           </Link>
           <button
             onClick={toggleSidebar}
@@ -181,20 +177,15 @@ export const Sidebar = () => {
               <Link
                 key={item.path}
                 href={item.path}
-                className={`${styles.navItem} ${basePath?.includes(item.path) ? styles.active : ''
-                  }`}
-                title={item.description}
+                className={`${styles.navItem} ${pathname?.startsWith(item.path) ? styles.active : ''}`}
+                aria-label={item.title}
+                data-tooltip={item.title}
               >
                 <span className={styles.icon}>
                   {<item.icon className={styles.menuIcon} size={18} />}
                 </span>
                 {!isCollapsed && (
-                  <div className={styles.navContent}>
-                    <span className={styles.title}>{item.title}</span>
-                    {item.description && (
-                      <span className={styles.description}>{item.description}</span>
-                    )}
-                  </div>
+                  <span className={styles.title}>{item.title}</span>
                 )}
               </Link>
             ))}
@@ -224,8 +215,7 @@ export const Sidebar = () => {
             <Link
               key={item.path}
               href={item.path}
-              className={`${styles.mobileNavItem} ${basePath?.includes(item.path) ? styles.active : ''
-                }`}
+              className={`${styles.mobileNavItem} ${pathname?.startsWith(item.path) ? styles.active : ''}`}
               title={item.title}
             >
               <span className={styles.mobileIcon}>
@@ -254,7 +244,7 @@ export const Sidebar = () => {
         <div className={styles.mobileMenuOverlay} onClick={toggleMobileMenu}>
           <div className={styles.mobileMenuPopup} onClick={(e) => e.stopPropagation()}>
             <div className={styles.mobileMenuHeader}>
-              <h3>Menu complet</h3>
+              <h3>Menu</h3>
               <button
                 onClick={toggleMobileMenu}
                 className={styles.closeMobileMenu}
@@ -283,8 +273,7 @@ export const Sidebar = () => {
                 <Link
                   key={item.path}
                   href={item.path}
-                  className={`${styles.mobileMenuItem} ${basePath?.includes(item.path) ? styles.active : ''
-                    }`}
+                  className={`${styles.mobileMenuItem} ${pathname?.startsWith(item.path) ? styles.active : ''}`}
                   onClick={toggleMobileMenu}
                 >
                   <span className={styles.icon}>

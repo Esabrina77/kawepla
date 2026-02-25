@@ -4,12 +4,12 @@ import { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { bookingsApi, Booking } from '@/lib/api/bookings';
 import { HeaderMobile } from '@/components/HeaderMobile/HeaderMobile';
-import { 
-  Calendar, 
-  Clock, 
+import {
+  Calendar,
+  Clock,
   Users,
-  Phone, 
-  Mail, 
+  Phone,
+  Mail,
   MessageSquare,
   Euro,
   CheckCircle,
@@ -43,7 +43,7 @@ export default function BookingDetailPage() {
   const params = useParams();
   const router = useRouter();
   const bookingId = params.id as string;
-  
+
   const [booking, setBooking] = useState<Booking | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -70,11 +70,11 @@ export default function BookingDetailPage() {
 
   const handleStatusUpdate = async (newStatus: string) => {
     if (!booking) return;
-    
+
     try {
       setUpdating(true);
       await bookingsApi.updateBookingStatus(booking.id, newStatus);
-      
+
       // Mettre à jour localement
       setBooking({ ...booking, status: newStatus as any });
     } catch (err) {
@@ -101,11 +101,11 @@ export default function BookingDetailPage() {
       month: 'long',
       year: 'numeric'
     });
-    
+
     if (timeString) {
       formatted += ` à ${timeString}`;
     }
-    
+
     return formatted;
   };
 
@@ -148,9 +148,9 @@ export default function BookingDetailPage() {
     <div className={styles.bookingDetailPage}>
       <HeaderMobile title={`Réservation #${booking.id.substring(0, 8)}`} />
 
-      <main className={styles.main}>
+      <div className={styles.pageContent}>
         {/* Status Badge */}
-        <div 
+        <div
           className={styles.statusBadge}
           style={{ backgroundColor: statusInfo.color + '20', borderColor: statusInfo.color }}
         >
@@ -204,7 +204,7 @@ export default function BookingDetailPage() {
                 <p>{formatDate(booking.eventDate)}</p>
               </div>
             </div>
-            
+
             {booking.eventTime && (
               <div className={styles.detailCard}>
                 <Clock size={20} />
@@ -214,7 +214,7 @@ export default function BookingDetailPage() {
                 </div>
               </div>
             )}
-            
+
             <div className={styles.detailCard}>
               <Users size={20} />
               <div>
@@ -222,7 +222,7 @@ export default function BookingDetailPage() {
                 <p>{EVENT_TYPES[booking.eventType] || booking.eventType}</p>
               </div>
             </div>
-            
+
             {booking.guestCount && (
               <div className={styles.detailCard}>
                 <Users size={20} />
@@ -322,7 +322,7 @@ export default function BookingDetailPage() {
         {/* Link to conversation */}
         {(booking as any).conversationId && (
           <section className={styles.section}>
-            <Link 
+            <Link
               href={`/provider/messages?conversationId=${(booking as any).conversationId}`}
               className={styles.conversationLink}
             >
@@ -331,7 +331,7 @@ export default function BookingDetailPage() {
             </Link>
           </section>
         )}
-      </main>
+      </div>
     </div>
   );
 }

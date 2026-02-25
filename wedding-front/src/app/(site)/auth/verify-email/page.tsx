@@ -1,10 +1,10 @@
 'use client';
 
-import { useState, useEffect, Suspense } from 'react';
+import { useState, Suspense } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useAuth } from '@/hooks/useAuth';
-import { Mail, ArrowLeft, CheckCircle, AlertCircle, Key } from 'lucide-react';
+import { ArrowLeft, CheckCircle, AlertCircle } from 'lucide-react';
 import styles from '@/styles/site/auth.module.css';
 
 function VerifyEmailContent() {
@@ -23,13 +23,13 @@ function VerifyEmailContent() {
   const handleVerifyCode = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!verificationCode || !email) return;
-    
+
     setIsVerifying(true);
     setVerificationError('');
-    
+
     try {
       const result = await verifyEmail(email, verificationCode);
-      
+
       if (result.success) {
         setVerificationSuccess(true);
         setTimeout(() => {
@@ -47,13 +47,13 @@ function VerifyEmailContent() {
 
   const handleResendVerification = async () => {
     if (!email) return;
-    
+
     setIsResending(true);
     setResendError('');
-    
+
     try {
       const result = await sendVerificationCode(email);
-      
+
       if (result.success) {
         setResendSuccess(true);
       } else {
@@ -71,9 +71,6 @@ function VerifyEmailContent() {
       <div className={styles.container}>
         <div className={`${styles.authCard} ${styles.loginCard}`}>
           <div className={styles.header}>
-            <div className={styles.iconContainer}>
-              <Mail size={56} className={styles.icon} />
-            </div>
             <h1>Vérifiez votre email</h1>
             <p className={styles.description}>
               {email ? (
@@ -84,42 +81,40 @@ function VerifyEmailContent() {
             </p>
           </div>
 
-          {/* Formulaire de vérification */}
           <form onSubmit={handleVerifyCode} className={styles.form}>
             <div className={styles.formGroup}>
-              <label htmlFor="verificationCode" className={styles.inputLabel}>
+              <label htmlFor="verificationCode">
                 Code de vérification
               </label>
               <div className={styles.codeInputContainer}>
-                <Key size={20} className={styles.codeInputIcon} />
                 <input
                   id="verificationCode"
                   type="text"
                   value={verificationCode}
                   onChange={(e) => setVerificationCode(e.target.value)}
-                  placeholder="Entrez le code à 6 chiffres"
+                  placeholder="000000"
                   maxLength={6}
                   pattern="[0-9]{6}"
                   required
                   className={styles.codeInput}
                   disabled={isVerifying}
+                  aria-required="true"
                 />
               </div>
-              <small className={styles.inputHint}>
+              <small className={styles.description} style={{ textAlign: 'center', display: 'block' }}>
                 Vérifiez votre boîte de réception et saisissez le code reçu
               </small>
             </div>
 
             {verificationError && (
-              <div className={`${styles.messageBox} ${styles.error}`}>
-                <AlertCircle size={20} />
+              <div className={styles.error} role="alert" aria-live="polite">
                 <span>{verificationError}</span>
               </div>
             )}
 
             {verificationSuccess && (
               <div className={`${styles.messageBox} ${styles.success}`}>
-                <CheckCircle size={20} />
+                <CheckCircle size={16} />
                 <span>Email vérifié avec succès ! Redirection en cours...</span>
               </div>
             )}
@@ -151,7 +146,7 @@ function VerifyEmailContent() {
             )}
 
             {resendError && (
-              <div className={`${styles.messageBox} ${styles.error}`}>
+              <div className={styles.error}>
                 <AlertCircle size={16} />
                 <span>{resendError}</span>
               </div>
@@ -159,9 +154,9 @@ function VerifyEmailContent() {
           </div>
 
           <div className={styles.footer}>
-            <Link href="/auth/login" className={styles.backButton}>
-              <ArrowLeft size={18} />
-              Retour à la connexion
+            <Link href="/auth/login" className={styles.actionButton}>
+              <ArrowLeft size={16} />
+              <span>Retour à la connexion</span>
             </Link>
           </div>
         </div>
@@ -177,9 +172,6 @@ export default function VerifyEmailPage() {
         <div className={styles.container}>
           <div className={`${styles.authCard} ${styles.loginCard}`}>
             <div className={styles.header}>
-              <div className={styles.iconContainer}>
-                <Mail size={56} className={styles.icon} />
-              </div>
               <h1>Chargement...</h1>
               <p className={styles.description}>Préparation de la vérification email</p>
             </div>
@@ -190,4 +182,4 @@ export default function VerifyEmailPage() {
       <VerifyEmailContent />
     </Suspense>
   );
-} 
+}

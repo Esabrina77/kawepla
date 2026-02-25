@@ -12,6 +12,7 @@
     opacity: 0;
     transform: translateY(20px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -19,7 +20,7 @@
 }
 
 /* Main Content */
-.main {
+.pageContent {
   flex: 1;
   padding: 1rem;
   padding-bottom: 7rem;
@@ -30,6 +31,7 @@
   from {
     opacity: 0;
   }
+
   to {
     opacity: 1;
   }
@@ -173,8 +175,13 @@
 }
 
 @keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+  0% {
+    transform: rotate(0deg);
+  }
+
+  100% {
+    transform: rotate(360deg);
+  }
 }
 
 .errorContainer p {
@@ -213,7 +220,7 @@
 
 /* Responsive */
 @media (min-width: 768px) {
-  .main {
+  .pageContent {
     padding: 2rem;
     max-width: 1200px;
     margin: 0 auto;

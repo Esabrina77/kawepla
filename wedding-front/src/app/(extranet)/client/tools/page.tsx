@@ -60,7 +60,7 @@ export default function ToolsPage() {
     <div className={styles.toolsPage}>
       <HeaderMobile title={`Bonjour ${user?.firstName || 'Utilisateur'}`} />
 
-      <main className={styles.main}>
+      <div className={styles.pageContent}>
         {/* Page Title */}
         <h1 className={styles.pageTitle}>Outils</h1>
 
@@ -105,7 +105,7 @@ export default function ToolsPage() {
             })}
           </div>
         </section>
-      </main>
+      </div>
     </div>
   );
 }

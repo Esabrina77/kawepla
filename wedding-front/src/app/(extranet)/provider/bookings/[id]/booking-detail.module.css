@@ -11,13 +11,14 @@
     opacity: 0;
     transform: translateY(20px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
   }
 }
 
-.main {
+.pageContent {
   flex: 1;
   padding: 1.5rem;
   padding-bottom: 7rem;
@@ -31,31 +32,16 @@
   from {
     opacity: 0;
   }
+
   to {
     opacity: 1;
   }
 }
 
-/* Desktop avec sidebar - aligné avec HeaderMobile */
 @media (min-width: 768px) {
-  .main {
+  .pageContent {
     padding: 2rem;
     max-width: 800px;
-  }
-}
-
-@media (min-width: 769px) {
-  .main {
-    padding-left: 190px;
-    padding-right: 2rem;
-    transition: padding-left var(--transition-normal);
-  }
-}
-
-/* Desktop avec sidebar collapsed */
-@media (min-width: 769px) {
-  :global(body[data-sidebar-collapsed="true"]) .main {
-    padding-left: 80px;
   }
 }
 
@@ -324,7 +310,9 @@
 }
 
 @keyframes spin {
-  to { transform: rotate(360deg); }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 .backButton {
@@ -353,4 +341,3 @@
     grid-template-columns: 1fr;
   }
 }
-
