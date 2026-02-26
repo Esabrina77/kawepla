@@ -35,6 +35,7 @@ export interface ProviderConversation {
     name: string;
   };
   messages?: ProviderMessage[];
+  unreadCount?: number;
 }
 
 export interface ProviderMessage {

@@ -53,7 +53,7 @@
 
 .summaryCard:hover {
   transform: translateY(-2px);
-  border-color: var(--primary);
+  border-color: var(--host);
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.04);
 }
 
@@ -69,8 +69,8 @@
   justify-content: center;
   width: 44px;
   height: 44px;
-  background: color-mix(in srgb, var(--primary) 10%, transparent);
-  color: var(--primary);
+  background: color-mix(in srgb, var(--host) 10%, transparent);
+  color: var(--host);
   border-radius: 14px;
   flex-shrink: 0;
 }
@@ -117,7 +117,7 @@
 .purchaseCard:hover {
   transform: translateY(-3px);
   box-shadow: 0 15px 35px rgba(0, 0, 0, 0.05);
-  border-color: color-mix(in srgb, var(--primary) 30%, var(--border));
+  border-color: color-mix(in srgb, var(--host) 30%, var(--border));
 }
 
 .purchaseHeader {
@@ -147,7 +147,7 @@
 .tierIcon {
   width: 20px;
   height: 20px;
-  color: var(--primary);
+  color: var(--host);
 }
 
 .purchaseMeta {
@@ -173,8 +173,8 @@
 }
 
 .historyBadge {
-  background: color-mix(in srgb, var(--primary) 10%, transparent);
-  color: var(--primary);
+  background: color-mix(in srgb, var(--host) 10%, transparent);
+  color: var(--host);
   font-family: var(--font-body);
   font-size: 0.65rem;
   font-weight: 800;
@@ -240,7 +240,7 @@
 }
 
 .emptyIcon {
-  color: var(--primary);
+  color: var(--host);
   opacity: 0.2;
   margin-bottom: 0.5rem;
 }
@@ -263,7 +263,7 @@
 
 .emptyButton {
   margin-top: 1rem;
-  background: var(--primary);
+  background: var(--host);
   color: white;
   border: none;
   padding: 0.85rem 1.75rem;
@@ -273,12 +273,12 @@
   font-size: 0.9rem;
   cursor: pointer;
   transition: all 0.3s ease;
-  box-shadow: 0 4px 12px color-mix(in srgb, var(--primary) 20%, transparent);
+  box-shadow: 0 4px 12px color-mix(in srgb, var(--host) 20%, transparent);
 }
 
 .emptyButton:hover {
   transform: translateY(-2px);
-  box-shadow: 0 8px 20px color-mix(in srgb, var(--primary) 30%, transparent);
+  box-shadow: 0 8px 20px color-mix(in srgb, var(--host) 30%, transparent);
   filter: brightness(1.1);
 }
 
@@ -296,7 +296,7 @@
 }
 
 .exportCard:hover {
-  border-color: var(--primary);
+  border-color: var(--host);
   background: var(--card);
 }
 
@@ -367,7 +367,7 @@
   width: 40px;
   height: 40px;
   border: 3px solid var(--bg-secondary);
-  border-top: 3px solid var(--primary);
+  border-top: 3px solid var(--host);
   border-radius: 50%;
   animation: spin 1s linear infinite;
 }
@@ -381,7 +381,7 @@
 }
 
 .retryButton {
-  background: var(--primary);
+  background: var(--host);
   color: white;
   border: none;
   padding: 0.75rem 1.75rem;

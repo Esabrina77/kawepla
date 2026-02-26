@@ -1,10 +1,10 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
-import Link from 'next/link';
-import { useProviderServices } from '@/hooks/useProviderServices';
-import { Service } from '@/lib/api/providers';
-import { HeaderMobile } from '@/components/HeaderMobile/HeaderMobile';
+import { useState } from "react";
+import Link from "next/link";
+import { useProviderServices } from "@/hooks/useProviderServices";
+import { Service } from "@/lib/api/providers";
+import { HeaderMobile } from "@/components/HeaderMobile/HeaderMobile";
 import {
   Briefcase,
   Plus,
@@ -16,44 +16,49 @@ import {
   Users,
   CheckCircle,
   XCircle,
-  ChevronDown
-} from 'lucide-react';
-import styles from './services.module.css';
+  ChevronDown,
+} from "lucide-react";
+import { ConfirmModal, ErrorModal } from "@/components/ui/modal";
+import styles from "./services.module.css";
 
 export default function ProviderServicesPage() {
-
   const { services, loading, error, deleteService } = useProviderServices();
-  const [deletingServiceId, setDeletingServiceId] = useState<string | null>(null);
+  const [deletingServiceId, setDeletingServiceId] = useState<string | null>(
+    null,
+  );
+  const [serviceToDelete, setServiceToDelete] = useState<string | null>(null);
+  const [showErrorModal, setShowErrorModal] = useState(false);
 
-  const handleDeleteService = async (serviceId: string) => {
-    if (confirm('Êtes-vous sûr de vouloir supprimer ce service ?')) {
-      try {
-        setDeletingServiceId(serviceId);
-        await deleteService(serviceId);
-      } catch (error) {
-        console.error('Erreur lors de la suppression:', error);
-        alert('Erreur lors de la suppression du service');
-      } finally {
-        setDeletingServiceId(null);
-      }
+  const handleDeleteService = async () => {
+    if (!serviceToDelete) return;
+
+    try {
+      setDeletingServiceId(serviceToDelete);
+      await deleteService(serviceToDelete);
+      setServiceToDelete(null);
+    } catch (error) {
+      console.error("Erreur lors de la suppression:", error);
+      setShowErrorModal(true);
+    } finally {
+      setDeletingServiceId(null);
     }
   };
 
   const formatPrice = (price: number, priceType: string) => {
     switch (priceType) {
-      case 'PER_PERSON':
+      case "PER_PERSON":
         return `${price}€/personne`;
-      case 'PER_HOUR':
+      case "PER_HOUR":
         return `${price}€/heure`;
-      case 'CUSTOM':
-        return 'Sur devis';
+      case "CUSTOM":
+        return "Sur devis";
       default:
         return `${price}€`;
     }
   };
 
   const formatDuration = (duration?: number) => {
-    if (!duration) return 'Non spécifié';
+    if (!duration) return "Non spécifié";
     if (duration < 60) return `${duration}min`;
     const hours = Math.floor(duration / 60);
     const minutes = duration % 60;
@@ -102,7 +107,8 @@ export default function ProviderServicesPage() {
             <Briefcase className={styles.emptyIcon} />
             <h3 className={styles.emptyTitle}>Aucun service créé</h3>
             <p className={styles.emptyText}>
-              Commencez par créer votre premier service pour proposer vos prestations
+              Commencez par créer votre premier service pour proposer vos
+              prestations
             </p>
             <Link
               href="/provider/services/create"
@@ -117,7 +123,9 @@ export default function ProviderServicesPage() {
             {services.map((service) => (
               <div key={service.id} className={styles.serviceCard}>
                 {/* Status Badge */}
-                <div className={`${styles.statusBadge} ${service.isActive ? styles.active : styles.inactive}`}>
+                <div
+                  className={`${styles.statusBadge} ${service.isActive ? styles.active : styles.inactive}`}
+                >
                   {service.isActive ? (
                     <>
                       <CheckCircle size={12} />
@@ -167,11 +175,15 @@ export default function ProviderServicesPage() {
                   <div className={styles.inclusions}>
                     <h4>Inclus :</h4>
                     <ul>
-                      {service.inclusions.slice(0, 3).map((inclusion, index) => (
-                        <li key={index}>{inclusion}</li>
-                      ))}
+                      {service.inclusions
+                        .slice(0, 3)
+                        .map((inclusion, index) => (
+                          <li key={index}>{inclusion}</li>
+                        ))}
                       {service.inclusions.length > 3 && (
-                        <li>+{service.inclusions.length - 3} autres éléments</li>
+                        <li>
+                          +{service.inclusions.length - 3} autres éléments
+                        </li>
                       )}
                     </ul>
                   </div>
@@ -182,7 +194,11 @@ export default function ProviderServicesPage() {
                   <div className={styles.servicePhotos}>
                     <div className={styles.photosGrid}>
                       {service.photos.slice(0, 3).map((photo, index) => (
-                        <img key={index} src={photo} alt={`Service ${index + 1}`} />
+                        <img
+                          key={index}
+                          src={photo}
+                          alt={`Service ${index + 1}`}
+                        />
                       ))}
                       {service.photos.length > 3 && (
                         <div className={styles.morePhotos}>
@@ -212,21 +228,38 @@ export default function ProviderServicesPage() {
                   </Link>
 
                   {/* Désactivé : La suppression d'un service supprime aussi les réservations liées */}
-                  {/* 
+
                   <button
-                    onClick={() => handleDeleteService(service.id)}
+                    onClick={() => setServiceToDelete(service.id)}
                     disabled={deletingServiceId === service.id}
                     className={`${styles.actionButton} ${styles.deleteButton}`}
                   >
                     <Trash2 size={16} />
-                    {deletingServiceId === service.id ? 'Suppression...' : 'Supprimer'}
+                    {deletingServiceId === service.id
+                      ? "Suppression..."
+                      : "Supprimer"}
                   </button>
-                  */}
                 </div>
               </div>
             ))}
           </div>
         )}
+        <ConfirmModal
+          isOpen={!!serviceToDelete}
+          onClose={() => setServiceToDelete(null)}
+          onConfirm={handleDeleteService}
+          title="Supprimer le service"
+          message="Êtes-vous sûr de vouloir supprimer ce service ? Cette action supprimera également toutes les réservations et conversations associées."
+          confirmText="Supprimer"
+          isLoading={!!deletingServiceId}
+        />
+
+        <ErrorModal
+          isOpen={showErrorModal}
+          onClose={() => setShowErrorModal(false)}
+          title="Erreur de suppression"
+          message="Désolé, une erreur est survenue lors de la suppression du service. Veuillez réessayer."
+        />
       </div>
     </div>
   );

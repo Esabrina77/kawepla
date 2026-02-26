@@ -7,10 +7,9 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  background: linear-gradient(135deg, var(--primary), color-mix(in srgb, var(--primary) 75%, #000));
   padding: 1.15rem 1.25rem;
   margin-bottom: 1.5rem;
-  box-shadow: 0 4px 20px color-mix(in srgb, var(--primary) 20%, transparent);
+  /* gradient + shadow applied via inline style from useRoleColor */
 }
 
 .backButton {
@@ -53,9 +52,16 @@
   flex-shrink: 0;
 }
 
-.themeToggleWrapper {
+.rightActionWrapper {
   flex-shrink: 0;
   color: #fff;
+  display: flex;
+  align-items: center;
+  min-width: 2.25rem;
+  justify-content: flex-end;
+}
+
+.themeToggleWrapper {
   display: flex;
   align-items: center;
 }

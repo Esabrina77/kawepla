@@ -134,20 +134,20 @@
 }
 
 .actionButton:hover {
-  border-color: var(--primary);
-  color: var(--primary);
-  background: color-mix(in srgb, var(--primary) 5%, transparent);
+  border-color: var(--host);
+  color: var(--host);
+  background: color-mix(in srgb, var(--host) 5%, transparent);
 }
 
 .actionButton.publishButton {
-  background: var(--primary);
+  background: var(--host);
   color: #fff;
   border: none;
 }
 
 .actionButton.publishButton:hover {
   transform: translateY(-1px);
-  box-shadow: 0 6px 20px color-mix(in srgb, var(--primary) 25%, transparent);
+  box-shadow: 0 6px 20px color-mix(in srgb, var(--host) 25%, transparent);
 }
 
 /* ===== ERROR / LOADING ===== */
@@ -172,7 +172,7 @@
   width: 32px;
   height: 32px;
   border: 2.5px solid var(--border);
-  border-top-color: var(--primary);
+  border-top-color: var(--host);
   border-radius: 50%;
   animation: spin 0.8s linear infinite;
 }
@@ -188,7 +188,7 @@
 
 .backButton {
   padding: 0.55rem 1.15rem;
-  background: var(--primary);
+  background: var(--host);
   color: #fff;
   border: none;
   border-radius: 100px;
@@ -201,5 +201,5 @@
 
 .backButton:hover {
   transform: translateY(-1px);
-  box-shadow: 0 6px 20px color-mix(in srgb, var(--primary) 25%, transparent);
+  box-shadow: 0 6px 20px color-mix(in srgb, var(--host) 25%, transparent);
 }

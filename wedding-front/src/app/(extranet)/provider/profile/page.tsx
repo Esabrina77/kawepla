@@ -10,15 +10,18 @@ import { ConfirmModal } from "@/components/ui/modal";
 import { usersApi } from "@/lib/api/users";
 import { useAuth } from "@/hooks/useAuth";
 import {
-  User,
-  MapPin,
-  Camera,
-  Save,
   Plus,
+  Save,
+  Camera,
   X,
   Star,
   Trash2,
   AlertTriangle,
+  Info,
+  Share2,
+  Image as ImageIcon,
+  Bell,
+  Settings,
 } from "lucide-react";
 import {
   WebsiteIcon,
@@ -26,7 +29,6 @@ import {
   TikTokIcon,
   FacebookIcon,
 } from "@/components/icons/SocialIcons";
-import { Bell } from "lucide-react";
 import { NotificationToggle } from "@/components/Settings/NotificationToggle";
 import styles from "./profile.module.css";
 
@@ -216,7 +218,9 @@ export default function ProviderProfilePage() {
           <div className={styles.formGrid}>
             {/* Informations de base */}
             <div className={styles.formSection}>
-              <h2 className={styles.sectionTitle}>Informations de base</h2>
+              <h2 className={styles.sectionTitle}>
+                <Info size={18} /> Informations de base
+              </h2>
 
               <div className={styles.formField}>
                 <label className={styles.formLabel}>
@@ -292,7 +296,9 @@ export default function ProviderProfilePage() {
 
             {/* Réseaux sociaux */}
             <div className={styles.formSection}>
-              <h2 className={styles.sectionTitle}>Réseaux sociaux *</h2>
+              <h2 className={styles.sectionTitle}>
+                <Share2 size={18} /> Réseaux sociaux
+              </h2>
               <p className={styles.sectionDescription}>
                 Veuillez fournir au moins un lien (site web, Instagram, TikTok
                 ou Facebook)
@@ -300,8 +306,7 @@ export default function ProviderProfilePage() {
 
               <div className={styles.formField}>
                 <label className={styles.formLabel}>
-                  <WebsiteIcon size={16} />
-                  Site web personnel
+                  <WebsiteIcon size={16} /> <span>Site web personnel</span>
                 </label>
                 <input
                   type="url"
@@ -315,8 +320,7 @@ export default function ProviderProfilePage() {
 
               <div className={styles.formField}>
                 <label className={styles.formLabel}>
-                  <InstagramIcon size={16} />
-                  Instagram
+                  <InstagramIcon size={16} /> <span>Instagram</span>
                 </label>
                 <input
                   type="url"
@@ -330,8 +334,7 @@ export default function ProviderProfilePage() {
 
               <div className={styles.formField}>
                 <label className={styles.formLabel}>
-                  <TikTokIcon size={16} />
-                  TikTok
+                  <TikTokIcon size={16} /> <span>TikTok</span>
                 </label>
                 <input
                   type="url"
@@ -345,8 +348,7 @@ export default function ProviderProfilePage() {
 
               <div className={styles.formField}>
                 <label className={styles.formLabel}>
-                  <FacebookIcon size={16} />
-                  Facebook
+                  <FacebookIcon size={16} /> <span>Facebook</span>
                 </label>
                 <input
                   type="url"
@@ -361,7 +363,9 @@ export default function ProviderProfilePage() {
 
             {/* Photos */}
             <div className={styles.formSection}>
-              <h2 className={styles.sectionTitle}>Photos</h2>
+              <h2 className={styles.sectionTitle}>
+                <ImageIcon size={18} /> Visuels du profil
+              </h2>
 
               {/* Photo de profil */}
               <div className={styles.formField}>
@@ -465,7 +469,7 @@ export default function ProviderProfilePage() {
         <section className={styles.settingsSection}>
           <div className={styles.sectionHeader}>
             <Bell size={20} className={styles.sectionIcon} />
-            <h3 className={styles.sectionTitle}>Paramètres de notifications</h3>
+            <h3 className={styles.sectionTitle}>Notifications</h3>
           </div>
           <p className={styles.sectionDescription}>
             Gérez la manière dont vous recevez les alertes pour ne manquer aucun

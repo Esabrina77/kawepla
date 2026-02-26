@@ -1,11 +1,11 @@
-'use client';
+"use client";
 
-import React, { useState, useEffect } from 'react';
-import { useAuth } from '@/hooks/useAuth';
-import { stripeApi } from '@/lib/api/stripe';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { HeaderMobile } from '@/components/HeaderMobile';
+import React, { useState, useEffect } from "react";
+import { useAuth } from "@/hooks/useAuth";
+import { stripeApi } from "@/lib/api/stripe";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { HeaderMobile } from "@/components/HeaderMobile";
 import {
   CreditCard,
   Clock,
@@ -14,16 +14,16 @@ import {
   Download,
   Calendar,
   Euro,
-  Package,
-  TrendingUp,
+  Zap,
+  Layout,
+  BarChart3,
+  History,
   FileText,
-  Sparkles,
-  Wand2,
-  Zap
-} from 'lucide-react';
-import Link from 'next/link';
-import { generateInvoicePDF } from '@/utils/invoiceGenerator';
-import styles from './billing.module.css';
+} from "lucide-react";
+import Link from "next/link";
+import { generateInvoicePDF } from "@/utils/invoiceGenerator";
+import { ErrorModal } from "@/components/ui/modal";
+import styles from "./billing.module.css";
 
 interface PurchaseHistoryItem {
   id: string;
@@ -41,9 +41,11 @@ interface PurchaseHistoryData {
 
 export default function ProviderBillingPage() {
   const { user } = useAuth();
-  const [purchaseHistory, setPurchaseHistory] = useState<PurchaseHistoryData | null>(null);
+  const [purchaseHistory, setPurchaseHistory] =
+    useState<PurchaseHistoryData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [showInvoiceError, setShowInvoiceError] = useState(false);
 
   useEffect(() => {
     loadData();
@@ -55,44 +57,44 @@ export default function ProviderBillingPage() {
       setError(null);
 
       // Charger uniquement l'historique (plus de plans providers - tous ont 20 requêtes IA fixes)
-      const historyData = await stripeApi.getPurchaseHistory() as PurchaseHistoryData;
+      const historyData =
+        (await stripeApi.getPurchaseHistory()) as PurchaseHistoryData;
 
       setPurchaseHistory(historyData);
     } catch (error) {
-      console.error('❌ Error loading billing data:', error);
-      setError('Impossible de charger les données de facturation.');
+      console.error("❌ Error loading billing data:", error);
+      setError("Impossible de charger les données de facturation.");
     } finally {
       setLoading(false);
     }
   };
 
   const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('fr-FR', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
+    return new Date(dateString).toLocaleDateString("fr-FR", {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
     });
   };
 
-  const formatPrice = (price: number, currency: string = 'EUR') => {
-    return new Intl.NumberFormat('fr-FR', {
-      style: 'currency',
-      currency: currency
+  const formatPrice = (price: number, currency: string = "EUR") => {
+    return new Intl.NumberFormat("fr-FR", {
+      style: "currency",
+      currency: currency,
     }).format(price);
   };
 
   const getTierDisplayName = (tier: string) => {
     const tierNames: Record<string, string> = {
-      'PROVIDER_FREE': 'Starter',
-      'PROVIDER_BASIC': 'Basic',
-      'PROVIDER_PRO': 'Pro',
-      'PROVIDER_ELITE': 'Elite'
+      PROVIDER_FREE: "Starter",
+      PROVIDER_BASIC: "Basic",
+      PROVIDER_PRO: "Pro",
+      PROVIDER_ELITE: "Elite",
     };
     return tierNames[tier] || tier;
   };
-
 
   const handleDownloadInvoice = async (purchase: PurchaseHistoryItem) => {
     if (!user) return;
@@ -101,21 +103,22 @@ export default function ProviderBillingPage() {
       invoiceNumber: `INV-${purchase.id.substring(0, 8).toUpperCase()}`,
       purchaseId: purchase.id,
       purchaseDate: purchase.purchasedAt,
-      customerName: `${user.firstName || ''} ${user.lastName || ''}`.trim() || 'Provider',
-      customerEmail: user.email || '',
-      itemName: `${purchase.quantity > 1 ? `${purchase.quantity}x ` : ''}Plan ${getTierDisplayName(purchase.tier)}`,
+      customerName:
+        `${user.firstName || ""} ${user.lastName || ""}`.trim() || "Provider",
+      customerEmail: user.email || "",
+      itemName: `${purchase.quantity > 1 ? `${purchase.quantity}x ` : ""}Plan ${getTierDisplayName(purchase.tier)}`,
       quantity: purchase.quantity,
       unitPrice: purchase.price / purchase.quantity,
       totalPrice: purchase.price,
       currency: purchase.currency,
-      stripePaymentId: purchase.stripePaymentId
+      stripePaymentId: purchase.stripePaymentId,
     };
 
     try {
       await generateInvoicePDF(invoiceData);
     } catch (error) {
-      console.error('Erreur lors de la génération de la facture:', error);
-      alert('Erreur lors de la génération de la facture. Veuillez réessayer.');
+      console.error("Erreur lors de la génération de la facture:", error);
+      setShowInvoiceError(true);
     }
   };
 
@@ -145,13 +148,20 @@ export default function ProviderBillingPage() {
     );
   }
 
-  const allPurchases = (purchaseHistory?.purchaseHistory || []).filter(p =>
-    p.tier.startsWith('PROVIDER_')
-  ).map(p => ({
-    ...p,
-    displayPrice: formatPrice(p.price, p.currency),
-    displayName: p.quantity > 1 ? `${p.quantity}x ${getTierDisplayName(p.tier)}` : getTierDisplayName(p.tier)
-  })).sort((a, b) => new Date(b.purchasedAt).getTime() - new Date(a.purchasedAt).getTime());
+  const allPurchases = (purchaseHistory?.purchaseHistory || [])
+    .filter((p) => p.tier.startsWith("PROVIDER_"))
+    .map((p) => ({
+      ...p,
+      displayPrice: formatPrice(p.price, p.currency),
+      displayName:
+        p.quantity > 1
+          ? `${p.quantity}x ${getTierDisplayName(p.tier)}`
+          : getTierDisplayName(p.tier),
+    }))
+    .sort(
+      (a, b) =>
+        new Date(b.purchasedAt).getTime() - new Date(a.purchasedAt).getTime(),
+    );
 
   const totalAmount = allPurchases.reduce((sum, p) => sum + p.price, 0);
 
@@ -162,7 +172,9 @@ export default function ProviderBillingPage() {
       <div className={styles.pageContent}>
         {/* Info Section - Tous les providers ont 20 requêtes IA */}
         <div className={styles.plansSection}>
-          <h2 className={styles.sectionTitle}>Votre forfait</h2>
+          <h2 className={styles.sectionTitle}>
+            <Layout size={18} /> Votre forfait
+          </h2>
 
           <div className={styles.planCard}>
             <div className={styles.planHeader}>
@@ -172,7 +184,10 @@ export default function ProviderBillingPage() {
               </div>
             </div>
 
-            <p className={styles.planDescription}>Tous les providers bénéficient de 20 requêtes IA par mois pour améliorer les descriptions de leurs services.</p>
+            <p className={styles.planDescription}>
+              Tous les providers bénéficient de 20 requêtes IA par mois pour
+              améliorer les descriptions de leurs services.
+            </p>
 
             <div className={styles.planFeatures}>
               <div className={styles.featureItem}>
@@ -189,7 +204,9 @@ export default function ProviderBillingPage() {
 
         {/* Summary Cards */}
         <div className={styles.summarySection}>
-          <h2 className={styles.sectionTitle}>Résumé</h2>
+          <h2 className={styles.sectionTitle}>
+            <BarChart3 size={18} /> Résumé financier
+          </h2>
           <div className={styles.summaryGrid}>
             <div className={styles.summaryCard}>
               <div className={styles.summaryContent}>
@@ -220,7 +237,9 @@ export default function ProviderBillingPage() {
         {/* Purchase History */}
         {allPurchases.length > 0 && (
           <div className={styles.historySection}>
-            <h2 className={styles.sectionTitle}>Historique des achats</h2>
+            <h2 className={styles.sectionTitle}>
+              <History size={18} /> Historique des achats
+            </h2>
 
             <div className={styles.purchaseList}>
               {allPurchases.map((purchase) => (
@@ -228,7 +247,9 @@ export default function ProviderBillingPage() {
                   <div className={styles.purchaseHeader}>
                     <div className={styles.purchaseInfo}>
                       <h3>{purchase.displayName}</h3>
-                      <p className={styles.purchaseDate}>{formatDate(purchase.purchasedAt)}</p>
+                      <p className={styles.purchaseDate}>
+                        {formatDate(purchase.purchasedAt)}
+                      </p>
                     </div>
                     <div className={styles.purchasePrice}>
                       {purchase.displayPrice}
@@ -251,7 +272,12 @@ export default function ProviderBillingPage() {
           </div>
         )}
       </div>
+      <ErrorModal
+        isOpen={showInvoiceError}
+        onClose={() => setShowInvoiceError(false)}
+        title="Erreur de téléchargement"
+        message="Désolé, une erreur est survenue lors de la génération de votre facture PDF. Veuillez réessayer ultérieurement."
+      />
     </div>
   );
 }
-

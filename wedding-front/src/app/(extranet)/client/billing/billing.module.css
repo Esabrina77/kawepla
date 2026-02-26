@@ -43,7 +43,7 @@
   right: 0;
   width: 200px;
   height: 200px;
-  background: radial-gradient(circle, color-mix(in srgb, var(--primary) 5%, transparent) 0%, transparent 70%);
+  background: radial-gradient(circle, color-mix(in srgb, var(--host) 5%, transparent) 0%, transparent 70%);
   z-index: 0;
   pointer-events: none;
 }
@@ -70,7 +70,7 @@
 
 .purchaseItem:hover {
   transform: translateY(-1px);
-  border-color: var(--primary);
+  border-color: var(--host);
   background: var(--card);
 }
 
@@ -86,10 +86,10 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: var(--primary);
+  background: var(--host);
   color: white;
   border-radius: 10px;
-  box-shadow: 0 2px 8px color-mix(in srgb, var(--primary) 15%, transparent);
+  box-shadow: 0 2px 8px color-mix(in srgb, var(--host) 15%, transparent);
 }
 
 .purchaseName {
@@ -103,8 +103,8 @@
   font-family: var(--font-heading);
   font-size: 0.75rem;
   font-weight: 800;
-  color: var(--primary);
-  background: color-mix(in srgb, var(--primary) 8%, transparent);
+  color: var(--host);
+  background: color-mix(in srgb, var(--host) 8%, transparent);
   padding: 0.25rem 0.5rem;
   border-radius: 6px;
 }
@@ -122,7 +122,7 @@
   font-weight: 800;
   text-transform: uppercase;
   letter-spacing: 0.08em;
-  color: var(--primary);
+  color: var(--host);
   margin-bottom: 1rem;
   position: relative;
   z-index: 1;
@@ -177,7 +177,7 @@
 
 .progressFill {
   height: 100%;
-  background: linear-gradient(90deg, var(--primary), color-mix(in srgb, var(--primary) 80%, white));
+  background: linear-gradient(90deg, var(--host), color-mix(in srgb, var(--host) 80%, white));
   border-radius: 100px;
   transition: width 1s cubic-bezier(0.4, 0, 0.2, 1);
 }
@@ -204,8 +204,8 @@
 
 .historyButton:hover {
   background: var(--bg-secondary);
-  border-color: var(--primary);
-  color: var(--primary);
+  border-color: var(--host);
+  color: var(--host);
 }
 
 /* ===== UPGRADE SECTION ===== */
@@ -260,18 +260,18 @@
 .planCard:hover {
   transform: translateY(-4px);
   box-shadow: 0 15px 35px rgba(0, 0, 0, 0.06);
-  border-color: color-mix(in srgb, var(--primary) 30%, var(--border));
+  border-color: color-mix(in srgb, var(--host) 30%, var(--border));
 }
 
 .planCard.popular {
-  border: 1.5px solid var(--primary);
+  border: 1.5px solid var(--host);
 }
 
 .popularBadge {
   position: absolute;
   top: 0.75rem;
   right: 0.75rem;
-  background: var(--primary);
+  background: var(--host);
   color: white;
   font-family: var(--font-body);
   font-size: 0.55rem;
@@ -279,7 +279,7 @@
   padding: 0.35rem 0.65rem;
   border-radius: 100px;
   letter-spacing: 0.05em;
-  box-shadow: 0 4px 10px color-mix(in srgb, var(--primary) 30%, transparent);
+  box-shadow: 0 4px 10px color-mix(in srgb, var(--host) 30%, transparent);
 }
 
 .planName {
@@ -342,14 +342,14 @@
 }
 
 .featureIcon {
-  color: var(--primary);
+  color: var(--host);
   flex-shrink: 0;
 }
 
 .buyButton {
   width: 100%;
   padding: 0.85rem;
-  background: var(--primary);
+  background: var(--host);
   color: white;
   border: none;
   border-radius: 14px;
@@ -358,12 +358,12 @@
   font-size: 0.85rem;
   cursor: pointer;
   transition: all 0.2s ease;
-  box-shadow: 0 4px 12px color-mix(in srgb, var(--primary) 20%, transparent);
+  box-shadow: 0 4px 12px color-mix(in srgb, var(--host) 20%, transparent);
 }
 
 .buyButton:hover:not(:disabled) {
   transform: translateY(-2px);
-  box-shadow: 0 8px 20px color-mix(in srgb, var(--primary) 30%, transparent);
+  box-shadow: 0 8px 20px color-mix(in srgb, var(--host) 30%, transparent);
   filter: brightness(1.1);
 }
 
@@ -389,8 +389,8 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: color-mix(in srgb, var(--primary) 8%, transparent);
-  color: var(--primary);
+  background: color-mix(in srgb, var(--host) 8%, transparent);
+  color: var(--host);
   border-radius: 10px;
 }
 
@@ -424,7 +424,7 @@
   width: 40px;
   height: 40px;
   border: 3px solid var(--bg-secondary);
-  border-top: 3px solid var(--primary);
+  border-top: 3px solid var(--host);
   border-radius: 50%;
   animation: spin 1s linear infinite;
 }

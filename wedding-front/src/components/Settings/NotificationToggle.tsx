@@ -6,11 +6,13 @@ import { useNotifications } from "@/hooks/useNotifications";
 import { useRoleColor } from "@/hooks/useRoleColor";
 import styles from "./NotificationToggle.module.css";
 import { Button } from "@/components/ui/button";
+import { ErrorModal } from "@/components/ui/modal";
 
 export const NotificationToggle = () => {
   const { permission, requestPermission, isSupported } = useNotifications();
   const { color: themeColor } = useRoleColor();
   const [isMounted, setIsMounted] = useState(false);
+  const [showBlockedModal, setShowBlockedModal] = useState(false);
 
   useEffect(() => {
     setIsMounted(true);
@@ -22,9 +24,7 @@ export const NotificationToggle = () => {
     if (permission === "default") {
       await requestPermission();
     } else if (permission === "denied") {
-      alert(
-        "Les notifications sont bloquées. Veuillez les autoriser dans les paramètres de votre navigateur (en cliquant sur l'icône à gauche de l'URL).",
-      );
+      setShowBlockedModal(true);
     }
   };
 
@@ -89,6 +89,13 @@ export const NotificationToggle = () => {
           </span>
         </div>
       )}
+
+      <ErrorModal
+        isOpen={showBlockedModal}
+        onClose={() => setShowBlockedModal(false)}
+        title="Notifications bloquées"
+        message="Les notifications sont bloquées par votre navigateur. Veuillez les réactiver dans les paramètres (cliquez sur l'icône de cadenas à gauche de l'URL pour gérer les permissions)."
+      />
     </div>
   );
 };

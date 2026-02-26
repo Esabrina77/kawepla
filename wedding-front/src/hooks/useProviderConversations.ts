@@ -162,7 +162,7 @@ export function useProviderConversation(conversationId: string | null) {
   const { user } = useAuth();
   const [conversation, setConversation] = useState<ProviderConversation | null>(null);
   const [messages, setMessages] = useState<ProviderMessage[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(!!conversationId);
   const [error, setError] = useState<string | null>(null);
   const [hasMore, setHasMore] = useState(false);
   const [page, setPage] = useState(1);

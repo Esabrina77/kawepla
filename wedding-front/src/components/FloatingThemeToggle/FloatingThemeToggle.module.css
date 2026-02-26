@@ -1,6 +1,10 @@
-/* ===== KAWEPLA FLOATING THEME TOGGLE ===== */
+/* ===== KAWEPLA FLOATING THEME TOGGLE — Role-aware ===== */
 
+/* Default role colors (fallback = indigo) */
 .themeToggle {
+  --role-color: #6366F1;
+  --role-rgb: 99, 102, 241;
+
   display: flex;
   align-items: center;
   justify-content: center;
@@ -16,13 +20,13 @@
   overflow: hidden;
 }
 
-/* Glow ripple on click */
+/* Glow ripple on hover */
 .themeToggle::before {
   content: '';
   position: absolute;
   inset: 0;
   border-radius: 50%;
-  background: radial-gradient(circle, rgba(99, 102, 241, 0.15) 0%, transparent 70%);
+  background: radial-gradient(circle, rgba(var(--role-rgb), 0.15) 0%, transparent 70%);
   opacity: 0;
   transition: opacity 0.3s ease;
 }
@@ -33,9 +37,10 @@
 
 .themeToggle:hover {
   transform: scale(1.12) rotate(15deg);
-  border-color: #6366F1;
-  box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.12),
-              0 8px 24px rgba(99, 102, 241, 0.15);
+  border-color: var(--role-color);
+  box-shadow:
+    0 0 0 4px rgba(var(--role-rgb), 0.12),
+    0 8px 24px rgba(var(--role-rgb), 0.15);
 }
 
 .themeToggle:active {
@@ -43,7 +48,7 @@
 }
 
 .themeToggle:focus-visible {
-  outline: 2px solid #6366F1;
+  outline: 2px solid var(--role-color);
   outline-offset: 3px;
 }
 
@@ -64,6 +69,21 @@
   width: 2.5rem;
   height: 2.5rem;
   flex-shrink: 0;
+  /* When inside the header (white bg) — override icon color to white */
+  color: inherit;
+  background: rgba(255, 255, 255, 0.15);
+  border-color: rgba(255, 255, 255, 0.3);
+}
+
+.themeToggle.inline:hover {
+  background: rgba(255, 255, 255, 0.25);
+  border-color: rgba(255, 255, 255, 0.5);
+  box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.1);
+}
+
+.themeToggle.inline .icon {
+  color: #fff;
+  filter: none;
 }
 
 /* ===== FLOATING VARIANT ===== */
@@ -75,53 +95,47 @@
   width: 52px;
   height: 52px;
   border-width: 1.5px;
-  border-color: rgba(99, 102, 241, 0.3);
+  border-color: rgba(var(--role-rgb), 0.3);
   background: rgba(255, 255, 255, 0.7);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
   box-shadow:
-    0 4px 24px rgba(99, 102, 241, 0.15),
+    0 4px 24px rgba(var(--role-rgb), 0.15),
     0 2px 8px rgba(0, 0, 0, 0.08);
   animation: floatIn 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
-/* Dark mode floating variant */
+/* Dark mode floating */
 :global(.dark) .themeToggle.floating {
   background: rgba(17, 24, 39, 0.7);
-  border-color: rgba(99, 102, 241, 0.4);
+  border-color: rgba(var(--role-rgb), 0.4);
   box-shadow:
-    0 4px 24px rgba(99, 102, 241, 0.2),
+    0 4px 24px rgba(var(--role-rgb), 0.2),
     0 2px 8px rgba(0, 0, 0, 0.4);
 }
 
 /* Sun icon in dark mode = warm yellow */
-:global(.dark) .themeToggle .icon {
+:global(.dark) .themeToggle.floating .icon {
   color: #fbbf24;
   filter: drop-shadow(0 0 6px rgba(251, 191, 36, 0.4));
 }
 
-/* Moon icon in light mode = indigo */
-:global(:not(.dark)) .themeToggle .icon {
-  color: #6366F1;
-  filter: drop-shadow(0 0 4px rgba(99, 102, 241, 0.3));
+/* Moon icon in light mode = role color */
+:global(:not(.dark)) .themeToggle.floating .icon {
+  color: var(--role-color);
+  filter: drop-shadow(0 0 4px rgba(var(--role-rgb), 0.3));
 }
 
 /* Float-in animation */
 @keyframes floatIn {
-  from {
-    opacity: 0;
-    transform: scale(0.4) translateY(20px);
-  }
-  to {
-    opacity: 1;
-    transform: scale(1) translateY(0);
-  }
+  from { opacity: 0; transform: scale(0.4) translateY(20px); }
+  to   { opacity: 1; transform: scale(1)   translateY(0); }
 }
 
 /* ===== RESPONSIVE ===== */
 @media (max-width: 768px) {
   .themeToggle.floating {
-    bottom: 6.5rem; /* Above mobile nav bar */
+    bottom: 6.5rem;
     right: 1.25rem;
     width: 46px;
     height: 46px;

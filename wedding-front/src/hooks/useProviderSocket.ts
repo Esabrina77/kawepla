@@ -16,8 +16,9 @@ interface ProviderSocketEvents {
   onNewMessage?: (message: ProviderMessage, conversationId: string) => void;
   onMessagesRead?: (data: { userId: string; conversationId: string }) => void;
   onUserTyping?: (data: { userId: string; conversationId: string; isTyping: boolean }) => void;
-  onConversationUpdated?: (data: { conversationId: string; lastMessage: ProviderMessage }) => void;
+  onConversationUpdated?: (data: { conversationId: string; lastMessage: ProviderMessage; unreadCount: number }) => void;
   onError?: (error: { message: string }) => void;
+  onUnreadReset?: (data: { conversationId: string }) => void;
 }
 
 // SINGLETON : Socket partagé entre toutes les instances
@@ -33,10 +34,11 @@ const MESSAGE_DEDUP_TIMEOUT = 1000; // Nettoyer les IDs après 1 seconde
 // Liste de callbacks pour permettre plusieurs enregistrements
 interface CallbackList {
   onNewMessage: Array<(message: ProviderMessage, conversationId: string) => void>;
-  onConversationUpdated: Array<(data: { conversationId: string; lastMessage: ProviderMessage }) => void>;
+  onConversationUpdated: Array<(data: { conversationId: string; lastMessage: ProviderMessage; unreadCount: number }) => void>;
   onUserTyping: Array<(data: { userId: string; conversationId: string; isTyping: boolean }) => void>;
   onMessagesRead: Array<(data: { userId: string; conversationId: string }) => void>;
   onError: Array<(error: { message: string }) => void>;
+  onUnreadReset: Array<(data: { conversationId: string }) => void>;
 }
 
 let callbacksList: CallbackList = {
@@ -44,7 +46,8 @@ let callbacksList: CallbackList = {
   onConversationUpdated: [],
   onUserTyping: [],
   onMessagesRead: [],
-  onError: []
+  onError: [],
+  onUnreadReset: []
 };
 
 export const useProviderSocket = ({ conversationId, enabled = true }: UseProviderSocketProps) => {
@@ -181,8 +184,23 @@ export const useProviderSocket = ({ conversationId, enabled = true }: UseProvide
         callbacksList.onMessagesRead.forEach(callback => callback(data));
       });
 
-      globalSocket.on('provider_conversation_updated', (data: { conversationId: string; lastMessage: ProviderMessage }) => {
+      globalSocket.on('provider_conversation_updated', (data: { conversationId: string; lastMessage: ProviderMessage; unreadCount: number }) => {
+        const messageId = data.lastMessage.id;
+        
+        // Dédupliquer : si le message de mise à jour a déjà été traité
+        const dedupKey = `update_${data.conversationId}_${messageId}`;
+        if (receivedMessageIds.has(dedupKey)) {
+          return;
+        }
+        receivedMessageIds.add(dedupKey);
+        setTimeout(() => receivedMessageIds.delete(dedupKey), MESSAGE_DEDUP_TIMEOUT);
+
+        console.log('🔄 [WebSocket] Mise à jour conversation reçue:', data.conversationId, 'MessageId:', messageId);
         callbacksList.onConversationUpdated.forEach(callback => callback(data));
+      });
+
+      globalSocket.on('provider_unread_reset', (data: { conversationId: string }) => {
+        callbacksList.onUnreadReset.forEach(callback => callback(data));
       });
 
       globalSocket.on('error', (error) => {
@@ -333,6 +351,11 @@ export const useProviderSocket = ({ conversationId, enabled = true }: UseProvide
         callbacksList.onError.push(events.onError);
       }
     }
+    if (events.onUnreadReset) {
+      if (!callbacksList.onUnreadReset.includes(events.onUnreadReset)) {
+        callbacksList.onUnreadReset.push(events.onUnreadReset);
+      }
+    }
     
     console.log('✅ [useProviderSocket] Callbacks enregistrés, totaux:', {
       onNewMessage: callbacksList.onNewMessage.length,
@@ -360,6 +383,10 @@ export const useProviderSocket = ({ conversationId, enabled = true }: UseProvide
       if (events.onError) {
         const index = callbacksList.onError.indexOf(events.onError);
         if (index > -1) callbacksList.onError.splice(index, 1);
+      }
+      if (events.onUnreadReset) {
+        const index = callbacksList.onUnreadReset.indexOf(events.onUnreadReset);
+        if (index > -1) callbacksList.onUnreadReset.splice(index, 1);
       }
     };
   }, [conversationId]);

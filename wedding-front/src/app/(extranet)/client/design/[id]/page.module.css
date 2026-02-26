@@ -69,8 +69,8 @@
 
 .category {
   padding: 0.2rem 0.6rem;
-  background: color-mix(in srgb, var(--primary) 10%, transparent);
-  color: var(--primary);
+  background: color-mix(in srgb, var(--host) 10%, transparent);
+  color: var(--host);
   border-radius: 100px;
   font-family: var(--font-body);
   font-size: 0.62rem;
@@ -176,7 +176,7 @@
   align-items: center;
   justify-content: center;
   gap: 0.45rem;
-  background: var(--primary);
+  background: var(--host);
   color: #fff;
   border: none;
   padding: 0.7rem 1.25rem;
@@ -190,7 +190,7 @@
 
 .primaryButton:hover {
   transform: translateY(-2px);
-  box-shadow: 0 6px 20px color-mix(in srgb, var(--primary) 25%, transparent);
+  box-shadow: 0 6px 20px color-mix(in srgb, var(--host) 25%, transparent);
 }
 
 .secondaryButton {
@@ -211,8 +211,8 @@
 }
 
 .secondaryButton:hover {
-  border-color: var(--primary);
-  color: var(--primary);
+  border-color: var(--host);
+  color: var(--host);
 }
 
 .secondaryButton.active {

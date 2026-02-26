@@ -8,14 +8,14 @@ import React, {
   memo,
   useCallback,
 } from "react";
-import { useProviderProfile } from "@/hooks/useProviderProfile";
+import { useSearchParams } from "next/navigation";
+import { useAuth } from "@/hooks/useAuth";
 import {
   useProviderConversations,
   useProviderConversation,
 } from "@/hooks/useProviderConversations";
 import { ProviderMessage } from "@/lib/api/providerConversations";
 import { HeaderMobile } from "@/components/HeaderMobile";
-import { ErrorModal } from "@/components/ui/modal";
 import {
   Send,
   MessageCircle,
@@ -24,10 +24,10 @@ import {
   Users,
   Briefcase,
 } from "lucide-react";
-import styles from "./messages.module.css";
+import styles from "./discussions.module.css";
 import Link from "next/link";
 
-// ── Date Separator (style WhatsApp) ─────────────────────────────────────────
+// ── Date Separator ─────────────────────────────────────────
 const DateSeparator = ({ date }: { date: string }) => {
   const d = new Date(date);
   const today = new Date();
@@ -55,18 +55,20 @@ const DateSeparator = ({ date }: { date: string }) => {
 const MessageItem = memo(
   ({
     message,
-    providerBusinessName,
     isSystemMessage,
+    currentUserId,
+    providerName,
   }: {
     message: ProviderMessage;
-    providerBusinessName: string;
     isSystemMessage: (type: string) => boolean;
+    currentUserId?: string;
+    providerName?: string;
   }) => {
     const isSystem = isSystemMessage(message.messageType);
     const isBookingMessage = message.messageType?.startsWith("BOOKING_");
-    // Du point de vue du prestataire : CLIENT = HOST/GUEST
-    const isClient =
-      message.sender?.role === "HOST" || message.sender?.role === "GUEST";
+    // Du point de vue du client (HOST) : sortant = HOST, entrant = PROVIDER
+    const isClientMessage =
+      message.sender?.role === "HOST" || message.senderId === currentUserId;
 
     const renderBookingContent = (content: string) => {
       const eventDateMatch = content.match(
@@ -149,24 +151,19 @@ const MessageItem = memo(
 
     return (
       <div
-        className={`${styles.message} ${isSystem ? styles.systemMessage : ""} ${isBookingMessage ? styles.bookingMessage : ""} ${isClient ? styles.clientMessage : styles.providerMessage}`}
+        className={`${styles.message} ${isSystem ? styles.systemMessage : ""} ${isBookingMessage ? styles.bookingMessage : ""} ${isClientMessage ? styles.clientMessage : styles.providerMessage}`}
         role="listitem"
       >
         {!isSystem && (
           <div className={styles.messageAvatar}>
-            {isClient
-              ? message.sender?.firstName?.[0] || "C"
-              : providerBusinessName[0] || "P"}
+            {isClientMessage ? "V" : providerName?.[0] || "P"}
           </div>
         )}
         <div className={styles.messageContent}>
           {!isSystem && (
             <div className={styles.messageHeader}>
               <span className={styles.messageSender}>
-                {isClient
-                  ? `${message.sender?.firstName || ""} ${message.sender?.lastName || ""}`.trim() ||
-                    "Client"
-                  : providerBusinessName}
+                {isClientMessage ? "Vous" : providerName || "Prestataire"}
               </span>
               <span className={styles.messageTime}>
                 {new Date(message.createdAt).toLocaleTimeString("fr-FR", {
@@ -189,11 +186,16 @@ const MessageItem = memo(
 
 MessageItem.displayName = "MessageItem";
 
-// ── Main Page ────────────────────────────────────────────────────────────────
-export default function ProviderMessagesPage() {
-  const { profile } = useProviderProfile();
-  const { conversations, loading: conversationsLoading } =
-    useProviderConversations("PROVIDER");
+export default function ClientDiscussionsPage() {
+  const { user } = useAuth();
+  const searchParams = useSearchParams();
+  const providerIdParam = searchParams?.get("providerId");
+
+  const {
+    conversations,
+    getOrCreateConversation,
+    loading: conversationsLoading,
+  } = useProviderConversations("HOST");
 
   const [selectedConversationId, setSelectedConversationId] = useState<
     string | null
@@ -201,7 +203,6 @@ export default function ProviderMessagesPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [messageText, setMessageText] = useState("");
   const [sending, setSending] = useState(false);
-  const [showSendError, setShowSendError] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const {
@@ -231,9 +232,8 @@ export default function ProviderMessagesPage() {
         if (!searchQuery) return true;
         const q = searchQuery.toLowerCase();
         return (
-          conv.client?.firstName?.toLowerCase().includes(q) ||
-          conv.client?.lastName?.toLowerCase().includes(q) ||
-          conv.client?.email?.toLowerCase().includes(q) ||
+          conv.provider?.businessName?.toLowerCase().includes(q) ||
+          conv.provider?.category?.name?.toLowerCase().includes(q) ||
           conv.service?.name?.toLowerCase().includes(q) ||
           conv.subject?.toLowerCase().includes(q)
         );
@@ -241,12 +241,40 @@ export default function ProviderMessagesPage() {
     [conversations, searchQuery],
   );
 
-  // Select first conversation by default
+  // Handle ?providerId query parameter
+  const hasHandledUrlProviderRef = useRef(false);
+
   useEffect(() => {
-    if (filteredConversations.length > 0 && !selectedConversationId) {
+    if (conversationsLoading || hasHandledUrlProviderRef.current) return;
+
+    if (providerIdParam) {
+      hasHandledUrlProviderRef.current = true;
+      const existingConv = conversations.find(
+        (c) => c.providerId === providerIdParam,
+      );
+      if (existingConv) {
+        setSelectedConversationId(existingConv.id);
+      } else {
+        // Create conversation layout if no prior conversation exists
+        getOrCreateConversation({ providerId: providerIdParam })
+          .then((newConv) => {
+            setSelectedConversationId(newConv.id);
+          })
+          .catch((err) => {
+            console.error("Impossible de créer la discussion", err);
+          });
+      }
+    } else if (filteredConversations.length > 0 && !selectedConversationId) {
       setSelectedConversationId(filteredConversations[0].id);
     }
-  }, [filteredConversations, selectedConversationId]);
+  }, [
+    providerIdParam,
+    conversations,
+    conversationsLoading,
+    selectedConversationId,
+    filteredConversations,
+    getOrCreateConversation,
+  ]);
 
   // Mark as read on open (once)
   const markAsReadRef = useRef(markAsRead);
@@ -270,9 +298,8 @@ export default function ProviderMessagesPage() {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
-  // Memoize rendered messages with date separators
+  // Memoize rendered messages avec the date separator
   const memoizedMessages = useMemo(() => {
-    if (!profile) return [];
     const elements: React.ReactNode[] = [];
     let lastDate: string | null = null;
 
@@ -288,13 +315,14 @@ export default function ProviderMessagesPage() {
         <MessageItem
           key={msg.id}
           message={msg}
-          providerBusinessName={profile.businessName}
           isSystemMessage={isSystemMessage}
+          currentUserId={user?.id}
+          providerName={conversation?.provider?.businessName}
         />,
       );
     });
     return elements;
-  }, [messages, profile?.businessName, isSystemMessage]);
+  }, [messages, isSystemMessage, user?.id]);
 
   const getUnreadCount = (conv: any) => {
     return conv.unreadCount || 0;
@@ -328,7 +356,7 @@ export default function ProviderMessagesPage() {
       setMessageText("");
       await markAsRead();
     } catch {
-      setShowSendError(true);
+      alert("Erreur lors de l'envoi du message");
     } finally {
       setSending(false);
     }
@@ -337,7 +365,7 @@ export default function ProviderMessagesPage() {
   if (conversationsLoading) {
     return (
       <div className={styles.messagesPage}>
-        <HeaderMobile title="Messages" />
+        <HeaderMobile title="Discussions Prestataires" />
         <div className={styles.loadingContainer}>
           <div className={styles.loadingSpinner} />
           <p>Chargement des conversations…</p>
@@ -348,7 +376,7 @@ export default function ProviderMessagesPage() {
 
   return (
     <div className={styles.messagesPage}>
-      <HeaderMobile title="Messages" />
+      <HeaderMobile title="Discussions Prestataires" />
 
       <div className={styles.messagesLayout}>
         {/* ── Conversations list ── */}
@@ -357,7 +385,7 @@ export default function ProviderMessagesPage() {
             <Search size={16} className={styles.searchIcon} />
             <input
               type="text"
-              placeholder="Rechercher…"
+              placeholder="Rechercher un prestataire…"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className={styles.searchInput}
@@ -368,7 +396,7 @@ export default function ProviderMessagesPage() {
             {filteredConversations.length === 0 ? (
               <div className={styles.emptyConversations}>
                 <MessageCircle size={40} />
-                <p>Aucune conversation</p>
+                <p>Aucune discussion</p>
               </div>
             ) : (
               filteredConversations.map((conv) => {
@@ -383,14 +411,12 @@ export default function ProviderMessagesPage() {
                     onClick={() => setSelectedConversationId(conv.id)}
                   >
                     <div className={styles.conversationAvatar}>
-                      {conv.client?.firstName?.[0] || "C"}
+                      {conv.provider?.businessName?.[0] || "P"}
                     </div>
                     <div className={styles.conversationContent}>
                       <div className={styles.conversationTopRow}>
                         <h3 className={styles.conversationName}>
-                          {conv.client
-                            ? `${conv.client.firstName} ${conv.client.lastName}`
-                            : "Client"}
+                          {conv.provider?.businessName || "Prestataire"}
                         </h3>
                         {lastMsg && (
                           <span className={styles.conversationTime}>
@@ -410,10 +436,10 @@ export default function ProviderMessagesPage() {
                           <span className={styles.unreadBadge}>{unread}</span>
                         )}
                       </div>
-                      {conv.service && (
+                      {(conv.service || conv.provider?.category) && (
                         <div className={styles.serviceBadge}>
                           <Briefcase size={11} />
-                          {conv.service.name}
+                          {conv.service?.name || conv.provider?.category?.name}
                         </div>
                       )}
                     </div>
@@ -429,7 +455,7 @@ export default function ProviderMessagesPage() {
           {!selectedConversationId ? (
             <div className={styles.noConversationSelected}>
               <MessageCircle size={56} />
-              <p>Sélectionnez une conversation</p>
+              <p>Sélectionnez une discussion</p>
             </div>
           ) : !conversation ? (
             <div className={styles.loadingMessages}>
@@ -439,29 +465,33 @@ export default function ProviderMessagesPage() {
             <>
               {/* Conversation header */}
               <div className={styles.conversationHeader}>
-                <div className={styles.providerInfo}>
+                <Link
+                  href={`/client/providers/${conversation.provider?.id}`}
+                  className={styles.providerInfo}
+                >
                   <div className={styles.providerAvatar}>
-                    {conversation.client?.firstName?.[0] || "C"}
+                    {conversation.provider?.businessName?.[0] || "P"}
                   </div>
                   <div className={styles.providerDetails}>
                     <h3>
-                      {conversation.client
-                        ? `${conversation.client.firstName} ${conversation.client.lastName}`
-                        : "Client"}
+                      {conversation.provider?.businessName || "Prestataire"}
                     </h3>
-                    {conversation.service && (
+                    {(conversation.service ||
+                      conversation.provider?.category) && (
                       <p className={styles.category}>
-                        {conversation.service.name}
+                        {conversation.service?.name ||
+                          conversation.provider?.category?.name}
                       </p>
                     )}
                   </div>
-                </div>
-                {conversation.service && (
+                </Link>
+
+                {conversation.provider && (
                   <Link
-                    href={`/provider/bookings?conversationId=${conversation.id}`}
+                    href={`/client/providers/${conversation.provider.id}/book?conversationId=${conversation.id}`}
                     className={styles.bookButton}
                   >
-                    Voir la réservation
+                    Réserver
                   </Link>
                 )}
               </div>
@@ -480,7 +510,7 @@ export default function ProviderMessagesPage() {
                 ) : messages.length === 0 ? (
                   <div className={styles.emptyMessages}>
                     <MessageCircle size={48} />
-                    <p>Aucun message dans cette conversation</p>
+                    <p>Aucun message dans cette discussion</p>
                   </div>
                 ) : (
                   memoizedMessages
@@ -510,12 +540,6 @@ export default function ProviderMessagesPage() {
           )}
         </div>
       </div>
-      <ErrorModal
-        isOpen={showSendError}
-        onClose={() => setShowSendError(false)}
-        title="Erreur d'envoi"
-        message="Désolé, votre message n'a pas pu être envoyé. Veuillez vérifier votre connexion et réessayer."
-      />
     </div>
   );
 }

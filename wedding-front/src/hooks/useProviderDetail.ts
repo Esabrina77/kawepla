@@ -4,7 +4,7 @@ import { providersApi, ProviderProfile, Service } from '@/lib/api/providers';
 export function useProviderDetail(providerId: string) {
   const [provider, setProvider] = useState<ProviderProfile | null>(null);
   const [services, setServices] = useState<Service[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(!!providerId);
   const [error, setError] = useState<string | null>(null);
 
   const loadProviderData = async () => {

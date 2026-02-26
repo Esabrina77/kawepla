@@ -107,14 +107,14 @@ const menuItems = [
     isSubItem: true,
     priority: 2,
   },
-  {
-    title: "Favoris",
-    path: "/client/providers/favorites",
-    icon: Heart,
-    description: "Vos prestataires favoris",
-    isSubItem: true,
-    priority: 2,
-  },
+  // {
+  //   title: "Favoris",
+  //   path: "/client/providers/favorites",
+  //   icon: Heart,
+  //   description: "Vos prestataires favoris",
+  //   isSubItem: true,
+  //   priority: 2,
+  // },
 
   {
     title: "Albums Photos",

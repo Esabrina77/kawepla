@@ -101,7 +101,7 @@ export default function ProvidersPage() {
       <div className={styles.pageHeaderSection}>
         <div className={styles.headerContent}>
           <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', background: 'rgba(255,255,255,0.1)', padding: '0.4rem 1rem', borderRadius: '100px', marginBottom: '1.5rem', fontSize: '0.75rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em' }}>
-            <Sparkles size={14} style={{ color: '#ffd700' }} />
+            <Sparkles size={14} style={{ color: '#' }} />
             Le carnet d'adresses d'exception
           </div>
           <h1 className={styles.headerTitle}>Trouvez vos prestataires de rêve</h1>

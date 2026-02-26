@@ -1,22 +1,34 @@
-'use client';
+"use client";
 
-import React, { useState, useEffect } from 'react';
-import { useParams, useRouter, useSearchParams } from 'next/navigation';
-import { HeaderMobile } from '@/components/HeaderMobile';
-import { useProviderDetail } from '@/hooks/useProviderDetail';
-import { useProviderConversation, useBookingInfo } from '@/hooks/useProviderConversations';
-import { bookingsApi, CreateBookingDto } from '@/lib/api/bookings';
-import { useAuth } from '@/hooks/useAuth';
-import { Calendar, Clock, Users, MessageCircle, Euro, CheckCircle, X } from 'lucide-react';
-import styles from './book.module.css';
-import Link from 'next/link';
+import React, { useState, useEffect } from "react";
+import { useParams, useRouter, useSearchParams } from "next/navigation";
+import { HeaderMobile } from "@/components/HeaderMobile";
+import { useProviderDetail } from "@/hooks/useProviderDetail";
+import {
+  useProviderConversation,
+  useBookingInfo,
+  useProviderConversations,
+} from "@/hooks/useProviderConversations";
+import { bookingsApi, CreateBookingDto } from "@/lib/api/bookings";
+import { useAuth } from "@/hooks/useAuth";
+import {
+  Calendar,
+  Clock,
+  Users,
+  MessageCircle,
+  Euro,
+  CheckCircle,
+  X,
+} from "lucide-react";
+import styles from "./book.module.css";
+import Link from "next/link";
 
 const EVENT_TYPES = [
-  { value: 'WEDDING', label: 'Mariage' },
-  { value: 'BIRTHDAY', label: 'Anniversaire' },
-  { value: 'BAPTISM', label: 'Baptême' },
-  { value: 'CORPORATE', label: 'Événement d\'entreprise' },
-  { value: 'OTHER', label: 'Autre' }
+  { value: "WEDDING", label: "Mariage" },
+  { value: "BIRTHDAY", label: "Anniversaire" },
+  { value: "BAPTISM", label: "Baptême" },
+  { value: "CORPORATE", label: "Événement d'entreprise" },
+  { value: "OTHER", label: "Autre" },
 ];
 
 export default function BookServicePage() {
@@ -24,26 +36,50 @@ export default function BookServicePage() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const providerId = params.id as string;
-  const serviceId = searchParams.get('serviceId') || '';
-  const conversationIdParam = searchParams.get('conversationId') || '';
+  const serviceId = searchParams.get("serviceId") || "";
+  const conversationIdParam = searchParams.get("conversationId") || "";
 
   const { user } = useAuth();
-  const { provider, services, loading: providerLoading } = useProviderDetail(providerId);
-  const { conversation, loading: conversationLoading } = useProviderConversation(conversationIdParam || null);
-  const { bookingInfo, fetchBookingInfo } = useBookingInfo(conversationIdParam || null);
+  const {
+    provider,
+    services,
+    loading: providerLoading,
+  } = useProviderDetail(providerId);
+  const { conversations, loading: listLoading } =
+    useProviderConversations("HOST");
+
+  const [activeConversationId, setActiveConversationId] = useState<
+    string | null
+  >(conversationIdParam || null);
+  const { conversation, loading: conversationLoading } =
+    useProviderConversation(activeConversationId);
+  const { bookingInfo, fetchBookingInfo } =
+    useBookingInfo(activeConversationId);
+
+  // Auto-détecter la conversation si manquante dans l'URL
+  useEffect(() => {
+    if (!activeConversationId && !listLoading && conversations.length > 0) {
+      const existing = conversations.find(
+        (c: { providerId: string }) => c.providerId === providerId,
+      );
+      if (existing) {
+        setActiveConversationId(existing.id);
+      }
+    }
+  }, [providerId, conversations, listLoading, activeConversationId]);
 
   const [selectedService, setSelectedService] = useState<any>(null);
   const [useCustomService, setUseCustomService] = useState(false);
   const [formData, setFormData] = useState({
-    eventDate: '',
-    eventTime: '',
-    eventType: 'WEDDING',
-    guestCount: '',
-    message: '',
-    clientPhone: '',
-    customServiceName: '',
-    customServiceDescription: '',
-    customServicePrice: ''
+    eventDate: "",
+    eventTime: "",
+    eventType: "WEDDING",
+    guestCount: "",
+    message: "",
+    clientPhone: "",
+    customServiceName: "",
+    customServiceDescription: "",
+    customServicePrice: "",
   });
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -51,7 +87,7 @@ export default function BookServicePage() {
   // Charger le service sélectionné
   useEffect(() => {
     if (services && serviceId) {
-      const service = services.find(s => s.id === serviceId);
+      const service = services.find((s) => s.id === serviceId);
       if (service) {
         setSelectedService(service);
       }
@@ -69,50 +105,58 @@ export default function BookServicePage() {
 
   useEffect(() => {
     if (bookingInfo) {
-      setFormData(prev => ({
+      setFormData((prev) => ({
         ...prev,
         eventDate: bookingInfo.eventDate || prev.eventDate,
         eventTime: bookingInfo.eventTime || prev.eventTime,
         eventType: bookingInfo.eventType || prev.eventType,
         guestCount: bookingInfo.guestCount?.toString() || prev.guestCount,
-        message: bookingInfo.message || prev.message
+        message: bookingInfo.message || prev.message,
       }));
     }
   }, [bookingInfo]);
 
   // Vérifier qu'une conversation existe
   useEffect(() => {
-    if (!conversationIdParam && !conversationLoading) {
-      setError('Vous devez d\'abord contacter le prestataire avant de réserver.');
+    if (!activeConversationId && !conversationLoading && !listLoading) {
+      setError(
+        "Vous devez d'abord contacter le prestataire avant de réserver.",
+      );
+    } else {
+      setError(null);
     }
-  }, [conversationIdParam, conversationLoading]);
+  }, [activeConversationId, conversationLoading, listLoading]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!conversationIdParam) {
-      setError('Vous devez d\'abord contacter le prestataire avant de réserver.');
+    if (!activeConversationId) {
+      setError(
+        "Vous devez d'abord contacter le prestataire avant de réserver.",
+      );
       return;
     }
 
     // Vérifier qu'un service est sélectionné OU qu'un service personnalisé est fourni
     if (!selectedService && !useCustomService) {
-      setError('Veuillez sélectionner un service ou créer un service personnalisé');
+      setError(
+        "Veuillez sélectionner un service ou créer un service personnalisé",
+      );
       return;
     }
 
     if (useCustomService && !formData.customServiceName.trim()) {
-      setError('Veuillez indiquer le nom du service personnalisé');
+      setError("Veuillez indiquer le nom du service personnalisé");
       return;
     }
 
     if (!formData.eventDate) {
-      setError('Veuillez sélectionner une date');
+      setError("Veuillez sélectionner une date");
       return;
     }
 
     if (!user) {
-      setError('Vous devez être connecté pour réserver');
+      setError("Vous devez être connecté pour réserver");
       return;
     }
 
@@ -124,16 +168,24 @@ export default function BookServicePage() {
       let totalPrice = 0;
       if (selectedService && !useCustomService) {
         totalPrice = selectedService.price;
-        if (selectedService.priceType === 'PER_PERSON' && formData.guestCount) {
+        if (selectedService.priceType === "PER_PERSON" && formData.guestCount) {
           totalPrice = selectedService.price * parseInt(formData.guestCount);
-        } else if (selectedService.priceType === 'PER_HOUR' && selectedService.duration) {
+        } else if (
+          selectedService.priceType === "PER_HOUR" &&
+          selectedService.duration
+        ) {
           // Estimation basée sur la durée du service
           totalPrice = selectedService.price * (selectedService.duration / 60);
         }
       } else if (useCustomService) {
         // Pour un service personnalisé, utiliser le montant saisi par le client
-        if (!formData.customServicePrice || parseFloat(formData.customServicePrice) <= 0) {
-          setError('Veuillez indiquer le montant estimé pour le service personnalisé');
+        if (
+          !formData.customServicePrice ||
+          parseFloat(formData.customServicePrice) <= 0
+        ) {
+          setError(
+            "Veuillez indiquer le montant estimé pour le service personnalisé",
+          );
           return;
         }
         totalPrice = parseFloat(formData.customServicePrice);
@@ -143,31 +195,34 @@ export default function BookServicePage() {
         clientId: user.id,
         providerId: providerId,
         serviceId: useCustomService ? undefined : selectedService?.id,
-        customServiceName: useCustomService ? formData.customServiceName : undefined,
-        customServiceDescription: useCustomService ? formData.customServiceDescription : undefined,
-        conversationId: conversationIdParam,
+        customServiceName: useCustomService
+          ? formData.customServiceName
+          : undefined,
+        customServiceDescription: useCustomService
+          ? formData.customServiceDescription
+          : undefined,
+        conversationId: activeConversationId,
         clientName: `${user.firstName} ${user.lastName}`,
-        clientEmail: user.email || '',
+        clientEmail: user.email || "",
         clientPhone: formData.clientPhone || undefined,
         eventDate: formData.eventDate,
         eventTime: formData.eventTime || undefined,
         eventType: formData.eventType,
-        guestCount: formData.guestCount ? parseInt(formData.guestCount) : undefined,
+        guestCount: formData.guestCount
+          ? parseInt(formData.guestCount)
+          : undefined,
         message: formData.message || undefined,
-        totalPrice: totalPrice
+        totalPrice: totalPrice,
       };
 
       const result = await bookingsApi.createBooking(bookingData);
 
-      // Rediriger vers la page de messages avec le conversationId
-      if (conversationIdParam) {
-        router.replace(`/client/providers/${providerId}/messages?conversationId=${conversationIdParam}&bookingSuccess=true`);
-      } else {
-        // Si pas de conversationId, rediriger vers la liste des providers
-        router.replace(`/client/providers?bookingSuccess=true&bookingId=${result.booking.id}`);
-      }
+      // Rediriger vers la page de discussions
+      router.replace(
+        `/client/providers/discussions?providerId=${providerId}&bookingSuccess=true`,
+      );
     } catch (err: any) {
-      setError(err.message || 'Erreur lors de la création de la réservation');
+      setError(err.message || "Erreur lors de la création de la réservation");
     } finally {
       setSubmitting(false);
     }
@@ -175,20 +230,24 @@ export default function BookServicePage() {
 
   const formatPrice = (price: number, priceType: string) => {
     switch (priceType) {
-      case 'FIXED':
+      case "FIXED":
         return `${price}€`;
-      case 'PER_HOUR':
+      case "PER_HOUR":
         return `${price}€/h`;
-      case 'PER_PERSON':
+      case "PER_PERSON":
         return `${price}€/pers`;
-      case 'CUSTOM':
-        return 'Sur devis';
+      case "CUSTOM":
+        return "Sur devis";
       default:
         return `${price}€`;
     }
   };
 
-  if (providerLoading || conversationLoading) {
+  if (
+    providerLoading ||
+    conversationLoading ||
+    (listLoading && !activeConversationId)
+  ) {
     return (
       <div className={styles.bookPage}>
         <HeaderMobile title="Réserver un service" />
@@ -200,17 +259,31 @@ export default function BookServicePage() {
     );
   }
 
-  if (!provider || !conversationIdParam) {
+  if (
+    !provider ||
+    (!activeConversationId && !conversationLoading && !listLoading)
+  ) {
     return (
       <div className={styles.bookPage}>
-        <HeaderMobile title="Réserver un service" />
+        <HeaderMobile
+          title="Réserver un service"
+          backUrl={`/client/providers/${providerId}`}
+        />
         <div className={styles.errorContainer}>
-          <X size={48} />
+          <div className={styles.errorIconWrapper}>
+            <X size={48} />
+          </div>
           <h2>Réservation impossible</h2>
-          <p>Vous devez d'abord contacter le prestataire avant de réserver.</p>
-          <Link href={`/client/providers/${providerId}/messages`} className={styles.contactButton}>
-            <MessageCircle size={16} />
-            Contacter le prestataire
+          <p>
+            Vous devez d'abord contacter le prestataire avant de pouvoir
+            effectuer une réservation officielle.
+          </p>
+          <Link
+            href={`/client/providers/discussions?providerId=${providerId}`}
+            className={styles.contactButton}
+          >
+            <MessageCircle size={18} />
+            Lancer la discussion
           </Link>
         </div>
       </div>
@@ -233,7 +306,7 @@ export default function BookServicePage() {
         {/* Section 1: Service */}
         <section className={styles.section}>
           <h3 className={styles.sectionTitle}>Sélection du service</h3>
-          
+
           <div className={styles.serviceSelection}>
             <div className={styles.serviceOptions}>
               <label className={styles.radioLabel}>
@@ -268,38 +341,51 @@ export default function BookServicePage() {
 
             {!useCustomService ? (
               <select
-                value={selectedService?.id || ''}
+                value={selectedService?.id || ""}
                 onChange={(e) => {
-                  const service = services.find(s => s.id === e.target.value);
+                  const service = services.find((s) => s.id === e.target.value);
                   setSelectedService(service || null);
                 }}
                 className={styles.select}
               >
                 <option value="">Choisir un service...</option>
-                {services.map(service => (
+                {services.map((service) => (
                   <option key={service.id} value={service.id}>
-                    {service.name} — {formatPrice(service.price, service.priceType)}
+                    {service.name} —{" "}
+                    {formatPrice(service.price, service.priceType)}
                   </option>
                 ))}
               </select>
             ) : (
               <div className={styles.customServiceFields}>
                 <div className={styles.formGroup}>
-                  <label className={styles.label}>Nom du service personnalisé *</label>
+                  <label className={styles.label}>
+                    Nom du service personnalisé *
+                  </label>
                   <input
                     type="text"
                     value={formData.customServiceName}
-                    onChange={(e) => setFormData({ ...formData, customServiceName: e.target.value })}
+                    onChange={(e) =>
+                      setFormData({
+                        ...formData,
+                        customServiceName: e.target.value,
+                      })
+                    }
                     className={styles.input}
                     placeholder="Ex: Décoration florale"
                   />
                 </div>
-                <div className={styles.formGroup} style={{ marginTop: '1rem' }}>
+                <div className={styles.formGroup} style={{ marginTop: "1rem" }}>
                   <label className={styles.label}>Montant convenu (€) *</label>
                   <input
                     type="number"
                     value={formData.customServicePrice}
-                    onChange={(e) => setFormData({ ...formData, customServicePrice: e.target.value })}
+                    onChange={(e) =>
+                      setFormData({
+                        ...formData,
+                        customServicePrice: e.target.value,
+                      })
+                    }
                     className={styles.input}
                     placeholder="0.00"
                   />
@@ -309,8 +395,10 @@ export default function BookServicePage() {
 
             {selectedService && (
               <div className={styles.serviceInfo}>
-                <p className={styles.serviceDescription}>{selectedService.description}</p>
-                <div style={{ display: 'flex', gap: '1.5rem' }}>
+                <p className={styles.serviceDescription}>
+                  {selectedService.description}
+                </p>
+                <div style={{ display: "flex", gap: "1.5rem" }}>
                   {selectedService.duration && (
                     <div className={styles.serviceDetail}>
                       <Clock size={14} />
@@ -332,7 +420,7 @@ export default function BookServicePage() {
         {/* Section 2: Détails de l'événement */}
         <section className={styles.section}>
           <h3 className={styles.sectionTitle}>Détails de l'événement</h3>
-          
+
           <form onSubmit={handleSubmit} className={styles.bookingForm}>
             <div className={styles.formGroup}>
               <label className={styles.label}>
@@ -341,10 +429,12 @@ export default function BookServicePage() {
               <input
                 type="date"
                 value={formData.eventDate}
-                onChange={(e) => setFormData({ ...formData, eventDate: e.target.value })}
+                onChange={(e) =>
+                  setFormData({ ...formData, eventDate: e.target.value })
+                }
                 className={styles.input}
                 required
-                min={new Date().toISOString().split('T')[0]}
+                min={new Date().toISOString().split("T")[0]}
               />
             </div>
 
@@ -355,7 +445,9 @@ export default function BookServicePage() {
               <input
                 type="time"
                 value={formData.eventTime}
-                onChange={(e) => setFormData({ ...formData, eventTime: e.target.value })}
+                onChange={(e) =>
+                  setFormData({ ...formData, eventTime: e.target.value })
+                }
                 className={styles.input}
               />
             </div>
@@ -364,11 +456,13 @@ export default function BookServicePage() {
               <label className={styles.label}>Type d'événement *</label>
               <select
                 value={formData.eventType}
-                onChange={(e) => setFormData({ ...formData, eventType: e.target.value })}
+                onChange={(e) =>
+                  setFormData({ ...formData, eventType: e.target.value })
+                }
                 className={styles.select}
                 required
               >
-                {EVENT_TYPES.map(type => (
+                {EVENT_TYPES.map((type) => (
                   <option key={type.value} value={type.value}>
                     {type.label}
                   </option>
@@ -378,22 +472,29 @@ export default function BookServicePage() {
 
             <div className={styles.formGroup}>
               <label className={styles.label}>
-                <Users size={14} /> Invités
+                <Users size={14} />
+                Nombre d'invités
               </label>
               <input
                 type="number"
                 value={formData.guestCount}
-                onChange={(e) => setFormData({ ...formData, guestCount: e.target.value })}
+                onChange={(e) =>
+                  setFormData({ ...formData, guestCount: e.target.value })
+                }
                 className={styles.input}
                 min="1"
               />
             </div>
 
             <div className={`${styles.formGroup} ${styles.fullWidth}`}>
-              <label className={styles.label}>Message au prestataire (optionnel)</label>
+              <label className={styles.label}>
+                Message au prestataire (optionnel)
+              </label>
               <textarea
                 value={formData.message}
-                onChange={(e) => setFormData({ ...formData, message: e.target.value })}
+                onChange={(e) =>
+                  setFormData({ ...formData, message: e.target.value })
+                }
                 className={styles.textarea}
                 rows={3}
                 placeholder="Précisez vos besoins..."
@@ -402,21 +503,33 @@ export default function BookServicePage() {
 
             {/* Actions & Résumé */}
             <div className={styles.footerActions}>
-              {(selectedService || (useCustomService && formData.customServicePrice)) && (
+              {(selectedService ||
+                (useCustomService && formData.customServicePrice)) && (
                 <div className={styles.priceSummary}>
                   <div className={styles.priceRow}>
-                    <span>{useCustomService ? formData.customServiceName : selectedService.name}</span>
-                    <span>{useCustomService ? `${formData.customServicePrice}€` : formatPrice(selectedService.price, selectedService.priceType)}</span>
+                    <span>
+                      {useCustomService
+                        ? formData.customServiceName
+                        : selectedService.name}
+                    </span>
+                    <span>
+                      {useCustomService
+                        ? `${formData.customServicePrice}€`
+                        : formatPrice(
+                            selectedService.price,
+                            selectedService.priceType,
+                          )}
+                    </span>
                   </div>
                   <div className={styles.priceTotal}>
                     <span>Total estimé</span>
                     <span>
-                      {useCustomService 
+                      {useCustomService
                         ? `${formData.customServicePrice}€`
-                        : selectedService.priceType === 'PER_PERSON' && formData.guestCount
+                        : selectedService.priceType === "PER_PERSON" &&
+                            formData.guestCount
                           ? `${(selectedService.price * parseInt(formData.guestCount)).toFixed(2)}€`
-                          : `${selectedService.price}€`
-                      }
+                          : `${selectedService.price}€`}
                     </span>
                   </div>
                 </div>
@@ -445,4 +558,3 @@ export default function BookServicePage() {
     </div>
   );
 }
-

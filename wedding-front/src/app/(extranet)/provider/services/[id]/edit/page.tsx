@@ -1,10 +1,10 @@
-'use client';
+"use client";
 
-import { useState, useEffect } from 'react';
-import { useRouter, useParams } from 'next/navigation';
-import { useProviderServices } from '@/hooks/useProviderServices';
-import { UpdateServiceDto, Service } from '@/lib/api/providers';
-import { HeaderMobile } from '@/components/HeaderMobile/HeaderMobile';
+import { useState, useEffect } from "react";
+import { useRouter, useParams } from "next/navigation";
+import { useProviderServices } from "@/hooks/useProviderServices";
+import { UpdateServiceDto, Service } from "@/lib/api/providers";
+import { HeaderMobile } from "@/components/HeaderMobile/HeaderMobile";
 import {
   Save,
   Upload,
@@ -16,10 +16,12 @@ import {
   Edit,
   ArrowLeft,
   Sparkles,
-} from 'lucide-react';
-import { useAI } from '@/hooks/useAI';
-import Link from 'next/link';
-import styles from './edit.module.css';
+  Info,
+  ListPlus,
+} from "lucide-react";
+import { useAI } from "@/hooks/useAI";
+import Link from "next/link";
+import styles from "./edit.module.css";
 
 export default function EditServicePage() {
   const router = useRouter();
@@ -30,45 +32,45 @@ export default function EditServicePage() {
 
   const [service, setService] = useState<Service | null>(null);
   const [formData, setFormData] = useState<UpdateServiceDto>({
-    name: '',
-    description: '',
+    name: "",
+    description: "",
     price: 0,
-    priceType: 'FIXED',
+    priceType: "FIXED",
     duration: undefined,
     capacity: undefined,
     inclusions: [],
     requirements: [],
-    photos: []
+    photos: [],
   });
 
   const [uploading, setUploading] = useState(false);
   const [loadingService, setLoadingService] = useState(true);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [showErrorModal, setShowErrorModal] = useState(false);
-  const [errorMessage, setErrorMessage] = useState('');
+  const [errorMessage, setErrorMessage] = useState("");
 
-  const [newInclusion, setNewInclusion] = useState('');
-  const [newRequirement, setNewRequirement] = useState('');
+  const [newInclusion, setNewInclusion] = useState("");
+  const [newRequirement, setNewRequirement] = useState("");
 
   useEffect(() => {
     if (services.length > 0 && serviceId) {
-      const foundService = services.find(s => s.id === serviceId);
+      const foundService = services.find((s) => s.id === serviceId);
       if (foundService) {
         setService(foundService);
         setFormData({
           name: foundService.name,
-          description: foundService.description,
+          description: foundService.description?.slice(0, 255) || "",
           price: foundService.price,
           priceType: foundService.priceType,
           duration: foundService.duration,
           capacity: foundService.capacity,
           inclusions: foundService.inclusions || [],
           requirements: foundService.requirements || [],
-          photos: foundService.photos || []
+          photos: foundService.photos || [],
         });
         setLoadingService(false);
       } else if (!loading) {
-        setErrorMessage('Service non trouvé');
+        setErrorMessage("Service non trouvé");
         setShowErrorModal(true);
         setLoadingService(false);
       }
@@ -76,7 +78,7 @@ export default function EditServicePage() {
       // Attendre un peu pour que les services se chargent
       const timer = setTimeout(() => {
         if (services.length === 0) {
-          setErrorMessage('Service non trouvé');
+          setErrorMessage("Service non trouvé");
           setShowErrorModal(true);
           setLoadingService(false);
         }
@@ -85,13 +87,20 @@ export default function EditServicePage() {
     }
   }, [services, serviceId, loading]);
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+  const handleInputChange = (
+    e: React.ChangeEvent<
+      HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
+    >,
+  ) => {
     const { name, value } = e.target;
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      [name]: name === 'price' || name === 'duration' || name === 'capacity'
-        ? (value ? Number(value) : undefined)
-        : value
+      [name]:
+        name === "price" || name === "duration" || name === "capacity"
+          ? value
+            ? Number(value)
+            : undefined
+          : value,
     }));
   };
 
@@ -99,35 +108,43 @@ export default function EditServicePage() {
     if (!file) return;
 
     // Validation
-    if (file.size > 5 * 1024 * 1024) { // 5MB
-      setErrorMessage('La photo ne doit pas dépasser 5MB');
+    if (file.size > 5 * 1024 * 1024) {
+      // 5MB
+      setErrorMessage("La photo ne doit pas dépasser 5MB");
       setShowErrorModal(true);
       return;
     }
 
-    if (!file.type.startsWith('image/')) {
-      setErrorMessage('Veuillez sélectionner une image valide');
+    if (!file.type.startsWith("image/")) {
+      setErrorMessage("Veuillez sélectionner une image valide");
       setShowErrorModal(true);
       return;
     }
 
     if ((formData.photos || []).length >= 10) {
-      setErrorMessage('Maximum 10 photos par service');
+      setErrorMessage("Maximum 10 photos par service");
       setShowErrorModal(true);
       return;
     }
 
     setUploading(true);
     try {
-      const { uploadToFirebase } = await import('@/lib/firebase');
+      const { uploadToFirebase } = await import("@/lib/firebase");
       const timestamp = Date.now();
       const fileName = `service-photo-${timestamp}-${file.name}`;
-      const firebaseUrl = await uploadToFirebase(file, fileName, 'provider-services');
+      const firebaseUrl = await uploadToFirebase(
+        file,
+        fileName,
+        "provider-services",
+      );
 
-      setFormData(prev => ({ ...prev, photos: [...(prev.photos || []), firebaseUrl] }));
+      setFormData((prev) => ({
+        ...prev,
+        photos: [...(prev.photos || []), firebaseUrl],
+      }));
     } catch (error) {
-      console.error('Erreur upload Firebase:', error);
-      setErrorMessage('Erreur lors de l\'upload de la photo');
+      console.error("Erreur upload Firebase:", error);
+      setErrorMessage("Erreur lors de l'upload de la photo");
       setShowErrorModal(true);
     } finally {
       setUploading(false);
@@ -135,52 +152,56 @@ export default function EditServicePage() {
   };
 
   const removePhoto = (index: number) => {
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      photos: (prev.photos || []).filter((_, i) => i !== index)
+      photos: (prev.photos || []).filter((_, i) => i !== index),
     }));
   };
 
-
   const addInclusion = () => {
     if (newInclusion.trim()) {
-      setFormData(prev => ({
+      setFormData((prev) => ({
         ...prev,
-        inclusions: [...(prev.inclusions || []), newInclusion.trim()]
+        inclusions: [...(prev.inclusions || []), newInclusion.trim()],
       }));
-      setNewInclusion('');
+      setNewInclusion("");
     }
   };
 
   const removeInclusion = (index: number) => {
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      inclusions: (prev.inclusions || []).filter((_, i) => i !== index)
+      inclusions: (prev.inclusions || []).filter((_, i) => i !== index),
     }));
   };
 
   const addRequirement = () => {
     if (newRequirement.trim()) {
-      setFormData(prev => ({
+      setFormData((prev) => ({
         ...prev,
-        requirements: [...(prev.requirements || []), newRequirement.trim()]
+        requirements: [...(prev.requirements || []), newRequirement.trim()],
       }));
-      setNewRequirement('');
+      setNewRequirement("");
     }
   };
 
   const removeRequirement = (index: number) => {
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      requirements: (prev.requirements || []).filter((_, i) => i !== index)
+      requirements: (prev.requirements || []).filter((_, i) => i !== index),
     }));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!formData.name || !formData.description || !formData.price || formData.price <= 0) {
-      setErrorMessage('Veuillez remplir tous les champs obligatoires');
+    if (
+      !formData.name ||
+      !formData.description ||
+      !formData.price ||
+      formData.price <= 0
+    ) {
+      setErrorMessage("Veuillez remplir tous les champs obligatoires");
       setShowErrorModal(true);
       return;
     }
@@ -189,15 +210,15 @@ export default function EditServicePage() {
       await updateService(serviceId, formData);
       setShowSuccessModal(true);
     } catch (error) {
-      console.error('Erreur lors de la mise à jour:', error);
-      setErrorMessage('Erreur lors de la mise à jour du service');
+      console.error("Erreur lors de la mise à jour:", error);
+      setErrorMessage("Erreur lors de la mise à jour du service");
       setShowErrorModal(true);
     }
   };
 
   const handleSuccess = () => {
     setShowSuccessModal(false);
-    router.push('/provider/services');
+    router.push("/provider/services");
   };
 
   if (loadingService || loading) {
@@ -232,7 +253,9 @@ export default function EditServicePage() {
           <div className={styles.formGrid}>
             {/* Informations de base */}
             <div className={styles.formSection}>
-              <h2 className={styles.sectionTitle}>Informations de base</h2>
+              <h2 className={styles.sectionTitle}>
+                <Info size={20} /> Informations de base
+              </h2>
 
               <div className={styles.formField}>
                 <label className={styles.formLabel}>Nom du service *</label>
@@ -248,7 +271,7 @@ export default function EditServicePage() {
               </div>
 
               <div className={styles.formField}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
+                <div className={styles.formLabelRow}>
                   <label className={styles.formLabel}>Description *</label>
                   <button
                     type="button"
@@ -257,33 +280,27 @@ export default function EditServicePage() {
                       try {
                         const result = await improveDescription({
                           currentDescription: formData.description,
-                          serviceName: formData.name || '',
-                          price: formData.price || undefined
+                          serviceName: formData.name || "",
+                          price: formData.price || undefined,
                         });
-                        setFormData(prev => ({ ...prev, description: result.improvedDescription || '' }));
+                        setFormData((prev) => ({
+                          ...prev,
+                          description: result.improvedDescription || "",
+                        }));
                       } catch (err) {
-                        setErrorMessage(err instanceof Error ? err.message : 'Erreur lors de l\'amélioration');
+                        setErrorMessage(
+                          err instanceof Error
+                            ? err.message
+                            : "Erreur lors de l'amélioration",
+                        );
                         setShowErrorModal(true);
                       }
                     }}
                     disabled={aiLoading || !formData.description}
-                    style={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: '0.25rem',
-                      padding: '0.5rem 1rem',
-                      backgroundColor: '#8b5cf6',
-                      color: 'white',
-                      border: 'none',
-                      borderRadius: '0.375rem',
-                      cursor: aiLoading || !formData.description ? 'not-allowed' : 'pointer',
-                      opacity: aiLoading || !formData.description ? 0.5 : 1,
-                      fontSize: '0.875rem',
-                      fontWeight: 500
-                    }}
+                    className={styles.aiButton}
                   >
                     <Sparkles size={14} />
-                    {aiLoading ? 'Amélioration...' : 'Améliorer avec l\'IA'}
+                    {aiLoading ? "Amélioration..." : "Améliorer avec l'IA"}
                   </button>
                 </div>
                 <textarea
@@ -292,9 +309,21 @@ export default function EditServicePage() {
                   onChange={handleInputChange}
                   className={styles.formTextarea}
                   placeholder="Décrivez votre service en détail..."
-                  rows={4}
+                  rows={3}
+                  maxLength={255}
                   required
                 />
+                <div
+                  className={styles.charCounter}
+                  style={{
+                    color:
+                      (formData.description?.length || 0) > 255
+                        ? "#ef4444"
+                        : "#94a3b8",
+                  }}
+                >
+                  {formData.description?.length || 0}/255 caractères
+                </div>
               </div>
 
               <div className={styles.formRow}>
@@ -305,7 +334,7 @@ export default function EditServicePage() {
                     <input
                       type="number"
                       name="price"
-                      value={formData.price || ''}
+                      value={formData.price || ""}
                       onChange={handleInputChange}
                       className={styles.formInput}
                       placeholder="0"
@@ -341,7 +370,7 @@ export default function EditServicePage() {
                     <input
                       type="number"
                       name="duration"
-                      value={formData.duration || ''}
+                      value={formData.duration || ""}
                       onChange={handleInputChange}
                       className={styles.formInput}
                       placeholder="Ex: 120"
@@ -351,13 +380,15 @@ export default function EditServicePage() {
                 </div>
 
                 <div className={styles.formField}>
-                  <label className={styles.formLabel}>Capacité (personnes)</label>
+                  <label className={styles.formLabel}>
+                    Capacité (personnes)
+                  </label>
                   <div className={styles.capacityInput}>
                     <Users size={16} />
                     <input
                       type="number"
                       name="capacity"
-                      value={formData.capacity || ''}
+                      value={formData.capacity || ""}
                       onChange={handleInputChange}
                       className={styles.formInput}
                       placeholder="Ex: 50"
@@ -370,7 +401,9 @@ export default function EditServicePage() {
 
             {/* Détails du service */}
             <div className={styles.formSection}>
-              <h2 className={styles.sectionTitle}>Détails du service</h2>
+              <h2 className={styles.sectionTitle}>
+                <ListPlus size={20} /> Détails du service
+              </h2>
 
               {/* Inclusions */}
               <div className={styles.formField}>
@@ -397,7 +430,10 @@ export default function EditServicePage() {
                       onChange={(e) => setNewInclusion(e.target.value)}
                       placeholder="Ajouter une inclusion..."
                       className={styles.formInput}
-                      onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), addInclusion())}
+                      onKeyPress={(e) =>
+                        e.key === "Enter" &&
+                        (e.preventDefault(), addInclusion())
+                      }
                     />
                     <button
                       type="button"
@@ -435,7 +471,10 @@ export default function EditServicePage() {
                       onChange={(e) => setNewRequirement(e.target.value)}
                       placeholder="Ajouter un prérequis..."
                       className={styles.formInput}
-                      onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), addRequirement())}
+                      onKeyPress={(e) =>
+                        e.key === "Enter" &&
+                        (e.preventDefault(), addRequirement())
+                      }
                     />
                     <button
                       type="button"
@@ -492,7 +531,7 @@ export default function EditServicePage() {
           <div className={styles.formActions}>
             <button
               type="button"
-              onClick={() => router.push('/provider/services')}
+              onClick={() => router.push("/provider/services")}
               className={styles.cancelButton}
             >
               Annuler
@@ -500,7 +539,7 @@ export default function EditServicePage() {
             <button
               type="submit"
               className={styles.saveButton}
-              disabled={uploading}
+              disabled={uploading || (formData.description?.length || 0) > 255}
             >
               {uploading ? (
                 <>
@@ -521,16 +560,16 @@ export default function EditServicePage() {
       {/* Success Modal */}
       {showSuccessModal && (
         <div className={styles.modal} onClick={handleSuccess}>
-          <div className={styles.modalContent} onClick={(e) => e.stopPropagation()}>
+          <div
+            className={styles.modalContent}
+            onClick={(e) => e.stopPropagation()}
+          >
             <div className={styles.modalHeader}>
               <Save className={styles.successIcon} />
               <h3>Service mis à jour avec succès !</h3>
             </div>
             <p>Votre service a été mis à jour avec succès.</p>
-            <button
-              onClick={handleSuccess}
-              className={styles.modalButton}
-            >
+            <button onClick={handleSuccess} className={styles.modalButton}>
               Continuer
             </button>
           </div>
@@ -540,7 +579,10 @@ export default function EditServicePage() {
       {/* Error Modal */}
       {showErrorModal && (
         <div className={styles.modal} onClick={() => setShowErrorModal(false)}>
-          <div className={styles.modalContent} onClick={(e) => e.stopPropagation()}>
+          <div
+            className={styles.modalContent}
+            onClick={(e) => e.stopPropagation()}
+          >
             <div className={styles.modalHeader}>
               <X className={styles.errorIcon} />
               <h3>Erreur</h3>
@@ -558,4 +600,3 @@ export default function EditServicePage() {
     </div>
   );
 }
-

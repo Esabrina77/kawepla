@@ -69,8 +69,8 @@
 
 .eventSelect:focus {
   outline: none;
-  border-color: var(--primary);
-  box-shadow: 0 0 0 3px color-mix(in srgb, var(--primary) 10%, transparent);
+  border-color: var(--host);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--host) 10%, transparent);
 }
 
 .selectIcon {
@@ -97,8 +97,8 @@
 
 /* ===== STAT CARDS (limits) ===== */
 .statHighlight {
-  background: var(--primary);
-  border-color: var(--primary);
+  background: var(--host);
+  border-color: var(--host);
   color: #fff;
 }
 
@@ -165,7 +165,7 @@
 .statBarFill {
   height: 100%;
   border-radius: 4px;
-  background: var(--primary);
+  background: var(--host);
   transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
@@ -206,7 +206,7 @@
   font-family: var(--font-body);
   font-size: 0.72rem;
   font-weight: 600;
-  color: var(--primary);
+  color: var(--host);
   text-decoration: none;
 }
 
@@ -239,7 +239,7 @@
 
 .ringFill {
   fill: none;
-  stroke: var(--primary);
+  stroke: var(--host);
   stroke-width: 8;
   stroke-linecap: round;
   transition: stroke-dashoffset 1.2s cubic-bezier(0.4, 0, 0.2, 1);
@@ -293,7 +293,7 @@
 }
 
 .progressDot.green { background: #10B981; }
-.progressDot.indigo { background: var(--primary); }
+.progressDot.indigo { background: var(--host); }
 .progressDot.red { background: #EF4444; }
 
 .progressLineLabel {
@@ -440,8 +440,8 @@
 }
 
 .actionRow:hover {
-  background: color-mix(in srgb, var(--primary) 5%, transparent);
-  border-color: color-mix(in srgb, var(--primary) 12%, transparent);
+  background: color-mix(in srgb, var(--host) 5%, transparent);
+  border-color: color-mix(in srgb, var(--host) 12%, transparent);
 }
 
 .actionDot {
@@ -455,8 +455,8 @@
 }
 
 .actionDot.indigo {
-  background: color-mix(in srgb, var(--primary) 10%, transparent);
-  color: var(--primary);
+  background: color-mix(in srgb, var(--host) 10%, transparent);
+  color: var(--host);
 }
 
 .actionDot.emerald {
@@ -492,7 +492,7 @@
 
 .actionRow:hover .actionArrow {
   opacity: 1;
-  color: var(--primary);
+  color: var(--host);
   transform: translateX(2px);
 }
 
@@ -508,7 +508,7 @@
   width: 32px;
   height: 32px;
   border: 2.5px solid var(--border);
-  border-top-color: var(--primary);
+  border-top-color: var(--host);
   border-radius: 50%;
   animation: spin 0.8s linear infinite;
 }
