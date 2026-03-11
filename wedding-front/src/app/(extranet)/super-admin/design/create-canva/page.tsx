@@ -1,60 +1,98 @@
-'use client';
+"use client";
 
-import React, { useEffect, useState } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
-import dynamic from 'next/dynamic';
-import { HeaderMobile } from '@/components/HeaderMobile';
-import { useDesigns } from '@/hooks/useDesigns';
-import { uploadToFirebase, deleteFromFirebase } from '@/lib/firebase';
-import * as fabric from 'fabric';
-import { convertFabricToKawepla, loadKaweplaDesignToFabric } from '@/utils/fabricToKaweplaAdapter';
-import { useToast } from '@/components/ui/toast';
-import styles from './create-canva.module.css';
+import React, { useEffect, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import dynamic from "next/dynamic";
+import { HeaderMobile } from "@/components/HeaderMobile/HeaderMobile";
+import { useDesigns } from "@/hooks/useDesigns";
+import { uploadToFirebase, deleteFromFirebase } from "@/lib/firebase";
+import * as fabric from "fabric";
+import {
+  convertFabricToKawepla,
+  loadKaweplaDesignToFabric,
+} from "@/utils/fabricToKaweplaAdapter";
+import { useToast } from "@/components/ui/toast";
+import styles from "./create-canva.module.css";
+import { Loader2, Save, X, Info } from "lucide-react";
 
 // Importer dynamiquement les composants de l'éditeur Canva
-const Canvas = dynamic(() => import('@/components/CanvaEditor/Canvas'), {
+const Canvas = dynamic(() => import("@/components/CanvaEditor/Canvas"), {
   ssr: false,
-  loading: () => <div>Chargement de l'éditeur...</div>
+  loading: () => (
+    <div className={styles.loadingOverlay}>
+      <div className={styles.loadingSpinner}></div>
+      <p>Initialisation de la zone de création...</p>
+    </div>
+  ),
 });
 
-const Toolbar = dynamic(() => import('@/components/CanvaEditor/Toolbar'), {
-  ssr: false
+const Toolbar = dynamic(() => import("@/components/CanvaEditor/Toolbar"), {
+  ssr: false,
 });
 
-const PropertiesPanel = dynamic(() => import('@/components/CanvaEditor/PropertiesPanel'), {
-  ssr: false
-});
+const PropertiesPanel = dynamic(
+  () => import("@/components/CanvaEditor/PropertiesPanel"),
+  {
+    ssr: false,
+  },
+);
 
-const ContextToolbar = dynamic(() => import('@/components/CanvaEditor/ContextToolbar'), {
-  ssr: false
-});
+const ContextToolbar = dynamic(
+  () => import("@/components/CanvaEditor/ContextToolbar"),
+  {
+    ssr: false,
+  },
+);
 
-const Navbar = dynamic(() => import('@/components/CanvaEditor/Navbar'), {
-  ssr: false
+const Navbar = dynamic(() => import("@/components/CanvaEditor/Navbar"), {
+  ssr: false,
 });
 
 interface SaveDesignDialogProps {
   isOpen: boolean;
   onClose: () => void;
-  onSave: (data: { name: string; description?: string; category?: string; tags?: string[]; priceType?: string }) => Promise<void>;
+  onSave: (data: {
+    name: string;
+    description?: string;
+    category?: string;
+    tags?: string[];
+    priceType?: string;
+  }) => Promise<void>;
   loading: boolean;
-  initialData?: { name: string; description?: string; category?: string; priceType?: string };
+  initialData?: {
+    name: string;
+    description?: string;
+    category?: string;
+    priceType?: string;
+  };
 }
 
-function SaveDesignDialog({ isOpen, onClose, onSave, loading, initialData }: SaveDesignDialogProps) {
+function SaveDesignDialog({
+  isOpen,
+  onClose,
+  onSave,
+  loading,
+  initialData,
+}: SaveDesignDialogProps) {
   const { addToast } = useToast();
-  const [name, setName] = useState(initialData?.name || '');
-  const [description, setDescription] = useState(initialData?.description || '');
-  const [category, setCategory] = useState(initialData?.category || 'invitation');
-  const [priceType, setPriceType] = useState<'FREE' | 'ESSENTIAL' | 'ELEGANT' | 'LUXE'>((initialData?.priceType as any) || 'FREE');
+  const [name, setName] = useState(initialData?.name || "");
+  const [description, setDescription] = useState(
+    initialData?.description || "",
+  );
+  const [category, setCategory] = useState(
+    initialData?.category || "invitation",
+  );
+  const [priceType, setPriceType] = useState<
+    "FREE" | "ESSENTIAL" | "ELEGANT" | "LUXE"
+  >((initialData?.priceType as any) || "FREE");
 
   // Mettre à jour les champs si initialData change
   useEffect(() => {
     if (initialData) {
-      setName(initialData.name || '');
-      setDescription(initialData.description || '');
-      setCategory(initialData.category || 'invitation');
-      setPriceType((initialData.priceType as any) || 'FREE');
+      setName(initialData.name || "");
+      setDescription(initialData.description || "");
+      setCategory(initialData.category || "invitation");
+      setPriceType((initialData.priceType as any) || "FREE");
     }
   }, [initialData]);
 
@@ -64,15 +102,13 @@ function SaveDesignDialog({ isOpen, onClose, onSave, loading, initialData }: Sav
     e.preventDefault();
     if (!name.trim()) {
       addToast({
-        type: 'error',
-        title: 'Erreur',
-        message: 'Veuillez saisir un nom pour le design'
+        type: "error",
+        title: "Erreur",
+        message: "Veuillez saisir un nom pour le design",
       });
       return;
     }
     await onSave({ name, description, category, priceType });
-    setName('');
-    setDescription('');
   };
 
   return (
@@ -101,39 +137,47 @@ function SaveDesignDialog({ isOpen, onClose, onSave, loading, initialData }: Sav
               <textarea
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
-                placeholder="Description du design..."
+                placeholder="Dites-en plus sur ce design..."
                 rows={3}
                 className={styles.textarea}
               />
             </div>
 
-            <div className={styles.formGroup}>
-              <label className={styles.label}>Catégorie</label>
-              <select
-                value={category}
-                onChange={(e) => setCategory(e.target.value)}
-                className={styles.select}
-              >
-                <option value="invitation">Invitation</option>
-                <option value="minimaliste">Minimaliste</option>
-                <option value="moderne">Moderne</option>
-                <option value="élégant">Élégant</option>
-                <option value="luxe">Luxe</option>
-              </select>
-            </div>
+            <div
+              style={{
+                display: "grid",
+                gridTemplateColumns: "1fr 1fr",
+                gap: "1rem",
+              }}
+            >
+              <div className={styles.formGroup}>
+                <label className={styles.label}>Catégorie</label>
+                <select
+                  value={category}
+                  onChange={(e) => setCategory(e.target.value)}
+                  className={styles.select}
+                >
+                  <option value="invitation">Invitation</option>
+                  <option value="minimaliste">Minimaliste</option>
+                  <option value="moderne">Moderne</option>
+                  <option value="élégant">Élégant</option>
+                  <option value="luxe">Luxe</option>
+                </select>
+              </div>
 
-            <div className={styles.formGroup}>
-              <label className={styles.label}>Type de prix</label>
-              <select
-                value={priceType}
-                onChange={(e) => setPriceType(e.target.value as any)}
-                className={styles.select}
-              >
-                <option value="FREE">Gratuit</option>
-                <option value="ESSENTIAL">Essentiel</option>
-                <option value="ELEGANT">Élégant</option>
-                <option value="LUXE">Luxe</option>
-              </select>
+              <div className={styles.formGroup}>
+                <label className={styles.label}>Type de prix</label>
+                <select
+                  value={priceType}
+                  onChange={(e) => setPriceType(e.target.value as any)}
+                  className={styles.select}
+                >
+                  <option value="FREE">Gratuit</option>
+                  <option value="ESSENTIAL">Essentiel</option>
+                  <option value="ELEGANT">Élégant</option>
+                  <option value="LUXE">Luxe</option>
+                </select>
+              </div>
             </div>
           </div>
 
@@ -151,7 +195,24 @@ function SaveDesignDialog({ isOpen, onClose, onSave, loading, initialData }: Sav
               disabled={loading || !name.trim()}
               className={styles.saveButton}
             >
-              {loading ? 'Sauvegarde...' : 'Sauvegarder'}
+              {loading ? (
+                <>
+                  <Loader2
+                    size={16}
+                    className="spin"
+                    style={{ marginRight: 8, display: "inline" }}
+                  />{" "}
+                  Sauvegarde...
+                </>
+              ) : (
+                <>
+                  <Save
+                    size={16}
+                    style={{ marginRight: 8, display: "inline" }}
+                  />{" "}
+                  Sauvegarder
+                </>
+              )}
             </button>
           </div>
         </form>
@@ -177,7 +238,7 @@ export default function CreateCanvaDesignPage() {
 
   // Récupérer le designId depuis l'URL
   useEffect(() => {
-    const id = searchParams.get('id');
+    const id = searchParams.get("id");
     if (id) {
       setDesignId(id);
     }
@@ -194,18 +255,18 @@ export default function CreateCanvaDesignPage() {
             setCurrentDesign(design);
           } else {
             addToast({
-              type: 'error',
-              title: 'Erreur',
-              message: 'Design introuvable'
+              type: "error",
+              title: "Erreur",
+              message: "Design introuvable",
             });
-            router.push('/super-admin/design');
+            router.push("/super-admin/design");
           }
         } catch (error) {
-          console.error('Erreur lors du chargement du design:', error);
+          console.error("Erreur lors du chargement du design:", error);
           addToast({
-            type: 'error',
-            title: 'Erreur',
-            message: 'Erreur lors du chargement du design'
+            type: "error",
+            title: "Erreur",
+            message: "Erreur lors du chargement du design",
           });
         } finally {
           setLoadingDesign(false);
@@ -222,12 +283,18 @@ export default function CreateCanvaDesignPage() {
     }
   }, [canvas, currentDesign]);
 
-  const handleSave = async (data: { name: string; description?: string; category?: string; tags?: string[]; priceType?: string }) => {
+  const handleSave = async (data: {
+    name: string;
+    description?: string;
+    category?: string;
+    tags?: string[];
+    priceType?: string;
+  }) => {
     if (!canvas) {
       addToast({
-        type: 'error',
-        title: 'Erreur',
-        message: 'Canvas non disponible'
+        type: "error",
+        title: "Erreur",
+        message: "Canvas non disponible",
       });
       return;
     }
@@ -235,25 +302,20 @@ export default function CreateCanvaDesignPage() {
     setSaving(true);
     try {
       // 1. Générer l'image de prévisualisation (Thumbnail) haute qualité
-      // On déselectionne tout pour que la capture soit propre
       canvas.discardActiveObject();
 
-      // Sauvegarder l'état actuel (zoom et dimensions)
       const originalZoom = canvas.getZoom();
       const originalWidth = canvas.width;
       const originalHeight = canvas.height;
       const originalVpt = canvas.viewportTransform;
 
-      // Calculer les dimensions logiques (taille réelle du design)
       const safeZoom = originalZoom || 1;
       const logicalWidth = originalWidth / safeZoom;
       const logicalHeight = originalHeight / safeZoom;
 
-      // Réinitialiser à l'échelle 100% pour l'export
       canvas.setZoom(1);
       canvas.setWidth(logicalWidth);
       canvas.setHeight(logicalHeight);
-      // S'assurer que le viewport est remis à zéro (pas de pan)
       if (canvas.viewportTransform) {
         canvas.viewportTransform[4] = 0;
         canvas.viewportTransform[5] = 0;
@@ -261,12 +323,11 @@ export default function CreateCanvaDesignPage() {
       canvas.requestRenderAll();
 
       const dataUrl = canvas.toDataURL({
-        format: 'png',
+        format: "png",
         quality: 1.0,
-        multiplier: 2.0, // x2 sur la taille réelle pour haute qualité
+        multiplier: 2.0,
       });
 
-      // Restaurer l'état original pour l'utilisateur
       canvas.setZoom(originalZoom);
       canvas.setWidth(originalWidth);
       canvas.setHeight(originalHeight);
@@ -275,84 +336,122 @@ export default function CreateCanvaDesignPage() {
       }
       canvas.requestRenderAll();
 
-      // Convertir DataURL en File
       const response = await fetch(dataUrl);
       const blob = await response.blob();
       const fileName = `design-thumb-${Date.now()}.png`;
-      const file = new File([blob], fileName, { type: 'image/png' });
+      const file = new File([blob], fileName, { type: "image/png" });
 
-      // Uploader vers Firebase
-      // On passe le chemin dans le nom de fichier car le type 'designs' n'est pas dans l'enum
-      const thumbnailUrl = await uploadToFirebase(file, `designs/preview/${fileName}`);
+      const thumbnailUrl = await uploadToFirebase(
+        file,
+        `designs/preview/${fileName}`,
+      );
 
-      // Convertir le canvas Fabric.js vers le format Kawepla simplifié
-      const converted = convertFabricToKawepla(canvas, backgroundImage || undefined);
+      const converted = convertFabricToKawepla(
+        canvas,
+        backgroundImage || undefined,
+      );
 
-      // Préparer les données pour l'API (structure simplifiée)
       const designData = {
         name: data.name,
-        description: data.description || `Design créé le ${new Date().toLocaleDateString()}`,
+        description:
+          data.description ||
+          `Design créé le ${new Date().toLocaleDateString()}`,
         tags: data.tags || [],
-        priceType: (data.priceType as 'FREE' | 'ESSENTIAL' | 'ELEGANT' | 'LUXE') || 'FREE',
+        priceType:
+          (data.priceType as "FREE" | "ESSENTIAL" | "ELEGANT" | "LUXE") ||
+          "FREE",
         fabricData: converted.fabricData,
-        editorVersion: 'canva' as const,
+        editorVersion: "canva" as const,
         canvasWidth: converted.canvasWidth,
         canvasHeight: converted.canvasHeight,
         canvasFormat: converted.canvasFormat,
         backgroundImage: backgroundImage || undefined,
         thumbnail: thumbnailUrl,
         previewImage: thumbnailUrl,
-        isTemplate: true, // Les designs créés par super-admin sont des modèles
+        isTemplate: true,
       };
 
       if (designId) {
-        // Mise à jour d'un design existant
         await updateDesign(designId, designData);
 
-        // Supprimer les anciennes images de Firebase
         if (currentDesign) {
-          if (currentDesign.thumbnail && currentDesign.thumbnail !== thumbnailUrl && currentDesign.thumbnail.includes('firebasestorage')) {
-            try { await deleteFromFirebase(currentDesign.thumbnail); } catch (e) { console.error('Erreur suppression old thumbnail:', e); }
+          if (
+            currentDesign.thumbnail &&
+            currentDesign.thumbnail !== thumbnailUrl &&
+            currentDesign.thumbnail.includes("firebasestorage")
+          ) {
+            try {
+              await deleteFromFirebase(currentDesign.thumbnail);
+            } catch (e) {
+              console.error("Erreur suppression old thumbnail:", e);
+            }
           }
-          if (currentDesign.previewImage && currentDesign.previewImage !== thumbnailUrl && currentDesign.previewImage !== currentDesign.thumbnail && currentDesign.previewImage.includes('firebasestorage')) {
-            try { await deleteFromFirebase(currentDesign.previewImage); } catch (e) { console.error('Erreur suppression old preview:', e); }
+          if (
+            currentDesign.previewImage &&
+            currentDesign.previewImage !== thumbnailUrl &&
+            currentDesign.previewImage !== currentDesign.thumbnail &&
+            currentDesign.previewImage.includes("firebasestorage")
+          ) {
+            try {
+              await deleteFromFirebase(currentDesign.previewImage);
+            } catch (e) {
+              console.error("Erreur suppression old preview:", e);
+            }
           }
         }
 
         addToast({
-          type: 'success',
-          title: 'Succès',
-          message: 'Design mis à jour avec succès !'
+          type: "success",
+          title: "Succès",
+          message: "Design mis à jour avec succès !",
         });
       } else {
-        // Création d'un nouveau design
         await createDesign(designData);
         addToast({
-          type: 'success',
-          title: 'Succès',
-          message: 'Design sauvegardé avec succès !'
+          type: "success",
+          title: "Succès",
+          message: "Design sauvegardé avec succès !",
         });
       }
 
       setShowSaveDialog(false);
-      router.push('/super-admin/design');
+      router.push("/super-admin/design");
     } catch (error) {
-      console.error('Erreur lors de la sauvegarde:', error);
+      console.error("Erreur lors de la sauvegarde:", error);
       addToast({
-        type: 'error',
-        title: 'Erreur',
-        message: `Erreur lors de la sauvegarde: ${error instanceof Error ? error.message : 'Erreur inconnue'}`
+        type: "error",
+        title: "Erreur",
+        message: `Erreur lors de la sauvegarde: ${
+          error instanceof Error ? error.message : "Erreur inconnue"
+        }`,
       });
     } finally {
       setSaving(false);
     }
   };
 
+  if (loadingDesign) {
+    return (
+      <div className={styles.pageContainer}>
+        <HeaderMobile
+          title="Chargement..."
+          showBackButton={true}
+          onBack={() => router.push("/super-admin/design")}
+        />
+        <div className={styles.loadingOverlay}>
+          <div className={styles.loadingSpinner}></div>
+          <p>Chargement du design en cours...</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className={styles.pageContainer}>
       <HeaderMobile
-        title="Créer un design avec kawesign"
-        onBack={() => router.push('/super-admin/design')}
+        title={designId ? "Modifier le design" : "Créer un design personnalisé"}
+        showBackButton={true}
+        onBack={() => router.push("/super-admin/design")}
       />
 
       <div className={styles.editorContainer}>

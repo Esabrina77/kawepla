@@ -1,9 +1,19 @@
+/* ===================================================
+   MessageBubble — Style WhatsApp Web
+   Bulle gauche = blanc/gris, bulle droite = couleur rôle
+   =================================================== */
+
 .messageContainer {
   display: flex;
   flex-direction: column;
-  margin-bottom: var(--space-sm);
-  max-width: 70%;
-  word-wrap: break-word;
+  margin-bottom: 2px;
+  max-width: 65%;
+  font-family: var(--font-body);
+}
+
+@keyframes bubbleIn {
+  from { opacity: 0; transform: translateY(4px); }
+  to   { opacity: 1; transform: translateY(0);   }
 }
 
 .messageContainer.own {
@@ -16,133 +26,145 @@
   align-items: flex-start;
 }
 
+/* Sender label (premier d'un bloc) */
 .sender {
-  font-size: 0.75rem;
-  color: var(--text-secondary);
-  margin-bottom: var(--space-xs);
-  padding-left: var(--space-sm);
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--admin);
+  margin-bottom: 3px;
+  padding: 0 10px;
   display: flex;
   align-items: center;
-  gap: var(--space-xs);
+  gap: 6px;
 }
 
 .adminBadge {
-  background: var(--luxury-champagne-gold);
-  color: var(--luxury-velvet-black);
-  padding: 2px var(--space-xs);
-  border-radius: var(--radius-sm);
-  font-size: 0.625rem;
-  font-weight: 500;
+  background: var(--admin);
+  color: white;
+  padding: 1px 5px;
+  border-radius: 3px;
+  font-size: 0.58rem;
+  font-weight: 700;
+  text-transform: uppercase;
 }
 
+/* ---- Bubble ---- */
 .bubble {
   position: relative;
-  padding: var(--space-xs) var(--space-sm);
-  border-radius: var(--radius-lg);
+  padding: 7px 12px 5px;
   max-width: 100%;
   word-wrap: break-word;
-  box-shadow: var(--shadow-sm);
+  font-size: 0.875rem;
+  line-height: 1.45;
+  animation: bubbleIn 0.2s ease-out;
 }
 
-.ownBubble {
-  background: var(--luxury-champagne-gold);
-  color: var(--luxury-velvet-black);
-  border-bottom-right-radius: var(--radius-xs);
-}
-
+/* Bulle "autre" — fond blanc, coin en haut gauche = la "queue" */
 .otherBubble {
-  background: var(--bg-card);
-  color: var(--text-primary);
-  border-bottom-left-radius: var(--radius-xs);
+  background: #ffffff;
+  color: #111827;
+  border-radius: 0px 8px 8px 8px;
+  box-shadow: 0 1px 1px rgba(0,0,0,0.1);
 }
 
-.content {
-  margin-bottom: var(--space-xs);
+/* Bulle "own" — fond couleur rôle, coin en haut droit = la "queue" */
+.ownBubble {
+  background: var(--primary-color, var(--admin));
+  color: #ffffff;
+  border-radius: 8px 0px 8px 8px;
+  box-shadow: 0 1px 1px rgba(0,0,0,0.12);
 }
+
+/* Pour que la couleur claire du teal reste lisible */
+.ownBubble .text { color: #fff; }
+
+.content { line-height: 1; }
 
 .text {
   margin: 0;
   font-size: 0.875rem;
-  line-height: 1.4;
   white-space: pre-wrap;
+  line-height: 1.45;
 }
 
+/* Message système */
 .systemMessage {
-  margin: 0;
-  font-size: 0.8rem;
-  font-style: italic;
-  color: var(--text-secondary);
+  align-self: center;
+  margin: 10px 0;
+  background: rgba(255,255,255,0.8);
+  padding: 4px 12px;
+  border-radius: 7px;
+  font-size: 0.7rem;
+  color: #54656f;
   text-align: center;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.08);
 }
 
+/* Image */
 .imageMessage {
-  margin: calc(-1 * var(--space-xs)) calc(-1 * var(--space-sm)) var(--space-xs) calc(-1 * var(--space-sm));
+  border-radius: 6px;
+  overflow: hidden;
+  margin: -2px -3px 4px -3px;
 }
-
 .image {
-  width: 100%;
-  max-width: 300px;
-  height: auto;
-  border-radius: var(--radius-md);
+  max-width: 280px;
+  max-height: 200px;
   display: block;
+  object-fit: cover;
+  width: 100%;
 }
 
+/* File */
 .fileMessage {
   display: flex;
   align-items: center;
-  gap: var(--space-xs);
-  padding: var(--space-xs);
-  background: var(--bg-secondary);
-  border-radius: var(--radius-sm);
-  margin: calc(-1 * var(--space-xs)) calc(-1 * var(--space-xs)) var(--space-xs) calc(-1 * var(--space-xs));
+  gap: 8px;
+  padding: 6px 8px;
+  background: rgba(0,0,0,0.06);
+  border-radius: 6px;
+  margin: 2px 0;
 }
-
-.fileIcon {
-  font-size: 1.25rem;
-}
-
+.fileIcon { font-size: 1.1rem; }
 .fileName {
-  font-size: 0.875rem;
-  color: var(--text-primary);
+  font-size: 0.78rem;
+  font-weight: 600;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
+/* Time — en bas à droite dans la bulle, petit et discret */
 .messageInfo {
   display: flex;
   align-items: center;
   justify-content: flex-end;
-  gap: var(--space-xs);
+  gap: 4px;
   margin-top: 2px;
+  padding: 0 2px;
 }
 
 .time {
-  font-size: 0.7rem;
-  color: var(--text-secondary);
+  font-size: 0.63rem;
+  font-weight: 500;
 }
+.otherBubble .time, .messageContainer.other .time { color: #8696a0; }
+.ownBubble .time                                   { color: rgba(255,255,255,0.75); }
 
 .readStatus {
-  font-size: 0.75rem;
-  font-weight: bold;
+  display: flex;
+  align-items: center;
+  font-size: 0.7rem;
 }
+.readStatus.read { color: rgba(255,255,255,0.85); }
 
-.readStatus.sent {
-  color: var(--text-secondary);
-}
-
-.readStatus.read {
-  color: var(--alert-success);
+/* Gap entre blocs de différents expéditeurs */
+.messageContainer.own   + .messageContainer.other,
+.messageContainer.other + .messageContainer.own {
+  margin-top: 10px;
 }
 
 /* Responsive */
 @media (max-width: 768px) {
-  .messageContainer {
-    max-width: 85%;
-  }
-  
-  .bubble {
-    padding: var(--space-xs) var(--space-sm);
-  }
-  
-  .text {
-    font-size: 0.8rem;
-  }
-} 
+  .messageContainer { max-width: 85%; }
+  .bubble { font-size: 0.84rem; }
+}

@@ -23,8 +23,10 @@
 .pageContent {
   flex: 1;
   padding: 1rem;
-  padding-bottom: 7rem;
+  padding-bottom: 5rem;
   animation: fadeIn 0.8s ease-out 0.2s both;
+  max-width: 1000px;
+  margin: 0 auto;
 }
 
 @keyframes fadeIn {
@@ -39,10 +41,10 @@
 
 .pageHeader {
   display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 1rem;
-  margin-bottom: 2rem;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
   flex-wrap: wrap;
 }
 
@@ -56,9 +58,11 @@
 }
 
 .pageSubtitle {
-  font-size: 0.875rem;
+  font-size: 0.8rem;
   color: var(--text-secondary);
   margin: 0;
+  margin-right: auto;
+  font-weight: 600;
 }
 
 .statusBadge {
@@ -88,8 +92,21 @@
 }
 
 .statusDefault {
-  background: rgba(107, 114, 128, 0.2);
+  background: var(--card);
   color: var(--text-secondary);
+  border: 1px solid var(--border);
+}
+
+.personalizedBadge {
+  background: rgba(var(--admin-rgb), 0.1);
+  color: var(--admin);
+  padding: 0.375rem 0.75rem;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  border: 1px solid color-mix(in srgb, var(--admin) 20%, transparent);
 }
 
 /* Content */
@@ -100,20 +117,27 @@
 }
 
 .section {
-  background: var(--bg-card);
-  border-radius: 0.75rem;
-  padding: 1.5rem;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 1.25rem;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.02);
 }
 
 /* Invitation Render */
 .invitationRender {
-  min-height: 400px;
-  overflow-x: auto;
+  max-height: 70vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow: hidden;
+  width: 100%;
 }
 
 .invitationRender :global(*) {
   max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
 }
 
 .invitationRender :global(img) {

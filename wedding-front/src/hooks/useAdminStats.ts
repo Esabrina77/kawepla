@@ -2,14 +2,21 @@ import { useState, useEffect } from 'react';
 import { apiClient } from '@/lib/api/apiClient';
 
 interface AdminStats {
+  overview: {
+    totalRevenue: number;
+    revenueThisMonth: number;
+    totalUsers: number;
+    totalInvitations: number;
+  };
   users: {
     total: number;
     active: number;
     inactive: number;
     byRole: {
-      organisateur: number;
+      HOST: number;
       ADMIN: number;
       GUEST: number;
+      PROVIDER: number;
     };
     recentRegistrations: number;
   };
@@ -26,12 +33,24 @@ interface AdminStats {
     declined: number;
     pending: number;
     emailsSent: number;
+    totalConfirmed: number;
+    totalEmailsSent: number;
   };
-  activity: {
-    totalRSVPs: number;
-    emailsSent: number;
-    conversionRate: number;
+  revenue: {
+    total: number;
+    commissions: number;
+    purchases: number;
+    thisMonth: number;
   };
+  trends: {
+    month: string;
+    users: number;
+    revenue: number;
+  }[];
+  categories: {
+    name: string;
+    value: number;
+  }[];
 }
 
 // Interface pour les données brutes de l'API
@@ -66,7 +85,7 @@ interface RawAdminStats {
   };
 }
 
-export const useAdminStats = () => {
+export const useAdminStats = (days: string = '30') => {
   const [stats, setStats] = useState<AdminStats | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -76,30 +95,12 @@ export const useAdminStats = () => {
       setLoading(true);
       setError(null);
 
-      // Utiliser la nouvelle API des statistiques admin
-      const rawStats: RawAdminStats = await apiClient.get('/admin/stats');
-      console.log('Admin stats fetched:', rawStats);
+      // Utiliser la nouvelle API des statistiques admin avec le filtre de période
+      // Ajout d'un timestamp pour éviter le cache navigateur
+      const rawStats: AdminStats = await apiClient.get(`/admin/stats?days=${days}&_t=${Date.now()}`);
+      console.log('Admin stats fetched for days:', days, rawStats);
 
-      // Calculer les statistiques d'activité dérivées
-      const activityStats = {
-        totalRSVPs: rawStats.rsvps.confirmed + rawStats.rsvps.declined,
-        emailsSent: rawStats.guests.emailsSent,
-        conversionRate: rawStats.guests.total > 0 ? 
-          Math.round(((rawStats.rsvps.confirmed + rawStats.rsvps.declined) / rawStats.guests.total) * 100) : 0,
-      };
-
-      setStats({
-        users: rawStats.users,
-        invitations: rawStats.invitations,
-        guests: {
-          total: rawStats.guests.total,
-          confirmed: rawStats.rsvps.confirmed,
-          declined: rawStats.rsvps.declined,
-          pending: rawStats.rsvps.pending,
-          emailsSent: rawStats.guests.emailsSent,
-        },
-        activity: activityStats,
-      });
+      setStats(rawStats);
 
     } catch (err) {
       console.error('Erreur lors du chargement des statistiques:', err);
@@ -111,7 +112,7 @@ export const useAdminStats = () => {
 
   useEffect(() => {
     fetchAllData();
-  }, []);
+  }, [days]);
 
   return {
     stats,

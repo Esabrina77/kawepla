@@ -1,12 +1,11 @@
-'use client';
+"use client";
 
-import { useState, useEffect } from 'react';
-import Link from 'next/link';
-import { usePathname } from 'next/navigation';
-import styles from './Sidebar.module.css';
-import Image from 'next/image';
-import { useAuth } from '@/hooks/useAuth';
-import { Button } from '@/components/ui/button';
+import { useState, useEffect } from "react";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import styles from "./SuperAdminSidebar.module.css";
+import { useAuth } from "@/hooks/useAuth";
+import { Button } from "@/components/ui/button";
 import {
   LayoutDashboard,
   PaintBucket,
@@ -22,72 +21,72 @@ import {
   Home,
   Mail,
   Package,
-} from 'lucide-react';
+} from "lucide-react";
 
 const menuItems = [
   {
-    title: 'Tableau de bord',
-    path: '/',
+    title: "Tableau de bord",
+    path: "/super-admin/dashboard",
     icon: LayoutDashboard,
-    description: 'Vue d\'ensemble administrateur',
-    priority: 1
+    description: "Vue d'ensemble administrateur",
+    priority: 1,
   },
   {
-    title: 'Designs',
-    path: '/super-admin/design',
+    title: "Designs",
+    path: "/super-admin/design",
     icon: PaintBucket,
-    description: 'Gérez les modèles de design',
-    priority: 1
+    description: "Gérez les modèles de design",
+    priority: 1,
   },
   {
-    title: 'Utilisateurs',
-    path: '/super-admin/users',
+    title: "Utilisateurs",
+    path: "/super-admin/users",
     icon: Users,
-    description: 'Gérez tous les utilisateurs',
-    priority: 1
+    description: "Gérez tous les utilisateurs",
+    priority: 1,
   },
   {
-    title: 'Prestataires',
-    path: '/super-admin/providers',
+    title: "Prestataires",
+    path: "/super-admin/providers",
     icon: Users,
-    description: 'Gérez tous les prestataires',
-    priority: 1
+    description: "Gérez tous les prestataires",
+    priority: 1,
   },
   {
-    title: 'Invitations',
-    path: '/super-admin/invitations',
+    title: "Invitations",
+    path: "/super-admin/invitations",
     icon: CalendarRange,
-    description: 'Surveillez les invitations',
-    priority: 2
+    description: "Surveillez les invitations",
+    priority: 2,
   },
   {
-    title: 'Newsletters',
-    path: '/super-admin/newsletters',
+    title: "Newsletters",
+    path: "/super-admin/newsletters",
     icon: Mail,
-    description: 'Gérez les newsletters',
-    priority: 2
+    description: "Gérez les newsletters",
+    priority: 2,
   },
   {
-    title: 'Statistiques',
-    path: '/super-admin/stats',
+    title: "Statistiques",
+    path: "/super-admin/stats",
     icon: BarChart3,
-    description: 'Analyses et rapports',
-    priority: 2
+    description: "Analyses et rapports",
+    priority: 2,
   },
   {
-    title: 'Packs & Tarifs',
-    path: '/super-admin/service-packs',
+    title: "Packs & Tarifs",
+    path: "/super-admin/service-packs",
     icon: Package,
-    description: 'Gérer les plans et add-ons',
-    priority: 2
+    description: "Gérer les plans et add-ons",
+    priority: 2,
   },
   {
-    title: 'Discussions',
-    path: '/super-admin/discussions',
+    title: "Discussions",
+    path: "/super-admin/discussions",
     icon: MessageSquare,
-    description: 'Support et discussions',
-    priority: 2
-  }
+    description: "Support et discussions",
+    priority: 2,
+  },
 ];
 
 export const SuperAdminSidebar = () => {
@@ -96,22 +95,17 @@ export const SuperAdminSidebar = () => {
   const pathname = usePathname();
   const { logout } = useAuth();
 
-  // Déterminer le chemin de base pour la correspondance active
-  const basePath = pathname?.split('/').slice(0, 3).join('/');
-
   const toggleSidebar = () => {
     const newState = !isCollapsed;
     setIsCollapsed(newState);
-    // Mettre à jour l'attribut data sur le body pour le CSS
-    if (typeof document !== 'undefined') {
-      document.body.setAttribute('data-sidebar-collapsed', String(newState));
+    if (typeof document !== "undefined") {
+      document.body.setAttribute("data-sidebar-collapsed", String(newState));
     }
   };
 
-  // Initialiser l'attribut data sur le body
   useEffect(() => {
-    if (typeof document !== 'undefined') {
-      document.body.setAttribute('data-sidebar-collapsed', String(isCollapsed));
+    if (typeof document !== "undefined") {
+      document.body.setAttribute("data-sidebar-collapsed", String(isCollapsed));
     }
   }, [isCollapsed]);
 
@@ -119,42 +113,45 @@ export const SuperAdminSidebar = () => {
     setShowMobileMenu(!showMobileMenu);
   };
 
-  // Séparer les éléments pour mobile
-  // Séparer les éléments pour mobile
-  // Sur mobile : seulement 3 icônes principales + bouton "Plus"
-  const primaryItems = menuItems.filter(item => item.priority === 1).slice(0, 3);
+  const primaryItems = menuItems
+    .filter((item) => item.priority === 1)
+    .slice(0, 3);
   const secondaryItems = [
-    // Les autres éléments de priorité 1 non affichés
-    ...menuItems.filter(item => item.priority === 1).slice(3),
-    // Les éléments de priorité 2
-    ...menuItems.filter(item => item.priority >= 2)
+    ...menuItems.filter((item) => item.priority === 1).slice(3),
+    ...menuItems.filter((item) => item.priority >= 2),
   ];
 
   return (
     <>
       {/* Desktop Sidebar */}
       <aside
-        className={`${styles.sidebar} ${styles.superAdminSidebar} ${isCollapsed ? styles.collapsed : ''}`}
+        className={`${styles.sidebar} ${isCollapsed ? styles.collapsed : ""}`}
         data-testid="super-admin-sidebar"
       >
         {/* Header Section */}
         <div className={styles.sidebarHeader}>
-          <Link href="/super-admin/dashboard" className={styles.logoLink} data-tutorial="logo">
-            <span className={styles.logoText}>Kawepla</span>
+          <Link
+            href="/super-admin/dashboard"
+            className={styles.logoLink}
+            data-tutorial="logo"
+          >
+            {isCollapsed ? (
+              <span className={styles.logoTextCollapsed}>K</span>
+            ) : (
+              <span className={styles.logoText}>KAWEPLA</span>
+            )}
           </Link>
 
-          <div className={styles.sidebarHeaderButtons}>
+          <div className={styles.headerActions}>
             {!isCollapsed && (
-              <div className={styles.superAdminBadge}>
-                SUPER ADMIN
-              </div>
+              <div className={styles.superAdminBadge}>ADMIN</div>
             )}
-            <button
-              onClick={toggleSidebar}
-              className={styles.toggleButton}
-              aria-label={isCollapsed ? "Développer le menu" : "Réduire le menu"}
-            >
-              {isCollapsed ? <ChevronRight className={styles.toggleIcon} /> : <ChevronLeft className={styles.toggleIcon} />}
+            <button onClick={toggleSidebar} className={styles.collapseBtn}>
+              {isCollapsed ? (
+                <ChevronRight size={18} />
+              ) : (
+                <ChevronLeft size={18} />
+              )}
             </button>
           </div>
         </div>
@@ -166,18 +163,20 @@ export const SuperAdminSidebar = () => {
               <Link
                 key={item.path}
                 href={item.path}
-                className={`${styles.navItem} ${basePath?.includes(item.path) ? styles.active : ''
-                  }`}
-                title={item.description}
+                className={`${styles.navItem} ${pathname?.startsWith(item.path) ? styles.active : ""}`}
+                aria-label={item.title}
+                data-tooltip={item.title}
               >
                 <span className={styles.icon}>
-                  {<item.icon className={styles.menuIcon} size={18} />}
+                  <item.icon className={styles.menuIcon} size={18} />
                 </span>
                 {!isCollapsed && (
                   <div className={styles.navContent}>
                     <span className={styles.title}>{item.title}</span>
                     {item.description && (
-                      <span className={styles.description}>{item.description}</span>
+                      <span className={styles.description}>
+                        {item.description}
+                      </span>
                     )}
                   </div>
                 )}
@@ -188,23 +187,21 @@ export const SuperAdminSidebar = () => {
 
         {/* Footer Section */}
         <div className={styles.sidebarFooter}>
-          <div className={styles.footerContent}>
-            <Link href="/super-admin/help" className={styles.helpLink}>
-              <span className={styles.icon}>
-                <HelpCircle className={styles.menuIcon} size={18} />
-              </span>
-              {!isCollapsed && <span>Aide</span>}
-            </Link>
-            <Button
-              variant="outline"
-              onClick={logout}
-              className={styles.logoutButton}
-              title="Se déconnecter"
-            >
-              <LogOut className={styles.menuIcon} size={16} />
-              {!isCollapsed && <span>Se déconnecter</span>}
-            </Button>
-          </div>
+          <Link href="/super-admin/help" className={styles.helpLink}>
+            <span className={styles.icon}>
+              <HelpCircle className={styles.menuIcon} size={18} />
+            </span>
+            {!isCollapsed && <span>Aide</span>}
+          </Link>
+          <Button
+            variant="outline"
+            onClick={logout}
+            className={styles.logoutButton}
+            title="Se déconnecter"
+          >
+            <LogOut className={styles.menuIcon} size={16} />
+            {!isCollapsed && <span>Se déconnecter</span>}
+          </Button>
         </div>
       </aside>
 
@@ -215,18 +212,16 @@ export const SuperAdminSidebar = () => {
             <Link
               key={item.path}
               href={item.path}
-              className={`${styles.mobileNavItem} ${basePath?.includes(item.path) ? styles.active : ''
-                }`}
+              className={`${styles.mobileNavItem} ${pathname?.startsWith(item.path) ? styles.active : ""}`}
               title={item.title}
             >
               <span className={styles.mobileIcon}>
-                {<item.icon className={styles.mobileMenuIcon} size={20} />}
+                <item.icon className={styles.mobileMenuIcon} size={20} />
               </span>
               <span className={styles.mobileTitle}>{item.title}</span>
             </Link>
           ))}
 
-          {/* Bouton Plus pour menu complet */}
           <button
             onClick={toggleMobileMenu}
             className={`${styles.mobileNavItem} ${styles.mobileMoreButton}`}
@@ -243,9 +238,12 @@ export const SuperAdminSidebar = () => {
       {/* Menu mobile popup */}
       {showMobileMenu && (
         <div className={styles.mobileMenuOverlay} onClick={toggleMobileMenu}>
-          <div className={styles.mobileMenuPopup} onClick={(e) => e.stopPropagation()}>
+          <div
+            className={styles.mobileMenuPopup}
+            onClick={(e) => e.stopPropagation()}
+          >
             <div className={styles.mobileMenuHeader}>
-              <h3>Menu complet</h3>
+              <h3>Menu Admin</h3>
               <button
                 onClick={toggleMobileMenu}
                 className={styles.closeMobileMenu}
@@ -254,7 +252,6 @@ export const SuperAdminSidebar = () => {
               </button>
             </div>
             <div className={styles.mobileMenuItems}>
-              {/* Lien vers l'accueil */}
               <Link
                 href="/"
                 className={styles.mobileMenuItem}
@@ -265,25 +262,27 @@ export const SuperAdminSidebar = () => {
                 </span>
                 <div className={styles.mobileMenuItemContent}>
                   <span className={styles.title}>Accueil</span>
-                  <span className={styles.description}>Retourner à la page d'accueil</span>
+                  <span className={styles.description}>
+                    Retourner à la page d'accueil
+                  </span>
                 </div>
               </Link>
 
-              {/* Éléments secondaires */}
               {secondaryItems.map((item) => (
                 <Link
                   key={item.path}
                   href={item.path}
-                  className={`${styles.mobileMenuItem} ${basePath?.includes(item.path) ? styles.active : ''
-                    }`}
+                  className={`${styles.mobileMenuItem} ${pathname?.startsWith(item.path) ? styles.active : ""}`}
                   onClick={toggleMobileMenu}
                 >
                   <span className={styles.icon}>
-                    {<item.icon className={styles.menuIcon} size={18} />}
+                    <item.icon className={styles.menuIcon} size={18} />
                   </span>
                   <div className={styles.mobileMenuItemContent}>
                     <span className={styles.title}>{item.title}</span>
-                    <span className={styles.description}>{item.description}</span>
+                    <span className={styles.description}>
+                      {item.description}
+                    </span>
                   </div>
                 </Link>
               ))}
@@ -307,4 +306,4 @@ export const SuperAdminSidebar = () => {
       )}
     </>
   );
-}; 
+};

@@ -142,12 +142,14 @@ export function useProviderConversations(userRole: 'HOST' | 'PROVIDER') {
   ): Promise<ProviderConversation> => {
     try {
       const conversation = await apiGetOrCreateConversation(data);
-      await fetchConversations(); // Rafraîchir la liste
+      // Ne pas rafraîchir la liste ici : la conversation est vide à ce stade
+      // et serait filtrée de toute façon. La liste se mettra à jour via WebSocket
+      // lors du premier message envoyé (onConversationUpdated → fetchConversations).
       return conversation;
     } catch (err) {
       throw new Error(err instanceof Error ? err.message : 'Erreur lors de la création de la conversation');
     }
-  }, [fetchConversations]);
+  }, []);
 
   return {
     conversations,

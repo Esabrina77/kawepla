@@ -1,13 +1,13 @@
-'use client';
+"use client";
 
-import { useState, useEffect } from 'react';
-import { useParams, useRouter } from 'next/navigation';
-import { apiClient } from '@/lib/api/apiClient';
-import { HeaderMobile } from '@/components/HeaderMobile';
-import DesignPreview from '@/components/DesignPreview';
-import { AlertTriangle } from 'lucide-react';
-import { Design } from '@/types';
-import styles from './design.module.css';
+import { useState, useEffect } from "react";
+import { useParams, useRouter } from "next/navigation";
+import { apiClient } from "@/lib/api/apiClient";
+import { HeaderMobile } from "@/components/HeaderMobile";
+import DesignPreview from "@/components/DesignPreview";
+import { AlertTriangle } from "lucide-react";
+import { Design } from "@/types";
+import styles from "./design.module.css";
 
 interface InvitationDesign {
   id: string;
@@ -18,7 +18,7 @@ interface InvitationDesign {
   location?: string;
   customText?: string;
   moreInfo?: string;
-  status: 'DRAFT' | 'PUBLISHED' | 'ARCHIVED';
+  status: "DRAFT" | "PUBLISHED" | "ARCHIVED";
   design?: Design | null;
   customDesign?: Design | null;
   customDesignId?: string | null;
@@ -41,7 +41,9 @@ export default function InvitationDesignPage() {
     try {
       setLoading(true);
       setError(null);
-      const data = await apiClient.get<InvitationDesign>(`/admin/invitations/${invitationId}`);
+      const data = await apiClient.get<InvitationDesign>(
+        `/admin/invitations/${invitationId}`,
+      );
       setInvitation(data);
 
       // Déterminer quel design afficher (priorité: customDesign > customFabricData > design)
@@ -51,20 +53,20 @@ export default function InvitationDesignPage() {
         // Créer un objet Design temporaire à partir de customFabricData
         setDisplayDesign({
           id: data.customDesignId,
-          name: data.design?.name || 'Design personnalisé',
-          description: 'Design personnalisé par l\'utilisateur',
+          name: data.design?.name || "Design personnalisé",
+          description: "Design personnalisé par l'utilisateur",
           fabricData: data.customFabricData,
           canvasWidth: data.customCanvasWidth || 794,
           canvasHeight: data.customCanvasHeight || 1123,
-          editorVersion: 'canva',
+          editorVersion: "canva",
           isTemplate: false,
         } as Design);
       } else if (data.design) {
         setDisplayDesign(data.design);
       }
     } catch (err) {
-      console.error('Erreur lors du chargement de l\'invitation:', err);
-      setError('Erreur lors du chargement de l\'invitation');
+      console.error("Erreur lors du chargement de l'invitation:", err);
+      setError("Erreur lors du chargement de l'invitation");
     } finally {
       setLoading(false);
     }
@@ -72,12 +74,12 @@ export default function InvitationDesignPage() {
 
   const getStatusLabel = (status: string) => {
     switch (status) {
-      case 'PUBLISHED':
-        return 'Publiée';
-      case 'DRAFT':
-        return 'Brouillon';
-      case 'ARCHIVED':
-        return 'Archivée';
+      case "PUBLISHED":
+        return "Publiée";
+      case "DRAFT":
+        return "Brouillon";
+      case "ARCHIVED":
+        return "Archivée";
       default:
         return status;
     }
@@ -85,11 +87,11 @@ export default function InvitationDesignPage() {
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'PUBLISHED':
+      case "PUBLISHED":
         return styles.statusPublished;
-      case 'DRAFT':
+      case "DRAFT":
         return styles.statusDraft;
-      case 'ARCHIVED':
+      case "ARCHIVED":
         return styles.statusArchived;
       default:
         return styles.statusDefault;
@@ -120,7 +122,10 @@ export default function InvitationDesignPage() {
         <HeaderMobile title="Aperçu du design" />
         <div className={styles.errorContainer}>
           <p>{error}</p>
-          <button onClick={fetchInvitationDesign} className={styles.retryButton}>
+          <button
+            onClick={fetchInvitationDesign}
+            className={styles.retryButton}
+          >
             Réessayer
           </button>
         </div>
@@ -145,7 +150,7 @@ export default function InvitationDesignPage() {
   return (
     <div className={styles.designPage}>
       <HeaderMobile
-        title={invitation.eventTitle || 'Aperçu du design'}
+        title={invitation.eventTitle || "Aperçu du design"}
         onBack={() => router.push(`/super-admin/invitations/${invitationId}`)}
       />
 
@@ -153,7 +158,9 @@ export default function InvitationDesignPage() {
         {/* Page Header */}
         <div className={styles.pageHeader}>
           <p className={styles.pageSubtitle}>Aperçu comme vu par les invités</p>
-          <span className={`${styles.statusBadge} ${getStatusColor(invitation.status)}`}>
+          <span
+            className={`${styles.statusBadge} ${getStatusColor(invitation.status)}`}
+          >
             {getStatusLabel(invitation.status)}
           </span>
           {invitation.customDesign || invitation.customDesignId ? (
@@ -169,8 +176,8 @@ export default function InvitationDesignPage() {
             <div className={styles.section}>
               <DesignPreview
                 design={displayDesign}
-                width={600}
-                height={800}
+                width={500}
+                height={700}
                 className={styles.invitationRender}
               />
             </div>
@@ -179,7 +186,10 @@ export default function InvitationDesignPage() {
               <div className={styles.noDesign}>
                 <AlertTriangle size={48} />
                 <h3>Aucun design sélectionné</h3>
-                <p>L'utilisateur n'a pas encore choisi de design pour cette invitation.</p>
+                <p>
+                  L'utilisateur n'a pas encore choisi de design pour cette
+                  invitation.
+                </p>
               </div>
             </div>
           )}

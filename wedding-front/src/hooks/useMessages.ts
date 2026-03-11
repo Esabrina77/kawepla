@@ -1,7 +1,7 @@
 /**
  * Hook pour gérer les messages et conversations
  */
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { MessagesAPI, Message, Conversation } from '@/lib/api/messages';
 import { useSocket } from './useSocket';
 import { useAuth } from './useAuth';
@@ -20,10 +20,10 @@ export const useMessages = (invitationId?: string) => {
 
   // Charger la conversation initiale
   useEffect(() => {
-    if (invitationId && user?.role !== 'ADMIN') {
+    if (user?.role !== 'ADMIN') {
       loadConversation();
     }
-  }, [invitationId, user]);
+  }, [invitationId, user?.id]);
 
   // Configurer les événements WebSocket
   useEffect(() => {
@@ -76,26 +76,37 @@ export const useMessages = (invitationId?: string) => {
     };
   }, [socket.connected, conversation?.id, user?.id]);
 
-  const loadConversation = async () => {
-    if (!invitationId) return;
+  const loadingRef = useRef(false);
 
+  const loadConversation = async () => {
+    if (loadingRef.current) return;
+    
     try {
+      loadingRef.current = true;
       setLoading(true);
       setError(null);
       
-      const conv = await MessagesAPI.getOrCreateConversation(invitationId);
+      // Si pas d'invitationId, on utilise "support" pour une discussion générale admin
+      const idToUse = invitationId || 'support';
+      const conv = await MessagesAPI.getOrCreateConversation(idToUse);
       setConversation(conv);
       
-      // Charger les messages
-      const messagesData = await MessagesAPI.getMessages(conv.id);
-      setMessages(messagesData.messages);
-      setHasMore(messagesData.hasMore);
+      // Charger les messages uniquement si la conversation existe vraiment (id non nul)
+      if (conv.id) {
+        const messagesData = await MessagesAPI.getMessages(conv.id);
+        setMessages(messagesData.messages);
+        setHasMore(messagesData.hasMore);
+      } else {
+        setMessages([]);
+        setHasMore(false);
+      }
       
     } catch (err) {
       setError('Erreur lors du chargement de la conversation');
       console.error(err);
     } finally {
       setLoading(false);
+      loadingRef.current = false;
     }
   };
 
@@ -118,14 +129,27 @@ export const useMessages = (invitationId?: string) => {
   };
 
   const sendMessage = async (content: string) => {
-    if (!conversation?.id || !content.trim()) return;
+    if (!content.trim()) return;
 
     try {
-      // Utiliser WebSocket pour un envoi plus rapide
-      socket.sendMessage(conversation.id, content.trim());
-      
-      // Optionnel: aussi envoyer via API REST pour la persistance
-      // await MessagesAPI.sendMessage(conversation.id, content.trim());
+      let currentConversation = conversation;
+
+      // Si la conversation n'existe pas encore en base, on la crée
+      if (!currentConversation || !currentConversation.id) {
+        const idToUse = invitationId || 'support';
+        currentConversation = await MessagesAPI.getOrCreateConversation(idToUse, true);
+        setConversation(currentConversation);
+        
+        // Rejoindre la salle immédiatement après création
+        if (currentConversation.id) {
+          socket.joinConversation(currentConversation.id);
+        }
+      }
+
+      if (currentConversation && currentConversation.id) {
+        // Utiliser WebSocket pour un envoi plus rapide
+        socket.sendMessage(currentConversation.id, content.trim());
+      }
     } catch (err) {
       setError('Erreur lors de l\'envoi du message');
       console.error(err);

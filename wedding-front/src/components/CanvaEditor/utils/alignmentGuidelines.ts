@@ -6,10 +6,10 @@ import * as fabric from 'fabric';
  */
 export const initAlignmentGuidelines = (canvas: fabric.Canvas) => {
     const aligningLineOffset = 5;
-    const aligningLineMargin = 2;
+    const aligningLineMargin = 4; // Increased margin for better snapping feel visually
     const aligningLineWidth = 1;
-    const aligningLineColor = '#FF0078';
-    const distanceLineColor = '#1E88E5';
+    const aligningLineColor = '#10B981'; // Teal to match Admin Theme
+    const distanceLineColor = '#3B82F6'; // Blue for distances
 
     let verticalLines: { x: number; y1: number; y2: number }[] = [];
     let horizontalLines: { y: number; x1: number; x2: number }[] = [];

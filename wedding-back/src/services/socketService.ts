@@ -63,6 +63,7 @@ export class SocketService {
 
         socket.userId = user.id;
         socket.userRole = user.role;
+        // console.log(`[SocketService] Auth successful: ${user.id} (${user.role})`);
         next();
       } catch (error) {
         console.error('Erreur authentification WebSocket:', error);
@@ -198,7 +199,7 @@ export class SocketService {
       socket.emit('message_sent', { message });
 
     } catch (error) {
-      console.error('Erreur envoi message:', error);
+      console.error(`[SocketService] Error send_message (user ${socket.userId}, conv ${data.conversationId}):`, error);
       socket.emit('error', { message: 'Erreur lors de l\'envoi du message' });
     }
   }
@@ -261,7 +262,7 @@ export class SocketService {
       });
 
     } catch (error) {
-      console.error('Erreur marquage lu:', error);
+      console.error(`[SocketService] Error mark_as_read (user ${socket.userId}, conv ${data.conversationId}):`, error);
       socket.emit('error', { message: 'Erreur lors du marquage comme lu' });
     }
   }

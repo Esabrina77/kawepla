@@ -24,6 +24,7 @@ import {
   Camera,
   MessageCircle,
   CreditCard,
+  HelpCircle,
 } from "lucide-react";
 
 const menuItems = [
@@ -60,6 +61,13 @@ const menuItems = [
     path: "/provider/profile",
     icon: User,
     description: "Gérez votre profil provider",
+    priority: 2,
+  },
+  {
+    title: "Support & Aide",
+    path: "/provider/support",
+    icon: HelpCircle,
+    description: "Contactez l'assistance Kawepla",
     priority: 2,
   },
   {

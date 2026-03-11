@@ -1,185 +1,215 @@
-/* ===== CREATE CANVA PAGE - MATCHING CLIENT STYLE ===== */
+/* ===== CREATE CANVA PAGE - PREMIUM BENTO STYLE (Teal Theme) ===== */
 
 .pageContainer {
-    height: 100vh;
-    display: flex;
-    flex-direction: column;
-    background: var(--bg-primary);
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: var(--background);
+  overflow: hidden;
 }
 
 .editorContainer {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    overflow: hidden;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  /* Add margin to match the "not touching sidebar" look if needed, but here it's full screen editor usually */
+  /* For Super Admin, we'll keep the padding consistent with dashboard layout */
+  padding: 0 2rem 2rem;
 }
 
 .workspace {
-    flex: 1;
-    display: flex;
-    overflow: hidden;
+  flex: 1;
+  display: flex;
+  overflow: hidden;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 24px;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.04);
 }
 
 .canvasArea {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    position: relative;
-    background: #f3f4f6;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  background: color-mix(in srgb, var(--background) 50%, var(--card));
+  overflow: hidden;
 }
 
 /* Modal Styles matching Dashboard/Design */
 .modalOverlay {
-    position: fixed;
-    inset: 0;
-    background: rgba(0, 0, 0, 0.6);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 1000;
-    backdrop-filter: blur(4px);
-    animation: fadeIn 0.3s ease-out;
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(10px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  animation: fadeIn 0.3s ease;
+  padding: 2rem;
 }
 
-@keyframes fadeIn {
-    from {
-        opacity: 0;
-    }
-
-    to {
-        opacity: 1;
-    }
-}
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
 .modalContent {
-    background: var(--bg-card);
-    border-radius: var(--radius-lg);
-    padding: 0;
-    width: 90%;
-    max-width: 500px;
-    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
-    border: 1px solid var(--border-color);
-    animation: slideUp 0.3s ease-out;
-    overflow: hidden;
+  background: var(--card);
+  border-radius: 32px;
+  width: 100%;
+  max-width: 500px;
+  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.2);
+  border: 1px solid var(--border);
+  animation: slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  overflow: hidden;
 }
 
 @keyframes slideUp {
-    from {
-        opacity: 0;
-        transform: translateY(20px) scale(0.95);
-    }
-
-    to {
-        opacity: 1;
-        transform: translateY(0) scale(1);
-    }
+  from { opacity: 0; transform: translateY(30px) scale(0.95); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
 }
 
 .modalHeader {
-    padding: var(--space-lg);
-    border-bottom: 1px solid var(--border-color);
-    background: var(--bg-secondary);
+  padding: 1.75rem 2rem;
+  border-bottom: 1px solid var(--border);
+  background: var(--card);
 }
 
 .modalTitle {
-    font-size: 1.25rem;
-    font-weight: 700;
-    margin: 0;
-    color: var(--text-primary);
-    font-family: var(--font-sans);
+  font-size: 1.25rem;
+  font-weight: 800;
+  margin: 0;
+  color: var(--foreground);
 }
 
 .modalBody {
-    padding: var(--space-lg);
+  padding: 2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
 }
 
 .formGroup {
-    margin-bottom: var(--space-md);
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
 }
 
 .label {
-    display: block;
-    font-size: 0.875rem;
-    font-weight: 600;
-    margin-bottom: 0.5rem;
-    color: var(--text-secondary);
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding-left: 0.25rem;
 }
 
 .input,
 .textarea,
 .select {
-    width: 100%;
-    padding: 0.75rem;
-    border: 1px solid var(--border-color);
-    border-radius: var(--radius-md);
-    font-size: 0.9rem;
-    background: var(--bg-primary);
-    color: var(--text-primary);
-    transition: all 0.2s ease;
+  width: 100%;
+  padding: 0.8rem 1rem;
+  background: var(--background);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  font-family: var(--font-body);
+  font-size: 0.9rem;
+  color: var(--foreground);
+  transition: all 0.2s ease;
 }
 
 .input:focus,
 .textarea:focus,
 .select:focus {
-    outline: none;
-    border-color: var(--luxury-champagne-gold);
-    box-shadow: 0 0 0 3px rgba(197, 168, 128, 0.1);
+  outline: none;
+  border-color: var(--admin);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--admin) 15%, transparent);
 }
 
 .textarea {
-    resize: vertical;
-    min-height: 80px;
+  resize: vertical;
+  min-height: 100px;
 }
 
 .modalFooter {
-    padding: var(--space-md) var(--space-lg);
-    background: var(--bg-secondary);
-    border-top: 1px solid var(--border-color);
-    display: flex;
-    gap: var(--space-sm);
-    justify-content: flex-end;
+  padding: 1.5rem 2rem;
+  background: color-mix(in srgb, var(--background) 30%, var(--card));
+  border-top: 1px solid var(--border);
+  display: flex;
+  gap: 1rem;
+  justify-content: flex-end;
 }
 
 .cancelButton {
-    padding: 0.6rem 1.2rem;
-    border-radius: var(--radius-md);
-    font-size: 0.9rem;
-    font-weight: 600;
-    border: 1px solid var(--border-color);
-    background: var(--bg-card);
-    color: var(--text-secondary);
-    cursor: pointer;
-    transition: all 0.2s ease;
+  padding: 0.75rem 1.5rem;
+  border-radius: 12px;
+  font-size: 0.85rem;
+  font-weight: 700;
+  border: 1px solid var(--border);
+  background: var(--card);
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all 0.2s ease;
 }
 
 .cancelButton:hover {
-    background: var(--bg-secondary);
-    color: var(--text-primary);
+  background: var(--background);
+  color: var(--foreground);
+  border-color: var(--foreground);
 }
 
 .saveButton {
-    padding: 0.6rem 1.2rem;
-    border-radius: var(--radius-md);
-    font-size: 0.9rem;
-    font-weight: 600;
-    border: none;
-    background: var(--luxury-champagne-gold);
-    color: var(--luxury-velvet-black);
-    cursor: pointer;
-    transition: all 0.2s ease;
+  padding: 0.75rem 2rem;
+  border-radius: 12px;
+  font-size: 0.85rem;
+  font-weight: 700;
+  border: none;
+  background: var(--admin);
+  color: white;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 4px 15px color-mix(in srgb, var(--admin) 30%, transparent);
 }
 
 .saveButton:hover:not(:disabled) {
-    opacity: 0.9;
-    transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(197, 168, 128, 0.3);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px color-mix(in srgb, var(--admin) 40%, transparent);
 }
 
 .saveButton:disabled {
-    opacity: 0.6;
-    cursor: not-allowed;
+  opacity: 0.5;
+  cursor: not-allowed;
 }
 
-[data-theme="dark"] .saveButton {
-    color: var(--text-primary);
+/* Loading state improvements */
+.loadingOverlay {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  color: var(--text-secondary);
+  gap: 1.5rem;
+}
+
+.loadingSpinner {
+  width: 40px;
+  height: 40px;
+  border: 4px solid var(--border);
+  border-top-color: var(--admin);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin { to { transform: rotate(360deg); } }
+
+@media (max-width: 768px) {
+  .editorContainer {
+    padding: 0 1rem 1rem;
+  }
+  
+  .workspace {
+    border-radius: 16px;
+    flex-direction: column;
+  }
 }

@@ -223,32 +223,20 @@ app.use('/api/invitations/:id/rsvps', hostRouter, (req, res, next) => {
 
 /**
  * Middleware de gestion des erreurs global
- * Capture toutes les erreurs non gérées et renvoie une réponse structurée.
  */
 app.use(errorHandler);
 
 /**
- * Jobs de nettoyage automatique
- * Nettoie les liens partageables expirés toutes les 5 minutes
+ * Jobs de maintenance automatique (Newsletter & Cleanup)
  */
 let cleanupInterval: NodeJS.Timeout | null = null;
+let newsletterInterval: NodeJS.Timeout | null = null;
 
-const startCleanupJobs = () => {
-  if (cleanupInterval) {
-    clearInterval(cleanupInterval);
-  }
+const startMaintenanceJobs = () => {
+  if (cleanupInterval) clearInterval(cleanupInterval);
+  if (newsletterInterval) clearInterval(newsletterInterval);
 
-  // Exécuter immédiatement au démarrage
-  setTimeout(async () => {
-    try {
-      const { CleanupJobs } = await import('./jobs/cleanupJobs');
-      await CleanupJobs.runAllCleanupJobs();
-    } catch (error) {
-      console.error('❌ Erreur lors du cleanup initial:', error);
-    }
-  }, 10000); // Attendre 10 secondes après le démarrage
-
-  // Puis exécuter toutes les 5 minutes
+  // 1. Jobs de nettoyage (Toutes les 5 minutes)
   cleanupInterval = setInterval(async () => {
     try {
       const { CleanupJobs } = await import('./jobs/cleanupJobs');
@@ -256,12 +244,34 @@ const startCleanupJobs = () => {
     } catch (error) {
       console.error('❌ Erreur lors du cleanup automatique:', error);
     }
-  }, 5 * 60 * 1000); // 5 minutes
+  }, 5 * 60 * 1000);
 
-  console.log('🔄 Jobs de nettoyage automatique démarrés (toutes les 5 minutes)');
+  // 2. Jobs de Newsletter (Toutes les 1 minute)
+  newsletterInterval = setInterval(async () => {
+    try {
+      const { NewsletterJobs } = await import('./jobs/newsletterJobs');
+      await NewsletterJobs.processScheduledNewsletters();
+    } catch (error) {
+      console.error('❌ Erreur lors du job newsletter:', error);
+    }
+  }, 60 * 1000);
+
+  // Exécution initiale après 10 secondes
+  setTimeout(async () => {
+    try {
+      const { CleanupJobs } = await import('./jobs/cleanupJobs');
+      const { NewsletterJobs } = await import('./jobs/newsletterJobs');
+      await CleanupJobs.runAllCleanupJobs();
+      await NewsletterJobs.processScheduledNewsletters();
+    } catch (error) {
+      console.error('❌ Erreur lors de l\'exécution initiale des jobs:', error);
+    }
+  }, 10000);
+
+  console.log('🔄 Maintenance: Jobs automatiques démarrés (Cleanup 5m, Newsletter 1m)');
 };
 
-// Démarrer les jobs de nettoyage
-startCleanupJobs();
+// Démarrer les jobs
+startMaintenanceJobs();
 
 export default app;

@@ -1,7 +1,6 @@
-import { PrismaClient, NewsletterStatus, NewsletterAudience, UserRole } from '@prisma/client';
+import { NewsletterStatus, NewsletterAudience, UserRole } from '@prisma/client';
 import { emailService } from '../utils/email';
-
-const prisma = new PrismaClient();
+import { prisma } from '../lib/prisma';
 
 interface CreateNewsletterData {
   title: string;

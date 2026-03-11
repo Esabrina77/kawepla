@@ -433,7 +433,7 @@ class EmailService {
               <h2>Bonjour ${userName} 👋</h2>
               
               <div class="newsletter-content">
-                ${htmlContent}
+                ${htmlContent.replace(/\n/g, '<br>')}
               </div>
               
 

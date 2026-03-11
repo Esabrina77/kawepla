@@ -13,6 +13,7 @@ router.use(authMiddleware as RequestHandler);
 // Routes pour les conversations
 router.get('/conversations/admin', MessageController.getAdminConversations as RequestHandler);
 router.get('/conversations/:invitationId', MessageController.getOrCreateConversation as RequestHandler);
+router.post('/conversations/:invitationId', MessageController.getOrCreateConversation as RequestHandler);
 router.patch('/conversations/:conversationId/assign', MessageController.assignAdmin as RequestHandler);
 router.patch('/conversations/:conversationId/archive', MessageController.archiveConversation as RequestHandler);
 router.patch('/conversations/:conversationId/restore', MessageController.restoreConversation as RequestHandler);

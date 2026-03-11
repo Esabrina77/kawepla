@@ -7,51 +7,80 @@ import { Conversation, Message, ConversationStatus, MessageType } from '@prisma/
 
 export class MessageService {
   /**
-   * Créer ou récupérer une conversation pour un client
+   * Récupérer ou créer une conversation pour un client ou prestataire
+   * @param userId ID de l'utilisateur
+   * @param targetId ID de l'invitation ou du service (facultatif)
+   * @param createIfNotFound Créer la conversation si elle n'existe pas (défaut: true)
    */
-  static async getOrCreateConversation(userId: string, invitationId: string): Promise<Conversation> {
-    // Chercher une conversation existante
-    let conversation = await prisma.conversation.findFirst({
+  static async getOrCreateConversation(userId: string, targetId?: string, createIfNotFound: boolean = true): Promise<any> {
+    const isSupport = !targetId || targetId === 'support' || targetId === 'undefined' || targetId === 'null';
+    
+    let queryInvitationId: string | null = null;
+    let queryServiceId: string | null = null;
+
+    if (!isSupport) {
+      // Déterminer si targetId est une invitation ou un service
+      // On vérifie d'abord si c'est un service pour éviter de l'associer à une invitation inexistante
+      const service = await prisma.service.findUnique({ where: { id: targetId } });
+      if (service) {
+        queryServiceId = targetId;
+      } else {
+        queryInvitationId = targetId;
+      }
+    }
+
+    // Chercher une conversation existante avec ses relations
+    let conversation: any = await prisma.conversation.findFirst({
       where: {
         userId,
-        invitationId,
+        invitationId: queryInvitationId,
+        serviceId: queryServiceId,
         status: 'ACTIVE'
       },
       include: {
-        user: {
-          select: { id: true, firstName: true, lastName: true, email: true }
-        },
-        admin: {
-          select: { id: true, firstName: true, lastName: true, email: true }
-        },
-        messages: {
-          orderBy: { createdAt: 'desc' },
-          take: 1
-        }
+        user: { select: { id: true, firstName: true, lastName: true, email: true, role: true } },
+        admin: { select: { id: true, firstName: true, lastName: true, email: true } },
+        invitation: { select: { id: true, eventTitle: true } },
+        service: { select: { id: true, name: true } },
+        messages: { orderBy: { createdAt: 'desc' }, take: 1 }
       }
     });
 
-    // Si pas de conversation, en créer une nouvelle
-    if (!conversation) {
-      conversation = await prisma.conversation.create({
-        data: {
-          userId,
-          invitationId,
-          status: 'ACTIVE'
-        },
-        include: {
-          user: {
-            select: { id: true, firstName: true, lastName: true, email: true }
+    if (!conversation && createIfNotFound) {
+      try {
+        conversation = await prisma.conversation.create({
+          data: {
+            userId,
+            invitationId: queryInvitationId,
+            serviceId: queryServiceId,
+            status: 'ACTIVE'
           },
-          admin: {
-            select: { id: true, firstName: true, lastName: true, email: true }
-          },
-          messages: {
-            orderBy: { createdAt: 'desc' },
-            take: 1
+          include: {
+            user: { select: { id: true, firstName: true, lastName: true, email: true, role: true } },
+            admin: { select: { id: true, firstName: true, lastName: true, email: true } },
+            invitation: { select: { id: true, eventTitle: true } },
+            service: { select: { id: true, name: true } },
+            messages: { orderBy: { createdAt: 'desc' }, take: 1 }
           }
-        }
-      });
+        });
+      } catch (err) {
+        // En cas de conflit (race condition), on tente de récupérer celle qui vient d'être créée
+        conversation = await prisma.conversation.findFirst({
+          where: {
+            userId,
+            invitationId: queryInvitationId,
+            serviceId: queryServiceId,
+            status: 'ACTIVE'
+          },
+          include: {
+            user: { select: { id: true, firstName: true, lastName: true, email: true, role: true } },
+            admin: { select: { id: true, firstName: true, lastName: true, email: true } },
+            invitation: { select: { id: true, eventTitle: true } },
+            service: { select: { id: true, name: true } },
+            messages: { orderBy: { createdAt: 'desc' }, take: 1 }
+          }
+        });
+      }
     }
 
     return conversation;
@@ -76,24 +105,27 @@ export class MessageService {
       throw new Error('Utilisateur non trouvé');
     }
 
+    // console.log(`[MessageService] sendMessage: convId=${conversationId}, senderId=${senderId}, role=${user.role}`);
+
     // Pour les admins, permettre l'accès à toutes les conversations
     // Pour les clients, seulement leurs propres conversations
-    const conversationWhereClause = user.role === 'ADMIN' 
-      ? { id: conversationId } // Admin peut envoyer dans toute conversation
+    const isAdmin = (user.role as string) === 'ADMIN';
+    const conversationWhereClause = isAdmin
+      ? { id: conversationId } 
       : {
           id: conversationId,
           OR: [
-            { userId: senderId }, // Le propriétaire de la conversation
-            { adminId: senderId } // L'admin assigné
+            { userId: senderId }, 
+            { adminId: senderId }
           ]
         };
 
-    // Vérifier que la conversation existe et que l'utilisateur y a accès
     const conversation = await prisma.conversation.findFirst({
       where: conversationWhereClause
     });
 
     if (!conversation) {
+      console.error(`[MessageService] sendMessage: Conversation non trouvée ou accès non autorisé pour ${senderId} sur ${conversationId}`);
       throw new Error('Conversation non trouvée ou accès non autorisé');
     }
 
@@ -209,7 +241,8 @@ export class MessageService {
     }
 
     // Pour les admins, permettre l'accès à toutes les conversations
-    const conversationWhereClause = user.role === 'ADMIN' 
+    const isAdmin = (user.role as string) === 'ADMIN';
+    const conversationWhereClause = isAdmin
       ? { id: conversationId }
       : {
           id: conversationId,
@@ -219,12 +252,12 @@ export class MessageService {
           ]
         };
 
-    // Vérifier l'accès à la conversation
     const conversation = await prisma.conversation.findFirst({
       where: conversationWhereClause
     });
 
     if (!conversation) {
+      console.error(`[MessageService] markMessagesAsRead: Conversation non trouvée ou accès non autorisé pour ${userId} sur ${conversationId}`);
       throw new Error('Conversation non trouvée ou accès non autorisé');
     }
 
@@ -255,7 +288,11 @@ export class MessageService {
       throw new Error('Accès non autorisé - rôle admin requis');
     }
 
-    const whereClause: any = {};
+    const whereClause: any = {
+      messages: {
+        some: {} // Au moins un message
+      }
+    };
     if (status) {
       whereClause.status = status;
     }
@@ -268,6 +305,9 @@ export class MessageService {
         },
         invitation: {
           select: { id: true, eventTitle: true }
+        },
+        service: {
+          select: { id: true, name: true }
         },
         messages: {
           orderBy: { createdAt: 'desc' },

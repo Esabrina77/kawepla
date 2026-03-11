@@ -368,7 +368,10 @@ export class ProviderConversationService {
     const conversations = await prisma.providerConversation.findMany({
       where: {
         clientId,
-        status: 'ACTIVE'
+        status: 'ACTIVE',
+        messages: {
+          some: {} // Au moins un message
+        }
       },
       include: {
         provider: {
@@ -421,7 +424,10 @@ export class ProviderConversationService {
     const conversations = await prisma.providerConversation.findMany({
       where: {
         providerId,
-        status: 'ACTIVE'
+        status: 'ACTIVE',
+        messages: {
+          some: {} // Au moins un message
+        }
       },
       include: {
         client: {

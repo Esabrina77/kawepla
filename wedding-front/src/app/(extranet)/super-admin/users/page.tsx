@@ -1,9 +1,9 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
-import styles from './users.module.css';
-import { useAdminUsers } from '@/hooks/useAdminUsers';
-import { HeaderMobile } from '@/components/HeaderMobile';
+import { useState } from "react";
+import styles from "./users.module.css";
+import { useAdminUsers } from "@/hooks/useAdminUsers";
+import { HeaderMobile } from "@/components/HeaderMobile";
 import {
   Users,
   Search,
@@ -17,8 +17,11 @@ import {
   User,
   CheckCircle,
   Calendar,
-  Mail
-} from 'lucide-react';
+  Mail,
+  Eye,
+  EyeOff,
+  UserCheck2,
+} from "lucide-react";
 
 export default function UsersPage() {
   const {
@@ -29,54 +32,83 @@ export default function UsersPage() {
     setFilters,
     toggleUserStatus,
     changeUserRole,
-    deleteUser
+    deleteUser,
   } = useAdminUsers();
 
   const [editingUser, setEditingUser] = useState<string | null>(null);
+  const [visibleEmails, setVisibleEmails] = useState<Record<string, boolean>>(
+    {},
+  );
+
+  const toggleEmailVisibility = (userId: string) => {
+    setVisibleEmails((prev) => ({ ...prev, [userId]: !prev[userId] }));
+  };
+
+  const maskEmail = (email: string) => {
+    const [name, domain] = email.split("@");
+    if (!name || !domain) return email;
+    if (name.length <= 2) return `${name.charAt(0)}***@${domain}`;
+    return `${name.charAt(0)}***${name.charAt(name.length - 1)}@${domain}`;
+  };
 
   const handleStatusToggle = async (userId: string) => {
     try {
       await toggleUserStatus(userId);
     } catch (error) {
-      console.error('Erreur lors du changement de statut:', error);
+      console.error("Erreur lors du changement de statut:", error);
     }
   };
 
-  const handleRoleChange = async (userId: string, newRole: 'ADMIN' | 'HOST' | 'GUEST' | 'PROVIDER') => {
+  const handleRoleChange = async (
+    userId: string,
+    newRole: "ADMIN" | "HOST" | "GUEST" | "PROVIDER",
+  ) => {
     try {
       await changeUserRole(userId, newRole);
     } catch (error) {
-      console.error('Erreur lors du changement de rôle:', error);
+      console.error("Erreur lors du changement de rôle:", error);
     }
   };
 
   const handleDelete = async (userId: string) => {
-    if (window.confirm('Êtes-vous sûr de vouloir supprimer cet utilisateur ?')) {
+    if (
+      window.confirm("Êtes-vous sûr de vouloir supprimer cet utilisateur ?")
+    ) {
       try {
         await deleteUser(userId);
       } catch (error) {
-        console.error('Erreur lors de la suppression:', error);
+        console.error("Erreur lors de la suppression:", error);
       }
     }
   };
 
   const getRoleLabel = (role: string) => {
     switch (role) {
-      case 'ADMIN': return 'Admin';
-      case 'HOST': return 'Organisateur';
-      case 'PROVIDER': return 'Prestataire';
-      case 'GUEST': return 'Invité';
-      default: return role;
+      case "ADMIN":
+        return "Admin";
+      case "HOST":
+        return "Organisateur";
+      case "PROVIDER":
+        return "Prestataire";
+      case "GUEST":
+        return "Invité";
+      default:
+        return role;
     }
   };
 
   const getRoleIcon = (role: string) => {
     switch (role) {
-      case 'ADMIN': return <Shield style={{ width: '14px', height: '14px' }} />;
-      case 'HOST': return <Heart style={{ width: '14px', height: '14px' }} />;
-      case 'PROVIDER': return <User style={{ width: '14px', height: '14px' }} />;
-      case 'GUEST': return <User style={{ width: '14px', height: '14px' }} />;
-      default: return <User style={{ width: '14px', height: '14px' }} />;
+      case "ADMIN":
+        return <Shield style={{ width: "14px", height: "14px" }} />;
+      case "HOST":
+        return <Heart style={{ width: "14px", height: "14px" }} />;
+      case "PROVIDER":
+        return <User style={{ width: "14px", height: "14px" }} />;
+      case "GUEST":
+        return <User style={{ width: "14px", height: "14px" }} />;
+      default:
+        return <User style={{ width: "14px", height: "14px" }} />;
     }
   };
 
@@ -108,16 +140,17 @@ export default function UsersPage() {
       <HeaderMobile title="Utilisateurs" />
 
       <div className={styles.pageContent}>
-
         {/* Filters */}
         <div className={styles.filtersContainer}>
           <div className={styles.searchContainer}>
             <Search className={styles.searchIcon} />
             <input
               type="text"
-              placeholder="Rechercher un utilisateur..."
-              value={filters.search || ''}
-              onChange={(e) => setFilters(prev => ({ ...prev, search: e.target.value }))}
+              placeholder="Rechercher un utilisateur, email..."
+              value={filters.search || ""}
+              onChange={(e) =>
+                setFilters((prev) => ({ ...prev, search: e.target.value }))
+              }
               className={styles.searchInput}
             />
           </div>
@@ -126,18 +159,24 @@ export default function UsersPage() {
             <Filter className={styles.filterIcon} />
             <select
               className={styles.filterSelect}
-              value={filters.isActive === undefined ? 'all' : filters.isActive ? 'active' : 'inactive'}
+              value={
+                filters.isActive === undefined
+                  ? "all"
+                  : filters.isActive
+                    ? "active"
+                    : "inactive"
+              }
               onChange={(e) => {
                 const value = e.target.value;
-                setFilters(prev => ({
+                setFilters((prev) => ({
                   ...prev,
-                  isActive: value === 'all' ? undefined : value === 'active'
+                  isActive: value === "all" ? undefined : value === "active",
                 }));
               }}
             >
               <option value="all">Tous les statuts</option>
-              <option value="active">Actifs</option>
-              <option value="inactive">Inactifs</option>
+              <option value="active">Actifs uniquement</option>
+              <option value="inactive">Inactifs uniquement</option>
             </select>
           </div>
 
@@ -145,19 +184,22 @@ export default function UsersPage() {
             <Filter className={styles.filterIcon} />
             <select
               className={styles.filterSelect}
-              value={filters.role || 'all'}
+              value={filters.role || "all"}
               onChange={(e) => {
                 const value = e.target.value;
-                setFilters(prev => ({
+                setFilters((prev) => ({
                   ...prev,
-                  role: value === 'all' ? undefined : value as 'ADMIN' | 'HOST' | 'GUEST' | 'PROVIDER'
+                  role:
+                    value === "all"
+                      ? undefined
+                      : (value as "ADMIN" | "HOST" | "GUEST" | "PROVIDER"),
                 }));
               }}
             >
               <option value="all">Tous les rôles</option>
               <option value="HOST">Organisateurs</option>
               <option value="PROVIDER">Prestataires</option>
-              <option value="ADMIN">Admins</option>
+              <option value="ADMIN">Administrateurs</option>
               <option value="GUEST">Invités</option>
             </select>
           </div>
@@ -171,30 +213,64 @@ export default function UsersPage() {
               <div className={styles.userHeader}>
                 <div className={styles.userAvatar}>
                   <div className={styles.avatarContent}>
-                    {user.email.charAt(0).toUpperCase()}
+                    {user.firstName?.charAt(0) ||
+                      user.email.charAt(0).toUpperCase()}
                   </div>
                 </div>
                 <div className={styles.userInfo}>
-                  <h3 className={styles.userName}>{user.firstName} {user.lastName}</h3>
+                  <h3 className={styles.userName}>
+                    {user.firstName} {user.lastName}
+                  </h3>
                   <div className={styles.userEmail}>
-                    <Mail style={{ width: '14px', height: '14px' }} />
-                    {user.email}
+                    <Mail size={12} />
+                    <span style={{ flex: 1 }}>
+                      {visibleEmails[user.id]
+                        ? user.email
+                        : maskEmail(user.email)}
+                    </span>
+                    <button
+                      className={styles.eyeBtn}
+                      onClick={() => toggleEmailVisibility(user.id)}
+                      title={
+                        visibleEmails[user.id]
+                          ? "Masquer l'email"
+                          : "Afficher l'email"
+                      }
+                      style={{
+                        background: "none",
+                        border: "none",
+                        padding: "0 4px",
+                        cursor: "pointer",
+                        display: "flex",
+                        color: "var(--admin)",
+                      }}
+                    >
+                      {visibleEmails[user.id] ? (
+                        <EyeOff size={14} />
+                      ) : (
+                        <Eye size={14} />
+                      )}
+                    </button>
                   </div>
                 </div>
               </div>
 
               {/* User Badges */}
               <div className={styles.userBadges}>
-                <span className={`${styles.roleBadge} ${user.role === 'ADMIN' ? styles.roleAdmin : user.role === 'HOST' ? styles.roleorganisateur : user.role === 'PROVIDER' ? styles.roleProvider : styles.roleGuest}`}>
+                <span
+                  className={`${styles.roleBadge} ${user.role === "ADMIN" ? styles.roleAdmin : user.role === "HOST" ? styles.roleorganisateur : user.role === "PROVIDER" ? styles.roleProvider : styles.roleGuest}`}
+                >
                   {getRoleIcon(user.role)}
                   {getRoleLabel(user.role)}
                 </span>
-                <span className={`${styles.statusBadge} ${user.isActive ? styles.statusActive : styles.statusInactive}`}>
-                  {user.isActive ? 'Actif' : 'Inactif'}
+                <span
+                  className={`${styles.statusBadge} ${user.isActive ? styles.statusActive : styles.statusInactive}`}
+                >
+                  {user.isActive ? "Actif" : "Inactif"}
                 </span>
                 {user.emailVerified && (
                   <span className={styles.verifiedBadge}>
-                    <CheckCircle style={{ width: '12px', height: '12px' }} />
+                    <UserCheck2 size={12} />
                     Vérifié
                   </span>
                 )}
@@ -203,8 +279,11 @@ export default function UsersPage() {
               {/* User Meta */}
               <div className={styles.userMeta}>
                 <div className={styles.metaItem}>
-                  <Calendar style={{ width: '14px', height: '14px' }} />
-                  <span>Créé le {new Date(user.createdAt).toLocaleDateString('fr-FR')}</span>
+                  <Calendar size={12} />
+                  <span>
+                    Inscrit le{" "}
+                    {new Date(user.createdAt).toLocaleDateString("fr-FR")}
+                  </span>
                 </div>
               </div>
 
@@ -215,7 +294,16 @@ export default function UsersPage() {
                     <select
                       className={styles.roleSelect}
                       value={user.role}
-                      onChange={(e) => handleRoleChange(user.id, e.target.value as 'ADMIN' | 'HOST' | 'GUEST' | 'PROVIDER')}
+                      onChange={(e) =>
+                        handleRoleChange(
+                          user.id,
+                          e.target.value as
+                            | "ADMIN"
+                            | "HOST"
+                            | "GUEST"
+                            | "PROVIDER",
+                        )
+                      }
                     >
                       <option value="HOST">Organisateur</option>
                       <option value="PROVIDER">Prestataire</option>
@@ -226,7 +314,7 @@ export default function UsersPage() {
                       className={styles.closeButton}
                       onClick={() => setEditingUser(null)}
                     >
-                      Fermer
+                      Valider
                     </button>
                   </>
                 ) : (
@@ -234,23 +322,29 @@ export default function UsersPage() {
                     <button
                       className={styles.editButton}
                       onClick={() => setEditingUser(user.id)}
+                      title="Changer le rôle"
                     >
-                      <Edit style={{ width: '14px', height: '14px' }} />
-                      Éditer
+                      <Edit size={14} />
+                      Rôle
                     </button>
 
                     <button
                       className={styles.toggleButton}
                       onClick={() => handleStatusToggle(user.id)}
+                      title={
+                        user.isActive
+                          ? "Désactiver le compte"
+                          : "Activer le compte"
+                      }
                     >
                       {user.isActive ? (
                         <>
-                          <PowerOff style={{ width: '14px', height: '14px' }} />
+                          <PowerOff size={14} />
                           Désactiver
                         </>
                       ) : (
                         <>
-                          <Power style={{ width: '14px', height: '14px' }} />
+                          <Power size={14} />
                           Activer
                         </>
                       )}
@@ -259,9 +353,9 @@ export default function UsersPage() {
                     <button
                       className={styles.deleteButton}
                       onClick={() => handleDelete(user.id)}
+                      title="Supprimer définitivement"
                     >
-                      <Trash2 style={{ width: '14px', height: '14px' }} />
-                      Supprimer
+                      <Trash2 size={14} />
                     </button>
                   </>
                 )}
@@ -277,13 +371,12 @@ export default function UsersPage() {
             <h3>Aucun utilisateur trouvé</h3>
             <p>
               {filters.search || filters.role || filters.isActive !== undefined
-                ? 'Aucun utilisateur ne correspond à vos critères de recherche'
-                : 'Aucun utilisateur enregistré pour le moment'
-              }
+                ? "Aucun utilisateur ne correspond à vos critères de recherche"
+                : "Aucun utilisateur enregistré pour le moment"}
             </p>
           </div>
         )}
       </div>
     </div>
   );
-} 
+}

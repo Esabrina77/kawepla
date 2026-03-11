@@ -26,7 +26,8 @@ export interface Message {
 export interface Conversation {
   id: string;
   userId: string;
-  invitationId: string;
+  invitationId: string | null;
+  serviceId: string | null;
   adminId?: string;
   status: 'ACTIVE' | 'ARCHIVED' | 'CLOSED';
   lastMessageAt: string;
@@ -36,8 +37,11 @@ export interface Conversation {
   admin?: User;
   invitation?: {
     id: string;
-    title: string;
-    organisateurName: string;
+    eventTitle: string;
+  };
+  service?: {
+    id: string;
+    name: string;
   };
   messages: Message[];
   _count?: {
@@ -54,8 +58,13 @@ export interface MessagesResponse {
 export class MessagesAPI {
   /**
    * Obtenir ou créer une conversation pour un client
+   * @param invitationId ID de l'invitation
+   * @param forceCreate Si true, utilise POST pour forcer la création si elle n'existe pas
    */
-  static async getOrCreateConversation(invitationId: string): Promise<Conversation> {
+  static async getOrCreateConversation(invitationId: string, forceCreate: boolean = false): Promise<Conversation> {
+    if (forceCreate) {
+      return apiClient.post<Conversation>(`/messages/conversations/${invitationId}`, {});
+    }
     return apiClient.get<Conversation>(`/messages/conversations/${invitationId}`);
   }
 

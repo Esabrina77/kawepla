@@ -1,0 +1,453 @@
+/* ===== NEWSLETTER CREATE - BENTO TEAL ===== */
+.createPage {
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  width: 100%;
+}
+
+.createHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 1rem 1.5rem;
+}
+
+.createHeader .headerLeft {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+}
+
+.backButton {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: var(--background);
+  border: 1px solid var(--border);
+  padding: 0.5rem 0.8rem;
+  border-radius: 10px;
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.backButton:hover {
+  border-color: var(--admin);
+  color: var(--admin);
+}
+
+.createHeader h1 {
+  font-size: 1.25rem;
+  font-weight: 800;
+  margin: 0;
+  color: var(--foreground);
+}
+
+.createHeader p {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  margin: 0.1rem 0 0 0;
+}
+
+.previewButton {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: var(--background);
+  border: 1px solid var(--border);
+  padding: 0.5rem 1rem;
+  border-radius: 10px;
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--text-secondary);
+  cursor: pointer;
+}
+
+.previewButton:hover {
+  border-color: var(--admin);
+  color: var(--admin);
+}
+
+.createContent {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.formSection {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.formSection h3 {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 800;
+  color: var(--admin);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.formGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.formGroup label {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--foreground);
+}
+
+.formGroup input, .formGroup textarea, .formGroup select {
+  background: var(--background);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 0.75rem 1rem;
+  font-size: 0.9rem;
+  color: var(--foreground);
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.formGroup input:focus, .formGroup textarea:focus {
+  border-color: var(--admin);
+}
+
+.audienceSelector {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.audienceOptions {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 0.5rem;
+}
+
+.audienceOption {
+  cursor: pointer;
+  position: relative;
+}
+
+.audienceOption input {
+  position: absolute;
+  opacity: 0;
+}
+
+.optionContent {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem;
+  background: var(--background);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  transition: all 0.2s;
+}
+
+.audienceOption input:checked + .optionContent {
+  border-color: var(--admin);
+  background: color-mix(in srgb, var(--admin) 5%, transparent);
+  color: var(--admin);
+}
+
+.audienceDescription {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  padding: 0.5rem;
+}
+
+/* User Selector for specific audience */
+.userSelector {
+  background: var(--background);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.userSelectorHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+}
+
+.searchBar {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 0.5rem 0.75rem;
+  flex: 1;
+}
+
+.searchBar input {
+  border: none;
+  background: transparent;
+  outline: none;
+  font-size: 0.85rem;
+  width: 100%;
+}
+
+.usersList {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 0.75rem;
+  max-height: 300px;
+  overflow-y: auto;
+  padding-right: 0.5rem;
+}
+
+.userItem {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  cursor: pointer;
+}
+
+.userInfo {
+  display: flex;
+  flex-direction: column;
+}
+
+.userName { font-size: 0.85rem; font-weight: 700; }
+.userEmail { font-size: 0.75rem; color: var(--text-secondary); }
+
+/* Selected users tags */
+.selectedUsers {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.userTags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.userTag {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  background: var(--admin);
+  color: white;
+  padding: 0.25rem 0.6rem;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+.userTag button {
+  background: none;
+  border: none;
+  color: white;
+  cursor: pointer;
+  display: flex;
+}
+
+/* Preview Mode */
+.previewMode {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.previewHeader {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 1.25rem;
+}
+
+.previewMeta {
+  display: flex;
+  gap: 1.5rem;
+  margin-top: 0.5rem;
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+}
+
+.emailPreview {
+  background: var(--background);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  overflow: hidden;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.emailHeader {
+  background: color-mix(in srgb, var(--admin) 5%, transparent);
+  padding: 1.5rem;
+  border-bottom: 2px solid var(--border);
+  text-align: center;
+}
+
+.emailBody {
+  padding: 2rem;
+  background: white;
+  color: #374151;
+}
+
+.newsletterContent {
+  margin: 1.5rem 0;
+  line-height: 1.6;
+  white-space: pre-wrap;
+}
+
+.emailFooter {
+  margin-top: 2rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid #E5E7EB;
+  text-align: center;
+  font-size: 0.8rem;
+  color: #9CA3AF;
+}
+
+/* Form Actions */
+.formActions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 1.25rem;
+  position: sticky;
+  bottom: 0;
+  z-index: 10;
+}
+
+.saveActions {
+  display: flex;
+  gap: 1rem;
+}
+
+.cancelButton {
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--text-secondary);
+  padding: 0.75rem 1.5rem;
+  border-radius: 12px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.saveButton {
+  background: var(--background);
+  border: 1px solid var(--border);
+  color: var(--foreground);
+  padding: 0.75rem 1.5rem;
+  border-radius: 12px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  cursor: pointer;
+}
+
+.sendButton {
+  background: var(--admin);
+  color: white;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: 12px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  cursor: pointer;
+}
+
+.errorAlert {
+  background: rgba(239, 68, 68, 0.1);
+  color: #EF4444;
+  padding: 1rem;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-top: 1rem;
+}
+.programmingToggle {
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+}
+
+.programmingContainer {
+  max-height: 0;
+  overflow: hidden;
+  transition: all 0.3s ease-out;
+  opacity: 0;
+}
+
+.programmingContainer.visible {
+  max-height: 150px;
+  opacity: 1;
+  margin-top: 1rem;
+}
+
+.toggleSwitch {
+  width: 40px;
+  height: 20px;
+  background: var(--border);
+  border-radius: 20px;
+  position: relative;
+  transition: background 0.3s;
+}
+
+.programmingToggle:hover .toggleSwitch {
+  background: color-mix(in srgb, var(--border) 80%, var(--admin));
+}
+
+.toggleCircle {
+  width: 16px;
+  height: 16px;
+  background: white;
+  border-radius: 50%;
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  transition: transform 0.3s;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.programmingToggle.active .toggleSwitch {
+  background: var(--admin);
+}
+
+.programmingToggle.active .toggleCircle {
+  transform: translateX(20px);
+}

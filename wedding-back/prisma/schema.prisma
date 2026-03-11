@@ -100,36 +100,37 @@ model ServiceCategory {
 }
 
 model Service {
-  id               String                 @id @default(cuid())
-  providerId       String
-  categoryId       String
-  name             String
-  description      String
-  shortDescription String?
-  price            Float
-  priceType        String
-  currency         String                 @default("EUR")
-  minPrice         Float?
-  maxPrice         Float?
-  duration         Int?
-  capacity         Int?
-  includes         String[]
-  requirements     String[]
-  photos           String[]
-  videos           String[]
-  isActive         Boolean                @default(true)
-  availability     Json?
-  rating           Float                  @default(0)
-  reviewCount      Int                    @default(0)
-  bookingCount     Int                    @default(0)
-  createdAt        DateTime               @default(now())
-  updatedAt        DateTime               @updatedAt
-  eventTypes       EventType[]
-  bookings         Booking[]
-  reviews          Review[]
-  category         ServiceCategory        @relation(fields: [categoryId], references: [id])
-  provider         ProviderProfile        @relation(fields: [providerId], references: [id], onDelete: Cascade)
-  conversations    ProviderConversation[] @relation("ServiceConversations")
+  id                   String                 @id @default(cuid())
+  providerId           String
+  categoryId           String
+  name                 String
+  description          String
+  shortDescription     String?
+  price                Float
+  priceType            String
+  currency             String                 @default("EUR")
+  minPrice             Float?
+  maxPrice             Float?
+  duration             Int?
+  capacity             Int?
+  includes             String[]
+  requirements         String[]
+  photos               String[]
+  videos               String[]
+  isActive             Boolean                @default(true)
+  availability         Json?
+  rating               Float                  @default(0)
+  reviewCount          Int                    @default(0)
+  bookingCount         Int                    @default(0)
+  createdAt            DateTime               @default(now())
+  updatedAt            DateTime               @updatedAt
+  eventTypes           EventType[]
+  bookings             Booking[]
+  reviews              Review[]
+  category             ServiceCategory        @relation(fields: [categoryId], references: [id])
+  provider             ProviderProfile        @relation(fields: [providerId], references: [id], onDelete: Cascade)
+  conversations        ProviderConversation[] @relation("ServiceConversations")
+  supportConversations Conversation[]
 
   @@map("services")
 }
@@ -450,17 +451,21 @@ model RSVP {
 model Conversation {
   id            String             @id @default(cuid())
   userId        String
-  invitationId  String
+  invitationId  String?
+  serviceId     String?
   adminId       String?
   status        ConversationStatus @default(ACTIVE)
   lastMessageAt DateTime           @default(now())
   createdAt     DateTime           @default(now())
   updatedAt     DateTime           @updatedAt
-  admin         User?              @relation("AdminConversations", fields: [adminId], references: [id])
-  invitation    Invitation         @relation(fields: [invitationId], references: [id], onDelete: Cascade)
-  user          User               @relation("UserConversations", fields: [userId], references: [id], onDelete: Cascade)
-  messages      Message[]
 
+  admin      User?       @relation("AdminConversations", fields: [adminId], references: [id])
+  invitation Invitation? @relation(fields: [invitationId], references: [id], onDelete: Cascade)
+  service    Service?    @relation(fields: [serviceId], references: [id], onDelete: Cascade)
+  user       User        @relation("UserConversations", fields: [userId], references: [id], onDelete: Cascade)
+  messages   Message[]
+
+  @@unique([userId, invitationId, serviceId])
   @@map("conversations")
 }
 

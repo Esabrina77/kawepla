@@ -1,19 +1,20 @@
-'use client';
+"use client";
 
-import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
-import { useNewsletters } from '@/hooks/useNewsletters';
-import { newslettersApi } from '@/lib/api/newsletters';
-import { 
-  Mail, 
-  Search, 
-  Filter, 
-  Plus, 
-  Edit, 
-  Trash2, 
-  Send, 
-  Calendar, 
-  Eye, 
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { useNewsletters } from "@/hooks/useNewsletters";
+import { newslettersApi } from "@/lib/api/newsletters";
+import { HeaderMobile } from "@/components/HeaderMobile";
+import {
+  Mail,
+  Search,
+  Filter,
+  Plus,
+  Edit,
+  Trash2,
+  Send,
+  Calendar,
+  Eye,
   BarChart3,
   Users,
   Clock,
@@ -21,9 +22,12 @@ import {
   AlertCircle,
   X,
   Play,
-  Pause
-} from 'lucide-react';
-import styles from './newsletters.module.css';
+  Pause,
+  ChevronRight,
+  UserCheck,
+} from "lucide-react";
+import styles from "./newsletters.module.css";
+import { SuccessModal, ErrorModal, ConfirmModal } from "@/components/ui/modal";
 
 export default function NewslettersPage() {
   const router = useRouter();
@@ -36,33 +40,46 @@ export default function NewslettersPage() {
     deleteNewsletter,
     sendNewsletter,
     cancelNewsletter,
-    clearError
+    clearError,
   } = useNewsletters();
 
-  const [searchQuery, setSearchQuery] = useState('');
-  const [statusFilter, setStatusFilter] = useState<string>('ALL');
-  const [audienceFilter, setAudienceFilter] = useState<string>('ALL');
-  const [showDeleteModal, setShowDeleteModal] = useState<string | null>(null);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [statusFilter, setStatusFilter] = useState<string>("ALL");
+  const [audienceFilter, setAudienceFilter] = useState<string>("ALL");
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState<string | null>(
+    null,
+  );
   const [actionLoading, setActionLoading] = useState<string | null>(null);
+
+  // Modal states for feedback
+  const [modalState, setModalState] = useState<{
+    type: "success" | "error" | null;
+    title: string;
+    message: string;
+  }>({
+    type: null,
+    title: "",
+    message: "",
+  });
 
   // Charger les newsletters au montage
   useEffect(() => {
     fetchNewsletters({
       page: 1,
       limit: 10,
-      status: statusFilter !== 'ALL' ? statusFilter : undefined,
-      audience: audienceFilter !== 'ALL' ? audienceFilter : undefined,
+      status: statusFilter !== "ALL" ? statusFilter : undefined,
+      audience: audienceFilter !== "ALL" ? audienceFilter : undefined,
     });
   }, []);
 
-  // Filtres et recherche avec debounce
+  // Filtres et recherche
   useEffect(() => {
     const delayedSearch = setTimeout(() => {
       fetchNewsletters({
         page: 1,
         limit: 10,
-        status: statusFilter !== 'ALL' ? statusFilter : undefined,
-        audience: audienceFilter !== 'ALL' ? audienceFilter : undefined,
+        status: statusFilter !== "ALL" ? statusFilter : undefined,
+        audience: audienceFilter !== "ALL" ? audienceFilter : undefined,
       });
     }, 300);
 
@@ -74,10 +91,10 @@ export default function NewslettersPage() {
     try {
       const success = await deleteNewsletter(id);
       if (success) {
-        setShowDeleteModal(null);
+        setShowDeleteConfirm(null);
       }
     } catch (err) {
-      console.error('Erreur lors de la suppression:', err);
+      console.error("Erreur lors de la suppression:", err);
     } finally {
       setActionLoading(null);
     }
@@ -88,10 +105,15 @@ export default function NewslettersPage() {
     try {
       const result = await sendNewsletter(id, true);
       if (result) {
-        alert(`Newsletter envoyée avec succès à ${result.sentCount} destinataires`);
+        setModalState({
+          type: "success",
+          title: "Envoi réussi",
+          message: `La newsletter a été envoyée avec succès à ${result.sentCount} destinataires.`,
+        });
+        fetchNewsletters({ page: pagination?.page || 1 });
       }
     } catch (err) {
-      console.error('Erreur lors de l\'envoi:', err);
+      console.error("Erreur lors de l'envoi:", err);
     } finally {
       setActionLoading(null);
     }
@@ -102,7 +124,7 @@ export default function NewslettersPage() {
     try {
       await cancelNewsletter(id);
     } catch (err) {
-      console.error('Erreur lors de l\'annulation:', err);
+      console.error("Erreur lors de l'annulation:", err);
     } finally {
       setActionLoading(null);
     }
@@ -110,23 +132,27 @@ export default function NewslettersPage() {
 
   const getStatusIcon = (status: string) => {
     switch (status) {
-      case 'DRAFT': return <Edit size={16} />;
-      case 'SCHEDULED': return <Clock size={16} />;
-      case 'SENDING': return <Play size={16} />;
-      case 'SENT': return <CheckCircle size={16} />;
-      case 'CANCELLED': return <X size={16} />;
-      default: return <AlertCircle size={16} />;
+      case "DRAFT":
+        return <Edit size={14} />;
+      case "SCHEDULED":
+        return <Clock size={14} />;
+      case "SENDING":
+        return <Play size={14} />;
+      case "SENT":
+        return <CheckCircle size={14} />;
+      case "CANCELLED":
+        return <X size={14} />;
+      default:
+        return <AlertCircle size={14} />;
     }
   };
 
   const getAudienceIcon = (audience: string) => {
     switch (audience) {
-      case 'ALL_USERS': return <Users size={16} />;
-      case 'HOSTS_ONLY': return <Users size={16} />;
-      case 'PROVIDERS_ONLY': return <Users size={16} />;
-      case 'ADMINS_ONLY': return <Users size={16} />;
-      case 'SPECIFIC_USERS': return <Users size={16} />;
-      default: return <Users size={16} />;
+      case "PROVIDERS_ONLY":
+        return <UserCheck size={14} />;
+      default:
+        return <Users size={14} />;
     }
   };
 
@@ -134,7 +160,7 @@ export default function NewslettersPage() {
     return (
       <div className={styles.errorContainer}>
         <AlertCircle size={48} />
-        <h2>Erreur</h2>
+        <h2>Erreur de chargement</h2>
         <p>{error}</p>
         <button onClick={clearError} className={styles.retryButton}>
           Réessayer
@@ -145,33 +171,35 @@ export default function NewslettersPage() {
 
   return (
     <div className={styles.newslettersPage}>
-      {/* Header */}
+      <HeaderMobile title="Newsletter" />
+
+      {/* Header Bento style */}
       <div className={styles.header}>
         <div className={styles.headerContent}>
           <div className={styles.headerLeft}>
-            <Mail className={styles.headerIcon} size={32} />
+            <Mail className={styles.headerIcon} size={24} />
             <div>
-              <h1>Newsletters</h1>
-              <p>Gérez vos campagnes d'emailing</p>
+              <h1>Campagnes</h1>
+              <p>Gérez vos communications e-mail.</p>
             </div>
           </div>
-          <button 
+          <button
             className={styles.createButton}
-            onClick={() => router.push('/super-admin/newsletters/create')}
+            onClick={() => router.push("/super-admin/newsletters/create")}
           >
-            <Plus size={20} />
-            Nouvelle Newsletter
+            <Plus size={18} />
+            Nouvelle Campagne
           </button>
         </div>
       </div>
 
-      {/* Filtres */}
+      {/* Filtres Bento */}
       <div className={styles.filtersSection}>
         <div className={styles.searchBar}>
-          <Search size={20} />
+          <Search size={18} />
           <input
             type="text"
-            placeholder="Rechercher une newsletter..."
+            placeholder="Rechercher par titre ou objet..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
           />
@@ -180,14 +208,14 @@ export default function NewslettersPage() {
         <div className={styles.filters}>
           <div className={styles.filterGroup}>
             <Filter size={16} />
-            <select 
-              value={statusFilter} 
+            <select
+              value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value)}
             >
               <option value="ALL">Tous les statuts</option>
               <option value="DRAFT">Brouillon</option>
               <option value="SCHEDULED">Programmées</option>
-              <option value="SENDING">En cours d'envoi</option>
+              <option value="SENDING">Envoi en cours</option>
               <option value="SENT">Envoyées</option>
               <option value="CANCELLED">Annulées</option>
             </select>
@@ -195,16 +223,15 @@ export default function NewslettersPage() {
 
           <div className={styles.filterGroup}>
             <Users size={16} />
-            <select 
-              value={audienceFilter} 
+            <select
+              value={audienceFilter}
               onChange={(e) => setAudienceFilter(e.target.value)}
             >
-              <option value="ALL">Toutes les audiences</option>
-              <option value="ALL_USERS">Tous les utilisateurs</option>
+              <option value="ALL">Toute l'audience</option>
+              <option value="ALL_USERS">Tous les membres</option>
               <option value="HOSTS_ONLY">Organisateurs</option>
               <option value="PROVIDERS_ONLY">Prestataires</option>
-              <option value="ADMINS_ONLY">Administrateurs</option>
-              <option value="SPECIFIC_USERS">Utilisateurs spécifiques</option>
+              <option value="ADMINS_ONLY">Admins</option>
             </select>
           </div>
         </div>
@@ -215,41 +242,39 @@ export default function NewslettersPage() {
         {loading && newsletters.length === 0 ? (
           <div className={styles.loadingContainer}>
             <div className={styles.spinner}></div>
-            <p>Chargement des newsletters...</p>
+            <p>Chargement des campagnes...</p>
           </div>
         ) : newsletters.length === 0 ? (
           <div className={styles.emptyState}>
             <div className={styles.emptyIcon}>
-              <Mail size={80} />
+              <Mail size={40} />
             </div>
-            <h3>Commencez votre première campagne</h3>
-            <p>Créez et envoyez des newsletters personnalisées à vos utilisateurs pour les tenir informés des nouvelles fonctionnalités, promotions et actualités.</p>
+            <h3>Aucune campagne trouvée</h3>
+            <p>
+              Créez votre première newsletter pour engager votre communauté
+              Kawepla.
+            </p>
             <div className={styles.emptyFeatures}>
               <div className={styles.feature}>
-                <Users size={20} />
-                <span>Ciblage précis par audience</span>
+                <Users size={16} /> Ciblage
               </div>
               <div className={styles.feature}>
-                <Calendar size={20} />
-                <span>Programmation d'envoi</span>
+                <Calendar size={16} /> Planning
               </div>
               <div className={styles.feature}>
-                <BarChart3 size={20} />
-                <span>Statistiques détaillées</span>
+                <BarChart3 size={16} /> Stats
               </div>
             </div>
-            <button 
+            <button
               className={styles.createButton}
-              onClick={() => router.push('/super-admin/newsletters/create')}
+              onClick={() => router.push("/super-admin/newsletters/create")}
             >
-              <Plus size={20} />
               Créer ma première newsletter
             </button>
           </div>
         ) : (
           newsletters.map((newsletter) => (
             <div key={newsletter.id} className={styles.newsletterCard}>
-              {/* Header de la carte */}
               <div className={styles.cardHeader}>
                 <div className={styles.cardTitle}>
                   <h3>{newsletter.title}</h3>
@@ -258,43 +283,44 @@ export default function NewslettersPage() {
                 <div className={styles.cardActions}>
                   <button
                     className={styles.actionButton}
-                    onClick={() => router.push(`/super-admin/newsletters/${newsletter.id}`)}
-                    title="Voir les détails"
+                    onClick={() =>
+                      router.push(`/super-admin/newsletters/${newsletter.id}`)
+                    }
+                    title="Détails"
                   >
-                    <Eye size={16} />
+                    <Eye size={14} />
                   </button>
-                  <button
-                    className={styles.actionButton}
-                    onClick={() => router.push(`/super-admin/newsletters/${newsletter.id}/stats`)}
-                    title="Statistiques"
-                  >
-                    <BarChart3 size={16} />
-                  </button>
-                  {newsletter.status === 'DRAFT' && (
+                  {newsletter.status === "DRAFT" && (
                     <button
                       className={styles.actionButton}
-                      onClick={() => router.push(`/super-admin/newsletters/${newsletter.id}/edit`)}
+                      onClick={() =>
+                        router.push(
+                          `/super-admin/newsletters/${newsletter.id}/edit`,
+                        )
+                      }
                       title="Modifier"
                     >
-                      <Edit size={16} />
+                      <Edit size={14} />
                     </button>
                   )}
-                  {(newsletter.status === 'DRAFT' || newsletter.status === 'SCHEDULED') && (
+                  {(newsletter.status === "DRAFT" ||
+                    newsletter.status === "SCHEDULED") && (
                     <button
                       className={styles.deleteButton}
-                      onClick={() => setShowDeleteModal(newsletter.id)}
-                      title="Supprimer"
+                      onClick={() => setShowDeleteConfirm(newsletter.id)}
                       disabled={actionLoading === newsletter.id}
+                      title="Supprimer"
                     >
-                      <Trash2 size={16} />
+                      <Trash2 size={14} />
                     </button>
                   )}
                 </div>
               </div>
 
-              {/* Statut et audience */}
               <div className={styles.cardMeta}>
-                <div className={`${styles.statusBadge} ${styles[newsletter.status.toLowerCase()]}`}>
+                <div
+                  className={`${styles.statusBadge} ${styles[newsletter.status.toLowerCase()]}`}
+                >
                   {getStatusIcon(newsletter.status)}
                   {newslettersApi.getStatusLabel(newsletter.status)}
                 </div>
@@ -304,69 +330,68 @@ export default function NewslettersPage() {
                 </div>
               </div>
 
-              {/* Contenu */}
               <div className={styles.cardContent}>
-                <p>{newsletter.content.substring(0, 150)}...</p>
+                <p>{newsletter.content}</p>
               </div>
 
-              {/* Footer de la carte */}
               <div className={styles.cardFooter}>
                 <div className={styles.cardStats}>
                   <span className={styles.stat}>
-                    <Users size={14} />
-                    {newsletter._count?.recipients || 0} destinataires
+                    <Users size={12} />
+                    {newsletter._count?.recipients || 0}
                   </span>
                   {newsletter.sentAt && (
                     <span className={styles.stat}>
-                      <CheckCircle size={14} />
-                      {newsletter.sentCount} envoyés
+                      <CheckCircle size={12} />
+                      {newsletter.sentCount}
                     </span>
                   )}
                 </div>
 
                 <div className={styles.cardDate}>
-                  {newsletter.status === 'SCHEDULED' && newsletter.scheduledAt ? (
-                    <span>
-                      <Calendar size={14} />
-                      {new Date(newsletter.scheduledAt).toLocaleDateString('fr-FR')}
-                    </span>
-                  ) : newsletter.sentAt ? (
-                    <span>
-                      <CheckCircle size={14} />
-                      {new Date(newsletter.sentAt).toLocaleDateString('fr-FR')}
-                    </span>
-                  ) : (
-                    <span>
-                      <Edit size={14} />
-                      {new Date(newsletter.updatedAt).toLocaleDateString('fr-FR')}
-                    </span>
-                  )}
+                  <span>
+                    {newsletter.status === "SCHEDULED" ? (
+                      <Clock size={12} />
+                    ) : (
+                      <Calendar size={12} />
+                    )}
+                    {new Date(
+                      newsletter.scheduledAt ||
+                        newsletter.sentAt ||
+                        newsletter.updatedAt,
+                    ).toLocaleDateString("fr-FR")}
+                  </span>
                 </div>
               </div>
 
-              {/* Actions rapides */}
-              <div className={styles.quickActions}>
-                {newsletter.status === 'DRAFT' && (
-                  <button
-                    className={styles.sendButton}
-                    onClick={() => handleSendNewsletter(newsletter.id)}
-                    disabled={actionLoading === newsletter.id}
-                  >
-                    <Send size={16} />
-                    {actionLoading === newsletter.id ? 'Envoi...' : 'Envoyer maintenant'}
-                  </button>
-                )}
-                {newsletter.status === 'SCHEDULED' && (
-                  <button
-                    className={styles.cancelButton}
-                    onClick={() => handleCancelNewsletter(newsletter.id)}
-                    disabled={actionLoading === newsletter.id}
-                  >
-                    <Pause size={16} />
-                    {actionLoading === newsletter.id ? 'Annulation...' : 'Annuler'}
-                  </button>
-                )}
-              </div>
+              {/* Quick Action Footer Overlay Logic */}
+              {(newsletter.status === "DRAFT" ||
+                newsletter.status === "SCHEDULED") && (
+                <div className={styles.quickActions}>
+                  {newsletter.status === "DRAFT" && (
+                    <button
+                      className={styles.sendButton}
+                      onClick={() => handleSendNewsletter(newsletter.id)}
+                      disabled={actionLoading === newsletter.id}
+                    >
+                      <Send size={14} />
+                      {actionLoading === newsletter.id
+                        ? "..."
+                        : "Envoyer maintenant"}
+                    </button>
+                  )}
+                  {newsletter.status === "SCHEDULED" && (
+                    <button
+                      className={styles.cancelButton}
+                      onClick={() => handleCancelNewsletter(newsletter.id)}
+                      disabled={actionLoading === newsletter.id}
+                    >
+                      <Pause size={14} />
+                      Annuler l'envoi
+                    </button>
+                  )}
+                </div>
+              )}
             </div>
           ))
         )}
@@ -377,63 +402,51 @@ export default function NewslettersPage() {
         <div className={styles.pagination}>
           <button
             disabled={pagination.page === 1}
-            onClick={() => fetchNewsletters({ 
-              page: pagination.page - 1, 
-              limit: 10,
-              status: statusFilter !== 'ALL' ? statusFilter : undefined,
-              audience: audienceFilter !== 'ALL' ? audienceFilter : undefined,
-            })}
+            onClick={() => fetchNewsletters({ page: pagination.page - 1 })}
           >
             Précédent
           </button>
           <span>
-            Page {pagination.page} sur {pagination.totalPages}
+            {pagination.page} / {pagination.totalPages}
           </span>
           <button
             disabled={pagination.page === pagination.totalPages}
-            onClick={() => fetchNewsletters({ 
-              page: pagination.page + 1, 
-              limit: 10,
-              status: statusFilter !== 'ALL' ? statusFilter : undefined,
-              audience: audienceFilter !== 'ALL' ? audienceFilter : undefined,
-            })}
+            onClick={() => fetchNewsletters({ page: pagination.page + 1 })}
           >
             Suivant
           </button>
         </div>
       )}
 
-      {/* Modal de suppression */}
-      {showDeleteModal && (
-        <div className={styles.modalOverlay}>
-          <div className={styles.modal}>
-            <div className={styles.modalHeader}>
-              <h3>Confirmer la suppression</h3>
-              <button onClick={() => setShowDeleteModal(null)}>
-                <X size={20} />
-              </button>
-            </div>
-            <div className={styles.modalContent}>
-              <p>Êtes-vous sûr de vouloir supprimer cette newsletter ? Cette action est irréversible.</p>
-            </div>
-            <div className={styles.modalActions}>
-              <button
-                className={styles.cancelModalButton}
-                onClick={() => setShowDeleteModal(null)}
-              >
-                Annuler
-              </button>
-              <button
-                className={styles.deleteModalButton}
-                onClick={() => handleDeleteNewsletter(showDeleteModal)}
-                disabled={actionLoading === showDeleteModal}
-              >
-                {actionLoading === showDeleteModal ? 'Suppression...' : 'Supprimer'}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      {/* Modals de feedback */}
+      <SuccessModal
+        isOpen={modalState.type === "success"}
+        onClose={() => setModalState((prev) => ({ ...prev, type: null }))}
+        title={modalState.title}
+        message={modalState.message}
+        confirmText="OK"
+      />
+
+      <ErrorModal
+        isOpen={modalState.type === "error"}
+        onClose={() => setModalState((prev) => ({ ...prev, type: null }))}
+        title={modalState.title}
+        message={modalState.message}
+        confirmText="OK"
+      />
+
+      <ConfirmModal
+        isOpen={showDeleteConfirm !== null}
+        onClose={() => setShowDeleteConfirm(null)}
+        onConfirm={() =>
+          showDeleteConfirm && handleDeleteNewsletter(showDeleteConfirm)
+        }
+        title="Supprimer la campagne ?"
+        message="Cette action supprimera définitivement le brouillon de la newsletter. Les emails déjà envoyés ne seront pas affectés."
+        confirmText="Supprimer"
+        cancelText="Conserver"
+        isLoading={actionLoading === showDeleteConfirm}
+      />
     </div>
   );
 }

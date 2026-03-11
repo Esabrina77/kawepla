@@ -131,6 +131,13 @@ const menuItems = [
     priority: 2,
   },
   {
+    title: "Support Technique",
+    path: "/client/tools/support-client",
+    icon: HelpCircle,
+    description: "Besoin d'aide ?",
+    priority: 2,
+  },
+  {
     title: "Profil",
     path: "/client/profile",
     icon: User,

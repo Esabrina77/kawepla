@@ -12,9 +12,32 @@ export class MessageController {
   static async getOrCreateConversation(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
       const userId = (req as any).user.id;
-      const { invitationId } = req.params;
+      const { invitationId: targetId } = req.params;
+      const shouldCreate = req.method === 'POST';
 
-      const conversation = await MessageService.getOrCreateConversation(userId, invitationId);
+      // Si l'id est "support", "null", "undefined" ou non défini, on considère une conversation de support générale
+      const effectiveTargetId = (!targetId || targetId === 'support' || targetId === 'undefined' || targetId === 'null') 
+        ? undefined 
+        : targetId;
+
+      // Lors d'un GET, on ne veut pas créer la conversation si elle n'existe pas encore
+      // pour éviter les conversations vides chez l'admin
+      const conversation = await MessageService.getOrCreateConversation(userId, effectiveTargetId, shouldCreate);
+      
+      // Si pas de conversation, on renvoie un objet vide avec les infos de base au lieu de null
+      if (!conversation) {
+        res.json({ 
+          id: null, 
+          userId, 
+          invitationId: null, // Sera rempli par le front si besoin
+          serviceId: null,    // Sera rempli par le front si besoin
+          targetId: effectiveTargetId,
+          messages: [],
+          status: 'ACTIVE'
+        });
+        return;
+      }
+      
       res.json(conversation);
     } catch (error) {
       next(error);

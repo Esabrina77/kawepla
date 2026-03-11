@@ -1,244 +1,170 @@
-.messageForm {
-  padding: var(--space-md);
-  background: var(--bg-secondary);
-  border-top: 1px solid var(--border-color);
-  position: relative;
-  flex-shrink: 0; /* Empêche l'input de se rétrécir */
-}
+/* ===================================================
+   MessageInput — Style WhatsApp Web
+   =================================================== */
 
-.inputContainer {
+.messageForm {
+  padding: 8px 16px;
+  background: #f0f2f5;
+  flex-shrink: 0;
+  z-index: 10;
+  position: relative;
   display: flex;
   align-items: flex-end;
-  gap: var(--space-xs);
-  background: var(--bg-primary);
-  border-radius: var(--radius-xl);
-  padding: var(--space-xs) var(--space-sm);
-  box-shadow: var(--shadow-sm);
-  border: 1px solid var(--border-color);
+  gap: 10px;
+}
+
+/* Zone principale = emoji + textarea + send */
+.inputContainer {
+  flex: 1;
+  display: flex;
+  align-items: flex-end;
+  gap: 0;
+  background: #ffffff;
+  border-radius: 24px;
+  padding: 6px 12px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+  transition: box-shadow 0.15s;
+  min-height: 44px;
+}
+.inputContainer:focus-within {
+  box-shadow: 0 1px 5px rgba(0,0,0,0.14);
 }
 
 .emojiButton {
   background: none;
   border: none;
-  font-size: 1.25rem;
+  font-size: 1.35rem;
   cursor: pointer;
-  padding: var(--space-xs);
+  padding: 4px 6px;
   border-radius: 50%;
-  width: 32px;
-  height: 32px;
+  width: 36px;
+  height: 36px;
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: background-color var(--transition-normal);
+  transition: background 0.15s;
   flex-shrink: 0;
-  color: var(--text-secondary);
+  color: #54656f;
 }
-
-.emojiButton:hover:not(:disabled) {
-  background-color: var(--bg-secondary);
-}
-
-.emojiButton:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
+.emojiButton:hover:not(:disabled) { background: #f0f2f5; }
 
 .messageInput {
   flex: 1;
   border: none;
   outline: none;
   resize: none;
-  font-size: 0.875rem;
-  line-height: 1.4;
-  padding: var(--space-xs) 0;
+  overflow-y: auto;
+  font-size: 0.9rem;
+  line-height: 1.5;
+  padding: 4px 8px;
   max-height: 120px;
-  min-height: 20px;
+  min-height: 24px;
   font-family: inherit;
   background: transparent;
-  color: var(--text-primary);
+  color: #111827;
+  scrollbar-width: thin;
+}
+.messageInput::placeholder { color: #8696a0; }
+
+.charCount {
+  font-size: 0.62rem;
+  color: #c1c9d0;
+  align-self: flex-end;
+  padding-bottom: 7px;
+  flex-shrink: 0;
 }
 
-.messageInput::placeholder {
-  color: var(--text-secondary);
-}
-
-.messageInput:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-}
-
+/* Send button — cercle couleur admin */
 .sendButton {
-  background: var(--gradient-primary);
+  background: var(--primary-color, var(--admin));
   border: none;
   border-radius: 50%;
-  width: 40px;
-  height: 40px;
+  width: 44px;
+  height: 44px;
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  transition: all var(--transition-normal);
-  color: var(--luxury-velvet-black);
+  transition: all 0.2s;
+  color: white;
   flex-shrink: 0;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.15);
 }
-
 .sendButton:hover:not(:disabled) {
+  filter: brightness(1.08);
   transform: scale(1.05);
-  box-shadow: var(--shadow-md);
 }
-
 .sendButton:disabled {
-  background: var(--bg-secondary);
-  color: var(--text-secondary);
+  background: #d1d5db;
   cursor: not-allowed;
+  box-shadow: none;
   transform: none;
 }
 
-.sendButton:active:not(:disabled) {
-  transform: scale(0.95);
-}
-
-/* Picker d'émojis */
+/* ---- Emoji Picker ---- */
 .emojiPicker {
   position: absolute;
-  bottom: 100%;
-  left: var(--space-md);
-  right: var(--space-md);
-  background: var(--bg-card);
-  border: 1px solid var(--border-color);
-  border-radius: var(--radius-md);
-  box-shadow: var(--shadow-lg);
+  bottom: calc(100% + 8px);
+  left: 12px;
+  right: 12px;
+  background: #fff;
+  border: 1px solid #e9edef;
+  border-radius: 12px;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.14);
   z-index: 1000;
-  max-height: 300px;
+  max-height: 280px;
   overflow: hidden;
-  margin-bottom: var(--space-xs);
 }
 
 .emojiCategories {
   display: flex;
-  padding: var(--space-xs);
-  border-bottom: 1px solid var(--border-color);
-  background: var(--bg-secondary);
-  gap: var(--space-xs);
+  padding: 8px;
+  border-bottom: 1px solid #f0f2f5;
+  gap: 4px;
+  background: #f8f9fa;
 }
 
 .categoryButton {
   background: none;
   border: none;
-  font-size: 1.125rem;
+  font-size: 1.15rem;
   cursor: pointer;
-  padding: var(--space-xs) var(--space-sm);
-  border-radius: var(--radius-sm);
-  transition: background-color var(--transition-normal);
-  min-width: 36px;
-  height: 36px;
+  width: 34px;
+  height: 30px;
+  border-radius: 6px;
   display: flex;
   align-items: center;
   justify-content: center;
-  color: var(--text-secondary);
+  transition: background 0.1s;
+  color: #54656f;
 }
-
-.categoryButton:hover {
-  background-color: var(--bg-primary);
-}
-
+.categoryButton:hover { background: #e9edef; }
 .categoryButton.active {
-  background-color: var(--luxury-champagne-gold);
-  color: var(--luxury-velvet-black);
+  background: var(--primary-color, var(--admin));
+  color: white;
 }
 
 .emojiGrid {
   display: grid;
-  grid-template-columns: repeat(10, 1fr);
+  grid-template-columns: repeat(8, 1fr);
   gap: 2px;
-  padding: var(--space-xs);
-  max-height: 200px;
+  padding: 8px;
+  max-height: 210px;
   overflow-y: auto;
+  scrollbar-width: thin;
 }
 
 .emojiItem {
   background: none;
   border: none;
-  font-size: 1.125rem;
+  font-size: 1.25rem;
   cursor: pointer;
-  padding: var(--space-xs);
-  border-radius: var(--radius-xs);
-  transition: background-color var(--transition-normal);
+  padding: 5px;
+  border-radius: 6px;
   aspect-ratio: 1;
   display: flex;
   align-items: center;
   justify-content: center;
-  min-height: 28px;
-  color: var(--text-primary);
+  transition: background 0.1s;
 }
-
-.emojiItem:hover {
-  background-color: var(--bg-secondary);
-  transform: scale(1.05);
-}
-
-.emojiItem:active {
-  transform: scale(0.95);
-}
-
-.messageInfo {
-  display: flex;
-  justify-content: flex-end;
-  margin-top: var(--space-xs);
-  padding: 0 var(--space-sm);
-}
-
-.charCount {
-  font-size: 0.7rem;
-  color: var(--text-secondary);
-}
-
-/* Responsive */
-@media (max-width: 768px) {
-  .messageForm {
-    padding: var(--space-sm);
-  }
-  
-  .inputContainer {
-    padding: var(--space-xs) var(--space-sm);
-  }
-  
-  .sendButton {
-    width: 36px;
-    height: 36px;
-  }
-  
-  .emojiButton {
-    width: 28px;
-    height: 28px;
-    font-size: 1.125rem;
-  }
-  
-  .messageInput {
-    font-size: 0.8rem;
-  }
-
-  .emojiPicker {
-    left: var(--space-sm);
-    right: var(--space-sm);
-    max-height: 250px;
-  }
-  
-  .emojiGrid {
-    grid-template-columns: repeat(8, 1fr);
-    padding: var(--space-xs);
-    gap: 1px;
-  }
-  
-  .emojiItem {
-    font-size: 1rem;
-    padding: var(--space-xs);
-    min-height: 24px;
-  }
-  
-  .categoryButton {
-    font-size: 1rem;
-    min-width: 32px;
-    height: 32px;
-  }
-} 
+.emojiItem:hover { background: #f0f2f5; }

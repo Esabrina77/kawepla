@@ -1,9 +1,10 @@
-'use client';
+/* eslint-disable @next/next/no-img-element */
+"use client";
 
-import { useState, useEffect } from 'react';
-import { providersApi, ProviderProfile, ProviderStats } from '@/lib/api/providers';
-import { useAdminProviders } from '@/hooks/useAdminProviders';
-import { HeaderMobile } from '@/components/HeaderMobile';
+import { useState, useEffect } from "react";
+import Link from "next/link";
+import { useAdminProviders } from "@/hooks/useAdminProviders";
+import { HeaderMobile } from "@/components/HeaderMobile";
 import {
   Users,
   CheckCircle,
@@ -12,22 +13,20 @@ import {
   XCircle,
   Search,
   Filter,
-  MoreVertical,
   Eye,
   UserCheck,
   UserX,
   Pause,
   Trash2,
   RefreshCw,
-  TrendingUp,
   Star,
   MapPin,
   Phone,
-  Mail,
-  Calendar,
-  Link
-} from 'lucide-react';
-import styles from './providers.module.css';
+  LayoutGrid,
+  MessageSquare,
+} from "lucide-react";
+import styles from "./providers.module.css";
+import { ProviderProfile } from "@/lib/api/providers";
 
 export default function AdminProvidersPage() {
   const {
@@ -40,22 +39,26 @@ export default function AdminProvidersPage() {
     approveProvider,
     rejectProvider,
     suspendProvider,
-    deleteProvider
+    deleteProvider,
   } = useAdminProviders();
 
   // Filtres
-  const [statusFilter, setStatusFilter] = useState<string>('');
-  const [searchQuery, setSearchQuery] = useState('');
+  const [statusFilter, setStatusFilter] = useState<string>("");
+  const [searchQuery, setSearchQuery] = useState("");
   const [showFilters, setShowFilters] = useState(false);
 
   // Actions
   const [actionLoading, setActionLoading] = useState<string | null>(null);
   const [showActionModal, setShowActionModal] = useState(false);
-  const [selectedProvider, setSelectedProvider] = useState<ProviderProfile | null>(null);
-  const [actionType, setActionType] = useState<'approve' | 'reject' | 'suspend' | 'delete'>('approve');
+  const [selectedProvider, setSelectedProvider] =
+    useState<ProviderProfile | null>(null);
+  const [actionType, setActionType] = useState<
+    "approve" | "reject" | "suspend" | "delete"
+  >("approve");
 
   useEffect(() => {
     loadData();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [statusFilter]);
 
   const loadData = async () => {
@@ -63,34 +66,36 @@ export default function AdminProvidersPage() {
       await Promise.all([
         fetchProviders({
           status: statusFilter || undefined,
-          limit: 100
+          limit: 100,
         }),
-        fetchStats()
+        fetchStats(),
       ]);
     } catch (err) {
-      console.error('Erreur chargement données:', err);
+      console.error("Erreur chargement données:", err);
     }
   };
 
-  const handleProviderAction = async (provider: ProviderProfile, action: 'approve' | 'reject' | 'suspend' | 'delete') => {
+  const handleProviderAction = async (
+    provider: ProviderProfile,
+    action: "approve" | "reject" | "suspend" | "delete",
+  ) => {
     try {
       setActionLoading(provider.id);
 
       switch (action) {
-        case 'approve':
+        case "approve":
           await approveProvider(provider.id);
           break;
-        case 'reject':
+        case "reject":
           await rejectProvider(provider.id);
           break;
-        case 'suspend':
+        case "suspend":
           await suspendProvider(provider.id);
           break;
-        case 'delete':
+        case "delete":
           await deleteProvider(provider.id);
           break;
       }
-
     } catch (err) {
       console.error(`Erreur ${action}:`, err);
     } finally {
@@ -98,7 +103,10 @@ export default function AdminProvidersPage() {
     }
   };
 
-  const openActionModal = (provider: ProviderProfile, action: 'approve' | 'reject' | 'suspend' | 'delete') => {
+  const openActionModal = (
+    provider: ProviderProfile,
+    action: "approve" | "reject" | "suspend" | "delete",
+  ) => {
     setSelectedProvider(provider);
     setActionType(action);
     setShowActionModal(true);
@@ -113,22 +121,66 @@ export default function AdminProvidersPage() {
     setSelectedProvider(null);
   };
 
+  // Calcul des stats de secours si l'API renvoie des zéros (problème possible côté serveur)
+  const computedStats = {
+    totalProviders: stats?.totalProviders || providers.length || 0,
+    approvedProviders:
+      stats?.approvedProviders ||
+      providers.filter((p) => p.status === "APPROVED").length ||
+      0,
+    pendingProviders:
+      stats?.pendingProviders ||
+      providers.filter((p) => p.status === "PENDING").length ||
+      0,
+    averageRating:
+      stats?.averageRating ||
+      (providers.length > 0
+        ? providers.reduce((acc, p) => acc + (p.rating || 0), 0) /
+          providers.length
+        : 0),
+  };
+
   const getStatusInfo = (status: string) => {
     switch (status) {
-      case 'APPROVED':
-        return { label: 'Approuvé', color: '#27ae60', icon: CheckCircle };
-      case 'PENDING':
-        return { label: 'En attente', color: '#f39c12', icon: Clock };
-      case 'SUSPENDED':
-        return { label: 'Suspendu', color: '#e74c3c', icon: Pause };
-      case 'REJECTED':
-        return { label: 'Rejeté', color: '#95a5a6', icon: XCircle };
+      case "APPROVED":
+        return {
+          label: "Approuvé",
+          className: styles.status_approved,
+          color: "#10B981",
+          icon: CheckCircle,
+        };
+      case "PENDING":
+        return {
+          label: "En attente",
+          className: styles.status_pending,
+          color: "#F59E0B",
+          icon: Clock,
+        };
+      case "SUSPENDED":
+        return {
+          label: "Suspendu",
+          className: styles.status_suspended,
+          color: "#EF4444",
+          icon: Pause,
+        };
+      case "REJECTED":
+        return {
+          label: "Rejeté",
+          className: styles.status_rejected,
+          color: "#6B7280",
+          icon: XCircle,
+        };
       default:
-        return { label: 'Inconnu', color: '#6c757d', icon: AlertTriangle };
+        return {
+          label: "Inconnu",
+          className: "",
+          color: "#9CA3AF",
+          icon: AlertTriangle,
+        };
     }
   };
 
-  const filteredProviders = providers.filter(provider => {
+  const filteredProviders = providers.filter((provider) => {
     if (searchQuery) {
       const query = searchQuery.toLowerCase();
       return (
@@ -141,13 +193,13 @@ export default function AdminProvidersPage() {
     return true;
   });
 
-  if (loading) {
+  if (loading && providers.length === 0) {
     return (
       <div className={styles.providersPage}>
         <HeaderMobile title="Providers" />
         <div className={styles.loadingContainer}>
           <div className={styles.loadingSpinner}></div>
-          <p>Chargement des providers...</p>
+          <p>Chargement des prestataires...</p>
         </div>
       </div>
     );
@@ -158,53 +210,52 @@ export default function AdminProvidersPage() {
       <HeaderMobile title="Providers" />
 
       <div className={styles.pageContent}>
-
-        {/* Statistiques */}
+        {/* Statistiques Bento */}
         {stats && (
           <div className={styles.statsGrid}>
             <div className={styles.statCard}>
               <div className={styles.statIcon}>
-                <Users size={24} />
+                <Users size={20} />
               </div>
               <div className={styles.statContent}>
-                <h3>{stats.totalProviders}</h3>
-                <p>Total Providers</p>
+                <h3>{computedStats.totalProviders}</h3>
+                <p>Total Prestataires</p>
               </div>
             </div>
 
             <div className={styles.statCard}>
               <div className={styles.statIcon}>
-                <CheckCircle size={24} />
+                <CheckCircle size={20} />
               </div>
               <div className={styles.statContent}>
-                <h3>{stats.approvedProviders}</h3>
+                <h3>{computedStats.approvedProviders}</h3>
                 <p>Approuvés</p>
               </div>
             </div>
 
             <div className={styles.statCard}>
               <div className={styles.statIcon}>
-                <Clock size={24} />
+                <Clock size={20} />
               </div>
               <div className={styles.statContent}>
-                <h3>{stats.pendingProviders}</h3>
-                <p>En attente</p>
+                <h3>{computedStats.pendingProviders}</h3>
+                <p>En Attente</p>
               </div>
             </div>
 
             <div className={styles.statCard}>
               <div className={styles.statIcon}>
-                <Star size={24} />
+                <Star size={20} />
               </div>
               <div className={styles.statContent}>
-                <h3>{stats.averageRating.toFixed(1)}</h3>
-                <p>Note moyenne</p>
+                <h3>{computedStats.averageRating.toFixed(1)}</h3>
+                <p>Note Moyenne</p>
               </div>
             </div>
           </div>
         )}
 
-        {/* Filtres et recherche */}
+        {/* Barre de Recherche & Filtres */}
         <div className={styles.filtersSection}>
           <div className={styles.searchContainer}>
             <Search className={styles.searchIcon} />
@@ -220,9 +271,9 @@ export default function AdminProvidersPage() {
           <div className={styles.filterControls}>
             <button
               onClick={() => setShowFilters(!showFilters)}
-              className={styles.filterButton}
+              className={`${styles.filterButton} ${showFilters ? styles.filterButtonActive : ""}`}
             >
-              <Filter size={16} />
+              <Filter size={18} />
               Filtres
             </button>
 
@@ -231,204 +282,210 @@ export default function AdminProvidersPage() {
               className={styles.refreshButton}
               disabled={loading}
             >
-              <RefreshCw size={16} className={loading ? styles.spinning : ''} />
+              <RefreshCw size={18} className={loading ? styles.spinning : ""} />
               Actualiser
             </button>
           </div>
         </div>
 
-        {/* Panel de filtres */}
+        {/* Panel de filtres extensibles */}
         {showFilters && (
           <div className={styles.filtersPanel}>
             <div className={styles.filterGroup}>
-              <label>Statut</label>
+              <label>Statut du compte</label>
               <select
                 value={statusFilter}
                 onChange={(e) => setStatusFilter(e.target.value)}
               >
                 <option value="">Tous les statuts</option>
-                <option value="PENDING">En attente</option>
-                <option value="APPROVED">Approuvé</option>
-                <option value="SUSPENDED">Suspendu</option>
-                <option value="REJECTED">Rejeté</option>
+                <option value="PENDING">En attente de validation</option>
+                <option value="APPROVED">Vérifié & Approuvé</option>
+                <option value="SUSPENDED">Suspendu temporairement</option>
+                <option value="REJECTED">Refusé / Rejeté</option>
               </select>
             </div>
           </div>
         )}
 
-        {/* Liste des providers */}
-        <div className={styles.providersSection}>
-          <div className={styles.sectionHeader}>
-            <h2>Providers ({filteredProviders.length})</h2>
+        {/* Erreur */}
+        {error && (
+          <div className={styles.errorMessage}>
+            <AlertTriangle size={24} />
+            <p>{error}</p>
+            <button onClick={loadData}>Réessayer</button>
           </div>
+        )}
 
-          {error && (
-            <div className={styles.errorMessage}>
-              <p>❌ {error}</p>
-              <button onClick={loadData}>Réessayer</button>
-            </div>
-          )}
-
-          <div className={styles.providersTable}>
-            <div className={styles.tableHeader}>
-              <div className={styles.tableCell}>Provider</div>
-              <div className={styles.tableCell}>Catégorie</div>
-              <div className={styles.tableCell}>Localisation</div>
-              <div className={styles.tableCell}>Contact</div>
-              <div className={styles.tableCell}>Statut</div>
-              <div className={styles.tableCell}>Note</div>
-              <div className={styles.tableCell}>Actions</div>
-            </div>
-
-            {filteredProviders.map((provider) => {
-              const statusInfo = getStatusInfo(provider.status);
-              const StatusIcon = statusInfo.icon;
+        {/* Grille de Prestataires Bento */}
+        <div className={styles.providersGrid}>
+          {filteredProviders.length > 0 ? (
+            filteredProviders.map((provider) => {
+              const status = getStatusInfo(provider.status);
+              const StatusIcon = status.icon;
 
               return (
-                <div key={provider.id} className={styles.tableRow}>
-                  <div className={styles.tableCell}>
-                    <div className={styles.providerInfo}>
-                      <div className={styles.providerPhoto}>
-                        {provider.profilePhoto ? (
-                          <img src={provider.profilePhoto} alt={provider.businessName} />
-                        ) : (
-                          <div className={styles.photoPlaceholder}>
-                            <Users size={16} />
-                          </div>
-                        )}
-                      </div>
-                      <div className={styles.providerDetails}>
-                        <h4>{provider.businessName}</h4>
-                        <p className={styles.providerDescription}>
-                          {provider.description?.substring(0, 60)}
-                          {provider.description && provider.description.length > 60 && '...'}
-                        </p>
-                      </div>
+                <div key={provider.id} className={styles.providerCard}>
+                  <div className={styles.cardHeader}>
+                    <div className={styles.providerPhoto}>
+                      {provider.profilePhoto ? (
+                        <img
+                          src={provider.profilePhoto}
+                          alt={provider.businessName}
+                        />
+                      ) : (
+                        <div className={styles.photoPlaceholder}>
+                          <Users size={24} />
+                        </div>
+                      )}
+                    </div>
+                    <div className={styles.providerMainInfo}>
+                      <h4>{provider.businessName}</h4>
+                      <span className={styles.categoryBadge}>
+                        {!provider.category?.icon ||
+                        provider.category.icon.length > 2 ||
+                        provider.category.icon.charCodeAt(0) > 0xffff
+                          ? "🏢"
+                          : provider.category.icon}{" "}
+                        {provider.category?.name || "Général"}
+                      </span>
                     </div>
                   </div>
 
-                  <div className={styles.tableCell}>
-                    <span className={styles.category}>
-                      {provider.category?.icon} {provider.category?.name}
-                    </span>
-                  </div>
-
-                  <div className={styles.tableCell}>
-                    <div className={styles.location}>
-                      <MapPin size={14} />
+                  <div className={styles.cardContent}>
+                    <div className={styles.infoRow}>
+                      <MapPin size={16} />
                       {provider.displayCity}
                     </div>
-                  </div>
+                    <div className={styles.infoRow}>
+                      <Phone size={16} />
+                      {provider.phone || "Non renseigné"}
+                    </div>
 
-                  <div className={styles.tableCell}>
-                    <div className={styles.contact}>
-                      <div className={styles.contactItem}>
-                        <Phone size={12} />
-                        {provider.phone}
+                    <div className={styles.ratingRow}>
+                      <div className={styles.starGroup}>
+                        <Star size={14} fill="currentColor" />
+                        <span>{provider.rating.toFixed(1)}</span>
                       </div>
+                      <span className={styles.reviewCount}>
+                        ({provider.reviewCount} avis)
+                      </span>
                     </div>
                   </div>
 
-                  <div className={styles.tableCell}>
+                  <div className={styles.cardFooter}>
                     <span
                       className={styles.statusBadge}
-                      style={{ color: statusInfo.color }}
+                      style={{
+                        background: `color-mix(in srgb, ${status.color} 12%, var(--card))`,
+                        color: status.color,
+                      }}
                     >
                       <StatusIcon size={14} />
-                      {statusInfo.label}
+                      {status.label}
                     </span>
-                  </div>
 
-                  <div className={styles.tableCell}>
-                    <div className={styles.rating}>
-                      <Star size={14} className={styles.starIcon} />
-                      <span>{provider.rating.toFixed(1)}</span>
-                      <span className={styles.reviewCount}>({provider.reviewCount})</span>
-                    </div>
-                  </div>
-
-                  <div className={styles.tableCell}>
                     <div className={styles.actions}>
                       <Link
-                        className={styles.actionButton}
                         href={`/super-admin/providers/${provider.id}`}
-                        target="_blank"
+                        className={`${styles.actionButton} ${styles.viewButton}`}
+                        title="Voir le profil"
                       >
-                        <Eye size={16} />
+                        <Eye size={18} />
                       </Link>
-                      {/* <button
-                      className={styles.actionButton}
-                      onClick={() => window.open(`/super-admin/providers/${provider.id}`, '_blank')}
-                      title="Voir le détail"
-                    >
-                      <Eye size={16} />
-                    </button> */}
+
+                      <Link
+                        href={`/super-admin/discussions?userId=${provider.userId}`}
+                        className={`${styles.actionButton} ${styles.viewButton}`}
+                        title="Discuter avec ce prestataire"
+                      >
+                        <MessageSquare size={18} />
+                      </Link>
 
                       <button
                         className={styles.actionButton}
-                        onClick={() => openActionModal(provider, 'approve')}
-                        disabled={actionLoading === provider.id || provider.status === 'APPROVED'}
+                        onClick={() => openActionModal(provider, "approve")}
+                        disabled={
+                          actionLoading === provider.id ||
+                          provider.status === "APPROVED"
+                        }
                         title="Approuver"
                       >
-                        <UserCheck size={16} />
+                        <UserCheck size={18} />
                       </button>
 
                       <button
                         className={styles.actionButton}
-                        onClick={() => openActionModal(provider, 'suspend')}
-                        disabled={actionLoading === provider.id || provider.status === 'SUSPENDED'}
+                        onClick={() => openActionModal(provider, "suspend")}
+                        disabled={
+                          actionLoading === provider.id ||
+                          provider.status === "SUSPENDED"
+                        }
                         title="Suspendre"
                       >
-                        <Pause size={16} />
+                        <Pause size={18} />
                       </button>
 
                       <button
                         className={styles.actionButton}
-                        onClick={() => openActionModal(provider, 'reject')}
-                        disabled={actionLoading === provider.id || provider.status === 'REJECTED'}
-                        title="Rejeter"
-                      >
-                        <UserX size={16} />
-                      </button>
-
-                      <button
-                        className={styles.actionButton}
-                        onClick={() => openActionModal(provider, 'delete')}
+                        onClick={() => openActionModal(provider, "delete")}
                         disabled={actionLoading === provider.id}
                         title="Supprimer"
                       >
-                        <Trash2 size={16} />
+                        <Trash2 size={18} />
                       </button>
                     </div>
                   </div>
                 </div>
               );
-            })}
-          </div>
+            })
+          ) : (
+            <div className={styles.emptyState}>
+              <div className={styles.emptyIcon}>
+                <LayoutGrid size={40} />
+              </div>
+              <h3>Aucun prestataire trouvé</h3>
+              <p>Essayez de modifier vos filtres ou votre recherche.</p>
+            </div>
+          )}
         </div>
 
-        {/* Modal de confirmation */}
+        {/* Modal de confirmation Bento */}
         {showActionModal && selectedProvider && (
-          <div className={styles.modal} onClick={() => setShowActionModal(false)}>
-            <div className={styles.modalContent} onClick={(e) => e.stopPropagation()}>
+          <div
+            className={styles.modalOverlay}
+            onClick={() => setShowActionModal(false)}
+          >
+            <div
+              className={styles.modalContent}
+              onClick={(e) => e.stopPropagation()}
+            >
               <div className={styles.modalHeader}>
                 <h3>
-                  {actionType === 'approve' && 'Approuver le provider'}
-                  {actionType === 'reject' && 'Rejeter le provider'}
-                  {actionType === 'suspend' && 'Suspendre le provider'}
-                  {actionType === 'delete' && 'Supprimer le provider'}
+                  {actionType === "approve" && "Approuver le compte"}
+                  {actionType === "reject" && "Rejeter l'accès"}
+                  {actionType === "suspend" && "Suspendre le compte"}
+                  {actionType === "delete" && "Supprimer définitivement"}
                 </h3>
               </div>
 
               <div className={styles.modalBody}>
                 <p>
-                  Êtes-vous sûr de vouloir {actionType === 'approve' ? 'approuver' :
-                    actionType === 'reject' ? 'rejeter' :
-                      actionType === 'suspend' ? 'suspendre' : 'supprimer'} le provider :
+                  Confirmez-vous vouloir{" "}
+                  {actionType === "approve"
+                    ? "approuver"
+                    : actionType === "reject"
+                      ? "rejeter"
+                      : actionType === "suspend"
+                        ? "suspendre"
+                        : "supprimer"}{" "}
+                  l&apos;accès pour ce professionnel ?
                 </p>
                 <div className={styles.providerSummary}>
                   <h4>{selectedProvider.businessName}</h4>
-                  <p>{selectedProvider.displayCity} • {selectedProvider.category?.name}</p>
+                  <p>
+                    {selectedProvider.displayCity} •{" "}
+                    {selectedProvider.category?.name}
+                  </p>
                 </div>
               </div>
 
@@ -442,15 +499,12 @@ export default function AdminProvidersPage() {
                 <button
                   onClick={confirmAction}
                   className={styles.confirmButton}
-                  disabled={actionLoading === selectedProvider.id}
+                  disabled={!!actionLoading}
                 >
-                  {actionLoading === selectedProvider.id ? (
-                    <>
-                      <div className={styles.loadingSpinner}></div>
-                      Traitement...
-                    </>
+                  {actionLoading ? (
+                    <RefreshCw size={18} className={styles.spinning} />
                   ) : (
-                    'Confirmer'
+                    "Confirmer l'action"
                   )}
                 </button>
               </div>

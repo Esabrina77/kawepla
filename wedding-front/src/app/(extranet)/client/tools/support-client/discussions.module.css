@@ -1,0 +1,242 @@
+/* ===================================================
+   KAWEPLA — Client Support — Modern Messaging UI
+   =================================================== */
+
+.container {
+  display: flex;
+  flex-direction: column;
+  height: calc(100vh - 4rem);
+  background: #f8f9fa;
+  overflow: hidden;
+  font-family: var(--font-body);
+}
+
+.layout {
+  display: flex;
+  flex: 1;
+  overflow: hidden;
+  min-height: 0;
+}
+
+/* ===== SIDEBAR ===== */
+.sidebar {
+  width: 260px;
+  flex-shrink: 0;
+  border-right: 1px solid #e8eaed;
+  background: #ffffff;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.sidebarHeader {
+  padding: 0 16px;
+  height: 52px;
+  border-bottom: 1px solid #e8eaed;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.6rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--host);
+  background: color-mix(in srgb, var(--host) 10%, transparent);
+  padding: 2px 7px;
+  border-radius: 4px;
+  margin-bottom: 4px;
+  width: fit-content;
+}
+
+.sidebarHeader h2 {
+  margin: 0;
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: #111827;
+}
+
+.sidebarHeader p { display: none; }
+
+.subjectsList {
+  flex: 1;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: #e8eaed transparent;
+}
+
+.sectionTitle {
+  padding: 10px 14px 4px;
+  font-size: 0.62rem;
+  font-weight: 700;
+  color: #9ca3af;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+/* Subject item */
+.subjectItem {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 14px;
+  cursor: pointer;
+  transition: background 0.1s;
+  border-left: 3px solid transparent;
+}
+.subjectItem:hover   { background: #f9fafb; }
+.subjectItem.selected {
+  background: color-mix(in srgb, var(--host) 6%, #fff);
+  border-left-color: var(--host);
+}
+
+.subjectIcon {
+  width: 30px;
+  height: 30px;
+  border-radius: 7px;
+  background: #f3f4f6;
+  color: #9ca3af;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  font-size: 0.9rem;
+}
+.selected .subjectIcon {
+  background: color-mix(in srgb, var(--host) 10%, #fff);
+  color: var(--host);
+}
+
+.subjectDetails { flex: 1; min-width: 0; }
+
+.subjectName {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: #111827;
+  margin: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.subjectType {
+  font-size: 0.67rem;
+  color: #9ca3af;
+}
+
+/* ===== CHAT AREA ===== */
+.chatArea {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  background: #f8f9fa;
+  min-width: 0;
+}
+
+.chatWrapper {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.chatHeader {
+  height: 52px;
+  background: #ffffff;
+  padding: 0 20px;
+  border-bottom: 1px solid #e8eaed;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-shrink: 0;
+  gap: 10px;
+}
+
+.chatSubjectInfo { display: flex; align-items: center; gap: 10px; }
+
+.chatSubjectIcon {
+  width: 30px;
+  height: 30px;
+  border-radius: 7px;
+  background: color-mix(in srgb, var(--host) 10%, #fff);
+  color: var(--host);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1rem;
+  flex-shrink: 0;
+}
+
+.chatSubjectDetails h3 {
+  font-size: 0.87rem;
+  font-weight: 700;
+  color: #111827;
+  margin: 0;
+}
+
+.chatSubjectDetails p {
+  font-size: 0.7rem;
+  color: #9ca3af;
+  margin: 0;
+}
+
+/* Footer / Help */
+.sidebarFooter {
+  padding: 12px;
+  border-top: 1px solid #e8eaed;
+  background: #fcfcfd;
+}
+
+.helpInfo {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+}
+
+.helpIcon { color: var(--host); flex-shrink: 0; margin-top: 1px; }
+
+.helpTitle {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #374151;
+  margin-bottom: 2px;
+}
+
+.helpDescription {
+  font-size: 0.68rem;
+  color: #9ca3af;
+  line-height: 1.4;
+}
+
+/* Utils */
+.loadingContainer {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #9ca3af;
+  font-size: 0.82rem;
+  gap: 10px;
+}
+
+.loadingSpinner {
+  width: 22px;
+  height: 22px;
+  border: 2px solid #e8eaed;
+  border-top-color: var(--host);
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+}
+
+@keyframes spin { to { transform: rotate(360deg); } }
+
+@media (max-width: 768px) {
+  .layout { flex-direction: column; }
+  .sidebar { width: 100%; height: 35vh; border-right: none; border-bottom: 1px solid #e8eaed; }
+}

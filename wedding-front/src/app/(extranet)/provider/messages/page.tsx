@@ -228,6 +228,9 @@ export default function ProviderMessagesPage() {
   const filteredConversations = useMemo(
     () =>
       conversations.filter((conv) => {
+        // Ne pas afficher les conversations vides
+        if (!conv.messages || conv.messages.length === 0) return false;
+
         if (!searchQuery) return true;
         const q = searchQuery.toLowerCase();
         return (
