@@ -1,0 +1,139 @@
+.hero {
+    position: relative;
+    height: 100vh;
+    width: 100%;
+    overflow: hidden;
+    background-color: #000;
+    transition: background-color 0.8s ease;
+}
+
+.heroHost { background-color: var(--host); }
+.heroProvider { background-color: var(--provider); }
+
+.bgImageContainer {
+    position: absolute;
+    inset: 0;
+    opacity: 1;
+}
+
+.overlay {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    transition: background 0.8s ease;
+    mix-blend-mode: multiply;
+    opacity: 0.000001;
+}
+
+.overlayHost { background: var(--host); }
+.overlayProvider { background: var(--provider); }
+
+.bgImage {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.content {
+    position: relative;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding-left: 1rem;
+    padding-right: 1rem;
+    align-items: center;
+}
+
+.title {
+    color: #fff;
+    margin-bottom: 1.5rem;
+    letter-spacing: 0.05em;
+    text-align: center;
+    font-size: 3rem;
+}
+
+@media (min-width: 768px) {
+    .title { font-size: 4rem; }
+}
+
+@media (min-width: 1024px) {
+    .title { font-size: 5rem; }
+}
+
+.divider {
+    width: 100%;
+    max-width: 40rem;
+    height: 1px;
+    background-color: #fff;
+    margin-bottom: 1.5rem;
+    box-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+}
+
+.subtitle {
+    color: #fff;
+    text-align: center;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    font-size: 1.125rem;
+    font-weight: 700;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+    margin-bottom: 3rem;
+}
+
+.heroControls {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2rem;
+}
+
+.switcher {
+    display: inline-flex;
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    padding: 0.3rem;
+    border-radius: 99px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.switchBtn {
+    padding: 0.6rem 1.5rem;
+    border-radius: 99px;
+    border: none;
+    background: transparent;
+    font-weight: 700;
+    font-size: 0.9rem;
+    color: #fff;
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+.activeHost { background: var(--host); color: white; }
+.activeProvider { background: var(--provider); color: white; }
+
+.navGroup {
+    display: flex;
+    gap: 1rem;
+}
+
+.navBtn {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: #fff;
+    font-size: 1.25rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+}
+
+.navBtn:hover {
+    background: rgba(255, 255, 255, 0.2);
+    transform: scale(1.1);
+}

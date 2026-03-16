@@ -1,0 +1,103 @@
+.section {
+    padding: 5rem 1rem; /* Reduced from 8rem */
+    position: relative;
+    overflow: hidden;
+    background: var(--background);
+}
+
+.bgImageContainer {
+    position: absolute;
+    inset: 0;
+}
+
+.bgImage {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    opacity: 0.12;
+}
+
+.overlay {
+    position: absolute;
+    inset: 0;
+}
+
+.themeHost .overlay {
+    background: linear-gradient(135deg, rgba(99, 102, 241, 0.08) 0%, rgba(99, 102, 241, 0.04) 100%);
+}
+
+.themeProvider .overlay {
+    background: linear-gradient(135deg, rgba(255, 115, 43, 0.08) 0%, rgba(255, 115, 43, 0.04) 100%);
+}
+
+.container {
+    max-width: 800px;
+    margin: 0 auto;
+    text-align: center;
+    position: relative;
+    z-index: 10;
+}
+
+.label {
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 0.2em;
+    margin-bottom: 1rem;
+    font-weight: 800;
+}
+
+.themeHost .label { color: var(--host); }
+.themeProvider .label { color: var(--provider); }
+
+.title {
+    font-size: clamp(1.75rem, 4vw, 2.5rem); /* Reduced */
+    margin-bottom: 1.5rem;
+    color: var(--foreground);
+    font-weight: 800;
+    line-height: 1.1;
+}
+
+.divider {
+    width: 50px; /* Reduced */
+    height: 2px;
+    margin: 0 auto 1.5rem;
+}
+
+.themeHost .divider { background-color: var(--host); }
+.themeProvider .divider { background-color: var(--provider); }
+
+.description {
+    font-size: 1.05rem; /* Reduced */
+    max-width: 500px;
+    margin: 0 auto 2.5rem;
+    color: var(--text-secondary);
+    line-height: 1.5;
+}
+
+.ctaBtn {
+    color: #fff;
+    padding: 1rem 2.5rem; /* Reduced */
+    border-radius: 99px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    font-size: 0.9rem;
+    cursor: pointer;
+    font-weight: 800;
+    border: none;
+}
+
+.themeHost .ctaBtn { background-color: var(--host); }
+.themeProvider .ctaBtn { background-color: var(--provider); }
+
+.ctaBtn:hover {
+    transform: translateY(-3px);
+}
+
+.note {
+    font-size: 0.75rem;
+    margin-top: 1.5rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--text-secondary);
+    font-weight: 600;
+}

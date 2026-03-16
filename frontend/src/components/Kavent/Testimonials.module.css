@@ -1,0 +1,95 @@
+.section {
+    padding: 4rem 0;
+    background: var(--background);
+}
+
+.container {
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 0 1.5rem;
+}
+
+.header {
+    text-align: center;
+    margin-bottom: 2.5rem;
+}
+
+.label {
+    font-size: 0.75rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.15rem;
+    margin-bottom: 0.5rem;
+}
+
+.title {
+    font-size: clamp(1.5rem, 4vw, 2rem);
+    font-weight: 800;
+}
+
+.grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr); /* 2x2 grid by default for 4 cards */
+    gap: 1.5rem;
+}
+
+@media (max-width: 768px) {
+    .grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+.card {
+    background: var(--card);
+    padding: 1.5rem;
+    border-radius: 16px;
+    border: 1px solid var(--border);
+    position: relative;
+    transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.card:hover {
+    transform: translateY(-3px);
+    border-color: var(--text-secondary);
+}
+
+.stars {
+    display: flex;
+    gap: 0.2rem;
+    margin-bottom: 0.75rem;
+}
+
+.star {
+    color: #FFD700;
+}
+
+.content {
+    font-size: 0.95rem;
+    line-height: 1.5;
+    color: var(--foreground);
+    margin-bottom: 1.25rem;
+    font-style: italic;
+}
+
+.author {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.avatar {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.name {
+    font-weight: 800;
+    font-size: 0.85rem;
+}
+
+.role {
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+}

@@ -1,0 +1,181 @@
+.section {
+    padding: 4rem 0; /* Reduced from 8rem */
+    background-color: var(--background);
+    overflow: hidden;
+}
+
+.container {
+    max-width: 800px; /* Reduced from 1000px */
+    margin: 0 auto;
+    padding: 0 1.5rem;
+}
+
+.header {
+    text-align: center;
+    margin-bottom: 2rem; /* Reduced from 5rem */
+}
+
+.label {
+    font-size: 0.75rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    margin-bottom: 0.5rem;
+}
+
+.labelHost { color: var(--host); }
+.labelProvider { color: var(--provider); }
+
+.title {
+    font-size: clamp(1.5rem, 3vw, 2rem); /* Reduced size */
+    font-weight: 800;
+    color: var(--foreground);
+    letter-spacing: -0.01em;
+}
+
+.carouselContainer {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+/* Stepper Visual (More compact) */
+.stepperWrapper {
+    position: relative;
+    padding: 1rem 0;
+    width: 300px; /* Locked width for compactness */
+    margin-bottom: 1.5rem;
+}
+
+.progressLine {
+    position: absolute;
+    top: 26px; /* Adjusted for smaller circles */
+    left: 20px;
+    right: 20px;
+    height: 1px;
+    background: var(--border);
+    z-index: 1;
+}
+
+.progressFill {
+    height: 100%;
+    width: 0;
+}
+
+.bgHost { background: var(--host); }
+.bgProvider { background: var(--provider); }
+
+.stepsIconsRow {
+    display: flex;
+    justify-content: space-between;
+    position: relative;
+    z-index: 2;
+}
+
+.stepItem {
+    cursor: pointer;
+}
+
+.circle {
+    width: 32px; /* Reduced from 44px */
+    height: 32px;
+    border-radius: 50%;
+    background: var(--card);
+    border: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-secondary);
+    transition: all 0.3s ease;
+}
+
+.circleActiveHost {
+    border-color: var(--host);
+    background: var(--host);
+    color: white;
+    box-shadow: 0 0 0 4px color-mix(in srgb, var(--host) 10%, transparent);
+}
+
+.circleActiveProvider {
+    border-color: var(--provider);
+    background: var(--provider);
+    color: white;
+    box-shadow: 0 0 0 4px color-mix(in srgb, var(--provider) 10%, transparent);
+}
+
+.circleDoneHost { border-color: var(--host); color: var(--host); }
+.circleDoneProvider { border-color: var(--provider); color: var(--provider); }
+
+/* Content Area */
+.contentArea {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    width: 100%;
+}
+
+.navBtn {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    border: 1px solid var(--border);
+    background: var(--card);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+    flex-shrink: 0;
+}
+
+.navBtn:hover {
+    background: var(--foreground);
+    color: var(--background);
+}
+
+.slideWrapper {
+    flex: 1;
+    min-height: 160px; /* Reduced */
+}
+
+.detailCard {
+    background: var(--card);
+    padding: 2rem; /* Reduced from 3rem */
+    border-radius: 20px;
+    border: 1px solid var(--border);
+    text-align: center;
+}
+
+.detailTitle {
+    font-size: 1.25rem; /* Reduced */
+    font-weight: 800;
+    margin-bottom: 0.75rem;
+    color: var(--foreground);
+}
+
+.detailDescription {
+    font-size: 0.95rem; /* Reduced */
+    color: var(--text-secondary);
+    line-height: 1.5;
+    margin-bottom: 1.5rem;
+}
+
+.timerTrack {
+    height: 2px;
+    background: var(--border);
+    width: 60px;
+    margin: 0 auto;
+    border-radius: 99px;
+    overflow: hidden;
+}
+
+.timerFill {
+    height: 100%;
+    width: 0;
+}
+
+@media (max-width: 600px) {
+    .contentArea { gap: 0.5rem; }
+    .navBtn { display: none; }
+    .detailCard { padding: 1.5rem; }
+}

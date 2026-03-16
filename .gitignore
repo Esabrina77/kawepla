@@ -1,0 +1,7 @@
+.env
+backend/.env
+frontend/.env
+*.sql
+node_modules/
+.vscode/
+git_status.txt
