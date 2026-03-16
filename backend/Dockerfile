@@ -8,11 +8,11 @@ RUN apt-get update && apt-get install -y openssl && rm -rf /var/lib/apt/lists/*
 # Copie des fichiers de package
 COPY package.json package-lock.json ./
 
-# Installer toutes les dépendances (y compris typescript, nodemon, etc.)
-RUN npm ci
-
 # Copier Prisma (nécessaire pour le postinstall qui génère le client Prisma)
 COPY prisma ./prisma/
+
+# Installer toutes les dépendances (y compris typescript, nodemon, etc.)
+RUN npm ci
 
 # Copier le reste du code
 COPY . .
