@@ -11,6 +11,11 @@ COPY package.json package-lock.json ./
 # Copier Prisma (nécessaire pour le postinstall qui génère le client Prisma)
 COPY prisma ./prisma/
 
+# Configuration de tolérance aux coupures réseau (Timeouts & Retries)
+RUN npm config set fetch-retry-maxtimeout 1200000 && \
+    npm config set fetch-retry-mintimeout 20000 && \
+    npm config set fetch-retries 10
+
 # Installer toutes les dépendances (y compris typescript, nodemon, etc.)
 RUN npm ci
 

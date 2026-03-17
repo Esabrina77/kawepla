@@ -5,6 +5,11 @@ WORKDIR /app
 # Copie des fichiers de package
 COPY package.json package-lock.json ./
 
+# Configuration de tolérance aux coupures réseau (Timeouts & Retries)
+RUN npm config set fetch-retry-maxtimeout 1200000 && \
+    npm config set fetch-retry-mintimeout 20000 && \
+    npm config set fetch-retries 10
+
 # Installer toutes les dépendances (y compris typescript, etc.) pour le build
 RUN npm ci
 
@@ -44,19 +49,17 @@ FROM node:20-slim AS runner
 WORKDIR /app
 
 ENV NODE_ENV=production
+# Force Next.js à écouter sur le bon port en standalone
+ENV PORT=3012
 
-# Copie des fichiers de package
-COPY package.json package-lock.json ./
-
-# Installer uniquement les dépendances de production
-RUN npm ci --omit=dev
-
-# Copier les fichiers générés du builder
-COPY --from=builder /app/.next ./.next
+# Récupérer les assets statiques indispensables
 COPY --from=builder /app/public ./public
-COPY --from=builder /app/package.json /app/next.config.* ./
 
-# Next.js démarre sur le port spécifié (dans ton package.json front : 3012)
+# Récupérer le serveur autonome généré (contient uniquement node_modules strict nécessaire)
+COPY --from=builder /app/.next/standalone ./
+COPY --from=builder /app/.next/static ./.next/static
+
+# Next.js démarre sur le port spécifié
 EXPOSE 3012
 
-CMD ["npm", "run", "start"]
+CMD ["node", "server.js"]
