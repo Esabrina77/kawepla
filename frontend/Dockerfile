@@ -10,8 +10,8 @@ RUN npm config set fetch-retry-maxtimeout 1200000 && \
     npm config set fetch-retry-mintimeout 20000 && \
     npm config set fetch-retries 10
 
-# Installer toutes les dépendances (y compris typescript, etc.) pour le build
-RUN npm ci
+# Installer toutes les dépendances (beaucoup moins lourd que npm ci sur petit serveur)
+RUN npm install --no-audit --no-fund
 
 # Définition des Build Args pour injecter les variables NEXT_PUBLIC_ de manière sécurisée
 # sans les stocker dans le code source de l'image (satisfait "aucune donnée doit leak")

@@ -16,8 +16,8 @@ RUN npm config set fetch-retry-maxtimeout 1200000 && \
     npm config set fetch-retry-mintimeout 20000 && \
     npm config set fetch-retries 10
 
-# Installer toutes les dépendances (y compris typescript, nodemon, etc.)
-RUN npm ci
+# Installer toutes les dépendances (beaucoup moins lourd que npm ci sur petit serveur)
+RUN npm install --no-audit --no-fund
 
 # Copier le reste du code
 COPY . .
@@ -46,8 +46,8 @@ COPY package.json package-lock.json ./
 # Copier le dossier Prisma pour que Prisma Client soit à jour
 COPY prisma ./prisma/
 
-# Installer uniquement les dépendances de production
-RUN npm ci --omit=dev
+# Installer uniquement les dépendances de production (moins lourd à compiler)
+RUN npm install --omit=dev --no-audit --no-fund
 
 # Copier le dossier dist et les clients générés du builder
 COPY --from=builder /app/dist ./dist
