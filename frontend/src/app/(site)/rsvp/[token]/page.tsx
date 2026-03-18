@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import EnvelopeWrapper from '@/components/rsvp/EnvelopeWrapper';
 import { useParams, useRouter } from 'next/navigation';
 import { rsvpApi, type RSVPStatus as ApiRSVPStatus } from '@/lib/api/rsvp';
 import DesignPreview from '@/components/DesignPreview';
@@ -214,11 +215,11 @@ export default function RSVPPage() {
 
   if (loading) {
     return (
-      <div className={styles.container}>
+      <div className={styles.loadingOverlay}>
         <div className={`card animate-scaleIn ${styles.loadingCard}`}>
           <div className={styles.loadingContent}>
             <div className={styles.loadingIcon}>
-              <Heart style={{ width: '24px', height: '24px' }} />
+              <img src="/gif/poussin.gif" alt="Chargement" className={styles.loadingGif} />
             </div>
             <h2 className={`${styles.loadingTitle}`}>Chargement...</h2>
             <p className={`${styles.loadingText}`}>
@@ -232,14 +233,18 @@ export default function RSVPPage() {
 
   if (error || !invitation) {
     return (
-      <div className={styles.container}>
-        <div className={`card animate-scaleIn ${styles.errorCard}`}>
-          <div className={styles.errorContent}>
+      <div className={styles.loadingOverlay}>
+        <div className={`card animate-scaleIn ${styles.loadingCard}`}>
+          <div className={styles.loadingContent}>
             <div className={styles.errorIcon}>
-              <HelpCircle style={{ width: '24px', height: '24px' }} />
+              <HelpCircle size={48} />
             </div>
-            <h1 className={`${styles.errorTitle}`}>Invitation non trouvée</h1>
-            <p className={`${styles.errorText}`}>
+            
+            <h2 className={styles.loadingTitle}>
+              Invitation non trouvée
+            </h2>
+            
+            <p className={styles.loadingText}>
               {error || 'Cette invitation n\'existe pas ou a expiré.'}
             </p>
           </div>
@@ -249,12 +254,14 @@ export default function RSVPPage() {
   }
 
   return (
-    <div className={styles.container}>
+    <>
+    <EnvelopeWrapper>
+      <div className={styles.container}>
       <div className={styles.rsvpLayout}>
 
         {/* Colonne gauche : Invitation avec son design visuel */}
         <div className={styles.invitationColumn}>
-          <div className={`card animate-scaleIn ${styles.invitationCard}`}>
+          <div className={styles.invitationCard}>
             {invitation && invitation.design ? (
               <div className="invitation-container" style={{ width: '100%', height: '100%', display: 'flex', justifyContent: 'center' }}>
                 <DesignPreview
@@ -303,7 +310,7 @@ export default function RSVPPage() {
 
         {/* Colonne droite : Formulaire RSVP ou Réponse existante */}
         <div className={styles.formColumn}>
-          <div className="animate-scaleIn">
+          <div>
             <div className={styles.formCard}>
               {showExistingResponse ? (
                 // Afficher la réponse existante
@@ -463,7 +470,7 @@ export default function RSVPPage() {
                         {formData.status === 'CONFIRMED' && (
                           <>
                             {/* Section accompagnant */}
-                            <div>
+                            <div className={styles.plusOneGroup}> {/* <--- Ajout marges top/bottom */}
                               <label className={styles.plusOneLabel}>
                                 <input
                                   type="checkbox"
@@ -507,7 +514,7 @@ export default function RSVPPage() {
                           </>
                         )}
 
-                        <div>
+                        <div className={styles.messageGroup}> {/* <--- Ajout espace d'aération */}
                           <label className={styles.formLabel}>
                             Message pour l'organisateur
                           </label>
@@ -540,7 +547,7 @@ export default function RSVPPage() {
                             disabled={submitting || formData.status === 'PENDING'}
                             className={`btn btn-primary ${styles.submitButton}`}
                           >
-                            {submitting ? 'Envoi en cours...' : 'Envoyer ma réponse'}
+                            {submitting ? 'Envoi...' : 'Envoyer'}
                           </button>
                         </div>
 
@@ -561,18 +568,19 @@ export default function RSVPPage() {
           </div>
         </div>
       </div>
+      </div>
+    </EnvelopeWrapper>
 
-
-      {/* Security Modal */}
-      {showSecurityModal && (
+    {/* Security Modal */}
+    {showSecurityModal && (
         <div className={styles.modalOverlay}>
           <div className={styles.modalCard}>
             <div className={styles.modalIcon}>
-              <Shield style={{ width: '32px', height: '32px' }} />
+              <Shield style={{ width: '28px', height: '28px' }} />
             </div>
             <h3 className={styles.modalTitle}>Lien personnel</h3>
             <p className={styles.modalText}>
-              Ce lien d'invitation est strictement personnel. Merci de ne pas le partager avec d'autres personnes pour garantir la bonne organisation de l'événement.
+              Ce lien d'invitation est strictement personnel. Merci de ne pas le partager pour garantir la bonne organisation.
             </p>
             <button
               className={styles.modalButton}
@@ -583,6 +591,6 @@ export default function RSVPPage() {
           </div>
         </div>
       )}
-    </div>
+    </>
   );
-} 
+}

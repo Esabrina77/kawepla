@@ -16,23 +16,31 @@ export default function Error({
     }, [error]);
 
     return (
-        <div className={styles.container}>
-            <div className={styles.errorCard}>
-                <div className={styles.errorContent}>
+        <div className={styles.loadingOverlay}>
+            <div className={`card animate-scaleIn ${styles.loadingCard}`}>
+                <div className={styles.loadingContent}>
                     <div className={styles.errorIcon}>
                         <AlertCircle size={48} />
                     </div>
-                    <h2 className={styles.errorTitle}>Une erreur est survenue</h2>
-                    <p className={styles.errorText}>
+                    
+                    <h2 className={styles.loadingTitle} style={{ color: 'var(--error-color, #ef4444)' }}>
+                        Une erreur est survenue
+                    </h2>
+                    
+                    <p className={styles.loadingText}>
                         Désolé, nous ne parvenons pas à charger cette invitation pour le moment.
                     </p>
-                    <p style={{ fontSize: '0.875rem', color: 'var(--text-secondary)', marginTop: '1rem' }}>
-                        {error.message || 'Erreur inconnue'}
-                    </p>
+                    
+                    {error.message && (
+                        <p style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', opacity: 0.8 }}>
+                            ({error.message})
+                        </p>
+                    )}
+                    
                     <button
                         onClick={() => reset()}
                         className={styles.submitButton}
-                        style={{ marginTop: '2rem' }}
+                        style={{ marginTop: '1.5rem', width: '100%' }}
                     >
                         Réessayer
                     </button>

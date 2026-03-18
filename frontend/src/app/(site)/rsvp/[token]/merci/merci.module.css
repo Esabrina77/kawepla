@@ -2,14 +2,12 @@
 
 /* Container principal */
 .container {
-  max-width: 800px;
-  margin: 30px auto 0; /* margin-top pour le header */
-  padding: var(--space-md);
-  background: var(--bg-card);
-  border-radius: 20px;
-  border: 1px solid var(--border-color);
-  box-shadow: var(--shadow-lg);
-  transition: all var(--transition-normal);
+  min-height: 100vh;
+  background: var(--background, #fffef8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 12px;
 }
 
 /* Loading States */
@@ -126,19 +124,25 @@
 
 /* Thank You Card */
 .thankYouCard {
-  background: var(--bg-card);
+  background: var(--card, #ffffff);
   border-radius: 1.25rem;
-  padding: 2rem;
+  padding: 3rem 2rem; /* Augmenté l'aération de base */
   margin: 0 auto;
-  max-width: 600px;
-  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.08);
-  border: 1px solid rgba(74, 74, 74, 0.2);
-  animation: fadeInUp 0.6s ease-out;
+  width: 100%;
+  max-width: 550px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.04);
+  border: 1px solid var(--border, #e5e7eb);
+  animation: fadeInUp 0.5s ease-out;
   transition: all var(--transition-normal);
+  
+  display: flex;
+  flex-direction: column;
+  gap: 2.5rem; /* Force un écartement égal entre chaque section principal */
 }
 
 .thankYouCard:hover {
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
+  transform: translateY(-2px);
+  box-shadow: 0 12px 48px rgba(0, 0, 0, 0.08);
 }
 
 @keyframes fadeInUp {
@@ -439,44 +443,46 @@
 
 /* Footer Section */
 .footerSection {
-  border-top: 1px solid var(--border-color);
-  padding-top: var(--space-md);
+  border-top: 1px solid var(--border, #e5e7eb);
+  padding-top: 1.5rem;
   text-align: center;
+  
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem; /* Ecarte le texte, le bouton et l'alerte de sécurité */
 }
 
 .confirmationText {
   font-size: 0.9rem;
   color: var(--text-secondary);
-  margin-bottom: var(--space-md);
+  margin: 0;
 }
 
 .actionButtons {
-  margin-bottom: var(--space-md);
+  margin: 0;
 }
 
 .viewInvitationButton {
   display: inline-flex;
   align-items: center;
   gap: 0.5rem;
-  padding: 0.875rem 1.5rem;
-  background: var(--luxury-champagne-gold);
-  color: var(--luxury-velvet-black);
+  width: 100%;
+  justify-content: center;
+  padding: 0.85rem 1.75rem;
+  background: var(--primary, #6366f1);
+  color: white;
   text-decoration: none;
-  border-radius: 0.5rem;
-  transition: all var(--transition-normal);
+  border-radius: 0.75rem;
+  transition: all 0.2s ease;
   font-weight: 600;
-  box-shadow: 0 2px 8px rgba(197, 168, 128, 0.3);
+  box-shadow: 0 4px 12px rgba(99, 102, 241, 0.2);
   font-size: 1rem;
-}
-
-[data-theme="dark"] .viewInvitationButton {
-  color: var(--text-primary);
 }
 
 .viewInvitationButton:hover {
   transform: translateY(-2px);
-  box-shadow: 0 4px 16px rgba(197, 168, 128, 0.4);
-  background: #c5a880;
+  background: var(--primary-hover, #4f46e5);
+  box-shadow: 0 6px 16px rgba(99, 102, 241, 0.35);
 }
 
 .viewInvitationButton:active {
@@ -509,54 +515,32 @@
 
 /* Responsive Design */
 @media (max-width: 768px) {
-  .container {
-    padding: var(--space-xs);
-  }
-
   .thankYouCard {
-    padding: var(--space-md);
+    padding: 2rem 1.25rem; /* Aéré sur les petites tablettes */
   }
 
   .title {
-    font-size: clamp(1.25rem, 5vw, 1.75rem);
+    font-size: 1.75rem;
   }
 
   .detailsGrid {
     grid-template-columns: 1fr;
-    gap: var(--space-xs);
-  }
-
-  .detailItem {
-    padding: var(--space-xs);
-  }
-
-  .detailIcon {
-    width: 32px;
-    height: 32px;
-  }
-
-  .messageSection {
-    padding: var(--space-sm);
-  }
-
-  .securityNotice {
-    flex-direction: column;
-    gap: var(--space-xs);
-    text-align: center;
+    gap: 0.75rem;
   }
 }
 
 @media (max-width: 480px) {
   .container {
-    padding: var(--space-xs);
+    padding: 16px; /* Empêche de toucher les bords absolus de l'appareil */
   }
 
   .thankYouCard {
-    padding: var(--space-sm);
+    padding: 1.75rem 1rem; /* Padding interne raisonnable */
+    gap: 2rem; /* Légèrement plus serré sur mobile */
   }
 
   .title {
-    font-size: 1.25rem;
+    font-size: 1.5rem;
   }
 
   .subtitle {
@@ -565,18 +549,7 @@
 
   .confirmationMessage,
   .declineMessage {
-    font-size: 1rem;
-  }
-
-  .detailItem {
-    flex-direction: column;
-    text-align: center;
-    gap: var(--space-xs);
-  }
-
-  .detailIcon {
-    width: 28px;
-    height: 28px;
+    font-size: 1.15rem;
   }
 
   .viewInvitationButton {

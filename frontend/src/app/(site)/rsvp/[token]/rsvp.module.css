@@ -1,10 +1,11 @@
 /* ===== RSVP PAGE - DESIGN SYSTEM (IDENTICAL TO SHARED RSVP) ===== */
 
 .container {
-  margin: 70px auto;
-  margin-bottom: 200px;
-  background: var(--bg-primary);
+  margin: 20px auto; 
+  margin-bottom: 100px;
+  background: var(--background, #fffef8); /* Blanc crème global */
   min-height: 100vh;
+  padding: 12px; 
 }
 
 .rsvpLayout {
@@ -13,75 +14,112 @@
   gap: var(--space-lg);
 }
 
-/* Mobile uniquement - invitation et formulaire prennent toute la largeur */
+/* Mobile uniquement - On aère et on conserve le design card */
 @media (max-width: 767px) {
   .rsvpLayout {
     grid-template-columns: 1fr;
-    gap: var(--space-lg);
-    padding: 0;
+    gap: 1.25rem;
   }
 
   .invitationColumn,
   .formColumn {
-    width: 100vw;
-    margin-left: calc(-50vw + 50%);
-    margin-right: calc(-50vw + 50%);
+    width: 100%; /* Ne déborde plus à 100vw */
   }
 
-  .invitationColumn .card,
-  .formColumn .card {
-    border-radius: 0;
-    margin: 0;
-    width: 100%;
+  /* Préservation des bords arrondis sur les cartes mobiles */
+  .invitationCard,
+  .formCard {
+    border-radius: var(--radius-lg, 16px);
+    overflow: hidden;
   }
 }
 
 @media (min-width: 1024px) {
   .rsvpLayout {
     grid-template-columns: 1fr 1fr;
-    max-width: 1400px;
-    margin: 0 auto;
+    max-width: 1200px; /* Légèrement réduit pour être plus impactant */
+    margin: 40px auto;
+    gap: 4rem; /* Grand écartement pour aérer */
+    align-items: center; /* Centre verticalement */
   }
 
-  .invitationColumn {
-    position: sticky;
-    top: 120px;
-    height: fit-content;
+  /* Force la hauteur Max 70vh à gauche (Invitation) et à droite (Formulaire) */
+  .invitationCard, 
+  .formCard {
+    height: 90vh;
+    max-height: 90vh;
+    overflow-y: auto; /* Défilement interne */
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* Pour l'image, on s'assure qu'elle s'ajuste ou défile au format */
+  .invitationCard .invitation-container {
+    height: 100%;
+    align-items: center;
   }
 }
 
 @media (min-width: 1280px) {
   .rsvpLayout {
-    grid-template-columns: 1.2fr 0.8fr;
+    grid-template-columns: 1.1fr 0.9fr;
+    gap: 5rem;
   }
 }
 
-/* Loading State */
-.loadingCard {
-  max-width: 800px;
-  margin: 0 auto;
-}
-
-.loadingContent {
-  text-align: center;
-  padding: var(--space-xl);
-}
-
-.loadingIcon {
+/* --- CHARGEMENT CENTRAL FIX --- */
+.loadingOverlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  background-color: var(--background);
   display: flex;
   align-items: center;
   justify-content: center;
+  padding: 1rem;
+}
+
+.loadingCard {
+  max-width: 360px;
+  width: 100%;
+  padding: 2.5rem 1.5rem;
+  background: rgba(255, 255, 255, 0.9);
+  backdrop-filter: blur(10px);
+  border-radius: 1.25rem;
+  text-align: center;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.loadingContent {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+}
+
+.loadingIcon {
   width: 64px;
   height: 64px;
-  margin: 0 auto var(--space-lg);
-  border-radius: 50%;
-  background: linear-gradient(135deg, var(--color-primary), var(--color-secondary));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.loadingGif {
+  width: 64px;
+  height: 64px;
+  object-fit: contain;
+}
+
+.loadingTitle {
+  font-size: 1.25rem;
+  font-weight: 600;
   color: var(--text-primary);
-  animation: pulse 2s infinite;
 }
 
 .loadingText {
-  font-size: 1.125rem;
+  font-size: 0.875rem;
   color: var(--text-secondary);
 }
 
@@ -173,7 +211,7 @@
 }
 
 .formContent {
-  animation: fadeInUp 0.4s ease-out;
+  /* Animation supprimée pour fondu pure Framer-Motion */
 }
 
 .formTitle {
@@ -261,50 +299,120 @@
 
 .textInput {
   width: 100%;
-  padding: 0.75rem;
-  font-size: 1rem;
-  border: 1px solid rgba(74, 74, 74, 0.5);
-  border-radius: 0.5rem;
-  transition: border-color var(--transition-normal);
-  background: var(--bg-primary);
-  color: var(--text-primary);
+  padding: 0.85rem; 
+  font-size: 0.95rem;
+  border: 1px solid rgba(17, 24, 39, 0.3); /* Contraste visible */
+  border-radius: 0.75rem;
+  transition: all 0.2s ease;
+  background: var(--card, #ffffff);
+  color: var(--foreground, #111827);
   font-family: var(--font-sans);
   outline: none;
 }
 
-[data-theme="dark"] .textInput {
-  border-color: rgba(74, 74, 74, 0.5);
-}
-
 .textInput::placeholder {
   color: var(--text-secondary);
-  opacity: 0.6;
+  opacity: 0.5;
 }
 
 .textInput:hover:not(:disabled) {
-  border-color: rgba(165, 136, 102, 0.4);
+  border-color: var(--primary);
 }
 
 .textInput:focus {
-  border-color: var(--luxury-champagne-gold);
-  box-shadow: 0 0 0 2px rgba(165, 136, 102, 0.2);
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1); /* Halo Indigo doux */
 }
 
 .textInput:disabled {
   opacity: 0.5;
   cursor: not-allowed;
+  background: var(--bg-secondary);
+}
+
+/* --- STEPPER (Fils de fer d'étapes) --- */
+.stepperContainer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 2.5rem;
+  gap: 0.75rem;
+  width: 100%;
+}
+
+.step {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  flex: 1;
+}
+
+.stepNumber {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 2px solid var(--border, #e5e7eb);
+  background: var(--card, #ffffff);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  font-size: 0.9rem;
+  color: var(--foreground, #111827);
+  transition: all 0.3s ease;
+}
+
+.stepLabel {
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: var(--text-secondary);
+  transition: all 0.3s ease;
+}
+
+.activeStep .stepNumber {
+  border-color: var(--primary, #6366F1);
+  background: var(--primary, #6366F1);
+  color: white;
+  box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.15);
+}
+
+.activeStep .stepLabel {
+  color: var(--primary, #6366F1);
+  font-weight: 600;
+}
+
+.stepLine {
+  height: 2px;
+  background: var(--border, #e5e7eb);
+  flex: 1;
+  max-width: 80px;
+  margin-bottom: 1.5rem; /* Aligné sur le centre des ronds */
+  transition: all 0.3s ease;
+}
+
+.activeLine {
+  background: var(--primary, #6366F1);
 }
 
 .readOnlyValue {
   width: 100%;
-  padding: 0.75rem;
-  font-size: 1rem;
-  background: var(--bg-secondary);
-  border: 1px solid transparent;
-  border-radius: 0.5rem;
-  color: var(--text-primary);
+  padding: 0.85rem;
+  font-size: 0.95rem;
+  background: var(--bg-secondary, #f9fafb);
+  border: 1px solid rgba(17, 24, 39, 0.3); /* Même bordure que les inputs */
+  border-radius: 0.75rem;
+  color: var(--foreground, #111827);
   font-family: var(--font-sans);
   font-weight: 500;
+}
+
+/* Espacements Accompagnant */
+.plusOneGroup {
+  margin: 1.25rem 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
 }
 
 .responseButtons {
@@ -815,34 +923,73 @@
   transition: all var(--transition-normal);
 }
 
-.activeStep .stepNumber {
-  background: var(--color-primary);
-  border-color: var(--color-primary);
-  color: white;
-  box-shadow: 0 0 0 4px rgba(197, 168, 128, 0.2);
+/* --- ACTIONS FORMULAIRE (Suivant, Envoyer, Retour) --- */
+.formActions {
+  display: flex;
+  gap: 1rem;
+  margin-top: 2rem;
+  width: 100%;
 }
 
-.stepLabel {
-  font-size: 0.875rem;
-  color: var(--text-secondary);
-  font-weight: 500;
+.nextButton, .submitButton {
+  width: 100%;
+  padding: 0.85rem !important;
+  font-size: 1rem !important;
+  background-color: var(--primary, #6366F1) !important;
+  color: #ffffff !important;
+  border: none !important;
+  border-radius: 0.75rem !important;
+  font-weight: 600 !important;
+  cursor: pointer !important;
+  transition: all 0.2s ease !important;
+  box-shadow: 0 4px 12px rgba(99, 102, 241, 0.15);
 }
 
-.activeStep .stepLabel {
-  color: var(--color-primary);
-  font-weight: 600;
+.nextButton:hover, .submitButton:hover {
+  background-color: #4f46e5 !important; /* Indigo plus profond */
+  transform: translateY(-1px);
 }
 
-.stepLine {
-  flex: 1;
-  height: 2px;
-  background: var(--border-color);
-  margin: 0 1rem;
-  margin-bottom: 1.5rem;
+.prevButton {
+  background-color: transparent !important;
+  color: var(--foreground, #111827) !important;
+  border: 1px solid rgba(17, 24, 39, 0.35) !important; /* Bordure visible claire */
+  border-radius: 0.75rem !important;
+  cursor: pointer !important;
+  padding: 0.85rem 1.5rem !important; 
+  font-size: 0.95rem !important;
+  font-weight: 500 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
 }
 
-.activeLine {
-  background: var(--color-primary);
+/* Espacement au dessus de Message Organisateur */
+.messageGroup {
+  margin-top: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+/* Zone Message (Textarea) */
+.textarea {
+  width: 100%;
+  padding: 0.85rem;
+  font-size: 0.95rem;
+  border: 1px solid rgba(17, 24, 39, 0.35); /* Bordure visible claire */
+  border-radius: 0.75rem;
+  background: var(--card, #ffffff);
+  color: var(--foreground, #111827);
+  font-family: var(--font-sans);
+  outline: none;
+  transition: all 0.2s ease;
+  resize: vertical;
+}
+
+.textarea:focus {
+  border-color: var(--primary, #6366F1);
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
 }
 
 /* Modal Styles */
@@ -852,26 +999,32 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(0, 0, 0, 0.7);
+  background: rgba(0, 0, 0, 0.5); /* Plus doux */
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 1000;
-  padding: 1rem;
-  backdrop-filter: blur(4px);
+  z-index: 20000; /* S'affiche au dessus de l'enveloppe rideau (9999) */
+  padding: 1.5rem;
+  backdrop-filter: blur(5px);
   animation: fadeIn 0.3s ease-out;
 }
 
 .modalCard {
-  background: var(--bg-card);
-  border-radius: var(--radius-lg);
+  background: rgba(255, 255, 255, 0.95); /* Fond clair chic */
+  backdrop-filter: blur(10px);
+  border-radius: 1.25rem; /* Plus arrondi */
   padding: 2rem;
-  max-width: 400px;
+  max-width: 340px; /* Plus compact */
   width: 100%;
   text-align: center;
-  box-shadow: var(--shadow-xl);
-  border: 1px solid var(--border-color);
-  animation: scaleIn 0.3s ease-out;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  animation: scaleIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); /* Entrée dynamique */
+}
+
+[data-theme="dark"] .modalCard {
+  background: rgba(30, 30, 30, 0.85);
+  border-color: rgba(255, 255, 255, 0.05);
 }
 
 .modalIcon {
@@ -901,19 +1054,21 @@
 
 .modalButton {
   width: 100%;
-  padding: 0.875rem;
-  background: var(--color-primary);
-  color: white;
+  padding: 0.85rem;
+  background: var(--host); /* Indigo Host */
+  color: var(--host-contrast, #ffffff); /* Blanc visible sur Indigo */
   border: none;
-  border-radius: 0.5rem;
+  border-radius: 0.75rem;
   font-weight: 600;
   cursor: pointer;
-  transition: all 0.2s;
+  transition: all 0.2s ease;
+  box-shadow: 0 4px 12px rgba(99, 102, 241, 0.2);
 }
 
 .modalButton:hover {
-  background: var(--color-primary-dark);
+  background: var(--host-dark);
   transform: translateY(-1px);
+  box-shadow: 0 6px 15px rgba(99, 102, 241, 0.3);
 }
 
 @keyframes fadeIn {
