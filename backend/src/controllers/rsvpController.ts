@@ -274,6 +274,7 @@ export class RSVPController {
 
       return {
         guest: {
+          id: guest.id,
           firstName: guest.firstName,
           lastName: guest.lastName,
           email: guest.email,

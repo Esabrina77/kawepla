@@ -551,7 +551,7 @@ function ShareableLinkManager({ invitationId }: { invitationId: string }) {
 
     if (navigator.share) {
       try {
-        await navigator.share({ title: 'Invitation d\'événement', text: message, url });
+        await navigator.share({ title: 'Invitation d\'événement', text: message });
         await regenerateShareableLink();
       } catch (err) {
         console.log('Partage annulé:', err);

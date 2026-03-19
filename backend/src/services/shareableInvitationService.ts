@@ -378,6 +378,7 @@ export class ShareableInvitationService {
       const guest = invitation.guests[0];
       return {
         guest: {
+          id: guest.id,
           firstName: guest.firstName,
           lastName: guest.lastName,
           email: guest.email,
