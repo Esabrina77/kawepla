@@ -32,6 +32,8 @@
     "file-saver": "^2.0.5",
     "firebase": "^12.2.1",
     "framer-motion": "^10.16.16",
+    "html-to-image": "^1.11.13",
+    "html5-qrcode": "^2.3.8",
     "jspdf": "^3.0.4",
     "jspdf-autotable": "^5.0.2",
     "jszip": "^3.10.1",

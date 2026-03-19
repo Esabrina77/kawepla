@@ -7,8 +7,9 @@ import DesignPreview from '@/components/DesignPreview';
 import GuestProfilePhotoUpload from '@/components/GuestProfilePhotoUpload/GuestProfilePhotoUpload';
 import PhotoModal from '@/components/PhotoModal/PhotoModal';
 import PhoneInput from '@/components/PhoneInput/PhoneInput';
-import { Heart, CheckCircle, XCircle, Users, Church, Wine, MessageCircle, RefreshCw, Shield, Camera } from 'lucide-react';
+import { Heart, CheckCircle, XCircle, Users, Church, Wine, MessageCircle, RefreshCw, Shield, Camera, HelpCircle } from 'lucide-react';
 import { useNotifications } from '@/hooks/useNotifications';
+import EnvelopeWrapper from '@/components/rsvp/EnvelopeWrapper';
 import styles from './rsvp.module.css';
 
 interface Invitation {
@@ -260,13 +261,20 @@ export default function SharedRSVPPage() {
 
   if (loading) {
     return (
-      <div className={styles.container}>
-        <div className={`card ${styles.loadingCard}`}>
+      <div className={styles.loadingOverlay}>
+        <div className={`card animate-scaleIn ${styles.loadingCard}`}>
           <div className={styles.loadingContent}>
             <div className={styles.loadingIcon}>
-              <Heart style={{ width: '24px', height: '24px' }} />
+              <img
+                src="/gif/poussin.gif"
+                alt="Chargement"
+                className={styles.loadingGif}
+              />
             </div>
-            <p className={styles.loadingText}>Chargement de votre invitation...</p>
+            <h2 className={`${styles.loadingTitle}`}>Chargement...</h2>
+            <p className={`${styles.loadingText}`}>
+              Préparation de votre invitation
+            </p>
           </div>
         </div>
       </div>
@@ -275,22 +283,18 @@ export default function SharedRSVPPage() {
 
   if (error || !invitation) {
     return (
-      <div className={styles.container}>
-        <div className={`card ${styles.errorCard}`}>
-          <div className={styles.errorContent}>
+      <div className={styles.loadingOverlay}>
+        <div className={`card animate-scaleIn ${styles.loadingCard}`}>
+          <div className={styles.loadingContent}>
             <div className={styles.errorIcon}>
-              <XCircle style={{ width: '32px', height: '32px' }} />
+              <HelpCircle size={48} />
             </div>
-            <h1 className={`heading-2 ${styles.errorTitle}`}>Lien d'invitation invalide</h1>
-            <p className={styles.errorText}>{error || "Ce lien d'invitation n'existe pas ou a expiré."}</p>
-            <Button
-              variant="primary"
-              className="mt-6"
-              onClick={() => window.location.reload()}
-            >
-              <RefreshCw style={{ width: '16px', height: '16px', marginRight: '8px' }} />
-              Rafraîchir
-            </Button>
+
+            <h2 className={styles.loadingTitle}>Invitation non trouvée</h2>
+
+            <p className={styles.loadingText}>
+              {error || "Cette invitation n'existe pas ou a expiré."}
+            </p>
           </div>
         </div>
       </div>
@@ -298,8 +302,10 @@ export default function SharedRSVPPage() {
   }
 
   return (
-    <div className={styles.container}>
-      <div className={styles.rsvpLayout}>
+    <>
+      <EnvelopeWrapper>
+        <div className={styles.container}>
+          <div className={styles.rsvpLayout}>
 
         {/* Colonne gauche : Invitation avec son design visuel */}
         <div className={styles.invitationColumn}>
@@ -503,6 +509,7 @@ export default function SharedRSVPPage() {
                           type="button"
                           className={`btn btn-primary ${styles.nextButton}`}
                           onClick={handleNextStep}
+                          disabled={!formData.firstName || !formData.lastName || !formData.phone}
                         >
                           Suivant
                         </button>
@@ -626,6 +633,8 @@ export default function SharedRSVPPage() {
           </div>
         </div>
       </div>
+      </div>
+    </EnvelopeWrapper>
 
       {/* Modal pour agrandir les photos */}
       {selectedPhoto && (
@@ -642,11 +651,11 @@ export default function SharedRSVPPage() {
         <div className={styles.modalOverlay}>
           <div className={styles.modalCard}>
             <div className={styles.modalIcon}>
-              <Shield style={{ width: '32px', height: '32px' }} />
+              <Shield style={{ width: '28px', height: '28px' }} />
             </div>
             <h3 className={styles.modalTitle}>Lien personnel</h3>
             <p className={styles.modalText}>
-              Ce lien d'invitation est strictement personnel. Merci de ne pas le partager avec d'autres personnes pour garantir la bonne organisation de l'événement.
+              Ce lien d'invitation est strictement personnel. Merci de ne pas le partager pour garantir la bonne organisation.
             </p>
             <button
               className={styles.modalButton}
@@ -657,6 +666,6 @@ export default function SharedRSVPPage() {
           </div>
         </div>
       )}
-    </div>
+    </>
   );
 }

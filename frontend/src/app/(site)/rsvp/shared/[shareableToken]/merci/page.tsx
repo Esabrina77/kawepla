@@ -1,22 +1,26 @@
-'use client';
+"use client";
 
-import React, { useState, useEffect } from 'react';
-import { 
-  CheckCircle, 
-  XCircle, 
-  Users, 
-  Heart, 
-  Wine, 
-  MessageCircle, 
-  Eye, 
+import React, { useState, useEffect } from "react";
+import {
+  CheckCircle,
+  XCircle,
+  Users,
+  Heart,
+  Wine,
+  MessageCircle,
+  Eye,
   Shield,
   Loader,
-  Sparkles
-} from 'lucide-react';
-import styles from './merci.module.css';
-  
+  Sparkles,
+  Download,
+} from "lucide-react";
+import { toPng } from "html-to-image";
+import jsPDF from "jspdf";
+import styles from "./merci.module.css";
+import DesignPreview from "@/components/DesignPreview";
+
 interface RSVPResponse {
-  status: 'PENDING' | 'CONFIRMED' | 'DECLINED';
+  status: "PENDING" | "CONFIRMED" | "DECLINED";
   numberOfGuests?: number;
   message?: string;
   profilePhotoUrl?: string;
@@ -25,13 +29,49 @@ interface RSVPResponse {
   dietaryRestrictions?: string;
   firstName?: string;
   lastName?: string;
+  guestId?: string;
   respondedAt?: string;
+  invitation?: {
+    eventTitle: string;
+    eventType: string;
+    eventDate: string;
+    location: string;
+  };
 }
 
-export default function SharedRSVPThankYouPage({ params }: { params: Promise<{ shareableToken: string }> }) {
+export default function SharedRSVPThankYouPage({
+  params,
+}: {
+  params: Promise<{ shareableToken: string }>;
+}) {
   const [status, setStatus] = useState<RSVPResponse | null>(null);
+  const [invitation, setInvitation] = useState<any>(null);
   const [loading, setLoading] = useState(true);
-  const [shareableToken, setShareableToken] = useState<string>('');
+  const [downloading, setDownloading] = useState(false);
+  const [shareableToken, setShareableToken] = useState<string>("");
+  const passRef = React.useRef<HTMLDivElement>(null);
+
+  const handleDownload = async () => {
+    if (passRef.current === null) return;
+    setDownloading(true);
+    try {
+      const dataUrl = await toPng(passRef.current, {
+        cacheBust: true,
+        backgroundColor: "#ffffff",
+      });
+      const pdf = new jsPDF("p", "mm", [105, 148]); // A6 format
+      pdf.addImage(dataUrl, "PNG", 0, 0, 105, 148);
+      const eventTitle = invitation?.eventTitle || "Evenement";
+      const firstName = status?.firstName || "Invite";
+      pdf.save(
+        `Pass-Kawepla-${eventTitle.replace(/\s+/g, "-")}-${firstName}.pdf`,
+      );
+    } catch (err) {
+      console.error("Erreur lors du téléchargement du pass", err);
+    } finally {
+      setDownloading(false);
+    }
+  };
 
   useEffect(() => {
     const initParams = async () => {
@@ -47,7 +87,7 @@ export default function SharedRSVPThankYouPage({ params }: { params: Promise<{ s
     const getStatus = async () => {
       try {
         // Récupérer les données depuis sessionStorage (passées depuis le formulaire)
-        const rsvpData = sessionStorage.getItem('rsvpData');
+        const rsvpData = sessionStorage.getItem("rsvpData");
         if (rsvpData) {
           const parsedData = JSON.parse(rsvpData);
           setStatus({
@@ -60,21 +100,27 @@ export default function SharedRSVPThankYouPage({ params }: { params: Promise<{ s
             profilePhotoUrl: parsedData.rsvp.profilePhotoUrl,
             firstName: parsedData.guest.firstName,
             lastName: parsedData.guest.lastName,
-            respondedAt: parsedData.rsvp.respondedAt
+            invitation: parsedData.rsvp.invitation,
+            respondedAt: parsedData.rsvp.respondedAt,
+            guestId: parsedData.guest.id,
           });
           // Nettoyer les données après utilisation
-          sessionStorage.removeItem('rsvpData');
+          sessionStorage.removeItem("rsvpData");
         } else {
           // Si pas de données en session, essayer de récupérer depuis l'API
           // Vérifier si on a un téléphone dans localStorage (sauvegardé lors de la soumission)
-          const savedPhone = localStorage.getItem(`rsvp_phone_${shareableToken}`);
-          
+          const savedPhone = localStorage.getItem(
+            `rsvp_phone_${shareableToken}`,
+          );
+
           if (savedPhone) {
-            const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3013'}/api/rsvp/shared/${shareableToken}/status?phone=${encodeURIComponent(savedPhone)}`);
+            const response = await fetch(
+              `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:3013"}/api/rsvp/shared/${shareableToken}/status?phone=${encodeURIComponent(savedPhone)}`,
+            );
             if (response.ok) {
               const statusData = await response.json();
               setStatus({
-                status: statusData.rsvp?.status || 'PENDING',
+                status: statusData.rsvp?.status || "PENDING",
                 numberOfGuests: statusData.rsvp?.numberOfGuests,
                 message: statusData.rsvp?.message,
                 plusOne: statusData.rsvp?.plusOne,
@@ -83,7 +129,9 @@ export default function SharedRSVPThankYouPage({ params }: { params: Promise<{ s
                 profilePhotoUrl: statusData.rsvp?.profilePhotoUrl,
                 firstName: statusData.guest?.firstName,
                 lastName: statusData.guest?.lastName,
-                respondedAt: statusData.rsvp?.respondedAt
+                invitation: statusData.invitation,
+                respondedAt: statusData.rsvp?.respondedAt,
+                guestId: statusData.guest?.id,
               });
             } else {
               setStatus(null);
@@ -92,8 +140,17 @@ export default function SharedRSVPThankYouPage({ params }: { params: Promise<{ s
             setStatus(null);
           }
         }
+
+        // Récupérer le design complet de l'invitation pour le Pass
+        const inviteResponse = await fetch(
+          `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:3013"}/api/rsvp/shared/${shareableToken}/invitation`,
+        );
+        if (inviteResponse.ok) {
+          const inviteData = await inviteResponse.json();
+          setInvitation(inviteData);
+        }
       } catch (error) {
-        console.error('Error fetching RSVP status:', error);
+        console.error("Error fetching RSVP status:", error);
         setStatus(null);
       } finally {
         setLoading(false);
@@ -125,7 +182,10 @@ export default function SharedRSVPThankYouPage({ params }: { params: Promise<{ s
         <div className={styles.errorCard}>
           <XCircle className={styles.errorIcon} />
           <h2>Une erreur est survenue</h2>
-          <p>Nous n'avons pas pu récupérer votre réponse. Veuillez réessayer plus tard.</p>
+          <p>
+            Nous n'avons pas pu récupérer votre réponse. Veuillez réessayer plus
+            tard.
+          </p>
         </div>
       </div>
     );
@@ -135,38 +195,52 @@ export default function SharedRSVPThankYouPage({ params }: { params: Promise<{ s
     <div className={styles.container}>
       <div className={styles.thankYouCard}>
         <div className={styles.headerSection}>
-          <div className={`${styles.badge} ${status.status === 'CONFIRMED' ? styles.confirmed : styles.declined}`}>
-            <CheckCircle style={{ width: '16px', height: '16px' }} />
+          <div
+            className={`${styles.badge} ${status.status === "CONFIRMED" ? styles.confirmed : styles.declined}`}
+          >
+            <CheckCircle style={{ width: "16px", height: "16px" }} />
             Confirmation RSVP
           </div>
-          
-          <div className={`${styles.iconContainer} ${status.status === 'CONFIRMED' ? styles.confirmed : styles.declined}`}>
-            {status.status === 'CONFIRMED' ? (
+
+          <div
+            className={`${styles.iconContainer} ${status.status === "CONFIRMED" ? styles.confirmed : styles.declined}`}
+          >
+            {status.status === "CONFIRMED" ? (
               <CheckCircle className={styles.successIcon} />
             ) : (
               <XCircle className={styles.declineIcon} />
             )}
           </div>
-          
+
           <h1 className={styles.title}>
-            Merci pour votre <span className={`${styles.titleAccent} ${status.status === 'CONFIRMED' ? styles.confirmed : styles.declined}`}>réponse</span> !
+            Merci pour votre{" "}
+            <span
+              className={`${styles.titleAccent} ${status.status === "CONFIRMED" ? styles.confirmed : styles.declined}`}
+            >
+              réponse
+            </span>{" "}
+            !
           </h1>
 
           {/* Affichage des informations personnelles */}
           {status.firstName && status.lastName && (
             <p className={styles.subtitle}>
-              Merci <strong>{status.firstName} {status.lastName}</strong> !
+              Merci{" "}
+              <strong>
+                {status.firstName} {status.lastName}
+              </strong>{" "}
+              !
             </p>
           )}
         </div>
 
         <div className={styles.contentSection}>
-          {status.status === 'CONFIRMED' ? (
+          {status.status === "CONFIRMED" ? (
             <div className={styles.confirmedContent}>
               <p className={styles.confirmationMessage}>
                 Nous sommes ravis de vous compter parmi nous ! ✨
               </p>
-              
+
               <div className={styles.detailsGrid}>
                 <div className={`${styles.detailItem} ${styles.confirmed}`}>
                   <div className={`${styles.detailIcon} ${styles.confirmed}`}>
@@ -174,12 +248,12 @@ export default function SharedRSVPThankYouPage({ params }: { params: Promise<{ s
                   </div>
                   <div className={styles.detailContent}>
                     <span className={styles.detailValue}>
-                      {status.plusOne ? 2 : 1} personne{status.plusOne ? 's' : ''}
+                      {status.plusOne ? 2 : 1} personne
+                      {status.plusOne ? "s" : ""}
                     </span>
                     <span className={styles.detailLabel}>Présent(e)(s)</span>
                   </div>
                 </div>
-                
               </div>
             </div>
           ) : (
@@ -192,41 +266,332 @@ export default function SharedRSVPThankYouPage({ params }: { params: Promise<{ s
               </p>
             </div>
           )}
-          
+
           {status.message && (
             <div className={styles.messageSection}>
               <div className={styles.messageHeader}>
                 <MessageCircle className={styles.messageIcon} />
                 <h3>Votre message pour l'organisateur</h3>
               </div>
-              <div className={styles.messageContent}>
-                "{status.message}"
-              </div>
+              <div className={styles.messageContent}>"{status.message}"</div>
             </div>
           )}
         </div>
 
         <div className={styles.footerSection}>
           <p className={styles.confirmationText}>
-            Votre réponse a été enregistrée avec succès. L'organisateur a été notifié.
+            Votre réponse a été enregistrée avec succès. L'organisateur a été
+            notifié.
           </p>
-          
+
           <div className={styles.actionButtons}>
-            <a 
-              href={`/rsvp/shared/${shareableToken}`}
-              className={styles.viewInvitationButton}
-            >
-              <Eye className={styles.buttonIcon} />
-              Voir l'invitation
-            </a>
+            {status.status === "CONFIRMED" && (
+              <button
+                onClick={handleDownload}
+                disabled={downloading}
+                className={styles.viewInvitationButton}
+                style={{
+                  background: "var(--primary, #6366F1)",
+                  color: "white",
+                  border: "none",
+                  cursor: "pointer",
+                  width: "100%",
+                  justifyContent: "center",
+                  opacity: downloading ? 0.8 : 1,
+                }}
+              >
+                {downloading ? (
+                  <Loader
+                    className={styles.buttonIcon}
+                    style={{ animation: "spin 1s linear infinite" }}
+                  />
+                ) : (
+                  <Download className={styles.buttonIcon} />
+                )}
+                {downloading
+                  ? "Génération du pass..."
+                  : "Télécharger le pass (PDF)"}
+              </button>
+            )}
           </div>
-          
+
           <div className={styles.securityNotice}>
             <Shield className={styles.securityIcon} />
-            <span>Ce lien est personnel. Merci de ne pas le partager avec d'autres personnes.</span>
+            <span>
+              Ce lien est personnel. Merci de ne pas le partager avec d'autres
+              personnes.
+            </span>
           </div>
         </div>
       </div>
+
+      {/* TICKET PASSEPORT MASQUE POUR GENERATION PDF */}
+      {status.status === "CONFIRMED" && invitation && invitation.design && (
+        <div style={{ position: "absolute", left: "-9999px", top: 0 }}>
+          <div
+            ref={passRef}
+            style={{
+              width: "450px",
+              height: "640px",
+              position: "relative",
+              overflow: "hidden",
+              backgroundColor: "#ffffff",
+              display: "flex",
+              flexDirection: "column",
+            }}
+          >
+            {/* Zone Invitation (Moitié Haute) */}
+            <div
+              style={{
+                width: "100%",
+                height: "340px",
+                position: "relative",
+                backgroundColor: "#f3f4f6",
+                display: "flex",
+                justifyContent: "center",
+                alignItems: "center",
+                overflow: "hidden",
+              }}
+            >
+              {/* Sceau de certification Kawepla */}
+              <img
+                src={`${typeof window !== "undefined" ? window.location.origin : ""}/images/sceau-kawepla.png`}
+                alt="Sceau Kawepla"
+                style={{
+                  position: "absolute",
+                  top: "0px",
+                  left: "0px",
+                  width: "45px",
+                  height: "45px",
+                  zIndex: 20,
+                  filter: "drop-shadow(0 2px 4px rgba(0,0,0,0.15))",
+                }}
+              />
+
+              {/* Conteneur pour forcer le ratio de DesignPreview en mode card */}
+              <div
+                style={{
+                  width: "380px",
+                  height: "380px",
+                  transform: "scale(0.85)",
+                  transformOrigin: "center",
+                  display: "flex",
+                  justifyContent: "center",
+                  alignItems: "center",
+                }}
+              >
+                <DesignPreview design={invitation.design} />
+              </div>
+            </div>
+
+            {/* Notches latérales pour effet Billet */}
+            <div
+              style={{
+                position: "absolute",
+                top: "330px",
+                left: "-10px",
+                width: "20px",
+                height: "20px",
+                borderRadius: "50%",
+                backgroundColor: "#ffffff",
+                boxShadow: "inset -2px 0 4px rgba(0,0,0,0.05)",
+                zIndex: 10,
+              }}
+            />
+            <div
+              style={{
+                position: "absolute",
+                top: "330px",
+                right: "-10px",
+                width: "20px",
+                height: "20px",
+                borderRadius: "50%",
+                backgroundColor: "#ffffff",
+                boxShadow: "inset 2px 0 4px rgba(0,0,0,0.05)",
+                zIndex: 10,
+              }}
+            />
+
+            {/* Ligne pointillée de découpe */}
+            <div
+              style={{
+                width: "100%",
+                borderTop: "2px dashed #e5e7eb",
+                position: "absolute",
+                top: "340px",
+                zIndex: 5,
+              }}
+            />
+
+            {/* Zone Contenu (Moitié Basse) */}
+            <div
+              style={{
+                flex: 1,
+                padding: "1.25rem",
+                display: "flex",
+                flexDirection: "column",
+                position: "relative",
+                justifyContent: "space-between",
+              }}
+            >
+              <div>
+                {status.profilePhotoUrl && (
+                  <div
+                    style={{
+                      position: "absolute",
+                      top: "-15px",
+                      right: "1.25rem",
+                      zIndex: 12,
+                    }}
+                  >
+                    <img
+                      src={`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:3013"}/api/proxy/image?url=${encodeURIComponent(status.profilePhotoUrl)}`}
+                      alt="Avatar"
+                      crossOrigin="anonymous"
+                      style={{
+                        width: "56px",
+                        height: "56px",
+                        borderRadius: "50%",
+                        border: "4px solid white",
+                        boxShadow: "0 4px 6px rgba(0,0,0,0.1)",
+                        objectFit: "cover",
+                      }}
+                    />
+                  </div>
+                )}
+
+                <span
+                  style={{
+                    fontSize: "0.75rem",
+                    fontWeight: 800,
+                    letterSpacing: "2px",
+                    color: "var(--primary, #6366F1)",
+                    background: "#e0e7ff",
+                    padding: "4px 8px",
+                    borderRadius: "4px",
+                    display: "inline-block",
+                    marginBottom: "0.5rem",
+                  }}
+                >
+                  🎫 PASS EXCLUSIF
+                </span>
+
+                <h3
+                  style={{
+                    margin: "0 0 0.25rem 0",
+                    fontFamily: "var(--font-heading)",
+                    color: "#111827",
+                    fontSize: "1.5rem",
+                    fontWeight: 800,
+                  }}
+                >
+                  {status?.firstName?.toUpperCase()}{" "}
+                  {status?.lastName?.toUpperCase()}
+                </h3>
+
+                <div
+                  style={{
+                    display: "flex",
+                    flexDirection: "column",
+                    gap: "3px",
+                    fontSize: "0.9rem",
+                    color: "#4b5563",
+                    marginBottom: "0.5rem",
+                  }}
+                >
+                  <p style={{ margin: 0 }}>
+                    <strong>Statut d'accès :</strong> ✅ Présent(e)
+                  </p>
+                  {status.plusOneName && (
+                    <p style={{ margin: 0 }}>
+                      <strong>Accompagnant :</strong> 👥 {status.plusOneName}
+                    </p>
+                  )}
+                  {status.dietaryRestrictions && (
+                    <p
+                      style={{
+                        margin: "4px 0 0 0",
+                        padding: "6px 10px",
+                        backgroundColor: "#fff7ed",
+                        borderRadius: "6px",
+                        color: "#ea580c",
+                        fontSize: "0.8rem",
+                        borderLeft: "3px solid #f97316",
+                      }}
+                    >
+                      🥗 <strong>Restriction :</strong>{" "}
+                      {status.dietaryRestrictions}
+                    </p>
+                  )}
+                </div>
+              </div>
+
+              {/* Simulation de QR Code scannable */}
+              <div
+                style={{
+                  textAlign: "center",
+                  borderTop: "1px solid #f3f4f6",
+                  paddingTop: "0.75rem",
+                  display: "flex",
+                  justifyContent: "center",
+                  alignItems: "center",
+                  gap: "1.5rem",
+                }}
+              >
+                <div style={{ textAlign: "left" }}>
+                  <p
+                    style={{
+                      margin: 0,
+                      fontSize: "0.85rem",
+                      fontWeight: "bold",
+                      color: "#111827",
+                    }}
+                  >
+                    CONTROLE D'ACCÈS
+                  </p>
+                  <p
+                    style={{
+                      margin: 0,
+                      fontSize: "0.7 xrem",
+                      color: "#6b7280",
+                    }}
+                  >
+                    Sécurisé par Kawepla
+                  </p>
+                  <p
+                    style={{
+                      margin: "4px 0 0 0",
+                      fontSize: "0.6rem",
+                      color: "#9ca3af",
+                      letterSpacing: "2px",
+                    }}
+                  >
+                    V-${invitation.id.substring(0, 8).toUpperCase()}
+                  </p>
+                </div>
+                <div>
+                  <img
+                    src={`https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(
+                      btoa(JSON.stringify({ 
+                        inviteId: invitation.id, 
+                        guestId: status?.guestId || (status as any)?.id || (status as any)?._id 
+                      }))
+                    )}`}
+                    alt="Inspection QR Code"
+                    style={{
+                      width: "120px",
+                      height: "120px",
+                      border: "1px solid #e5e7eb",
+                      padding: "4px",
+                      borderRadius: "6px",
+                    }}
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
-} 
+}

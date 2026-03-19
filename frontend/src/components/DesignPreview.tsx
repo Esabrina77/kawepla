@@ -170,13 +170,21 @@ export default function DesignPreview({ design, width = 300, height = 400, class
     };
   }, [mounted, design.id, design.fabricData, design.canvasWidth, design.canvasHeight, width, height]);
 
+  const [cacheBuster] = useState(() => Date.now());
+
   // Si on a une thumbnail ou previewImage, l'afficher directement
   if (design.thumbnail || design.previewImage) {
+    const imageUrl = design.thumbnail || design.previewImage;
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3013';
+    // Utiliser le proxy pour contourner les CORS
+    const proxyUrl = imageUrl ? `${apiUrl}/api/proxy/image?url=${encodeURIComponent(imageUrl)}&cb=${cacheBuster}` : '';
+
     return (
       <img
-        src={design.thumbnail || design.previewImage}
+        src={proxyUrl}
         alt={design.name}
         className={className}
+        crossOrigin="anonymous"
         style={{
           width: '100%',
           height: '100%',

@@ -34,6 +34,7 @@ import todoRoutes from './routes/todos';
 import aiRoutes from './routes/ai';
 import adminServicePackRoutes from './routes/adminServicePacks';
 import adminInvitationRoutes from './routes/adminInvitations';
+import fetch from 'node-fetch';
 
 // Import des middlewares
 import { errorHandler } from './middleware/errorHandler';
@@ -115,6 +116,23 @@ app.use('/api/auth', authRoutes);
 
 // Routes RSVP publiques
 app.use('/api/rsvp', rsvpRoutes);
+
+// Proxy image pour contourner les blocages CORS (pour generation PDF/Images)
+app.get('/api/proxy/image', (async (req, res) => {
+  const url = req.query.url as string;
+  if (!url) return res.status(400).send('No URL provided');
+  try {
+    const response = await fetch(url);
+    const contentType = response.headers.get('content-type') || 'image/jpeg';
+    res.setHeader('Content-Type', contentType);
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    const buffer = await response.arrayBuffer();
+    res.send(Buffer.from(buffer));
+  } catch (err) {
+    console.error('Proxy image error:', err);
+    res.status(500).send('Error fetching image');
+  }
+}) as RequestHandler);
 
 /**
  * Routes protégées (avec authentification)

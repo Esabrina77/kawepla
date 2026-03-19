@@ -27,7 +27,8 @@ import {
   RefreshCw,
   FileSpreadsheet,
   Printer,
-  Users
+  Users,
+  Camera
 } from 'lucide-react';
 import * as XLSX from 'xlsx';
 import jsPDF from 'jspdf';
@@ -546,7 +547,7 @@ function ShareableLinkManager({ invitationId }: { invitationId: string }) {
   };
 
   const shareLink = async (url: string) => {
-    const message = `Vous êtes invité à notre événement ! Cliquez sur ce lien pour confirmer votre présence : ${url}`;
+    const message = `Vous êtes invité à mon événement ! Cliquez sur ce lien pour confirmer votre présence :\n${url}\n\n(⚠️ Attention : ce lien expire dans 10 minutes)`;
 
     if (navigator.share) {
       try {
@@ -1017,6 +1018,14 @@ export default function GuestsPage() {
             {/* Actions */}
             <div className={styles.actionsSection}>
               <div className={styles.actionsRow}>
+                <button
+                  className={`${styles.actionButton} ${styles.primary}`}
+                  onClick={() => router.push('/client/guests/scan')}
+                  style={{ backgroundColor: '#10b981', color: '#ffffff' }}
+                >
+                  <Camera size={16} />
+                  Scanner Billet
+                </button>
                 <button
                   className={`${styles.actionButton} ${styles.primary}`}
                   onClick={() => setShowAddModal(true)}

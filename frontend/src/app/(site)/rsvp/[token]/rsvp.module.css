@@ -210,9 +210,7 @@
   box-shadow: var(--shadow-xl);
 }
 
-.formContent {
-  /* Animation supprimée pour fondu pure Framer-Motion */
-}
+
 
 .formTitle {
   text-align: center;
@@ -239,6 +237,14 @@
   display: flex;
   flex-direction: column;
   gap: 0.75rem;
+}
+
+.stepContent {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem; /* Espacement généreux entre chaque groupe d'un même Step */
+  animation: fadeIn 0.3s ease-out;
+  width: 100%;
 }
 
 .formGroup {
@@ -273,6 +279,24 @@
   font-weight: 500;
   color: var(--text-primary);
   font-family: var(--font-sans);
+}
+
+.plusOneLabel {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  font-size: 1rem;
+  font-weight: 500;
+  color: var(--text-primary);
+  font-family: var(--font-sans);
+  cursor: pointer;
+}
+
+.checkbox {
+  width: 1.25rem;
+  height: 1.25rem;
+  accent-color: var(--primary, #6366F1);
+  cursor: pointer;
 }
 
 .inputGrid {
@@ -336,8 +360,11 @@
   align-items: center;
   justify-content: center;
   margin-bottom: 2.5rem;
-  gap: 0.75rem;
+  gap: 1rem;
   width: 100%;
+  max-width: 400px;
+  margin-left: auto;
+  margin-right: auto;
 }
 
 .step {
@@ -345,7 +372,8 @@
   flex-direction: column;
   align-items: center;
   gap: 0.5rem;
-  flex: 1;
+  position: relative;
+  z-index: 1;
 }
 
 .stepNumber {
@@ -359,7 +387,7 @@
   justify-content: center;
   font-weight: 600;
   font-size: 0.9rem;
-  color: var(--foreground, #111827);
+  color: var(--text-secondary, #4b5563);
   transition: all 0.3s ease;
 }
 
@@ -371,10 +399,10 @@
 }
 
 .activeStep .stepNumber {
-  border-color: var(--primary, #6366F1);
-  background: var(--primary, #6366F1);
-  color: white;
-  box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.15);
+  border-color: var(--primary, #6366F1) !important;
+  background-color: var(--primary, #6366F1) !important;
+  color: white !important;
+  box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.15) !important;
 }
 
 .activeStep .stepLabel {
@@ -384,7 +412,7 @@
 
 .stepLine {
   height: 2px;
-  background: var(--border, #e5e7eb);
+  background: #374151; /* Trait gris très foncé / presque noir par défaut */
   flex: 1;
   max-width: 80px;
   margin-bottom: 1.5rem; /* Aligné sur le centre des ronds */
@@ -887,42 +915,6 @@
 }
 
 
-/* Stepper Styles */
-.stepperContainer {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin-bottom: 2rem;
-  width: 100%;
-  max-width: 400px;
-  margin-left: auto;
-  margin-right: auto;
-}
-
-.step {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 0.5rem;
-  position: relative;
-  z-index: 1;
-}
-
-.stepNumber {
-  width: 32px;
-  height: 32px;
-  border-radius: 50%;
-  background: var(--bg-secondary);
-  border: 2px solid var(--border-color);
-  color: var(--text-secondary);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-weight: 600;
-  font-size: 0.875rem;
-  transition: all var(--transition-normal);
-}
-
 /* --- ACTIONS FORMULAIRE (Suivant, Envoyer, Retour) --- */
 .formActions {
   display: flex;
@@ -931,7 +923,23 @@
   width: 100%;
 }
 
-.nextButton, .submitButton {
+.nextButton {
+  width: auto !important;
+  max-width: 250px !important;
+  margin: 0 auto !important; /* Centre le bouton unique de l'étape 1 */
+  padding: 0.85rem 3rem !important;
+  font-size: 1rem !important;
+  background-color: var(--primary, #6366F1) !important;
+  color: #ffffff !important;
+  border: none !important;
+  border-radius: 0.75rem !important;
+  font-weight: 600 !important;
+  cursor: pointer !important;
+  transition: all 0.2s ease !important;
+  box-shadow: 0 4px 12px rgba(99, 102, 241, 0.15);
+}
+
+.submitButton {
   width: 100%;
   padding: 0.85rem !important;
   font-size: 1rem !important;
@@ -945,9 +953,17 @@
   box-shadow: 0 4px 12px rgba(99, 102, 241, 0.15);
 }
 
-.nextButton:hover, .submitButton:hover {
+.nextButton:hover:not(:disabled), .submitButton:hover:not(:disabled) {
   background-color: #4f46e5 !important; /* Indigo plus profond */
   transform: translateY(-1px);
+}
+
+.nextButton:disabled, .submitButton:disabled {
+  background-color: var(--border-color, #e5e7eb) !important;
+  color: var(--text-secondary, #6b7280) !important;
+  cursor: not-allowed !important;
+  box-shadow: none !important;
+  transform: none !important;
 }
 
 .prevButton {
