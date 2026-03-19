@@ -17,6 +17,9 @@ services:
       - kawepla-network
 
   backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
     image: esabrina77/kawepla-backend:latest
     container_name: kawepla-backend
     restart: unless-stopped
