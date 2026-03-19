@@ -39,10 +39,10 @@ export function Footer() {
                             Navigation
                         </h3>
                         <ul className={styles.linkList}>
-                            <li className={styles.linkItem}><a href="#accueil" className={styles.link}>Accueil</a></li>
-                            <li className={styles.linkItem}><a href="#features" className={styles.link}>Fonctionnalités</a></li>
-                            <li className={styles.linkItem}><a href="#pricing" className={styles.link}>Tarifs</a></li>
-                            <li className={styles.linkItem}><a href="#faq" className={styles.link}>FAQ</a></li>
+                            <li className={styles.linkItem}><Link href="/" className={styles.link}>Accueil</Link></li>
+                            <li className={styles.linkItem}><Link href="/blog" className={styles.link}>Blog</Link></li>
+                            <li className={styles.linkItem}><Link href="/pricing" className={styles.link}>Tarifs</Link></li>
+                            <li className={styles.linkItem}><Link href="/help" className={styles.link}>FAQ / Aide</Link></li>
                         </ul>
                     </div>
 
@@ -53,9 +53,8 @@ export function Footer() {
                         </h3>
                         <ul className={styles.linkList}>
                             <li className={styles.linkItem}><Link href="/mentions-legales" className={styles.link}>Mentions Légales</Link></li>
-                            <li className={styles.linkItem}><Link href="/cgu" className={styles.link}>CGU</Link></li>
-                            <li className={styles.linkItem}><Link href="/confidentialite" className={styles.link}>Confidentialité</Link></li>
-                            <li className={styles.linkItem}><Link href="/cookies" className={styles.link}>Cookies</Link></li>
+                            <li className={styles.linkItem}><Link href="/conditions-utilisation" className={styles.link}>CGU</Link></li>
+                            <li className={styles.linkItem}><Link href="/politique-confidentialite" className={styles.link}>Confidentialité</Link></li>
                         </ul>
                     </div>
 
@@ -87,7 +86,7 @@ export function Footer() {
                     </p>
                     <div className={styles.legalLinks}>
                         <Link href="/mentions-legales" className={styles.legalLink}>Mentions Légales</Link>
-                        <Link href="/confidentialite" className={styles.legalLink}>Confidentialité</Link>
+                        <Link href="/politique-confidentialite" className={styles.legalLink}>Confidentialité</Link>
                     </div>
                 </div>
             </div>

@@ -59,21 +59,21 @@ export function Header() {
 
                     {/* Desktop Navigation - Centered */}
                     <div className={styles.desktopNav}>
-                        <a href="#accueil" className={styles.navLink}>
+                        <Link href="/" className={styles.navLink}>
                             Accueil
-                        </a>
-                        <a href="#blog-organisateurs" className={styles.navLink}>
+                        </Link>
+                        <Link href="/blog/host" className={styles.navLink}>
                             Blog Organisateurs
-                        </a>
-                        <a href="#blog-prestataires" className={styles.navLink}>
+                        </Link>
+                        <Link href="/blog/provider" className={styles.navLink}>
                             Blog Prestataires
-                        </a>
-                        <a href="#pricing" className={styles.navLink}>
+                        </Link>
+                        <Link href="/pricing" className={styles.navLink}>
                             Tarifs
-                        </a>
-                        <a href="#faq" className={styles.navLink}>
-                            FAQ
-                        </a>
+                        </Link>
+                        <Link href="/help" className={styles.navLink}>
+                            FAQ / Aide
+                        </Link>
                     </div>
 
                     {/* Right Side - Dark Mode + CTA */}
@@ -106,41 +106,41 @@ export function Header() {
                 {/* Mobile Navigation */}
                 {isMenuOpen && (
                     <div className={styles.mobileNav}>
-                        <a
-                            href="#accueil"
+                        <Link
+                            href="/"
                             className={styles.mobileNavLink}
                             onClick={() => setIsMenuOpen(false)}
                         >
                             Accueil
-                        </a>
-                        <a
-                            href="#blog-organisateurs"
+                        </Link>
+                        <Link
+                            href="/blog/host"
                             className={styles.mobileNavLink}
                             onClick={() => setIsMenuOpen(false)}
                         >
                             Blog Organisateurs
-                        </a>
-                        <a
-                            href="#blog-prestataires"
+                        </Link>
+                        <Link
+                            href="/blog/provider"
                             className={styles.mobileNavLink}
                             onClick={() => setIsMenuOpen(false)}
                         >
                             Blog Prestataires
-                        </a>
-                        <a
-                            href="#pricing"
+                        </Link>
+                        <Link
+                            href="/pricing"
                             className={styles.mobileNavLink}
                             onClick={() => setIsMenuOpen(false)}
                         >
                             Tarifs
-                        </a>
-                        <a
-                            href="#faq"
+                        </Link>
+                        <Link
+                            href="/help"
                             className={styles.mobileNavLink}
                             onClick={() => setIsMenuOpen(false)}
                         >
-                            FAQ
-                        </a>
+                            FAQ / Aide
+                        </Link>
 
                         <div className={styles.mobileFooter}>
                             <button
