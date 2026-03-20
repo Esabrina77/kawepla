@@ -418,3 +418,66 @@
   0% { transform: rotate(0deg); }
   100% { transform: rotate(360deg); }
 }
+
+/* 📱 ADAPTATION MOBILE */
+@media (max-width: 480px) {
+  .modal {
+    max-width: 330px;
+    border-radius: 20px;
+  }
+  
+  .modalHeader {
+    padding: 1.25rem;
+  }
+  
+  .modalHeader h2 {
+    font-size: 1.15rem;
+  }
+  
+  .modalContent {
+    padding: 1.25rem;
+    gap: 1rem;
+  }
+
+  .avatar {
+    width: 65px;
+    height: 65px;
+  }
+
+  .guestInfo h3 {
+    font-size: 1.15rem;
+    word-break: break-word;
+  }
+
+  .detailsGrid {
+    padding: 0.85rem;
+    gap: 0.6rem;
+    font-size: 0.85rem;
+  }
+
+  .detailsGrid p {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 2px;
+  }
+
+  .detailsGrid p span {
+    color: #1e293b;
+    font-weight: 500;
+  }
+
+  .dietary {
+    font-size: 0.85rem;
+    padding: 8px 12px;
+  }
+
+  .actions {
+    gap: 0.6rem;
+  }
+
+  .confirmButton, .closeButton {
+    padding: 0.85rem;
+    font-size: 0.9rem;
+    border-radius: 12px;
+  }
+}

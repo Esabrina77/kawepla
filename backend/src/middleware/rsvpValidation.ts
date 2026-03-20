@@ -28,7 +28,7 @@ export const shareableRSVPSchema = z.object({
   // Infos personnelles
   firstName: z.string().min(2, 'Le prénom doit contenir au moins 2 caractères'),
   lastName: z.string().min(2, 'Le nom doit contenir au moins 2 caractères'),
-  email: z.string().email().optional().nullable(),
+  email: z.string().trim().email().optional().nullable(),
   phone: z.string().min(8, 'Le numéro de téléphone doit contenir au moins 8 caractères'),
   // RSVP classique
   status: z.enum(['CONFIRMED', 'DECLINED', 'PENDING']),

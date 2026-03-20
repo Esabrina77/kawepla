@@ -55,6 +55,9 @@ export default function SharedRSVPThankYouPage({
     if (passRef.current === null) return;
     setDownloading(true);
     try {
+      // Forcer un délai d'une seconde pour être sûr que Fabric.js a fini de dessiner
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+
       const dataUrl = await toPng(passRef.current, {
         cacheBust: true,
         backgroundColor: "#ffffff",
@@ -380,7 +383,16 @@ export default function SharedRSVPThankYouPage({
                   alignItems: "center",
                 }}
               >
-                <DesignPreview design={invitation.design} />
+                {invitation.design.previewImage || invitation.design.thumbnail ? (
+                  <img 
+                    src={`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:3013"}/api/proxy/image?url=${encodeURIComponent(invitation.design.previewImage || invitation.design.thumbnail)}`} 
+                    alt="Design"
+                    crossOrigin="anonymous"
+                    style={{ width: "100%", height: "100%", objectFit: "contain", borderRadius: "8px" }}
+                  />
+                ) : (
+                  <DesignPreview design={invitation.design} />
+                )}
               </div>
             </div>
 
