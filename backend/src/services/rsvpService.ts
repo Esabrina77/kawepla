@@ -363,9 +363,12 @@ export class RSVPService {
       throw new Error('Le nom est requis (minimum 2 caractères)');
     }
 
-    // Téléphone requis
-    if (!data.phone || data.phone.trim().length < 8) {
-      throw new Error('Le numéro de téléphone est requis (minimum 8 caractères)');
+    // Au moins un des deux requis : téléphone ou email
+    const hasEmail = data.email && data.email.trim().length > 0;
+    const hasPhone = data.phone && data.phone.trim().length >= 8;
+
+    if (!hasEmail && !hasPhone) {
+      throw new Error('Vous devez renseigner au moins une adresse email ou un numéro de téléphone d\'au moins 8 caractères');
     }
 
     // Récupérer l'invitation et son propriétaire
@@ -401,7 +404,7 @@ export class RSVPService {
         firstName: data.firstName,
         lastName: data.lastName,
         email: data.email || null,
-        phone: data.phone,
+        phone: data.phone || null,
         invitationId: invitationId,
         userId: invitation.userId, // Lier au propriétaire de l'invitation
         inviteToken: inviteToken,

@@ -1,0 +1,474 @@
+
+
+=== PATH: (extranet)\client\billing\history\page.tsx ===
+Composant: PurchaseHistoryPage
+États (useState): purchaseHistory, loading, error
+Titres (H1-H3): Erreur de chargement | Total des achats | Montant total | Dernier achat | Historique détaillé
+Composants Utilisés: PurchaseHistoryData, Package, CheckCircle, TrendingUp, CreditCard, AlertCircle, HeaderMobile, Euro
+
+
+=== PATH: (extranet)\client\billing\page.tsx ===
+Composant: BillingPage
+États (useState): userLimits, activePurchases, availablePlans, additionalServices, loading, upgrading, purchasingService, confirmModal, serviceModal, successModal, errorModal
+Titres (H1-H3): Erreur de chargement | Votre statut actuel | Limites actuelles | Upgradez votre expérience | Packs supplémentaires
+Composants Utilisés: ServicePurchasePlan, AdditionalService, AlertCircle, HeaderMobile, Package, History, CheckCircle, Users
+
+
+=== PATH: (extranet)\client\dashboard\page.tsx ===
+Composant: DashboardPage
+États (useState): selectedInvitationId, limits, todosStats
+Titres (H1-H3): Avancement | Invités | Actions
+Composants Utilisés: HeaderMobile, ChevronDown, Link, AlertTriangle, ChevronRight, Icon
+
+
+=== PATH: (extranet)\client\design\editor\page.tsx ===
+Composant: ClientDesignEditorPage
+États (useState): name, canvas, loading, saving, showSaveDialog, currentDesign
+Appels API détectés: Oui (1)
+Titres (H1-H3): Sauvegarder votre design
+Composants Utilisés: HeaderMobile, Navbar, Toolbar, ContextToolbar, Canvas, PropertiesPanel, SaveDesignDialog
+
+
+=== PATH: (extranet)\client\design\page.tsx ===
+Composant: DesignsGalleryPage
+États (useState): activeTab, importLoading, showImportBanner, templates, personalDesigns, favoriteIds, filteredDesigns, searchQuery, selectedTags, selectedPriceType
+Composants Utilisés: Tab, Design, HTMLInputElement, HeaderMobile, LayoutTemplate, Heart, Palette, Search
+
+
+=== PATH: (extranet)\client\design\[id]\page.tsx ===
+Composant: DesignDetailPage
+États (useState): design, loading, isFavorite
+Titres (H1-H3): Design introuvable
+Composants Utilisés: Design, HeaderMobile, DesignPreview, PaintBucket, Heart
+
+
+=== PATH: (extranet)\client\guests\page.tsx ===
+Composant: GuestsPage
+États (useState): formData, loading, error, step, file, preview, loading, error, importing, shareableLink, loading, error, limits, selectedInvitationId, invitationType, searchQuery, rsvpFilter, typeFilter, showAddModal, showImportModal, showExportModal, showRsvpFilter, showTypeFilter, notification
+Titres (H1-H3): Ajouter un invité | Import en masse | Prévisualisation | Exporter la liste | Aucun événement
+Composants Utilisés: X, AlertCircle, File, HTMLInputElement, Download, FileSpreadsheet, Printer, Copy
+
+
+=== PATH: (extranet)\client\guests\scan\page.tsx ===
+Composant: ScanPage
+États (useState): invitations, selectedInvitation, loading, scannerActive, scanResult, guestDetails, isValidating, scanError
+Titres (H1-H3): Sélectionnez l'évènement à contrôler : | Billet Non Valide
+Composants Utilisés: Invitation, Html5Qrcode, HeaderMobile, AlertTriangle, X, Check, User
+
+
+=== PATH: (extranet)\client\invitations\create\page.tsx ===
+Composant: CreateInvitationPage
+États (useState): designId, design, canvas, showEventForm, eventFormData, invitationId, loading, saving, step
+Appels API détectés: Oui (1)
+Composants Utilisés: EventFormData, HeaderMobile, InvitationEventFormModal, Toolbar, Navbar, ContextToolbar, Canvas, PropertiesPanel
+
+
+=== PATH: (extranet)\client\invitations\page.tsx ===
+Composant: InvitationsPage
+États (useState): limits, showCreateForm, formData, creating
+Titres (H1-H3): Créer un nouvel évènement | Type d'événement * | 1. Titre de l'événement * | 2. Message personnalisé (optionnel) | 3. Date et heure *
+Composants Utilisés: HeaderMobile, Plus, X, Palette, DesignPreview, Save, Mail
+
+
+=== PATH: (extranet)\client\invitations\[id]\edit\page.tsx ===
+Composant: InvitationEditPage
+États (useState): invitation, modal, showDesignModal, formData
+Titres (H1-H3): Événement non trouvé | Type d&apos;événement * | 1. Titre * | 2. Message personnalisé | 3. Date et heure *
+Composants Utilisés: HeaderMobile, CheckCircle, AlertTriangle, X, Save, DesignPreview, Palette
+
+
+=== PATH: (extranet)\client\invitations\[id]\page.tsx ===
+Composant: InvitationDetailPage
+États (useState): invitation
+Titres (H1-H3): Invitation non trouvée
+Composants Utilisés: HeaderMobile, DesignPreview, Edit, Globe
+
+
+=== PATH: (extranet)\client\messages\page.tsx ===
+Composant: MessagesPage
+États (useState): searchQuery, selectedMessage
+Appels API détectés: Oui (1)
+Titres (H1-H3): Une erreur est survenue | Détails de la réponse
+Composants Utilisés: RSVPMessage, HeaderMobile, Info, Search, Mail, Calendar, Clock, ArrowRight
+
+
+=== PATH: (extranet)\client\photos\page.tsx ===
+Composant: PhotosPage
+États (useState): selectedInvitationId
+Titres (H1-H3): Aucune invitation
+Composants Utilisés: Camera, ImageIcon, HeaderMobile, PhotoAlbumManager
+
+
+=== PATH: (extranet)\client\profile\page.tsx ===
+Composant: ProfilePage
+États (useState): formData, isSaving, showDeleteModal, isDeleting
+Titres (H1-H3): Paramètres de notifications | Zone de danger
+Composants Utilisés: HeaderMobile, User, Mail, Bell, NotificationToggle, AlertTriangle, Trash2, ConfirmModal
+
+
+=== PATH: (extranet)\client\providers\all\page.tsx ===
+Composant: ProvidersPage
+États (useState): searchTerm, selectedCategory
+Titres (H1-H3): Trouvez vos prestataires de rêve | Aucun résultat
+Composants Utilisés: UtensilsCrossed, Camera, Music, Flower2, Calendar, Palette, Building2, Sparkles
+
+
+=== PATH: (extranet)\client\providers\discussions\page.tsx ===
+Composant: ClientDiscussionsPage
+États (useState): selectedConversationId, searchQuery, messageText, sending
+Composants Utilisés: Calendar, Users, HTMLDivElement, DateSeparator, MessageItem, HeaderMobile, Search, MessageCircle
+
+
+=== PATH: (extranet)\client\providers\[id]\book\page.tsx ===
+Composant: BookServicePage
+États (useState): activeConversationId, selectedService, useCustomService, formData, submitting, error
+Titres (H1-H3): Réservation impossible | Sélection du service | Détails de l'événement
+Composants Utilisés: HeaderMobile, X, Link, MessageCircle, Clock, Users, Calendar, CheckCircle
+
+
+=== PATH: (extranet)\client\providers\[id]\page.tsx ===
+Composant: ProviderDetailPage
+États (useState): activeTab, isFavorite
+Titres (H1-H3): ❌ Erreur | Information sur les tarifs | Portfolio en préparation
+Composants Utilisés: UtensilsCrossed, Camera, Music, Flower2, Palette, Building2, HeaderMobile, ArrowLeft
+
+
+=== PATH: (extranet)\client\tools\budget\page.tsx ===
+Composant: BudgetPage
+États (useState): totalBudget, expenses
+Titres (H1-H3): Budget du événement | Budget total | Par catégorie | Dernières dépenses
+Composants Utilisés: Expense, Card
+
+
+=== PATH: (extranet)\client\tools\page.tsx ===
+Composant: ToolsPage
+Titres (H1-H3): Outils | Outils disponibles
+Composants Utilisés: HeaderMobile, ToolCard, Icon, Sparkles, ChevronDown
+
+
+=== PATH: (extranet)\client\tools\planning\page.tsx ===
+Composant: PlanningPage
+États (useState): tasks, invitations, loading, error, selectedCategory, selectedInvitation, searchTerm, showAddTask, editingTask, currentDate, viewMode, selectedDate, draggedTask, draggedOverColumn, showDeleteModal, taskToDelete, showAIModal, selectedInvitationForAI, aiFormData, isGeneratingChecklist, showGoogleCalendarModal, googleCalendarInfo, formData
+Titres (H1-H3): L'IA prépare votre checklist | Aucun événement à venir | Impossible de générer une checklist | Supprimer la tâche | Erreur d'exportation
+Composants Utilisés: TodoItem, TodoCategory, ViewMode, Date, CreateTodoDto, Briefcase, Settings, Flower
+
+
+=== PATH: (extranet)\client\tools\support-client\page.tsx ===
+Composant: ClientDiscussionsPage
+États (useState): selectedInvitationId
+Titres (H1-H3): Questions Générales
+Composants Utilisés: HeaderMobile, Info, Users, ChatBox, AlertCircle
+
+
+=== PATH: (extranet)\provider\billing\page.tsx ===
+Composant: ProviderBillingPage
+États (useState): purchaseHistory, loading, error, showInvoiceError
+Titres (H1-H3): Erreur de chargement | Forfait Provider | Total des achats | Montant total
+Composants Utilisés: PurchaseHistoryData, AlertCircle, HeaderMobile, Layout, Zap, CheckCircle, BarChart3, Euro
+
+
+=== PATH: (extranet)\provider\bookings\page.tsx ===
+Composant: ProviderBookingsPage
+États (useState): bookings, loading, error, selectedFilter, stats
+Titres (H1-H3): Mes réservations | Aucune réservation
+Composants Utilisés: Booking, HeaderMobile, Calendar, Clock, CheckCircle, XCircle, Euro, Filter
+
+
+=== PATH: (extranet)\provider\bookings\[id]\page.tsx ===
+Composant: BookingDetailPage
+États (useState): booking, loading, error, updating
+Composants Utilisés: Booking, Link, ArrowLeft, HeaderMobile, StatusIcon, MessageSquare
+
+
+=== PATH: (extranet)\provider\dashboard\page.tsx ===
+Composant: ProviderDashboard
+États (useState): stats
+Titres (H1-H3): Bienvenue ! | Actions rapides | Mes services récents
+Composants Utilisés: HeaderMobile, Briefcase, Plus, Link, Icon, ChevronRight, Euro
+
+
+=== PATH: (extranet)\provider\messages\page.tsx ===
+Composant: ProviderMessagesPage
+États (useState): selectedConversationId, searchQuery, messageText, sending, showSendError
+Composants Utilisés: Calendar, Users, HTMLDivElement, DateSeparator, MessageItem, HeaderMobile, Search, MessageCircle
+
+
+=== PATH: (extranet)\provider\page.tsx ===
+Composant: ProviderPage
+
+
+=== PATH: (extranet)\provider\profile\page.tsx ===
+Composant: ProviderProfilePage
+États (useState): formData, uploading, showSuccessModal, showErrorModal, errorMessage, showDeleteModal, isDeleting
+Titres (H1-H3): Notifications | Zone de danger | Profil sauvegardé avec succès ! | Erreur
+Composants Utilisés: CreateProviderProfileDto, HeaderMobile, Info, Share2, WebsiteIcon, InstagramIcon, TikTokIcon, FacebookIcon
+
+
+=== PATH: (extranet)\provider\services\create\page.tsx ===
+Composant: CreateServicePage
+États (useState): formData, uploading, showSuccessModal, showErrorModal, errorMessage, newInclusion, newRequirement
+Titres (H1-H3): Créer un nouveau service | Service créé avec succès ! | Erreur
+Composants Utilisés: CreateServiceDto, HeaderMobile, Info, Sparkles, Euro, Clock, Users, ListPlus
+
+
+=== PATH: (extranet)\provider\services\page.tsx ===
+Composant: ProviderServicesPage
+États (useState): deletingServiceId, serviceToDelete, showErrorModal
+Titres (H1-H3): Mes services | Aucun service créé
+Composants Utilisés: HeaderMobile, Link, Plus, Briefcase, CheckCircle, XCircle, Euro, Clock
+
+
+=== PATH: (extranet)\provider\services\[id]\edit\page.tsx ===
+Composant: EditServicePage
+États (useState): service, formData, uploading, loadingService, showSuccessModal, showErrorModal, errorMessage, newInclusion, newRequirement
+Titres (H1-H3): Modifier le service | Service mis à jour avec succès ! | Erreur
+Composants Utilisés: Service, UpdateServiceDto, Link, ArrowLeft, HeaderMobile, Info, Sparkles, Euro
+
+
+=== PATH: (extranet)\provider\services\[id]\page.tsx ===
+Composant: ServiceDetailPage
+États (useState): service
+Titres (H1-H3): Description | Inclusions | Prérequis
+Composants Utilisés: Service, Link, ArrowLeft, HeaderMobile, Edit, CheckCircle, XCircle, Euro
+
+
+=== PATH: (extranet)\provider\support\page.tsx ===
+Composant: ProviderSupportPage
+États (useState): selectedServiceId
+Titres (H1-H3): Questions Générales
+Composants Utilisés: HeaderMobile, MessageSquare, Info, Briefcase, ChatBox, AlertCircle
+
+
+=== PATH: (extranet)\super-admin\dashboard\page.tsx ===
+Composant: SuperAdminDashboard
+Composants Utilisés: HeaderMobile, Users, TrendingUp, FileText, Activity, UserCheck, ArrowUpRight, Users2
+
+
+=== PATH: (extranet)\super-admin\design\create-canva\page.tsx ===
+Composant: CreateCanvaDesignPage
+États (useState): name, description, category, priceType, showSaveDialog, saving, canvas, backgroundImage, designId, currentDesign, loadingDesign
+Appels API détectés: Oui (1)
+Titres (H1-H3): Sauvegarder le design
+Composants Utilisés: Loader2, Save, HeaderMobile, Navbar, Toolbar, ContextToolbar, Canvas, PropertiesPanel
+
+
+=== PATH: (extranet)\super-admin\design\page.tsx ===
+Composant: SuperAdminDesignPage
+États (useState): showPreviewModal, selectedDesign, deletingDesignId, searchTerm, selectedFilter, viewMode
+Titres (H1-H3): Aucun design trouvé
+Composants Utilisés: Design, HeaderMobile, Plus, Layout, User, Search, Filter, ChevronDown
+
+
+=== PATH: (extranet)\super-admin\discussions\page.tsx ===
+Composant: AdminDiscussionsPage
+États (useState): conversations, selectedConversation, messages, loading, error, searchQuery, statusFilter, typingUsers
+Titres (H1-H3): Messages | Espace de Support Admin
+Composants Utilisés: Conversation, Set, CheckCircle, Archive, X, AlertCircle, HeaderMobile, RefreshCw
+
+
+=== PATH: (extranet)\super-admin\help\page.tsx ===
+Composant: SuperAdminHelpPage
+États (useState): selectedCategory, openGuide
+Titres (H1-H3): 🔧 Guide d'administration | ⚡ Actions rapides | Gestion utilisateurs | Statistiques | Alertes système
+
+
+=== PATH: (extranet)\super-admin\invitations\page.tsx ===
+Composant: AdminInvitationsPage
+États (useState): invitations, loading, error, deletingId
+Titres (H1-H3): Global Insights | Aucune invitation trouvée
+Composants Utilisés: Invitation, HeaderMobile, FileText, CheckCircle, Clock, Archive, Mail, DesignPreview
+
+
+=== PATH: (extranet)\super-admin\invitations\[id]\design\page.tsx ===
+Composant: InvitationDesignPage
+États (useState): invitation, loading, error, displayDesign
+Titres (H1-H3): Aucun design sélectionné
+Composants Utilisés: InvitationDesign, Design, HeaderMobile, DesignPreview, AlertTriangle
+
+
+=== PATH: (extranet)\super-admin\invitations\[id]\page.tsx ===
+Composant: InvitationDetailPage
+États (useState): invitation, loading, error
+Titres (H1-H3): Informations de l'invitation | Créateur | Date de création | Dernière modification | Description
+Composants Utilisés: InvitationDetail, HeaderMobile
+
+
+=== PATH: (extranet)\super-admin\newsletters\create\page.tsx ===
+Composant: CreateNewsletterPage
+États (useState): formData, userSearch, selectedUsers, previewMode, saving, isScheduled, modalState
+Titres (H1-H3): Nouvelle Newsletter | Contenu | Aperçu de la newsletter | 📧 Kawepla Newsletter | Bonjour 👋
+Composants Utilisés: ArrowLeft, Eye, Mail, Users, AlertCircle, Search, Save, Send
+
+
+=== PATH: (extranet)\super-admin\newsletters\page.tsx ===
+Composant: NewslettersPage
+États (useState): searchQuery, statusFilter, audienceFilter, showDeleteConfirm, actionLoading, modalState
+Titres (H1-H3): Erreur de chargement | Campagnes | Aucune campagne trouvée
+Composants Utilisés: Edit, Clock, Play, CheckCircle, X, AlertCircle, UserCheck, Users
+
+
+=== PATH: (extranet)\super-admin\newsletters\[id]\page.tsx ===
+Composant: NewsletterDetailPage
+États (useState): actionLoading, showDeleteConfirm, modalState
+Titres (H1-H3): Erreur | Introuvable | Aperçu du contenu envoyé | Volume d'envoi | Contrôle
+Composants Utilisés: Edit, Clock, Play, CheckCircle, X, AlertCircle, Mail, HeaderMobile
+
+
+=== PATH: (extranet)\super-admin\providers\page.tsx ===
+Composant: AdminProvidersPage
+États (useState): statusFilter, searchQuery, showFilters, actionLoading, showActionModal, selectedProvider, actionType
+Titres (H1-H3): Aucun prestataire trouvé
+Composants Utilisés: ProviderProfile, HeaderMobile, Users, CheckCircle, Clock, Star, Search, Filter
+
+
+=== PATH: (extranet)\super-admin\providers\[id]\page.tsx ===
+Composant: ProviderDetailPage
+États (useState): provider, loading, error, actionLoading
+Titres (H1-H3): Erreur de chargement | À propos du professionnel | Portfolio Réalisations | Prestations & Tarifs | Gestion Administrative
+Composants Utilisés: ProviderProfile, HeaderMobile, AlertTriangle, ChevronLeft, StatusIcon, Camera, MapPin, Phone
+
+
+=== PATH: (extranet)\super-admin\service-packs\page.tsx ===
+Composant: ServicePacksAdminPage
+États (useState): basePacks, addonPacks, loading, error, formData, editingPack, formType, submitting
+Titres (H1-H3): Packs & Tarifs
+Composants Utilisés: ServicePackResponse, ServicePackPayload, ServicePackType, HeaderMobile, RefreshCw, Package, Plus, ChevronRight
+
+
+=== PATH: (extranet)\super-admin\settings\page.tsx ===
+Composant: SettingsPage
+Titres (H1-H3): Configuration de l'application | Sécurité | Stockage | Notifications
+Composants Utilisés: Image
+
+
+=== PATH: (extranet)\super-admin\stats\page.tsx ===
+Composant: StatsPage
+États (useState): dateFilter
+Titres (H1-H3): Erreur de synchronisation | CA de la période | Nouveaux utilisateurs | Invitations créées | Réponses RSVP reçues
+Composants Utilisés: AlertCircle, RefreshCw, BarChart3, Calendar, DollarSign, TrendingUp, Users, CheckCircle
+
+
+=== PATH: (extranet)\super-admin\users\page.tsx ===
+Composant: UsersPage
+États (useState): editingUser, visibleEmails
+Titres (H1-H3): Aucun utilisateur trouvé
+Composants Utilisés: Record, Shield, Heart, User, HeaderMobile, Search, Filter, Mail
+
+
+=== PATH: (site)\auth\forgot-password\page.tsx ===
+Composant: ForgotPasswordPage
+États (useState): email, error, success
+Titres (H1-H3): Email envoyé | Mot de passe oublié
+Composants Utilisés: Link, ArrowLeft
+
+
+=== PATH: (site)\auth\login\page.tsx ===
+Composant: LoginPage
+États (useState): formError, emailNotVerified, isSubmitting, showPassword
+Titres (H1-H3): Connexion
+Composants Utilisés: HTMLFormElement, EyeOff, Eye, Link
+
+
+=== PATH: (site)\auth\register\page.tsx ===
+Composant: RegisterPage
+États (useState): error, isSubmitting, userType, showPassword, showConfirmPassword
+Titres (H1-H3): Création de compte | Je suis un :
+Composants Utilisés: HTMLFormElement, EyeOff, Eye, Link, Suspense, RegisterForm
+
+
+=== PATH: (site)\auth\reset-password\page.tsx ===
+Composant: ResetPasswordPage
+États (useState): showPassword, showConfirmPassword, formData, loading, error, success
+Titres (H1-H3): Mot de passe réinitialisé | Réinitialiser le mot de passe | Chargement...
+Composants Utilisés: HTMLInputElement, Check, Link, EyeOff, Eye, X, ArrowLeft, Suspense
+
+
+=== PATH: (site)\auth\verify-email\page.tsx ===
+Composant: VerifyEmailPage
+États (useState): verificationCode, isVerifying, verificationError, verificationSuccess, isResending, resendSuccess, resendError
+Titres (H1-H3): Vérifiez votre email | Chargement...
+Composants Utilisés: CheckCircle, AlertCircle, Link, ArrowLeft, Suspense, VerifyEmailContent
+
+
+=== PATH: (site)\blog\host\page.tsx ===
+Composant: HostBlogPage
+Titres (H1-H3): Le Blog des Organisateurs
+Composants Utilisés: Image, Calendar, Link, ArrowRight
+
+
+=== PATH: (site)\blog\host\[slug]\page.tsx ===
+Composant: BlogPostPage
+Composants Utilisés: Link, ArrowLeft, Calendar, User, Image
+
+
+=== PATH: (site)\blog\provider\page.tsx ===
+Composant: ProviderBlogPage
+Titres (H1-H3): Le Blog des Prestataires
+Composants Utilisés: Image, Calendar, Link, ArrowRight
+
+
+=== PATH: (site)\blog\provider\[slug]\page.tsx ===
+Composant: BlogPostPage
+Composants Utilisés: Link, ArrowLeft, Calendar, User, Image
+
+
+=== PATH: (site)\conditions-utilisation\page.tsx ===
+Composant: ConditionsUtilisationPage
+Titres (H1-H3): Conditions Générales d'Utilisation | 1. Objet | 2. Définitions | 3. Accès à la Plateforme | 4. Création et gestion du compte
+Composants Utilisés: Calendar, Mail
+
+
+=== PATH: (site)\mentions-legales\page.tsx ===
+Composant: MentionsLegalesPage
+Titres (H1-H3): Mentions Légales | 1. Éditeur de l'application | 2. Directeur de la publication | 3. Hébergement | 4. Propriété intellectuelle
+Composants Utilisés: Calendar, Mail, Globe
+
+
+=== PATH: (site)\page.tsx ===
+Composant: Home
+États (useState): role, featureIndex
+Composants Utilisés: Header, Hero, Features, HowItWorks, Testimonials, Pricing, CTA, FAQ
+
+
+=== PATH: (site)\politique-confidentialite\page.tsx ===
+Composant: PolitiqueConfidentialitePage
+Titres (H1-H3): Politique de Confidentialité | 1. Introduction | 2. Responsable du traitement | 3. Données collectées | 4. Finalités du traitement
+Composants Utilisés: Calendar, Mail
+
+
+=== PATH: (site)\rsvp\shared\[shareableToken]\merci\page.tsx ===
+Composant: SharedRSVPThankYouPage
+États (useState): status, invitation, loading, downloading, shareableToken
+Appels API détectés: Oui (2)
+Titres (H1-H3): Une erreur est survenue | Votre message pour l'organisateur
+Composants Utilisés: RSVPResponse, HTMLDivElement, Sparkles, XCircle, CheckCircle, Users, MessageCircle, Loader
+
+
+=== PATH: (site)\rsvp\shared\[shareableToken]\page.tsx ===
+Composant: SharedRSVPPage
+États (useState): invitation, loading, error, submitting, existingResponse, checkingExistingResponse, photoModalOpen, selectedPhoto, step, showSecurityModal, formData
+Appels API détectés: Oui (3)
+Titres (H1-H3): Chargement... | Invitation non trouvée | Votre réponse | Confirmer votre présence | Vos informations
+Composants Utilisés: Invitation, HTMLInputElement, HelpCircle, EnvelopeWrapper, DesignPreview, Heart, CheckCircle, XCircle
+
+
+=== PATH: (site)\rsvp\[token]\merci\page.tsx ===
+Composant: RSVPThankYouPage
+États (useState): status, invitation, loading, downloading, token
+Titres (H1-H3): Une erreur est survenue | Votre message pour l'organisateur
+Composants Utilisés: RSVPResponse, HTMLDivElement, Sparkles, XCircle, CheckCircle, Users, MessageCircle, Loader
+
+
+=== PATH: (site)\rsvp\[token]\page.tsx ===
+Composant: RSVPPage
+États (useState): invitation, rsvpStatus, loading, error, submitting, step, formData, showExistingResponse, showSecurityModal
+Titres (H1-H3): Chargement... | Invitation non trouvée | Lien personnel
+Composants Utilisés: InvitationWithDesign, RSVPStatus, HelpCircle, EnvelopeWrapper, DesignPreview, CheckCircle, XCircle, Users
+
+
+=== PATH: (site)\share-album\[id]\page.tsx ===
+Composant: ShareAlbumPage
+États (useState): album, loading, error, uploading, uploadProgress, successMessage, selectedPhotoIndex, showGallery, guestName, selectedFiles, previews
+Appels API détectés: Oui (3)
+Titres (H1-H3): Album non accessible | Contribuez à l'album
+Composants Utilisés: Album, File, HTMLInputElement, HTMLImageElement, Crown, AlertCircle, CheckCircle, Upload

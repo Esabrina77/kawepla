@@ -1,0 +1,1232 @@
+[
+  {
+    "path": "(extranet)/client/billing/history/page.tsx",
+    "component": "PurchaseHistoryPage",
+    "imports": [
+      "React, { useState, useEffect } from 'react';",
+      "{ useAuth } from '@/hooks/useAuth';",
+      "{ stripeApi } from '@/lib/api/stripe';",
+      "{ Button } from '@/components/ui/button';",
+      "{ Badge } from '@/components/ui/badge';"
+    ],
+    "fetches": [],
+    "hooks": [
+      "Auth",
+      "Toast",
+      "State",
+      "Effect"
+    ]
+  },
+  {
+    "path": "(extranet)/client/billing/page.tsx",
+    "component": "BillingPage",
+    "imports": [
+      "React, { useState, useEffect } from 'react';",
+      "{ useAuth } from '@/hooks/useAuth';",
+      "{ stripeApi, ServicePurchasePlan, AdditionalService } from '@/lib/api/stripe';",
+      "{ Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';",
+      "{ Button } from '@/components/ui/button';"
+    ],
+    "fetches": [],
+    "hooks": [
+      "Router",
+      "Auth",
+      "State",
+      "Effect"
+    ]
+  },
+  {
+    "path": "(extranet)/client/dashboard/page.tsx",
+    "component": "DashboardPage",
+    "imports": [
+      "{ useState, useEffect } from 'react';",
+      "Link from 'next/link';",
+      "{ useRouter } from 'next/navigation';",
+      "{ useInvitations } from '@/hooks/useInvitations';",
+      "{ useGuests } from '@/hooks/useGuests';"
+    ],
+    "fetches": [],
+    "hooks": [
+      "Router",
+      "Auth",
+      "Invitations",
+      "State",
+      "Effect",
+      "Guests"
+    ]
+  },
+  {
+    "path": "(extranet)/client/design/editor/page.tsx",
+    "component": "ClientDesignEditorPage",
+    "imports": [
+      "React, { useEffect, useState } from 'react';",
+      "{ useRouter, useSearchParams } from 'next/navigation';",
+      "dynamic from 'next/dynamic';",
+      "{ HeaderMobile } from '@/components/HeaderMobile';",
+      "{ useDesigns } from '@/hooks/useDesigns';"
+    ],
+    "fetches": [],
+    "hooks": [
+      "State",
+      "Effect",
+      "Router",
+      "SearchParams",
+      "Designs",
+      "Toast",
+      "EditorStore"
+    ]
+  },
+  {
+    "path": "(extranet)/client/design/page.tsx",
+    "component": "DesignsGalleryPage",
+    "imports": [
+      "React, { useEffect, useState } from 'react';",
+      "{ useRouter, useSearchParams } from 'next/navigation';",
+      "{ useDesigns } from '@/hooks/useDesigns';",
+      "{ useInvitations } from '@/hooks/useInvitations';",
+      "{ Design } from '@/types';"
+    ],
+    "fetches": [],
+    "hooks": [
+      "Router",
+      "SearchParams",
+      "Designs",
+      "Invitations",
+      "Toast",
+      "State",
+      "Effect"
+    ]
+  },
+  {
+    "path": "(extranet)/client/design/[id]/page.tsx",
+    "component": "DesignDetailPage",
+    "imports": [
+      "React, { useEffect, useState } from 'react';",
+      "{ useRouter } from 'next/navigation';",
+      "{ useDesigns } from '@/hooks/useDesigns';",
+      "{ Design } from '@/types';",
+      "DesignPreview from '@/components/DesignPreview';"
+    ],
+    "fetches": [],
+    "hooks": [
+      "Router",
+      "Designs",
+      "State",
+      "Effect"
+    ]
+  },
+  {
+    "path": "(extranet)/client/guests/page.tsx",
+    "component": "GuestsPage",
+    "imports": [
+      "React, { useState, useEffect, useMemo, useRef } from 'react';",
+      "{ useRouter } from 'next/navigation';",
+      "{ HeaderMobile } from '@/components/HeaderMobile';",
+      "{ useGuests } from '@/hooks/useGuests';",
+      "{ useInvitations } from '@/hooks/useInvitations';"
+    ],
+    "fetches": [],
+    "hooks": [
+      "State",
+      "Effect",
+      "Router",
+      "Invitations",
+      "Guests",
+      "Memo"
+    ]
+  },
+  {
+    "path": "(extranet)/client/guests/scan/page.tsx",
+    "component": "ScanPage",
+    "imports": [
+      "React, { useState, useEffect, useRef } from \"react\";",
+      "{ useRouter } from \"next/navigation\";",
+      "{ ArrowLeft, Camera, Check, X, AlertTriangle, User } from \"lucide-react\";",
+      "{ Html5Qrcode } from \"html5-qrcode\";",
+      "{ apiClient } from \"@/lib/api/apiClient\";"
+    ],
+    "fetches": [],
+    "hooks": [
+      "Router",
+      "State",
+      "Effect"
+    ]
+  },
+  {
+    "path": "(extranet)/client/invitations/create/page.tsx",
+    "component": "CreateInvitationPage",
+    "imports": [
+      "React, { useEffect, useState, useRef } from 'react';",
+      "{ useRouter, useSearchParams } from 'next/navigation';",
+      "dynamic from 'next/dynamic';",
+      "{ HeaderMobile } from '@/components/HeaderMobile';",
+      "{ InvitationEventFormModal, EventFormData } from '@/components/InvitationEventFormModal';"
+    ],
+    "fetches": [],
+    "hooks": [
+      "Router",
+      "SearchParams",
+      "Auth",
+      "Designs",
+      "Toast",
+      "State",
+      "Effect"
+    ]
+  },
+  {
+    "path": "(extranet)/client/invitations/page.tsx",
+    "component": "InvitationsPage",
+    "imports": [
+      "React, { useState, useEffect, useMemo } from 'react';",
+      "{ useRouter, useSearchParams } from 'next/navigation';",
+      "{ HeaderMobile } from '@/components/HeaderMobile';",
+      "{ useInvitations } from '@/hooks/useInvitations';",
+      "{ useDesigns } from '@/hooks/useDesigns';"
+    ],
+    "fetches": [],
+    "hooks": [
+      "Router",
+      "SearchParams",
+      "Toast",
+      "Invitations",
+      "Designs",
+      "State",
+      "Effect"
+    ]
+  },
+  {
+    "path": "(extranet)/client/invitations/[id]/edit/page.tsx",
+    "component": "InvitationEditPage",
+    "imports": [
+      "{ useState, useEffect } from 'react';",
+      "{ useParams, useRouter } from 'next/navigation';",
+      "{ HeaderMobile } from '@/components/HeaderMobile';",
+      "{ useInvitations } from '@/hooks/useInvitations';",
+      "{ useDesigns } from '@/hooks/useDesigns';"
+    ],
+    "fetches": [],
+    "hooks": [
+      "Params",
+      "Router",
+      "Invitations",
+      "Designs",
+      "State",
+      "Effect"
+    ]
+  },
+  {
+    "path": "(extranet)/client/invitations/[id]/page.tsx",
+    "component": "InvitationDetailPage",
+    "imports": [
+      "{ useState, useEffect } from 'react';",
+      "{ useParams, useRouter } from 'next/navigation';",
+      "{ HeaderMobile } from '@/components/HeaderMobile';",
+      "{ useInvitations } from '@/hooks/useInvitations';",
+      "{ useDesigns } from '@/hooks/useDesigns';"
+    ],
+    "fetches": [],
+    "hooks": [
+      "Params",
+      "Router",
+      "Invitations",
+      "Designs",
+      "Effect"
+    ]
+  },
+  {
+    "path": "(extranet)/client/messages/page.tsx",
+    "component": "MessagesPage",
+    "imports": [
+      "{ useState, useEffect, useMemo } from 'react';",
+      "{ useRouter } from 'next/navigation';",
+      "{ useRSVPMessages } from '@/hooks/useRSVPMessages';",
+      "{ useInvitations } from '@/hooks/useInvitations';",
+      "{ RSVPMessage } from '@/types';"
+    ],
+    "fetches": [],
+    "hooks": [
+      "Invitations",
+      "RSVPMessages",
+      "State",
+      "Memo"
+    ]
+  },
+  {
+    "path": "(extranet)/client/photos/page.tsx",
+    "component": "PhotosPage",
+    "imports": [
+      "{ useState, useEffect } from 'react';",
+      "{ useRouter } from 'next/navigation';",
+      "{ useInvitations } from '@/hooks/useInvitations';",
+      "{ usePhotoAlbums, PhotoAlbum } from '@/hooks/usePhotoAlbums';",
+      "{ HeaderMobile } from '@/components/HeaderMobile';"
+    ],
+    "fetches": [],
+    "hooks": [
+      "Router",
+      "Invitations",
+      "Effect"
+    ]
+  },
+  {
+    "path": "(extranet)/client/profile/page.tsx",
+    "component": "ProfilePage",
+    "imports": [
+      "{ useState, useEffect } from \"react\";",
+      "{ useRouter } from \"next/navigation\";",
+      "{ useAuth } from \"@/hooks/useAuth\";",
+      "{ HeaderMobile } from \"@/components/HeaderMobile\";",
+      "{ ConfirmModal } from \"@/components/ui/modal\";"
+    ],
+    "fetches": [],
+    "hooks": [
+      "Router",
+      "Auth",
+      "Toast",
+      "State",
+      "Effect"
+    ]
+  },
+  {
+    "path": "(extranet)/client/providers/all/page.tsx",
+    "component": "ProvidersPage",
+    "imports": [
+      "{ useState, useEffect } from 'react';",
+      "{ useRouter } from 'next/navigation';",
+      "{ useProviderSearch } from '@/hooks/useProviders';",
+      "{",
+      "styles from './providers.module.css';"
+    ],
+    "fetches": [],
+    "hooks": [
+      "Router",
+      "ProviderSearch",
+      "State",
+      "Effect"
+    ]
+  },
+  {
+    "path": "(extranet)/client/providers/discussions/page.tsx",
+    "component": "ClientDiscussionsPage",
+    "imports": [
+      "React, {",
+      "{ useSearchParams } from \"next/navigation\";",
+      "{ useAuth } from \"@/hooks/useAuth\";",
+      "{",
+      "{ ProviderMessage } from \"@/lib/api/providerConversations\";"
+    ],
+    "fetches": [],
+    "hooks": [
+      "Auth",
+      "SearchParams",
+      "ProviderConversations",
+      "State",
+      "ProviderConversation",
+      "Callback",
+      "Memo",
+      "Ref",
+      "Effect"
+    ]
+  },
+  {
+    "path": "(extranet)/client/providers/[id]/book/page.tsx",
+    "component": "BookServicePage",
+    "imports": [
+      "React, { useState, useEffect } from \"react\";",
+      "{ useParams, useRouter, useSearchParams } from \"next/navigation\";",
+      "{ HeaderMobile } from \"@/components/HeaderMobile\";",
+      "{ useProviderDetail } from \"@/hooks/useProviderDetail\";",
+      "{"
+    ],
+    "fetches": [],
+    "hooks": [
+      "Params",
+      "Router",
+      "SearchParams",
+      "Auth",
+      "ProviderDetail",
+      "ProviderConversations",
+      "ProviderConversation",
+      "BookingInfo",
+      "Effect",
+      "State"
+    ]
+  },
+  {
+    "path": "(extranet)/client/providers/[id]/page.tsx",
+    "component": "ProviderDetailPage",
+    "imports": [
+      "React, { useState } from \"react\";",
+      "{ useParams, useRouter } from \"next/navigation\";",
+      "{ ProviderProfile, Service } from \"@/lib/api/providers\";",
+      "{ useProviderDetail } from \"@/hooks/useProviderDetail\";",
+      "{ HeaderMobile } from \"@/components/HeaderMobile\";"
+    ],
+    "fetches": [],
+    "hooks": [
+      "Params",
+      "Router",
+      "Toast",
+      "ProviderDetail",
+      "State"
+    ]
+  },
+  {
+    "path": "(extranet)/client/tools/budget/page.tsx",
+    "component": "BudgetPage",
+    "imports": [
+      "{ useState } from 'react';",
+      "{ Card } from '@/components/ui/card';",
+      "styles from './budget.module.css';"
+    ],
+    "fetches": [],
+    "hooks": [
+      "State"
+    ]
+  },
+  {
+    "path": "(extranet)/client/tools/page.tsx",
+    "component": "ToolsPage",
+    "imports": [
+      "React from 'react';",
+      "Link from 'next/link';",
+      "{ useAuth } from '@/hooks/useAuth';",
+      "{ HeaderMobile } from '@/components/HeaderMobile/HeaderMobile';",
+      "{"
+    ],
+    "fetches": [],
+    "hooks": [
+      "Auth"
+    ]
+  },
+  {
+    "path": "(extranet)/client/tools/planning/page.tsx",
+    "component": "PlanningPage",
+    "imports": [
+      "{ useState, useEffect, useCallback } from 'react';",
+      "{ useAuth } from '@/hooks/useAuth';",
+      "{ todosApi, TodoItem, TodoCategory, TodoStatus, TodoPriority, CreateTodoDto, UpdateTodoDto } from '@/lib/api/todos';",
+      "{ invitationsApi } from '@/lib/api/invitations';",
+      "{ HeaderMobile } from '@/components/HeaderMobile/HeaderMobile';"
+    ],
+    "fetches": [],
+    "hooks": [
+      "Auth",
+      "Router",
+      "State",
+      "AI",
+      "ServicePurchaseLimits",
+      "Callback",
+      "Effect"
+    ]
+  },
+  {
+    "path": "(extranet)/client/tools/support-client/page.tsx",
+    "component": "ClientDiscussionsPage",
+    "imports": [
+      "{ useState, useEffect } from \"react\";",
+      "{ useRouter } from \"next/navigation\";",
+      "{ ChatBox } from \"@/components/Messages/ChatBox\";",
+      "{ useMessages } from \"@/hooks/useMessages\";",
+      "{ useAuth } from \"@/hooks/useAuth\";"
+    ],
+    "fetches": [],
+    "hooks": [
+      "Router",
+      "Auth",
+      "Invitations",
+      "Messages",
+      "Effect"
+    ]
+  },
+  {
+    "path": "(extranet)/provider/billing/page.tsx",
+    "component": "ProviderBillingPage",
+    "imports": [
+      "React, { useState, useEffect } from \"react\";",
+      "{ useAuth } from \"@/hooks/useAuth\";",
+      "{ stripeApi } from \"@/lib/api/stripe\";",
+      "{ Button } from \"@/components/ui/button\";",
+      "{ Badge } from \"@/components/ui/badge\";"
+    ],
+    "fetches": [],
+    "hooks": [
+      "Auth",
+      "State",
+      "Effect"
+    ]
+  },
+  {
+    "path": "(extranet)/provider/bookings/page.tsx",
+    "component": "ProviderBookingsPage",
+    "imports": [
+      "{ useState, useEffect } from \"react\";",
+      "{ useRouter, useSearchParams } from \"next/navigation\";",
+      "{ bookingsApi, Booking } from \"@/lib/api/bookings\";",
+      "{ HeaderMobile } from \"@/components/HeaderMobile/HeaderMobile\";",
+      "{"
+    ],
+    "fetches": [],
+    "hooks": [
+      "Router",
+      "SearchParams",
+      "State",
+      "Effect"
+    ]
+  },
+  {
+    "path": "(extranet)/provider/bookings/[id]/page.tsx",
+    "component": "BookingDetailPage",
+    "imports": [
+      "{ useState, useEffect } from \"react\";",
+      "{ useParams, useRouter } from \"next/navigation\";",
+      "{ bookingsApi, Booking } from \"@/lib/api/bookings\";",
+      "{ HeaderMobile } from \"@/components/HeaderMobile/HeaderMobile\";",
+      "{"
+    ],
+    "fetches": [],
+    "hooks": [
+      "Params",
+      "Router",
+      "State",
+      "Effect"
+    ]
+  },
+  {
+    "path": "(extranet)/provider/dashboard/page.tsx",
+    "component": "ProviderDashboard",
+    "imports": [
+      "{ useState, useEffect } from \"react\";",
+      "Link from \"next/link\";",
+      "{ useProviderProfile } from \"@/hooks/useProviderProfile\";",
+      "{ useProviderServices } from \"@/hooks/useProviderServices\";",
+      "{ HeaderMobile } from \"@/components/HeaderMobile/HeaderMobile\";"
+    ],
+    "fetches": [],
+    "hooks": [
+      "ProviderProfile",
+      "ProviderServices",
+      "State",
+      "Effect"
+    ]
+  },
+  {
+    "path": "(extranet)/provider/messages/page.tsx",
+    "component": "ProviderMessagesPage",
+    "imports": [
+      "React, {",
+      "{ useProviderProfile } from \"@/hooks/useProviderProfile\";",
+      "{",
+      "{ ProviderMessage } from \"@/lib/api/providerConversations\";",
+      "{ HeaderMobile } from \"@/components/HeaderMobile\";"
+    ],
+    "fetches": [],
+    "hooks": [
+      "ProviderProfile",
+      "ProviderConversations",
+      "State",
+      "ProviderConversation",
+      "Callback",
+      "Memo",
+      "Effect",
+      "Ref"
+    ]
+  },
+  {
+    "path": "(extranet)/provider/page.tsx",
+    "component": "ProviderPage",
+    "imports": [
+      "{ useEffect } from 'react';",
+      "{ useRouter } from 'next/navigation';",
+      "{ useProviderProfile } from '@/hooks/useProviderProfile';",
+      "{ useAuth } from '@/hooks/useAuth';"
+    ],
+    "fetches": [],
+    "hooks": [
+      "Router",
+      "ProviderProfile",
+      "Auth",
+      "Effect"
+    ]
+  },
+  {
+    "path": "(extranet)/provider/profile/page.tsx",
+    "component": "ProviderProfilePage",
+    "imports": [
+      "{ useState, useEffect } from \"react\";",
+      "{ useRouter } from \"next/navigation\";",
+      "{ useProviderProfile } from \"@/hooks/useProviderProfile\";",
+      "{ useServiceCategories } from \"@/hooks/useServiceCategories\";",
+      "{ CreateProviderProfileDto } from \"@/lib/api/providers\";"
+    ],
+    "fetches": [],
+    "hooks": [
+      "Router",
+      "Auth",
+      "ProviderProfile",
+      "ServiceCategories",
+      "State",
+      "Effect"
+    ]
+  },
+  {
+    "path": "(extranet)/provider/services/create/page.tsx",
+    "component": "CreateServicePage",
+    "imports": [
+      "{ useState } from \"react\";",
+      "{ useRouter } from \"next/navigation\";",
+      "{ useProviderServices } from \"@/hooks/useProviderServices\";",
+      "{ CreateServiceDto } from \"@/lib/api/providers\";",
+      "{ HeaderMobile } from \"@/components/HeaderMobile/HeaderMobile\";"
+    ],
+    "fetches": [],
+    "hooks": [
+      "Router",
+      "ProviderServices",
+      "AI",
+      "State"
+    ]
+  },
+  {
+    "path": "(extranet)/provider/services/page.tsx",
+    "component": "ProviderServicesPage",
+    "imports": [
+      "{ useState } from \"react\";",
+      "Link from \"next/link\";",
+      "{ useProviderServices } from \"@/hooks/useProviderServices\";",
+      "{ Service } from \"@/lib/api/providers\";",
+      "{ HeaderMobile } from \"@/components/HeaderMobile/HeaderMobile\";"
+    ],
+    "fetches": [],
+    "hooks": [
+      "ProviderServices",
+      "State"
+    ]
+  },
+  {
+    "path": "(extranet)/provider/services/[id]/edit/page.tsx",
+    "component": "EditServicePage",
+    "imports": [
+      "{ useState, useEffect } from \"react\";",
+      "{ useRouter, useParams } from \"next/navigation\";",
+      "{ useProviderServices } from \"@/hooks/useProviderServices\";",
+      "{ UpdateServiceDto, Service } from \"@/lib/api/providers\";",
+      "{ HeaderMobile } from \"@/components/HeaderMobile/HeaderMobile\";"
+    ],
+    "fetches": [],
+    "hooks": [
+      "Router",
+      "Params",
+      "ProviderServices",
+      "AI",
+      "State",
+      "Effect"
+    ]
+  },
+  {
+    "path": "(extranet)/provider/services/[id]/page.tsx",
+    "component": "ServiceDetailPage",
+    "imports": [
+      "{ useState, useEffect } from 'react';",
+      "{ useParams, useRouter } from 'next/navigation';",
+      "Link from 'next/link';",
+      "{ useProviderServices } from '@/hooks/useProviderServices';",
+      "{ Service } from '@/lib/api/providers';"
+    ],
+    "fetches": [],
+    "hooks": [
+      "Params",
+      "Router",
+      "ProviderServices",
+      "Effect"
+    ]
+  },
+  {
+    "path": "(extranet)/provider/support/page.tsx",
+    "component": "ProviderSupportPage",
+    "imports": [
+      "{ useState, useEffect } from \"react\";",
+      "{ useRouter } from \"next/navigation\";",
+      "{ ChatBox } from \"@/components/Messages/ChatBox\";",
+      "{ useMessages } from \"@/hooks/useMessages\";",
+      "{ useAuth } from \"@/hooks/useAuth\";"
+    ],
+    "fetches": [],
+    "hooks": [
+      "Router",
+      "Auth",
+      "ProviderServices",
+      "Messages",
+      "Effect"
+    ]
+  },
+  {
+    "path": "(extranet)/super-admin/dashboard/page.tsx",
+    "component": "SuperAdminDashboard",
+    "imports": [
+      "React, { useMemo } from \"react\";",
+      "Link from \"next/link\";",
+      "styles from \"./dashboard.module.css\";",
+      "{ useAdminStats } from \"@/hooks/useAdminStats\";",
+      "{ useAdminUsers } from \"@/hooks/useAdminUsers\";"
+    ],
+    "fetches": [],
+    "hooks": [
+      "AdminStats",
+      "AdminUsers",
+      "Auth",
+      "Memo"
+    ]
+  },
+  {
+    "path": "(extranet)/super-admin/design/create-canva/page.tsx",
+    "component": "CreateCanvaDesignPage",
+    "imports": [
+      "React, { useEffect, useState } from \"react\";",
+      "{ useRouter, useSearchParams } from \"next/navigation\";",
+      "dynamic from \"next/dynamic\";",
+      "{ HeaderMobile } from \"@/components/HeaderMobile/HeaderMobile\";",
+      "{ useDesigns } from \"@/hooks/useDesigns\";"
+    ],
+    "fetches": [],
+    "hooks": [
+      "Toast",
+      "State",
+      "Effect",
+      "Router",
+      "SearchParams",
+      "Designs",
+      "EditorStore"
+    ]
+  },
+  {
+    "path": "(extranet)/super-admin/design/page.tsx",
+    "component": "SuperAdminDesignPage",
+    "imports": [
+      "{ useState } from \"react\";",
+      "{ useRouter } from \"next/navigation\";",
+      "{ useDesigns } from \"@/hooks/useDesigns\";",
+      "{ HeaderMobile } from \"@/components/HeaderMobile/HeaderMobile\";",
+      "{ Design } from \"@/types\";"
+    ],
+    "fetches": [],
+    "hooks": [
+      "Router",
+      "Designs",
+      "State"
+    ]
+  },
+  {
+    "path": "(extranet)/super-admin/discussions/page.tsx",
+    "component": "AdminDiscussionsPage",
+    "imports": [
+      "{ useState, useEffect } from \"react\";",
+      "{ useRouter, useSearchParams } from \"next/navigation\";",
+      "{ ChatBox } from \"@/components/Messages/ChatBox\";",
+      "{ useAuth } from \"@/hooks/useAuth\";",
+      "{ HeaderMobile } from \"@/components/HeaderMobile\";"
+    ],
+    "fetches": [],
+    "hooks": [
+      "Router",
+      "Auth",
+      "State",
+      "SearchParams",
+      "Socket",
+      "Effect"
+    ]
+  },
+  {
+    "path": "(extranet)/super-admin/help/page.tsx",
+    "component": "SuperAdminHelpPage",
+    "imports": [
+      "React, { useState } from 'react';",
+      "{ Card } from '@/components/ui/card';",
+      "{ Button } from '@/components/Button/Button';"
+    ],
+    "fetches": [],
+    "hooks": []
+  },
+  {
+    "path": "(extranet)/super-admin/invitations/page.tsx",
+    "component": "AdminInvitationsPage",
+    "imports": [
+      "{ useState, useEffect } from \"react\";",
+      "{ useRouter } from \"next/navigation\";",
+      "{ apiClient } from \"@/lib/api/apiClient\";",
+      "{ useDesigns } from \"@/hooks/useDesigns\";",
+      "{ HeaderMobile } from \"@/components/HeaderMobile\";"
+    ],
+    "fetches": [],
+    "hooks": [
+      "Router",
+      "Designs",
+      "State",
+      "Effect"
+    ]
+  },
+  {
+    "path": "(extranet)/super-admin/invitations/[id]/design/page.tsx",
+    "component": "InvitationDesignPage",
+    "imports": [
+      "{ useState, useEffect } from \"react\";",
+      "{ useParams, useRouter } from \"next/navigation\";",
+      "{ apiClient } from \"@/lib/api/apiClient\";",
+      "{ HeaderMobile } from \"@/components/HeaderMobile\";",
+      "DesignPreview from \"@/components/DesignPreview\";"
+    ],
+    "fetches": [],
+    "hooks": [
+      "Params",
+      "Router",
+      "State",
+      "Effect"
+    ]
+  },
+  {
+    "path": "(extranet)/super-admin/invitations/[id]/page.tsx",
+    "component": "InvitationDetailPage",
+    "imports": [
+      "{ useState, useEffect } from 'react';",
+      "{ useParams, useRouter } from 'next/navigation';",
+      "{ apiClient } from '@/lib/api/apiClient';",
+      "{ HeaderMobile } from '@/components/HeaderMobile';",
+      "styles from './invitation-detail.module.css';"
+    ],
+    "fetches": [],
+    "hooks": [
+      "Params",
+      "Router",
+      "State",
+      "Effect"
+    ]
+  },
+  {
+    "path": "(extranet)/super-admin/newsletters/create/page.tsx",
+    "component": "CreateNewsletterPage",
+    "imports": [
+      "{ useState, useEffect } from \"react\";",
+      "{ useRouter } from \"next/navigation\";",
+      "{ useNewsletters } from \"@/hooks/useNewsletters\";",
+      "{",
+      "styles from \"./page.module.css\";"
+    ],
+    "fetches": [],
+    "hooks": [
+      "Router",
+      "Newsletters",
+      "State",
+      "Effect"
+    ]
+  },
+  {
+    "path": "(extranet)/super-admin/newsletters/page.tsx",
+    "component": "NewslettersPage",
+    "imports": [
+      "{ useState, useEffect } from \"react\";",
+      "{ useRouter } from \"next/navigation\";",
+      "{ useNewsletters } from \"@/hooks/useNewsletters\";",
+      "{ newslettersApi } from \"@/lib/api/newsletters\";",
+      "{ HeaderMobile } from \"@/components/HeaderMobile\";"
+    ],
+    "fetches": [],
+    "hooks": [
+      "Router",
+      "Newsletters",
+      "State",
+      "Effect"
+    ]
+  },
+  {
+    "path": "(extranet)/super-admin/newsletters/[id]/page.tsx",
+    "component": "NewsletterDetailPage",
+    "imports": [
+      "{ useState, useEffect } from \"react\";",
+      "{ useRouter, useParams } from \"next/navigation\";",
+      "{ useNewsletters } from \"@/hooks/useNewsletters\";",
+      "{ HeaderMobile } from \"@/components/HeaderMobile\";",
+      "{"
+    ],
+    "fetches": [],
+    "hooks": [
+      "Router",
+      "Params",
+      "Newsletters",
+      "State",
+      "Effect"
+    ]
+  },
+  {
+    "path": "(extranet)/super-admin/providers/page.tsx",
+    "component": "AdminProvidersPage",
+    "imports": [
+      "{ useState, useEffect } from \"react\";",
+      "Link from \"next/link\";",
+      "{ useAdminProviders } from \"@/hooks/useAdminProviders\";",
+      "{ HeaderMobile } from \"@/components/HeaderMobile\";",
+      "{"
+    ],
+    "fetches": [],
+    "hooks": [
+      "AdminProviders",
+      "State",
+      "Effect"
+    ]
+  },
+  {
+    "path": "(extranet)/super-admin/providers/[id]/page.tsx",
+    "component": "ProviderDetailPage",
+    "imports": [
+      "{ useState, useEffect } from \"react\";",
+      "{ useParams, useRouter } from \"next/navigation\";",
+      "{ providersApi, ProviderProfile } from \"@/lib/api/providers\";",
+      "{ HeaderMobile } from \"@/components/HeaderMobile\";",
+      "{"
+    ],
+    "fetches": [],
+    "hooks": [
+      "Params",
+      "Router",
+      "State",
+      "Effect"
+    ]
+  },
+  {
+    "path": "(extranet)/super-admin/service-packs/page.tsx",
+    "component": "ServicePacksAdminPage",
+    "imports": [
+      "{ useEffect, useMemo, useState } from \"react\";",
+      "{ HeaderMobile } from \"@/components/HeaderMobile\";",
+      "{",
+      "styles from \"./service-packs.module.css\";",
+      "{"
+    ],
+    "fetches": [],
+    "hooks": [
+      "State",
+      "Effect",
+      "Memo"
+    ]
+  },
+  {
+    "path": "(extranet)/super-admin/settings/page.tsx",
+    "component": "SettingsPage",
+    "imports": [
+      "styles from './settings.module.css';",
+      "Image from 'next/image';"
+    ],
+    "fetches": [],
+    "hooks": []
+  },
+  {
+    "path": "(extranet)/super-admin/stats/page.tsx",
+    "component": "StatsPage",
+    "imports": [
+      "{ useState } from \"react\";",
+      "styles from \"./stats.module.css\";",
+      "{ useAdminStats } from \"@/hooks/useAdminStats\";",
+      "{",
+      "{"
+    ],
+    "fetches": [],
+    "hooks": [
+      "State",
+      "AdminStats"
+    ]
+  },
+  {
+    "path": "(extranet)/super-admin/users/page.tsx",
+    "component": "UsersPage",
+    "imports": [
+      "{ useState } from \"react\";",
+      "styles from \"./users.module.css\";",
+      "{ useAdminUsers } from \"@/hooks/useAdminUsers\";",
+      "{ HeaderMobile } from \"@/components/HeaderMobile\";",
+      "{"
+    ],
+    "fetches": [],
+    "hooks": [
+      "AdminUsers"
+    ]
+  },
+  {
+    "path": "(site)/auth/forgot-password/page.tsx",
+    "component": "ForgotPasswordPage",
+    "imports": [
+      "{ useState } from 'react';",
+      "{ useAuth } from '@/hooks/useAuth';",
+      "Link from 'next/link';",
+      "{ ArrowLeft } from 'lucide-react';",
+      "styles from '@/styles/site/auth.module.css';"
+    ],
+    "fetches": [],
+    "hooks": [
+      "Auth",
+      "State"
+    ]
+  },
+  {
+    "path": "(site)/auth/login/page.tsx",
+    "component": "LoginPage",
+    "imports": [
+      "{ useState } from 'react';",
+      "{ useRouter } from 'next/navigation';",
+      "Link from 'next/link';",
+      "{ useAuth } from '@/hooks/useAuth';",
+      "{ Eye, EyeOff } from 'lucide-react';"
+    ],
+    "fetches": [],
+    "hooks": [
+      "Auth",
+      "Router",
+      "State"
+    ]
+  },
+  {
+    "path": "(site)/auth/register/page.tsx",
+    "component": "RegisterPage",
+    "imports": [
+      "{ useState, useEffect, Suspense } from 'react';",
+      "{ useRouter, useSearchParams } from 'next/navigation';",
+      "Link from 'next/link';",
+      "{ useAuth } from '@/hooks/useAuth';",
+      "{ Eye, EyeOff } from 'lucide-react';"
+    ],
+    "fetches": [],
+    "hooks": [
+      "Auth",
+      "Router",
+      "SearchParams",
+      "State",
+      "Effect"
+    ]
+  },
+  {
+    "path": "(site)/auth/reset-password/page.tsx",
+    "component": "ResetPasswordPage",
+    "imports": [
+      "{ useState, Suspense } from 'react';",
+      "{ useSearchParams } from 'next/navigation';",
+      "Link from 'next/link';",
+      "{ Eye, EyeOff, Check, X, ArrowLeft } from 'lucide-react';",
+      "styles from '@/styles/site/auth.module.css';"
+    ],
+    "fetches": [],
+    "hooks": [
+      "SearchParams",
+      "State"
+    ]
+  },
+  {
+    "path": "(site)/auth/verify-email/page.tsx",
+    "component": "VerifyEmailPage",
+    "imports": [
+      "{ useState, Suspense } from 'react';",
+      "{ useSearchParams, useRouter } from 'next/navigation';",
+      "Link from 'next/link';",
+      "{ useAuth } from '@/hooks/useAuth';",
+      "{ ArrowLeft, CheckCircle, AlertCircle } from 'lucide-react';"
+    ],
+    "fetches": [],
+    "hooks": [
+      "Auth",
+      "SearchParams",
+      "Router",
+      "State"
+    ]
+  },
+  {
+    "path": "(site)/blog/host/page.tsx",
+    "component": "HostBlogPage",
+    "imports": [
+      "React from 'react';",
+      "Link from 'next/link';",
+      "Image from 'next/image';",
+      "{ ArrowRight, Calendar, Heart, Star } from 'lucide-react';",
+      "styles from '../blog.module.css';"
+    ],
+    "fetches": [],
+    "hooks": []
+  },
+  {
+    "path": "(site)/blog/host/[slug]/page.tsx",
+    "component": "BlogPostPage",
+    "imports": [
+      "React from 'react';",
+      "{ notFound } from 'next/navigation';",
+      "Image from 'next/image';",
+      "Link from 'next/link';",
+      "{ ArrowLeft, Calendar, User } from 'lucide-react';"
+    ],
+    "fetches": [],
+    "hooks": []
+  },
+  {
+    "path": "(site)/blog/provider/page.tsx",
+    "component": "ProviderBlogPage",
+    "imports": [
+      "React from 'react';",
+      "Link from 'next/link';",
+      "Image from 'next/image';",
+      "{ ArrowRight, Calendar, TrendingUp } from 'lucide-react';",
+      "styles from '../blog.module.css'; // Reuse styles"
+    ],
+    "fetches": [],
+    "hooks": []
+  },
+  {
+    "path": "(site)/blog/provider/[slug]/page.tsx",
+    "component": "BlogPostPage",
+    "imports": [
+      "React from 'react';",
+      "{ notFound } from 'next/navigation';",
+      "Image from 'next/image';",
+      "Link from 'next/link';",
+      "{ ArrowLeft, Calendar, User } from 'lucide-react';"
+    ],
+    "fetches": [],
+    "hooks": []
+  },
+  {
+    "path": "(site)/conditions-utilisation/page.tsx",
+    "component": "ConditionsUtilisationPage",
+    "imports": [
+      "React from 'react';",
+      "{ Calendar, Mail, FileText, AlertCircle, CheckCircle, XCircle } from 'lucide-react';",
+      "styles from '../mentions-legales/legal.module.css';"
+    ],
+    "fetches": [],
+    "hooks": []
+  },
+  {
+    "path": "(site)/mentions-legales/page.tsx",
+    "component": "MentionsLegalesPage",
+    "imports": [
+      "React from 'react';",
+      "{ Calendar, Mail, Globe, Server } from 'lucide-react';",
+      "styles from './legal.module.css';"
+    ],
+    "fetches": [],
+    "hooks": []
+  },
+  {
+    "path": "(site)/page.tsx",
+    "component": "Home",
+    "imports": [
+      "{ useState } from 'react';",
+      "{ Hero } from '@/components/Kavent/Hero';",
+      "{ Features } from '@/components/Kavent/Features';",
+      "{ HowItWorks } from '@/components/Kavent/HowItWorks';",
+      "{ Testimonials } from '@/components/Kavent/Testimonials';"
+    ],
+    "fetches": [],
+    "hooks": [
+      "State"
+    ]
+  },
+  {
+    "path": "(site)/politique-confidentialite/page.tsx",
+    "component": "PolitiqueConfidentialitePage",
+    "imports": [
+      "React from 'react';",
+      "{ Calendar, Mail, Shield, Lock, Database, Eye, UserCheck, FileText } from 'lucide-react';",
+      "styles from '../mentions-legales/legal.module.css';"
+    ],
+    "fetches": [],
+    "hooks": []
+  },
+  {
+    "path": "(site)/rsvp/shared/[shareableToken]/merci/page.tsx",
+    "component": "SharedRSVPThankYouPage",
+    "imports": [
+      "React, { useState, useEffect } from \"react\";",
+      "{",
+      "{ toPng } from \"html-to-image\";",
+      "jsPDF from \"jspdf\";",
+      "styles from \"./merci.module.css\";"
+    ],
+    "fetches": [],
+    "hooks": [
+      "State",
+      "Effect"
+    ]
+  },
+  {
+    "path": "(site)/rsvp/shared/[shareableToken]/page.tsx",
+    "component": "SharedRSVPPage",
+    "imports": [
+      "React, { useState, useEffect } from 'react';",
+      "{ useParams, useRouter } from 'next/navigation';",
+      "{ Button } from '@/components/ui/button';",
+      "DesignPreview from '@/components/DesignPreview';",
+      "GuestProfilePhotoUpload from '@/components/GuestProfilePhotoUpload/GuestProfilePhotoUpload';"
+    ],
+    "fetches": [
+      "rsvp/shared/${shareableToken}/invitation",
+      "rsvp/shared/${shareableToken}/status?phone=${encodeURIComponent(savedPhone)}",
+      "rsvp/shared/${shareableToken}/respond"
+    ],
+    "hooks": [
+      "Params",
+      "Router",
+      "Notifications",
+      "State",
+      "Effect"
+    ]
+  },
+  {
+    "path": "(site)/rsvp/[token]/merci/page.tsx",
+    "component": "RSVPThankYouPage",
+    "imports": [
+      "React, { useState, useEffect, use } from \"react\";",
+      "{",
+      "{ toPng } from \"html-to-image\";",
+      "jsPDF from \"jspdf\";",
+      "{ rsvpApi } from \"@/lib/api/rsvp\";"
+    ],
+    "fetches": [],
+    "hooks": [
+      "State",
+      "Effect"
+    ]
+  },
+  {
+    "path": "(site)/rsvp/[token]/page.tsx",
+    "component": "RSVPPage",
+    "imports": [
+      "React, { useState, useEffect } from \"react\";",
+      "EnvelopeWrapper from \"@/components/rsvp/EnvelopeWrapper\";",
+      "{ useParams, useRouter } from \"next/navigation\";",
+      "{ rsvpApi, type RSVPStatus as ApiRSVPStatus } from \"@/lib/api/rsvp\";",
+      "DesignPreview from \"@/components/DesignPreview\";"
+    ],
+    "fetches": [],
+    "hooks": [
+      "Params",
+      "Router",
+      "Notifications",
+      "State",
+      "Effect"
+    ]
+  },
+  {
+    "path": "(site)/share-album/[id]/page.tsx",
+    "component": "ShareAlbumPage",
+    "imports": [
+      "React, { useState, useEffect } from 'react';",
+      "{ useParams } from 'next/navigation';",
+      "{",
+      "{ uploadToFirebase } from '@/lib/firebase';",
+      "imageCompression from 'browser-image-compression';"
+    ],
+    "fetches": [
+      "photos/albums/${albumId}/photos",
+      "photos/albums/${albumId}/photos/guest"
+    ],
+    "hooks": [
+      "Params",
+      "State",
+      "Effect"
+    ]
+  }
+]

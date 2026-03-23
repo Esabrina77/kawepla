@@ -53,6 +53,7 @@ export default function RSVPPage() {
   const [rsvpStatus, setRsvpStatus] = useState<RSVPStatus | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [submitError, setSubmitError] = useState<string | null>(null); // Erreur de soumission du formulaire
   const [submitting, setSubmitting] = useState(false);
   const [step, setStep] = useState(1);
 
@@ -141,26 +142,24 @@ export default function RSVPPage() {
   const handleNextStep = () => {
     // Validation simple pour l'étape 1
     if (step === 1) {
-      // Si on a des champs obligatoires pour l'identité, on peut les vérifier ici
-      // Pour une invitation existante, le nom/prénom est souvent déjà là
       if (!formData.firstName || !formData.lastName) {
-        setError("Veuillez vérifier votre nom et prénom.");
+        setSubmitError("Veuillez vérifier votre nom et prénom.");
         return;
       }
-      setError(null);
+      setSubmitError(null);
       setStep(2);
     }
   };
 
   const handlePrevStep = () => {
     setStep(1);
-    setError(null);
+    setSubmitError(null);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setSubmitting(true);
-    setError(null);
+    setSubmitError(null);
 
     try {
       // Préparer les données
@@ -193,9 +192,9 @@ export default function RSVPPage() {
 
       // Rediriger vers la page de remerciement
       router.push(`/rsvp/${token}/merci`);
-    } catch (error) {
+    } catch (error: any) {
       console.error("Erreur lors de la soumission:", error);
-      setError("Erreur lors de l'envoi de votre réponse");
+      setSubmitError(error.message || "Erreur lors de l'envoi de votre réponse");
     } finally {
       setSubmitting(false);
     }
@@ -633,10 +632,7 @@ export default function RSVPPage() {
                                 className={styles.textarea}
                               />
                             </div>
-
-                            {error && (
-                              <div className={styles.errorMessage}>{error}</div>
-                            )}
+ 
 
                             <div className={styles.formActions}>
                               <button
@@ -694,6 +690,27 @@ export default function RSVPPage() {
               onClick={() => setShowSecurityModal(false)}
             >
               J'ai compris
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Submit Error Modal */}
+      {submitError && (
+        <div className={styles.modalOverlay}>
+          <div className={styles.modalCard}>
+            <div className={styles.modalIcon} style={{ background: '#FEE2E2', color: '#EF4444' }}>
+              <HelpCircle style={{ width: '28px', height: '28px' }} />
+            </div>
+            <h3 className={styles.modalTitle}>Informations manquantes</h3>
+            <p className={styles.modalText}>
+              {submitError}
+            </p>
+            <button
+              className={styles.modalButton}
+              onClick={() => setSubmitError(null)}
+            >
+              OK
             </button>
           </div>
         </div>

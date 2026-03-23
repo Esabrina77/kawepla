@@ -67,6 +67,7 @@ export default function SharedRSVPPage() {
   const [invitation, setInvitation] = useState<Invitation | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [submitError, setSubmitError] = useState<string | null>(null); // Erreur de soumission du formulaire
   const [submitting, setSubmitting] = useState(false);
   const [existingResponse, setExistingResponse] = useState<any>(null);
   const [checkingExistingResponse, setCheckingExistingResponse] = useState(false);
@@ -152,32 +153,32 @@ export default function SharedRSVPPage() {
     // Validation simple pour l'étape 1
     if (step === 1) {
       if (!formData.firstName || !formData.lastName || !formData.phone) {
-        setError('Veuillez remplir tous les champs obligatoires (*)');
+        setSubmitError('Veuillez remplir tous les champs obligatoires (*)');
         return;
       }
-      setError(null);
+      setSubmitError(null);
       setStep(2);
     }
   };
 
   const handlePrevStep = () => {
     setStep(1);
-    setError(null);
+    setSubmitError(null);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError(null);
+    setSubmitError(null);
 
     // 1. Obliger le choix du status
     if (formData.status !== 'CONFIRMED' && formData.status !== 'DECLINED') {
-      setError('Veuillez indiquer si vous serez présent(e) ou non.');
+      setSubmitError('Veuillez indiquer si vous serez présent(e) ou non.');
       return;
     }
 
 
     setSubmitting(true);
-    setError(null);
+    setSubmitError(null);
     try {
       // Envoyer la réponse via l'API partageable
       const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3013'}/api/rsvp/shared/${shareableToken}/respond`, {
@@ -217,9 +218,9 @@ export default function SharedRSVPPage() {
 
       // Rediriger vers la page de remerciement
       router.push(`/rsvp/shared/${shareableToken}/merci`);
-    } catch (error) {
+    } catch (error: any) {
       console.error('Erreur lors de la soumission:', error);
-      setError('Erreur lors de l\'envoi de votre réponse');
+      setSubmitError(error.message || 'Erreur lors de l\'envoi de votre réponse');
     } finally {
       setSubmitting(false);
     }
@@ -622,11 +623,7 @@ export default function SharedRSVPPage() {
                     </div>
                   )}
 
-                  {error && (
-                    <div className={styles.errorMessage}>
-                      {error}
-                    </div>
-                  )}
+ 
                 </form>
               </div>
             )}
@@ -662,6 +659,27 @@ export default function SharedRSVPPage() {
               onClick={() => setShowSecurityModal(false)}
             >
               J'ai compris
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Submit Error Modal */}
+      {submitError && (
+        <div className={styles.modalOverlay}>
+          <div className={styles.modalCard}>
+            <div className={styles.modalIcon} style={{ background: '#FEE2E2', color: '#EF4444' }}>
+              <HelpCircle style={{ width: '28px', height: '28px' }} />
+            </div>
+            <h3 className={styles.modalTitle}>Informations manquantes</h3>
+            <p className={styles.modalText}>
+              {submitError}
+            </p>
+            <button
+              className={styles.modalButton}
+              onClick={() => setSubmitError(null)}
+            >
+              OK
             </button>
           </div>
         </div>

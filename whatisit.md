@@ -1,162 +1,209 @@
-# 🌟 Kawepla - Fonctionnalités et Parcours Utilisateur
+# 📋 Inventaire Technique Exhaustif des Pages Implémentées (Kawepla)
 
-Ce document détaille les fonctionnalités de la plateforme Kawepla pour les deux types d'utilisateurs principaux : les **Organisateurs** (Clients) et les **Prestataires**. Il présente également les parcours utilisateurs (User Flows) types.
-
----
-
-## 👥 Pour les Organisateurs (Clients)
-
-L'organisateur est celui qui planifie un événement (mariage, anniversaire, etc.). Son interface est conçue pour simplifier la gestion de A à Z.
-
-### 1. 💌 Gestion des Invitations & Design
-*   **Création Intuitive** : Accès à une galerie de modèles (templates) professionnels.
-*   **Éditeur Avancé (Type Canva)** : Personnalisation complète des invitations (textes, polices, couleurs, images) via un éditeur graphique intégré.
-*   **Multi-formats** : Création d'invitations web interactives et versions imprimables/partageables.
-*   **Envoi Multicanal** :
-    *   Envoi par **Email** direct depuis la plateforme.
-    *   Génération de **liens partageables** (pour WhatsApp, SMS, réseaux sociaux).
-
-### 2. 📋 Gestion des Invités (Guest List)
-*   **Centralisation** : Ajout, modification et suppression des fiches invités (coordonnées, accompagnants).
-*   **Import Intelligent** : Importation en masse de listes d'invités via fichiers **Excel (.xlsx)** ou **CSV**.
-*   **Suivi RSVP** : Tableau de bord temps réel des réponses (Présent, Absent, Peut-être).
-*   **Détails Avancés** : Gestion des **régimes alimentaires**, allergies, et assignation aux groupes (VIP, Famille, Amis).
-*   **Communication** : Envoi de rappels automatiques aux retardataires.
-
-### 3. 💰 Gestion Budgétaire (Budget Planner)
-*   **Vue d'Ensemble** : Suivi global du budget total, des dépenses engagées et du reste à dépenser.
-*   **Catégorisation** : Classement des dépenses par poste (Traiteur, Lieu, Tenues, etc.) avec icônes visuelles.
-*   **Suivi des Paiements** :
-    *   Suivi des acomptes versés et soldes restants.
-    *   Dates d'échéance des paiements.
-    *   Indicateurs visuels (Payé / À payer).
-
-### 4. 📸 Photos & Souvenirs
-*   **Albums Collaboratifs** : Espace dédié où les invités peuvent uploader leurs photos de l'événement.
-*   **Galerie** : Visualisation et téléchargement des souvenirs.
-
-### 5. 🛠️ Outils de Planification
-*   **Planning / Tâches** : Gestionnaire de tâches (To-Do List) pour ne rien oublier avant le jour J.
-*   **Marketplace (Recherche Prestataires)** : Accès à une liste de prestataires vérifiés pour l'événement.
+> **Rapport Factualisé :** Analyse technique unitaire de chaque route d'interface Next.js (Frontend) basée sur les composants, états (`useState`) et flux codés, sans enrobage marketing.
 
 ---
 
-## 👔 Pour les Prestataires (Professionnels)
+## 👨‍💼 1. Espace Client (Organisateur / Hôte)
 
-Le prestataire propose ses services (Traiteur, DJ, Photographe, etc.). Son interface est un outil de gestion d'activité (Extranet).
+### 📂 Gestion & Facturation
+#### 📍 `/client/billing`  
+*   **Composant :** `BillingPage`
+*   **États Internes :** `userLimits`, `activePurchases`, `availablePlans`, `additionalServices`, `loading`, `upgrading`, `purchasingService`, `confirmModal`, `serviceModal`, `successModal`, `errorModal` 
+*   **Fonctionnalités codées :** 
+    - Affichage du statut utilisateur actuel et des limites consommées/restantes.
+    - Vue des forfaits disponibles (`availablePlans`) et des packs d’extensions (`additionalServices`).
+    - Modaux de confirmation d’achats et de résolution de succès/échec de paiement.
 
-### 1. 🏪 Gestion des Services (Catalogue)
-*   **Création de Services** : Éditeur complet pour référencer ses prestations.
-*   **Détails Précis** :
-    *   Nom, description détaillée et photos.
-    *   **Tarification flexible** : Prix fixe, par personne, ou par heure.
-    *   **Capacité** : Nombre de personnes max, durée.
-    *   **Inclusions** : Liste détaillée de ce qui est compris dans le service.
-*   **Visibilité** : Activation/Désactivation des services en un clic.
-
-### 2. 📅 Gestion des Réservations (Bookings)
-*   **Tableau de Bord des Demandes** : Vue centralisée de toutes les demandes de réservation reçues.
-*   **Workflow de Validation** :
-    *   **En attente** : Nouvelle demande à traiter.
-    *   **Confirmé** : Prestation validée.
-    *   **Terminé** : Prestation réalisée.
-    *   **Annulé / Refusé** : Gestion des annulations.
-*   **Détails Réservation** : Accès complet aux infos de l'événement (Date, Heure, Lieu, Type d'événement, Nb invités).
-
-### 3. 💬 Communication & Client
-*   **Messagerie Intégrée** : Chat direct avec les clients pour discuter des détails.
-*   **Fiches Clients** : Coordonnées (Email, Téléphone) pour un contact rapide.
-
-### 4. 📈 Pilotage d'Activité
-*   **Statistiques** : Suivi du nombre de réservations et du Chiffre d'Affaires généré.
-*   **Vue Filtrée** : Tri des réservations par statut (pour voir ce qui est à traiter en priorité).
+#### 📍 `/client/billing/history`  
+*   **Composant :** `PurchaseHistoryPage`
+*   **États Internes :** `purchaseHistory`, `loading`, `error`
+*   **Fonctionnalités codées :** 
+    - Historique tableur des achats cumulés avec icônes de succès (`CheckCircle`).
+    - Somme du montant total dépensé.
 
 ---
 
-## 🔄 User Flow (Parcours Utilisateur)
+### 📊 Tableau de Bord & Pilotage
+#### 📍 `/client/dashboard`  
+*   **Composant :** `DashboardPage`
+*   **États Internes :** `selectedInvitationId`, `limits`, `todosStats`
+*   **Fonctionnalités codées :** 
+    - Barre de progression d’avancement de l’événement général.
+    - Statuts de quota invités et trigger d'invitations.
 
-Voici les étapes typiques d'utilisation de la plateforme pour chaque profil.
+#### 📍 `/client/profile`  
+*   **Composant :** `ProfilePage`
+*   **États Internes :** `formData`, `isSaving`, `showDeleteModal`, `isDeleting`
+*   **Fonctionnalités codées :** 
+    - Modification des informations personnels de l'Hôte.
+    - Gestionnaires de Toggles de notifications actifs/passifs.
+    - Zone de suppression de compte définitive sécurisée par modal de confirmation.
 
-### 🟣 Parcours Organisateur : "De l'idée au Jour J"
+---
 
-1.  **Onboarding** : Inscription et définition de l'événement (Date, Type, Lieu).
-2.  **Budget Initial** : Définition de l'enveloppe budgétaire globale.
-3.  **Création Liste** : Import ou ajout manuel des invités.
-4.  **Design Invitation** : Choix d'un modèle -> Personnalisation (Texte/Photo) -> Validation.
-5.  **Campagne d'Envoi** : Sélection des destinataires -> Envoi des emails ou partage du lien.
-6.  **Gestion Active** :
-    *   Réception des RSVP (notifications).
-    *   Mise à jour du Budget au fur et à mesure des dépenses.
-    *   Recherche et booking de prestataires manquants.
-7.  **Post-Événement** : Ouverture de l'album photo pour récupérer les clichés des invités.
+### 🖌️ Studio Design & Invitations
+#### 📍 `/client/design`  
+*   **Composant :** `DesignsGalleryPage`
+*   **États Internes :** `activeTab`, `importLoading`, `showImportBanner`, `templates`, `personalDesigns`, `favoriteIds`, `searchQuery`, `selectedTags`, `selectedPriceType`
+*   **Fonctionnalités codées :** 
+    - Onglets galeries divisés `Templates` globaux vs `PersonalDesigns`.
+    - Recherche textuelle par mots clés ou tags de couleurs.
+    - Mise en favoris de croquis.
 
-```mermaid
-graph TD
-    subgraph Planification
-        A[Onboarding & Création Événement] --> B(Budget Initial)
-        A --> C(Liste Invités)
-    end
-    
-    subgraph Design & Envoi
-        C --> D[Design Invitation]
-        B --> D
-        D --> E{Mode d'Envoi}
-        E -->|Email| F[Campagne Emailing]
-        E -->|Lien| G[Partage Lien Direct]
-    end
-    
-    subgraph Gestion & Jour J
-        F --> H((Réception RSVP))
-        G --> H
-        H --> I[Mise à jour Budget & Plan de Table]
-        I --> J[Recherche Prestataires]
-        J --> K[Jour J : Événement]
-    end
-    
-    subgraph Post-Event
-        K --> L[Album Photos Partagé]
-        L --> M[Téléchargement Souvenirs]
-    end
+#### 📍 `/client/design/editor`  
+*   **Composant :** `ClientDesignEditorPage`
+*   **États Internes :** `name`, `canvas`, `loading`, `saving`, `showSaveDialog`, `currentDesign`
+*   **Appels API :** Enregistrement de blueprints JSON (`saveDesign`).
+*   **Fonctionnalités codées :** Éditeur Drag-and-drop (`Canvas`), panneau d'outils (`Toolbar`), barre de propriétés contextuelles, avertisseur de sauvegarde.
 
-    style A fill:#9f7aea,stroke:#333,stroke-width:2px,color:white
-    style K fill:#ed64a6,stroke:#333,stroke-width:2px,color:white
-    style L fill:#4fd1c5,stroke:#333,stroke-width:2px,color:white
-```
+#### 📍 `/client/invitations`  
+*   **Composant :** `InvitationsPage`
+*   **États Internes :** `limits`, `showCreateForm`, `formData`, `creating`
+*   **Fonctionnalités codées :** 
+    - Formulaire d’initialisation structuré (Type d'événement, Titre indispensable, Message personnalisé optionnel, Date/Heure, Lieu).
+    - Grid de prévisualisation des cartons d'accès.
 
-### 🔵 Parcours Prestataire : "De la visibilité au Booking"
+#### 📍 `/client/invitations/[id]/edit`  
+*   **Composant :** `InvitationEditPage`
+*   **États Internes :** `invitation`, `formData`, `showDesignModal`
+*   **Fonctionnalités codées :** Modification des variables d'heures/lieux, pointage vers d'autres palettes graphiques pour mise à jour.
 
-1.  **Configuration** : Création du profil public et ajout des services (description, prix, photos).
-2.  **Réception** : Notification d'une nouvelle demande de réservation.
-3.  **Négociation/Validation** :
-    *   Échange via messagerie si besoin d'infos comp.
-    *   Acceptation de la demande (passage en statut "Confirmé").
-4.  **Réalisation** : Accès aux infos pratiques pour le jour J (Lieu, Horaire).
-5.  **Clôture** : Une fois l'événement passé, marquage de la réservation comme "Terminée".
+---
 
-```mermaid
-graph TD
-    subgraph Setup
-        A[Création Compte Pro] --> B[Configuration Profil]
-        B --> C[Ajout Services Catalogue]
-    end
-    
-    subgraph Booking Process
-        C --> D{Nouvelle Demande}
-        D -->|Notification| E[Analyse Demande]
-        E --> F{Action}
-        F -->|Refuser| G[Fin]
-        F -->|Discuter| H[Messagerie Client]
-        H -.-> F
-        F -->|Accepter| I[Statut : Confirmé]
-    end
-    
-    subgraph Prestation
-        I --> J[Jour J : Réalisation]
-        J --> K[Statut : Terminé]
-        K --> L[Encaissement & Stats]
-    end
+### 🧑‍🤝‍🧑 Centre de Gestion d’Invités
+#### 📍 `/client/guests`  
+*   **Composant :** `GuestsPage`
+*   **États Internes :** `formData`, `step`, `file`, `preview`, `shareableLink`, `searchQuery`, `rsvpFilter`, `typeFilter`, `showAddModal`, `showImportModal`, `showExportModal`, `notification`
+*   **Fonctionnalités codées :** 
+    - Formulaire d’ajout de fiche unitaire.
+    - Module d'importation massive via tableur (`FileSpreadsheet`).
+    - Génération et Copie directe d'un lien d’invitation public WhatsApp/Email.
+    - Téléchargement d'export global des réponses en tableur local.
 
-    style A fill:#4299e1,stroke:#333,stroke-width:2px,color:white
-    style I fill:#48bb78,stroke:#333,stroke-width:2px,color:white
-    style K fill:#2b6cb0,stroke:#333,stroke-width:2px,color:white
-```
+#### 📍 `/client/guests/scan`  
+*   **Composant :** `ScanPage`
+*   **États Internes :** `selectedInvitation`, `scannerActive`, `scanResult`, `guestDetails`, `isValidating`, `scanError`
+*   **Fonctionnalités codées :** 
+    - Liaison caméra via composant `<Html5Qrcode>`.
+    - Système d'évaluation de validité du billet instantané.
+
+---
+
+### 📝 Outils d’Organisation
+#### 📍 `/client/tools/budget`  
+*   **Composant :** `BudgetPage`
+*   **États Internes :** `totalBudget`, `expenses`
+*   **Fonctionnalités codées :** 
+    - Calculateur automatique de budget restant.
+    - Tri des dépenses cumulées par typologie de métier.
+
+#### 📍 `/client/tools/planning`  
+*   **Composant :** `PlanningPage`
+*   **États Internes :** `tasks`, `selectedCategory`, `searchTerm`, `currentDate`, `viewMode`, `showAIModal`, `isGeneratingChecklist`, `showGoogleCalendarModal`
+*   **Fonctionnalités codées :** 
+    - To-Do list fragmentée (Tâches à faire, en retard, complétées).
+    - Bouton d’appel d’IA Gemini pour création de checklist par anticipation.
+    - Liaison vers export de calendrier.
+
+#### 📍 `/client/messages`  
+*   **Composant :** `MessagesPage`
+*   **États Internes :** `searchQuery`, `selectedMessage`
+*   **Fonctionnalités codées :** Historique de lecture des commentaires de RSVP laissés par les convives.
+
+---
+
+## 🏢 2. Espace Prestataire (Providers)
+
+#### 📍 `/provider/dashboard`  
+*   **Composant :** `ProviderDashboard`
+*   **États Internes :** `stats` (Statistiques agrégées).
+*   **Fonctionnalités codées :** Compteurs de CA gagné, raccourcis d’ajout de service.
+
+#### 📍 `/provider/profile`  
+*   **Composant :** `ProviderProfilePage`
+*   **États Internes :** `formData`, `uploading`, `showDeleteModal`
+*   **Fonctionnalités codées :** Édition fiches sociales (Site web, Instagram, TikTok, Facebook).
+
+#### 📍 `/provider/services`  
+*   **Composant :** `ProviderServicesPage`
+*   **États Internes :** `deletingServiceId`, `serviceToDelete`
+*   **Fonctionnalités codées :** Vue des prestations déjà publiées sous forme de Grid.
+
+#### 📍 `/provider/services/create`  
+*   **Composant :** `CreateServicePage`
+*   **États Internes :** `formData`, `uploading`, `newInclusion`, `newRequirement`
+*   **Fonctionnalités codées :** 
+    - Saisie tarif (prix unique ou plage d'honoraires).
+    - Ajouts d'Inclusions et Prérequis textuels.
+    - Trigger d'IA pour optimisation de texte.
+
+#### 📍 `/provider/bookings`  
+*   **Composant :** `ProviderBookingsPage`
+*   **États Internes :** `bookings`, `selectedFilter`, `stats`
+*   **Fonctionnalités codées :** Filtrage de dossiers contrats selon le statut d’en-cours financiers.
+
+---
+
+## 👑 3. Espace Administration (Super-Admin)
+
+#### 📍 `/super-admin/dashboard`  
+*   **Composant :** `SuperAdminDashboard`
+*   **Fonctionnalités codées :** Jauges d’activité générale des transactions et volume d'inscriptions.
+
+#### 📍 `/super-admin/design/create-canva`  
+*   **Composant :** `CreateCanvaDesignPage`
+*   **États Internes :** `name`, `description`, `category`, `priceType`, `canvas`, `backgroundImage`
+*   **Fonctionnalités codées :** Atelier de création de designs d'usine destinés à la librairie globale de template.
+
+#### 📍 `/super-admin/newsletters`  
+*   **Composant :** `NewslettersPage`
+*   **États Internes :** `searchQuery`, `statusFilter`, ` audienceFilter`
+*   **Fonctionnalités codées :** Centraliseur de campagnes mailings prêtes à l’envoi.
+
+#### 📍 `/super-admin/newsletters/create`  
+*   **Composant :** `CreateNewsletterPage`
+*   **États Internes :** `formData`, `userSearch`, `selectedUsers`, `previewMode`, `isScheduled`
+*   **Fonctionnalités codées :** Éditeur de lettres d'informations HTML avec visualisation d'aperçu dynamique avant push.
+
+#### 📍 `/super-admin/providers`  
+*   **Composant :** `AdminProvidersPage`
+*   **États Internes :** `statusFilter`, `searchQuery`, `selectedProvider`
+*   **Fonctionnalités codées :** Vue filtrée de listings de profils Pro pour validation admin ou mise en litige.
+
+---
+
+## 💌 4. Parcours Publics & Invités
+
+#### 📍 `/auth/login` & `/auth/register`  
+*   **Fonctionnalités codées :** 
+    - Formulaire de connexion/Création avec Switch type d'utilisateur (Hôte vs Prestataire).
+    - Moteur de mot de passe égaré et code OTP Nodemailer.
+
+#### 📍 `/rsvp/[token]`  
+*   **Composant :** `RSVPPage`
+*   **États Internes :** `invitation`, `rsvpStatus`, `step`, `formData`, `showSecurityModal`
+*   **Fonctionnalités codées :** 
+    - Rendu visuel `<EnvelopeWrapper>`.
+    - Step 1 : Identification du visiteur & Photo.
+    - Step 2 : Validation présence, triggers de formulaires additionnels enfants (+1) et commentaires allergies.
+
+#### 📍 `/share-album/[id]`  
+*   **Composant :** `ShareAlbumPage`
+*   **États Internes :** `album`, `uploading`, `uploadProgress`, `previews`
+*   **Fonctionnalités codées :** 
+    - Galerie collaborative accessible par simple lien.
+    - Téléversement simultané d'images avec suivi de barre de progression.
+
+---
+
+## ⚙️ 5. Échanges Métiers Backend (Services Factuels)
+
+- **`designService.ts` / `fabricToKaweplaAdapter.ts` :** Parseur de données Canva JSON vers styles responsives.
+- **`aiController.ts` :** Routage de prompt vers Gemini pour extraction structurelle de To-Do listes.
+- **`stripeService.ts` :** Dispatcher Webhooks Stripe Checkout sessions et liaison de plans tarifaires.
+- **`photoAlbumService.ts` :** Prise en charge de la compression temps réel structure Sharp d’images.
+- **`cleanupJobs.ts` :** Scripts cycliques de vidage de caches Firebase items abandonnés.
+
+---
+*Fin de l'Inventaire Factuel des Pages & Composants.*

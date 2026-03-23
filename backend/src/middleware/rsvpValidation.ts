@@ -28,8 +28,14 @@ export const shareableRSVPSchema = z.object({
   // Infos personnelles
   firstName: z.string().min(2, 'Le prénom doit contenir au moins 2 caractères'),
   lastName: z.string().min(2, 'Le nom doit contenir au moins 2 caractères'),
-  email: z.string().trim().email().optional().nullable(),
-  phone: z.string().min(8, 'Le numéro de téléphone doit contenir au moins 8 caractères'),
+  email: z.preprocess(
+    (val) => (val === '' ? undefined : val),
+    z.string().trim().email().optional().nullable()
+  ),
+  phone: z.preprocess(
+    (val) => (val === '' ? undefined : val),
+    z.string().trim().min(8, 'Le numéro de téléphone doit contenir au moins 8 caractères').optional().nullable()
+  ),
   // RSVP classique
   status: z.enum(['CONFIRMED', 'DECLINED', 'PENDING']),
   message: z.string().optional(),
@@ -37,6 +43,13 @@ export const shareableRSVPSchema = z.object({
   plusOne: z.boolean().optional().default(false),
   plusOneName: z.string().optional(),
   dietaryRestrictions: z.string().optional()
+}).refine(data => {
+  const hasEmail = data.email && data.email.trim().length > 0;
+  const hasPhone = data.phone && data.phone.trim().length >= 8;
+  return hasEmail || hasPhone;
+}, {
+  message: "Vous devez renseigner au moins une adresse email ou un numéro de téléphone d'au moins 8 caractères",
+  path: ["email"]
 });
 
 // Types TypeScript générés à partir des schemas
