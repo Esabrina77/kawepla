@@ -5,7 +5,7 @@
   left: 0;
   top: 0;
   bottom: 0;
-  width: 280px;
+  width: 240px;
   height: 100vh;
   background: var(--card);
   border-right: 1px solid var(--border);
@@ -18,7 +18,7 @@
 }
 
 .sidebar.collapsed {
-  width: 80px;
+  width: 70px;
 }
 
 .sidebarHeader {

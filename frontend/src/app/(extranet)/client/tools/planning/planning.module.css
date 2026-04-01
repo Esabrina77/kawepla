@@ -1,7 +1,6 @@
 /* ===== MINIMALIST PREMIUM DESIGN - PLANNING TOOLS ===== */
 
 .planningPage {
-  padding: 1rem;
   max-width: 1400px;
   margin: 0 auto;
   min-height: 100vh;
@@ -9,9 +8,13 @@
   background-color: var(--background);
 }
 
+.pageContent {
+  padding: 1.25rem;
+}
+
 @media (min-width: 768px) {
-  .planningPage {
-    padding: 1rem 2rem;
+  .pageContent {
+    padding: 2rem;
   }
 }
 
@@ -92,6 +95,28 @@
   align-items: center;
 }
 
+@media (max-width: 768px) {
+  .actionsBar {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  
+  .actionButtons {
+    flex-direction: column;
+    width: 100%;
+  }
+
+  .actionButtons button {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .viewModeToggle {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
 .addButton {
   padding: 0.5rem 1rem;
   background: var(--host);
@@ -146,6 +171,20 @@
   margin-bottom: 1.5rem;
   overflow-x: auto;
   padding-bottom: 0.5rem;
+  scrollbar-width: none;
+}
+
+.stats::-webkit-scrollbar {
+  display: none;
+}
+
+@media (max-width: 768px) {
+  .stats {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    overflow-x: visible;
+    gap: 0.75rem;
+  }
 }
 
 .statCard {
@@ -493,6 +532,7 @@
   border-radius: 16px;
   padding: 1.25rem;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  overflow-x: auto;
 }
 
 .calendarHeader {
@@ -540,6 +580,13 @@
   border: 1px solid var(--border);
   border-radius: 10px;
   overflow: hidden;
+  min-width: 320px;
+}
+
+@media (max-width: 480px) {
+  .calendarGrid {
+    min-width: 280px;
+  }
 }
 
 .calendarDayHeader {
@@ -872,6 +919,14 @@
   animation: contentEnter 0.3s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
+@media (max-width: 768px) {
+  .modalContent {
+    max-width: 95%;
+    border-radius: 16px;
+    max-height: 85vh;
+  }
+}
+
 @keyframes contentEnter {
   from { transform: scale(0.95) translateY(20px); opacity: 0; }
   to { transform: scale(1) translateY(0); opacity: 1; }
@@ -899,6 +954,46 @@
   display: flex;
   align-items: center;
   gap: 0.85rem;
+}
+
+@media (max-width: 768px) {
+  .modalHeader {
+    padding: 0.85rem 1.25rem;
+  }
+  
+  .modalHeader h3 {
+    font-size: 1rem;
+  }
+
+  .modalForm {
+    padding: 1rem;
+    gap: 0.85rem;
+  }
+
+  .formGroup {
+    gap: 0.35rem;
+  }
+
+  .formLabel {
+    font-size: 0.65rem;
+  }
+
+  .formInput, 
+  .formSelect, 
+  .formTextarea {
+    padding: 0.7rem 0.9rem;
+    font-size: 0.85rem;
+  }
+
+  .modalActions {
+    padding-top: 0.5rem;
+  }
+
+  .submitButton, 
+  .cancelButton {
+    padding: 0.75rem;
+    font-size: 0.8rem;
+  }
 }
 
 .aiModal .modalHeader h3 {
@@ -955,6 +1050,12 @@
   gap: 1rem;
 }
 
+@media (max-width: 600px) {
+  .formRow {
+    grid-template-columns: 1fr;
+  }
+}
+
 .formLabel {
   font-family: var(--font-body);
   font-size: 0.75rem;
@@ -963,6 +1064,8 @@
   text-transform: uppercase;
   letter-spacing: 0.05em;
   transition: color 0.2s ease;
+  display: flex;
+  align-items: center;
 }
 
 .formGroup:focus-within .formLabel {

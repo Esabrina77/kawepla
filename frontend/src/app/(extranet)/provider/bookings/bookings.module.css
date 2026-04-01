@@ -468,9 +468,50 @@
 
 /* Responsive fixes */
 @media (max-width: 768px) {
-  .pageTitle { font-size: 1.5rem; }
-  .bookingCard { padding: 1rem; }
+  .pageContent {
+    padding: 1.25rem 1rem 8.5rem;
+  }
+  
+  .pageTitle { font-size: 1.45rem; }
+  
+  .statsSection {
+    margin-bottom: 1.5rem;
+  }
+  
+  .statsGrid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.75rem;
+  }
+  
+  .filtersContainer {
+    margin-bottom: 1.5rem;
+    justify-content: flex-start;
+  }
+  
+  .filterGroup {
+    width: 100%;
+    min-width: 0;
+  }
+
+  .bookingCard { padding: 1.25rem; }
   .bookingHeader { padding-right: 0; }
-  .statusBadge { position: static; margin-bottom: 0.75rem; align-self: flex-start; }
+  .statusBadge { position: static; margin-bottom: 0.85rem; align-self: flex-start; }
+  
+  .bookingActions {
+    grid-template-columns: 1fr;
+  }
 }
 
+@media (max-width: 480px) {
+  .statsGrid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  
+  .statCard {
+    padding: 0.85rem;
+  }
+  
+  .statValue {
+    font-size: 0.95rem;
+  }
+}

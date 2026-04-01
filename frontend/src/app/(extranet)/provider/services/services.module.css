@@ -411,65 +411,67 @@
 }
 
 /* Responsive Design */
-@media (min-width: 768px) {
-  .main {
-    padding: 2rem;
-    max-width: 1200px;
-    margin: 0 auto;
-  }
+@media (min-width: 1024px) {
+  .servicesGrid { grid-template-columns: repeat(3, 1fr); }
+}
 
-  .pageHeader {
-    padding-top: 0;
-  }
+@media (max-width: 900px) {
+  .servicesGrid { grid-template-columns: repeat(2, 1fr); }
 }
 
 @media (max-width: 768px) {
+  .pageContent {
+    padding: 1.25rem 1rem 8rem;
+  }
+  
   .pageHeader {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 1rem;
+    margin-bottom: 1.5rem;
   }
 
   .servicesGrid {
     grid-template-columns: 1fr;
-    gap: 1rem;
+    gap: 1.25rem;
   }
 
   .serviceCard {
-    padding: 1rem;
+    padding: 1.25rem;
   }
 
   .serviceHeader {
-    flex-direction: column;
+    flex-direction: row;
     gap: 0.5rem;
-    padding-right: 0;
+    padding-right: 20px;
   }
+  
+  .serviceName { font-size: 1.25rem; }
 
   .statusBadge {
-    position: static;
-    align-self: flex-start;
+    position: absolute;
+    top: 1.25rem;
+    right: 1.25rem;
   }
 
   .serviceActions {
-    flex-direction: column;
+    flex-direction: row;
+    gap: 0.5rem;
   }
 }
 
 @media (max-width: 480px) {
-  .main {
+  .pageContent {
+    padding-bottom: 9rem;
+  }
+  
+  .serviceCard {
     padding: 1rem;
   }
 
-  .serviceCard {
-    padding: 0.75rem;
-  }
-
   .serviceDetails {
-    flex-direction: column;
-    gap: 0.5rem;
+    flex-direction: row;
+    gap: 1rem;
   }
 
   .photosGrid {
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: repeat(3, 1fr);
   }
-}
+}

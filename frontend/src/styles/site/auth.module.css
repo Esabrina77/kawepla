@@ -746,3 +746,78 @@
 .smallTitle {
   font-size: 1.5rem !important;
 }
+
+/* ===== RESPONSIVE DESIGN ===== */
+
+@media (max-width: 768px) {
+  .auth {
+    padding: 1.5rem 1rem;
+    align-items: flex-start;
+    padding-top: 5rem;
+  }
+
+  .authCard {
+    padding: 2rem 1.5rem;
+    border-radius: 20px;
+  }
+
+  .backToHome {
+    top: 1rem;
+    left: 1rem;
+    padding: 0.5rem 1rem;
+    font-size: 0.8rem;
+    background: rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(10px);
+  }
+
+  .header {
+    margin-bottom: 2rem;
+  }
+
+  .header h1 {
+    font-size: 1.75rem;
+  }
+
+  .header p {
+    font-size: 0.8rem;
+  }
+
+  .form {
+    gap: 1.25rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .auth {
+    padding-top: 4.5rem;
+  }
+
+  .authCard {
+    padding: 1.75rem 1.25rem;
+    border-radius: 16px;
+  }
+
+  .header h1 {
+    font-size: 1.5rem;
+  }
+
+  .submitButton {
+    padding: 0.85rem;
+    font-size: 0.8rem;
+  }
+
+  .userTypeIcon {
+    width: 40px;
+    height: 40px;
+    font-size: 1.3rem;
+  }
+
+  .userTypeText strong {
+    font-size: 0.9rem;
+  }
+
+  /* Optimize registration columns */
+  .registerLeftColumn {
+    flex: 0 0 auto;
+  }
+}

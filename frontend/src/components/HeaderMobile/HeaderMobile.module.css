@@ -3,13 +3,29 @@
 .header {
   position: sticky;
   top: 0;
-  z-index: 10;
+  z-index: 1000;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 1.15rem 1.25rem;
-  margin-bottom: 1.5rem;
-  /* gradient + shadow applied via inline style from useRoleColor */
+  padding: 1rem 1.25rem;
+  margin-bottom: 1.25rem;
+  width: 100%;
+}
+
+@media (max-width: 768px) {
+  .header {
+    margin-left: -1rem;
+    margin-right: -1rem;
+    width: calc(100% + 2rem);
+  }
+}
+
+@media (max-width: 480px) {
+  .header {
+    margin-left: -0.75rem;
+    margin-right: -0.75rem;
+    width: calc(100% + 1.5rem);
+  }
 }
 
 .backButton {

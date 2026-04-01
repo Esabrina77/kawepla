@@ -233,8 +233,8 @@ function RegisterForm() {
                     <input type="checkbox" name="terms" required disabled={isSubmitting} />
                     <span>
                       J'accepte les{' '}
-                      <Link href="/legal/terms">conditions d'utilisation</Link> et la{' '}
-                      <Link href="/legal/privacy">politique de confidentialité</Link>
+                      <Link href="/conditions-utilisation">conditions d'utilisation</Link> et la{' '}
+                      <Link href="/politique-confidentialite">politique de confidentialité</Link>
                     </span>
                   </label>
                 </div>
