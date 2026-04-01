@@ -33,7 +33,7 @@ export function Header() {
   };
 
   const authLink = isAuthenticated ? getDashboardLink() : "/auth/login";
-  const authText = isAuthenticated ? "Mon espace" : "Commencer";
+  const authText = isAuthenticated ? "Mon espace" : "Connexion";
 
   const toggleDarkMode = () => {
     const newIsDark = !isDark;
@@ -139,14 +139,14 @@ export function Header() {
               Blog Prestataires
             </Link>
             <Link
-              href="/pricing"
+              href="#pricing"
               className={styles.mobileNavLink}
               onClick={() => setIsMenuOpen(false)}
             >
               Tarifs
             </Link>
             <Link
-              href="/help"
+              href="#faq"
               className={styles.mobileNavLink}
               onClick={() => setIsMenuOpen(false)}
             >

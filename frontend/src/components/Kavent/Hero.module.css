@@ -137,3 +137,40 @@
     background: rgba(255, 255, 255, 0.2);
     transform: scale(1.1);
 }
+
+.ctaContainer {
+    margin-top: 4.5rem;
+}
+
+.ctaButton {
+    display: inline-block;
+    padding: 0.8rem 2.4rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.2em;
+    border-radius: 99px;
+    text-decoration: none;
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.4);
+    font-size: 0.85rem;
+    color: #fff;
+    border: 2px solid rgba(255, 255, 255, 1);
+    backdrop-filter: blur(10px);
+}
+
+
+.ctaButton:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.5);
+    filter: brightness(1.2);
+}
+
+.ctaHost {
+    background: rgba(99, 102, 241, 0.8);
+    border-color: rgba(99, 102, 241, 0.5);
+}
+
+.ctaProvider {
+    background: rgba(255, 115, 43, 0.8);
+    border-color: rgba(255, 115, 43, 0.5);
+}

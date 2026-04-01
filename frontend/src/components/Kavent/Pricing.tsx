@@ -14,7 +14,7 @@ const clientPlans = [
         discount: null,
         period: '', 
         description: 'Pour tester.', 
-        features: ['1 Événement', '25 Invités', '20 Photos', '3 Requêtes IA'], 
+        features: ['2 Événements', '100 Invités', '500 Photos', '15 Requêtes IA'], 
         highlighted: false 
     },
     { 
@@ -23,8 +23,8 @@ const clientPlans = [
         oldPrice: '59,00 €',
         discount: '-62%',
         period: '', 
-        description: 'Événements intimes.', 
-        features: ['2 Événements', '60 Invités', '50 Photos', '15 Requêtes IA'], 
+        description: 'Petites agences.', 
+        features: ['5 Événements', '1 500 Invités', '2 500 Photos', '100 Requêtes IA'], 
         highlighted: false 
     },
     { 
@@ -33,8 +33,8 @@ const clientPlans = [
         oldPrice: '99,00 €',
         discount: '-50%',
         period: '', 
-        description: 'Le plus complet.', 
-        features: ['3 Événements', '120 Invités', '150 Photos', '40 Requêtes IA'], 
+        description: 'Pour les pros.', 
+        features: ['12 Événements', '4 000 Invités', '6 000 Photos', '300 Requêtes IA'], 
         highlighted: true 
     },
     { 
@@ -43,8 +43,8 @@ const clientPlans = [
         oldPrice: '149,00 €',
         discount: '-33%',
         period: '', 
-        description: 'Expérience sans limite.', 
-        features: ['5 Événements', '250 Invités', '500 Photos', '100 Requêtes IA'], 
+        description: 'Agences à fort volume.', 
+        features: ['20 Événements', '12 000 Invités', '20 000 Photos', '1000 Requêtes IA'], 
         highlighted: false 
     },
 ];

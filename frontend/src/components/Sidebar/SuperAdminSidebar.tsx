@@ -130,11 +130,7 @@ export const SuperAdminSidebar = () => {
       >
         {/* Header Section */}
         <div className={styles.sidebarHeader}>
-          <Link
-            href="/super-admin/dashboard"
-            className={styles.logoLink}
-            data-tutorial="logo"
-          >
+          <Link href="/" className={styles.logoLink} data-tutorial="logo">
             {isCollapsed ? (
               <span className={styles.logoTextCollapsed}>K</span>
             ) : (

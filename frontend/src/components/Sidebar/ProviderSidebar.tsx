@@ -134,11 +134,7 @@ export const ProviderSidebar = () => {
       >
         {/* Header Section */}
         <div className={styles.sidebarHeader}>
-          <Link
-            href="/provider/dashboard"
-            className={styles.logoLink}
-            data-tutorial="logo"
-          >
+          <Link href="/" className={styles.logoLink} data-tutorial="logo">
             {isCollapsed ? (
               <span className={styles.logoTextCollapsed}>K</span>
             ) : (

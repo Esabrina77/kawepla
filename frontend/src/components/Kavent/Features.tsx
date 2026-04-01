@@ -6,21 +6,21 @@ import { useEffect, useCallback } from 'react';
 import styles from './Features.module.css';
 
 const clientFeatures = [
-    { icon: Mail, title: 'Éditeur Design', description: 'Créez vos invitations sur mesure.', image: 'https://images.unsplash.com/photo-1512909006721-3d6018887383?auto=format&fit=crop&w=600&q=80' },
-    { icon: Zap, title: 'Infos d\'Event', description: 'Lieu, date et RSVP en un clic.', image: 'https://images.unsplash.com/photo-1510076857177-7470076d4098?auto=format&fit=crop&w=600&q=80' },
-    { icon: Users, title: 'Gestion Invités', description: 'Suivez les confirmations en direct.', image: 'https://images.unsplash.com/photo-1505373877841-8d25f7d46678?auto=format&fit=crop&w=600&q=80' },
-    { icon: Calendar, title: 'Organisation', description: 'Checklist et Budget intégrés.', image: 'https://images.unsplash.com/photo-1517457373958-b7bdd4587205?auto=format&fit=crop&w=600&q=80' },
-    { icon: Briefcase, title: 'Prestataires', description: 'Réservez les meilleurs pros.', image: 'https://images.unsplash.com/photo-1550305080-4e029753abcf?auto=format&fit=crop&w=600&q=80' },
-    { icon: Camera, title: 'QR Photos', description: 'L\'album partagé de vos invités.', image: 'https://images.unsplash.com/photo-1516035069371-29a1b244cc32?auto=format&fit=crop&w=600&q=80' },
+    { icon: Mail, title: 'Éditeur Design', description: 'Créez vos invitations sur mesure.', image: 'https://images.unsplash.com/photo-1742970416358-2d28d873df56?q=80&w=1170&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D' },
+    { icon: Zap, title: 'Infos d\'Event', description: 'Lieu, date et RSVP en un clic.', image: 'https://images.unsplash.com/photo-1742581659446-6260fc707e7d?q=80&w=1171&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D' },
+    { icon: Users, title: 'Gestion Invités', description: 'Suivez les confirmations en direct.', image: 'https://images.unsplash.com/photo-1632067694887-097be1c5c5d4?q=80&w=1170&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D' },
+    { icon: Calendar, title: 'Organisation', description: 'Checklist et Budget intégrés.', image: 'https://plus.unsplash.com/premium_photo-1682126157704-beacbab4906f?q=80&w=1170&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D' },
+    { icon: Briefcase, title: 'Prestataires', description: 'Réservez les meilleurs pros.', image: 'https://images.unsplash.com/photo-1630673394533-b13bef31abf2?q=80&w=1170&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D' },
+    { icon: Camera, title: 'QR Photos', description: 'L\'album partagé de vos invités.', image: 'https://images.unsplash.com/photo-1516035069371-29a1b244cc32?q=80&w=764&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D' },
 ];
 
 const providerFeatures = [
-    { icon: Star, title: 'Visibilité Pro', description: 'Mettez en avant votre expertise.', image: 'https://images.unsplash.com/photo-1521737604893-d14cc237f11d?auto=format&fit=crop&w=600&q=80' },
-    { icon: Zap, title: 'Offres Services', description: 'Gérez vos forfaits et tarifs.', image: 'https://images.unsplash.com/photo-1542744094-24638eff58bb?auto=format&fit=crop&w=600&q=80' },
-    { icon: Heart, title: 'Portfolio', description: 'Sublimez vos réalisations.', image: 'https://images.unsplash.com/photo-1504151932400-72d4255be04d?auto=format&fit=crop&w=600&q=80' },
-    { icon: ShieldCheck, title: 'Réservations', description: 'Sécurisez vos futurs contrats.', image: 'https://images.unsplash.com/photo-1454165833767-027ffea9e77b?auto=format&fit=crop&w=600&q=80' },
-    { icon: Mail, title: 'Messagerie', description: 'Discutez avec vos clients.', image: 'https://images.unsplash.com/photo-1573164746231-9c869b260718?auto=format&fit=crop&w=600&q=80' },
-    { icon: Zap, title: 'Dashboard', description: 'Suivez vos revenus en direct.', image: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&w=600&q=80' },
+    { icon: Star, title: 'Visibilité Pro', description: 'Mettez en avant votre expertise.', image: 'https://images.unsplash.com/photo-1607703703520-bb638e84caf2?w=400&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Nnx8YXVkaWVuY2V8ZW58MHx8MHx8fDA%3D' },
+    { icon: Zap, title: 'Offres Services', description: 'Gérez vos forfaits et tarifs.', image: 'https://images.unsplash.com/photo-1521791136064-7986c2920216?q=80&w=1169&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D' },
+    { icon: Heart, title: 'Portfolio', description: 'Sublimez vos réalisations.', image: 'https://images.unsplash.com/photo-1606819717115-9159c900370b?q=80&w=1170&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D' },
+    { icon: ShieldCheck, title: 'Réservations', description: 'Sécurisez vos futurs contrats.', image: 'https://images.unsplash.com/photo-1681505531034-8d67054e07f6?q=80&w=1170&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D' },
+    { icon: Mail, title: 'Messagerie', description: 'Discutez avec vos clients.', image: 'https://plus.unsplash.com/premium_photo-1676057060928-c717a8e96784?w=400&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8OHx8Y2hhdGluZ3xlbnwwfHwwfHx8MA%3D%3D' },
+    { icon: Zap, title: 'Dashboard', description: 'Suivez vos revenus en direct.', image: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=400&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8c3RhdHN8ZW58MHx8MHx8fDA%3D' },
 ];
 
 interface FeaturesProps {

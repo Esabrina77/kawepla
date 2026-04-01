@@ -72,6 +72,23 @@ export function Hero({ role = 'client', onRoleChange }: HeroProps) {
                         >Prestataires</button>
                     </div>
                 </div>
+
+                {/* Main CTA */}
+                {!isAuthenticated && (
+                    <motion.div
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 0.5 }}
+                        className={styles.ctaContainer}
+                    >
+                        <a 
+                            href="/auth/register" 
+                            className={`${styles.ctaButton} ${role === 'client' ? styles.ctaHost : styles.ctaProvider}`}
+                        >
+                            Rejoindre
+                        </a>
+                    </motion.div>
+                )}
             </div>
         </section>
     );
