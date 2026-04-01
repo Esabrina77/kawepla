@@ -46,6 +46,7 @@ export default function ProviderDetailPage() {
   const [activeTab, setActiveTab] = useState<
     "services" | "portfolio" | "reviews"
   >("services");
+  const [selectedPhoto, setSelectedPhoto] = useState<string | null>(null);
   const [isFavorite, setIsFavorite] = useState(false);
 
   const formatPrice = (price: number, priceType: string) => {
@@ -301,15 +302,17 @@ export default function ProviderDetailPage() {
             <button className={styles.contactButton} onClick={handleContact}>
               Entrer en contact
             </button>
-            <button
-              className={`${styles.circleActionBtn} ${isFavorite ? styles.favoriteActive : ""}`}
-              onClick={handleFavorite}
-            >
-              <Heart size={22} fill={isFavorite ? "currentColor" : "none"} />
-            </button>
-            <button className={styles.circleActionBtn} onClick={handleShare}>
-              <Share2 size={22} />
-            </button>
+            <div className={styles.secondaryActions}>
+              <button
+                className={`${styles.circleActionBtn} ${isFavorite ? styles.favoriteActive : ""}`}
+                onClick={handleFavorite}
+              >
+                <Heart size={22} fill={isFavorite ? "currentColor" : "none"} />
+              </button>
+              <button className={styles.circleActionBtn} onClick={handleShare}>
+                <Share2 size={22} />
+              </button>
+            </div>
           </div>
         </div>
       </div>
@@ -405,7 +408,7 @@ export default function ProviderDetailPage() {
                 <div
                   key={index}
                   className={styles.portfolioItem}
-                  onClick={() => window.open(photo, "_blank")}
+                  onClick={() => setSelectedPhoto(photo)}
                 >
                   <img
                     src={photo}
@@ -494,6 +497,27 @@ export default function ProviderDetailPage() {
           </div>
         )}
       </div>
+      {/* Photo Modal Lighbox */}
+      {selectedPhoto && (
+        <div 
+          className={styles.photoModalOverlay}
+          onClick={() => setSelectedPhoto(null)}
+        >
+          <div className={styles.photoModalContent}>
+            <button 
+              className={styles.closeModalBtn}
+              onClick={(e) => { e.stopPropagation(); setSelectedPhoto(null); }}
+            >
+              ×
+            </button>
+            <img 
+              src={selectedPhoto} 
+              alt="Vue panoramique" 
+              className={styles.modalFullImage}
+            />
+          </div>
+        </div>
+      )}
     </div>
   );
 }

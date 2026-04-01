@@ -164,13 +164,70 @@
 /* Providers grid - More compact */
 .providersList {
   display: grid;
-  grid-template-columns: repeat(1, 1fr);
-  gap: 1.5rem;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.75rem;
+}
+
+@media (max-width: 480px) {
+  .providersList {
+    gap: 0.5rem;
+  }
+  
+  .providerContent {
+    padding: 0.65rem;
+  }
+  
+  .providerName {
+    font-size: 0.8rem;
+    line-height: 1.1;
+  }
+  
+  .categoryBadge {
+    font-size: 0.5rem;
+    padding: 0.15rem 0.35rem;
+    margin-bottom: 0.35rem;
+  }
+  
+  .ratingRow {
+    gap: 0.2rem;
+  }
+  
+  .ratingValue, .reviewCount {
+    font-size: 0.65rem;
+  }
+  
+  .description {
+    display: none;
+  }
+  
+  .divider {
+    margin-bottom: 0.65rem;
+  }
+  
+  .pricing {
+    margin-bottom: 0.65rem;
+  }
+  
+  .priceValue {
+    font-size: 0.85rem;
+  }
+  
+  .viewButton {
+    padding: 0.5rem;
+    font-size: 0.65rem;
+    border-radius: 8px;
+  }
+  
+  .viewButton svg {
+    width: 14px;
+    height: 14px;
+  }
 }
 
 @media (min-width: 640px) {
   .providersList {
     grid-template-columns: repeat(2, 1fr);
+    gap: 1.5rem;
   }
 }
 
