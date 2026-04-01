@@ -23,6 +23,7 @@ export default function ProviderSupportPage() {
   const [selectedServiceId, setSelectedServiceId] = useState<string | null>(
     null,
   );
+  const [showChatMobile, setShowChatMobile] = useState(false);
 
   // Pour les providers, on peut lier la discussion à un service ou non
   // L'ID passé à useMessages sera soit l'ID du service, soit undefined (pour discussion générale)
@@ -78,7 +79,7 @@ export default function ProviderSupportPage() {
 
       <div className={styles.layout}>
         {/* Sidebar */}
-        <aside className={styles.sidebar}>
+        <aside className={`${styles.sidebar} ${showChatMobile ? styles.hiddenMobile : ""}`}>
           <div className={styles.sidebarHeader}>
             <div className={styles.badge}>
               <MessageSquare size={14} />
@@ -95,7 +96,10 @@ export default function ProviderSupportPage() {
             <div className={styles.sectionTitle}>Sujets Généraux</div>
             <div
               className={`${styles.subjectItem} ${!selectedServiceId ? styles.selected : ""}`}
-              onClick={() => setSelectedServiceId(null)}
+              onClick={() => {
+                setSelectedServiceId(null);
+                setShowChatMobile(true);
+              }}
             >
               <div className={styles.subjectIcon}>
                 <Info size={18} />
@@ -113,7 +117,10 @@ export default function ProviderSupportPage() {
                   <div
                     key={service.id}
                     className={`${styles.subjectItem} ${selectedServiceId === service.id ? styles.selected : ""}`}
-                    onClick={() => setSelectedServiceId(service.id)}
+                    onClick={() => {
+                      setSelectedServiceId(service.id);
+                      setShowChatMobile(true);
+                    }}
                   >
                     <div className={styles.subjectIcon}>
                       <Briefcase size={18} />
@@ -142,9 +149,15 @@ export default function ProviderSupportPage() {
         </aside>
 
         {/* Main Chat Area */}
-        <main className={styles.chatArea}>
+        <main className={`${styles.chatArea} ${!showChatMobile ? styles.hiddenMobile : ""}`}>
           <div className={styles.chatHeader}>
             <div className={styles.chatSubjectInfo}>
+              <button 
+                className={styles.backButton}
+                onClick={() => setShowChatMobile(false)}
+              >
+                <RefreshCw size={18} style={{ transform: "rotate(-90deg)" }} />
+              </button>
               <div className={styles.chatSubjectIcon}>
                 {selectedServiceId ? (
                   <Briefcase size={20} />

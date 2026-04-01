@@ -1,11 +1,20 @@
 /* ===== FRIENDLY PRO DESIGN SYSTEM - RESPONSES PAGE ===== */
 
 .pageContainer {
-  padding: 1.5rem;
   max-width: 1200px;
   margin: 0 auto;
   min-height: 100vh;
   animation: fadeIn 0.4s ease-out;
+}
+
+.pageContent {
+  padding: 1.25rem;
+}
+
+@media (min-width: 768px) {
+  .pageContent {
+    padding: 1.5rem 2rem;
+  }
 }
 
 @keyframes fadeIn {

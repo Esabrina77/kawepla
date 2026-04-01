@@ -58,7 +58,9 @@
   .messagesContainer { padding: 16px 40px; }
 }
 @media (max-width: 768px) {
-  .messagesContainer { padding: 12px 12px; }
+  .messagesContainer { 
+    padding: 12px 12px 180px; 
+  }
 }
 
 .messagesContainer::-webkit-scrollbar { width: 5px; }

@@ -152,7 +152,21 @@
   gap: 12px;
 }
 
-.chatSubjectInfo { display: flex; align-items: center; gap: 12px; }
+.chatSubjectInfo { 
+  display: flex; 
+  align-items: center; 
+  gap: 12px; 
+}
+
+.backButton {
+  display: none;
+  background: none;
+  border: none;
+  padding: 8px;
+  color: var(--text-secondary);
+  cursor: pointer;
+  margin-right: 4px;
+}
 
 .chatSubjectIcon {
   width: 40px;
@@ -225,6 +239,17 @@
 @keyframes spin { to { transform: rotate(360deg); } }
 
 @media (max-width: 768px) {
-  .layout { flex-direction: column; }
-  .sidebar { width: 100%; height: 35vh; border-right: none; border-bottom: 1px solid #e9edef; }
+  .layout { flex-direction: column; height: 100%; }
+  .sidebar { width: 100%; border-right: none; height: 100%; }
+  .chatArea { height: 100%; }
+
+  .hiddenMobile {
+    display: none !important;
+  }
+
+  .backButton {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
 }

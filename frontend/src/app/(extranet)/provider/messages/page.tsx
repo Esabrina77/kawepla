@@ -198,6 +198,7 @@ export default function ProviderMessagesPage() {
   const [selectedConversationId, setSelectedConversationId] = useState<
     string | null
   >(null);
+  const [showChatMobile, setShowChatMobile] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [messageText, setMessageText] = useState("");
   const [sending, setSending] = useState(false);
@@ -355,7 +356,7 @@ export default function ProviderMessagesPage() {
 
       <div className={styles.messagesLayout}>
         {/* ── Conversations list ── */}
-        <aside className={styles.conversationsList}>
+        <aside className={`${styles.conversationsList} ${showChatMobile ? styles.hiddenMobile : ""}`}>
           <div className={styles.searchContainer}>
             <Search size={16} className={styles.searchIcon} />
             <input
@@ -383,7 +384,10 @@ export default function ProviderMessagesPage() {
                   <div
                     key={conv.id}
                     className={`${styles.conversationItem} ${selected ? styles.selected : ""}`}
-                    onClick={() => setSelectedConversationId(conv.id)}
+                    onClick={() => {
+                      setSelectedConversationId(conv.id);
+                      setShowChatMobile(true);
+                    }}
                   >
                     <div className={styles.conversationAvatar}>
                       {conv.client?.firstName?.[0] || "C"}
@@ -428,7 +432,7 @@ export default function ProviderMessagesPage() {
         </aside>
 
         {/* ── Messages area ── */}
-        <div className={styles.messagesArea}>
+        <div className={`${styles.messagesArea} ${!showChatMobile ? styles.hiddenMobile : ""}`}>
           {!selectedConversationId ? (
             <div className={styles.noConversationSelected}>
               <MessageCircle size={56} />
@@ -442,6 +446,12 @@ export default function ProviderMessagesPage() {
             <>
               {/* Conversation header */}
               <div className={styles.conversationHeader}>
+                <button 
+                  className={styles.backButton}
+                  onClick={() => setShowChatMobile(false)}
+                >
+                  <Send size={18} style={{ transform: "rotate(-180deg)" }} />
+                </button>
                 <div className={styles.providerInfo}>
                   <div className={styles.providerAvatar}>
                     {conversation.client?.firstName?.[0] || "C"}

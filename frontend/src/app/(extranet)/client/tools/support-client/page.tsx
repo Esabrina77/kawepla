@@ -24,6 +24,7 @@ export default function ClientDiscussionsPage() {
   const [selectedInvitationId, setSelectedInvitationId] = useState<
     string | null
   >(null);
+  const [showChatMobile, setShowChatMobile] = useState(false);
 
   // On ne force plus la sélection de la première invitation pour permettre l'accès au support général (null)
 
@@ -80,124 +81,138 @@ export default function ClientDiscussionsPage() {
     <div className={styles.container}>
       <HeaderMobile title="Centre d'Assistance" />
 
-      <div className={styles.layout}>
-        {/* Sidebar */}
-        <aside className={styles.sidebar}>
-          <div className={styles.sidebarHeader}>
-         
-            <h2>
-              Assistance 
-            </h2>
-            <p>Comment pouvons-nous vous aider aujourd'hui ?</p>
-          </div>
+      <div className={styles.pageContent}>
+        <div className={styles.layout}>
+          {/* Sidebar */}
+          <aside className={`${styles.sidebar} ${showChatMobile ? styles.hiddenMobile : ""}`}>
+            <div className={styles.sidebarHeader}>
+           
+              <h2>
+                Assistance 
+              </h2>
+              <p>Comment pouvons-nous vous aider aujourd'hui ?</p>
+            </div>
 
-          <div className={styles.subjectsList}>
-            <div className={styles.sectionTitle}>Sujets Généraux</div>
+            <div className={styles.subjectsList}>
+              <div className={styles.sectionTitle}>Sujets Généraux</div>
+              <div
+                className={`${styles.subjectItem} ${!selectedInvitationId ? styles.selected : ""}`}
+                onClick={() => {
+                  setSelectedInvitationId(null);
+                  setShowChatMobile(true);
+                }}
+              >
+                <div className={styles.subjectIcon}>
+                  <Info size={18} />
+                </div>
+                <div className={styles.subjectDetails}>
+                  <h3 className={styles.subjectName}>Questions Générales</h3>
+                  <p className={styles.subjectType}>Support Kawepla</p>
+                </div>
+              </div>
+
+              {invitations.length > 0 && (
+                <>
+                  <div className={styles.sectionTitle}>Vos Événements</div>
+                  {invitations.map((invitation) => (
+                    <div
+                      key={invitation.id}
+                      className={`${styles.subjectItem} ${selectedInvitationId === invitation.id ? styles.selected : ""}`}
+                      onClick={() => {
+                        setSelectedInvitationId(invitation.id);
+                        setShowChatMobile(true);
+                      }}
+                    >
+                      <div className={styles.subjectIcon}>
+                        <Users size={18} />
+                      </div>
+                      <div className={styles.subjectDetails}>
+                        <h3 className={styles.subjectName}>
+                          {invitation.eventTitle ||
+                            `Événement #${invitation.id.slice(-4)}`}
+                        </h3>
+                        <p className={styles.subjectType}>
+                          Conseils & Organisation
+                        </p>
+                      </div>
+                    </div>
+                  ))}
+                </>
+              )}
+            </div>
+
+            {/* Sidebar Footer / Help Info */}
+            <div className={styles.sidebarFooter}>
+              <div className={styles.helpInfo}>
+                <Info className={styles.helpIcon} size={20} />
+                <div className={styles.helpContent}>
+                  <p className={styles.helpTitle}>Support 7j/7</p>
+                  <p className={styles.helpDescription}>
+                    Notre équipe vous répond sous 24h ouvrées.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </aside>
+
+          {/* Main Chat Area */}
+          <main className={`${styles.chatArea} ${!showChatMobile ? styles.hiddenMobile : ""}`}>
+            <div className={styles.chatHeader}>
+              <div className={styles.chatSubjectInfo}>
+                <button 
+                  className={styles.backButton}
+                  onClick={() => setShowChatMobile(false)}
+                >
+                  <RefreshCw size={18} style={{ transform: "rotate(-90deg)" }} />
+                </button>
+                <div className={styles.chatSubjectIcon}>
+                  {selectedInvitationId ? (
+                    <Users size={20} />
+                  ) : (
+                    <Info size={20} />
+                  )}
+                </div>
+                <div className={styles.chatSubjectDetails}>
+                  <h3>
+                    {selectedInvitationId
+                      ? invitations.find((i) => i.id === selectedInvitationId)
+                          ?.eventTitle || "Mon Événement"
+                      : "Questions Générales"}
+                  </h3>
+                  <p>
+                    {selectedInvitationId
+                      ? "Support dédié à cet événement"
+                      : "Équipe Kawepla"}
+                  </p>
+                </div>
+              </div>
+            </div>
+
             <div
-              className={`${styles.subjectItem} ${!selectedInvitationId ? styles.selected : ""}`}
-              onClick={() => setSelectedInvitationId(null)}
+              className={styles.chatWrapper}
+              style={
+                {
+                  "--primary-color": "var(--host)",
+                  "--primary-contrast": "#fff",
+                } as React.CSSProperties
+              }
             >
-              <div className={styles.subjectIcon}>
-                <Info size={18} />
-              </div>
-              <div className={styles.subjectDetails}>
-                <h3 className={styles.subjectName}>Questions Générales</h3>
-                <p className={styles.subjectType}>Support Kawepla</p>
-              </div>
+              <ChatBox
+                messages={messages}
+                currentUserId={user?.id || ""}
+                loading={messagesLoading}
+                hasMore={hasMore}
+                typingUsers={typingUsers}
+                connected={connected}
+                onSendMessage={sendMessage}
+                onLoadMore={loadMoreMessages}
+                onStartTyping={startTyping}
+                onStopTyping={stopTyping}
+                onMarkAsRead={markAsRead}
+              />
             </div>
-
-            {invitations.length > 0 && (
-              <>
-                <div className={styles.sectionTitle}>Vos Événements</div>
-                {invitations.map((invitation) => (
-                  <div
-                    key={invitation.id}
-                    className={`${styles.subjectItem} ${selectedInvitationId === invitation.id ? styles.selected : ""}`}
-                    onClick={() => setSelectedInvitationId(invitation.id)}
-                  >
-                    <div className={styles.subjectIcon}>
-                      <Users size={18} />
-                    </div>
-                    <div className={styles.subjectDetails}>
-                      <h3 className={styles.subjectName}>
-                        {invitation.eventTitle ||
-                          `Événement #${invitation.id.slice(-4)}`}
-                      </h3>
-                      <p className={styles.subjectType}>
-                        Conseils & Organisation
-                      </p>
-                    </div>
-                  </div>
-                ))}
-              </>
-            )}
-          </div>
-
-          {/* Sidebar Footer / Help Info */}
-          <div className={styles.sidebarFooter}>
-            <div className={styles.helpInfo}>
-              <Info className={styles.helpIcon} size={20} />
-              <div className={styles.helpContent}>
-                <p className={styles.helpTitle}>Support 7j/7</p>
-                <p className={styles.helpDescription}>
-                  Notre équipe vous répond sous 24h ouvrées.
-                </p>
-              </div>
-            </div>
-          </div>
-        </aside>
-
-        {/* Main Chat Area */}
-        <main className={styles.chatArea}>
-          <div className={styles.chatHeader}>
-            <div className={styles.chatSubjectInfo}>
-              <div className={styles.chatSubjectIcon}>
-                {selectedInvitationId ? (
-                  <Users size={20} />
-                ) : (
-                  <Info size={20} />
-                )}
-              </div>
-              <div className={styles.chatSubjectDetails}>
-                <h3>
-                  {selectedInvitationId
-                    ? invitations.find((i) => i.id === selectedInvitationId)
-                        ?.eventTitle || "Mon Événement"
-                    : "Questions Générales"}
-                </h3>
-                <p>
-                  {selectedInvitationId
-                    ? "Support dédié à cet événement"
-                    : "Équipe Kawepla"}
-                </p>
-              </div>
-            </div>
-          </div>
-
-          <div
-            className={styles.chatWrapper}
-            style={
-              {
-                "--primary-color": "var(--host)",
-                "--primary-contrast": "#fff",
-              } as React.CSSProperties
-            }
-          >
-            <ChatBox
-              messages={messages}
-              currentUserId={user?.id || ""}
-              loading={messagesLoading}
-              hasMore={hasMore}
-              typingUsers={typingUsers}
-              connected={connected}
-              onSendMessage={sendMessage}
-              onLoadMore={loadMoreMessages}
-              onStartTyping={startTyping}
-              onStopTyping={stopTyping}
-              onMarkAsRead={markAsRead}
-            />
-          </div>
-        </main>
+          </main>
+        </div>
       </div>
 
       {error && (

@@ -118,104 +118,106 @@ export default function MessagesPage() {
     <div className={styles.pageContainer}>
       <HeaderMobile title="Réponses" />
 
-      {/* Header Info */}
-      <div className={styles.searchBar}>
-        <div>
-          <p className={styles.introText}>
-            <span style={{ display: 'block' }}>Consultez les messages et confirmations de vos invités.</span>
-            <span style={{ display: 'block' }}>Cliquez sur un message pour voir tous les détails de la réponse.</span>
-          </p>
-        </div>
-      </div>
-
-      {/* Search Bar */}
-      <div className={styles.searchFiltersSection}>
-        <div className={styles.searchContainer}>
-          <div className={styles.searchWrapper}>
-            <Search size={18} className={styles.searchIcon} />
-            <input
-              type="text"
-              placeholder="Rechercher par nom, email ou contenu..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className={styles.searchInput}
-            />
+      <div className={styles.pageContent}>
+        {/* Header Info */}
+        <div className={styles.searchBar}>
+          <div>
+            <p className={styles.introText}>
+              <span style={{ display: 'block' }}>Consultez les messages et confirmations de vos invités.</span>
+              <span style={{ display: 'block' }}>Cliquez sur un message pour voir tous les détails de la réponse.</span>
+            </p>
           </div>
         </div>
-      </div>
 
-      {/* Messages Grid */}
-      <div className={styles.messagesGrid}>
-        {filteredMessages.map((message) => {
-          const statusClass = message.status.toLowerCase();
-          const avatarClass = `avatar${statusClass.charAt(0).toUpperCase() + statusClass.slice(1)}`;
-          const hasMessage = message.message && message.message.trim() !== '';
-
-          return (
-            <div 
-              key={message.id} 
-              className={styles.messageCard}
-              onClick={() => setSelectedMessage(message)}
-            >
-              <div className={styles.messageCardHeader}>
-                <div className={`${styles.guestAvatar} ${styles[avatarClass]}`}>
-                  {getInitials(message.guest.firstName, message.guest.lastName)}
-                </div>
-
-                <div className={styles.guestInfo}>
-                  <p className={styles.guestName}>
-                    {message.guest.firstName} {message.guest.lastName}
-                  </p>
-                  <p className={styles.guestEmail}>
-                    <Mail size={12} /> {message.guest.email}
-                  </p>
-                </div>
-
-                <div className={`${styles.statusBadge} ${styles[statusClass]}`}>
-                  {getStatusLabel(message.status)}
-                </div>
-              </div>
-
-              <div className={styles.messageBody}>
-                <p className={styles.invitationTitle}>
-                   <Calendar size={12} /> {message.invitation.eventTitle}
-                </p>
-                <div className={`${styles.messageText} ${!hasMessage ? styles.noMessage : ''}`}>
-                  {hasMessage ? (
-                    message.message.length > 120 
-                      ? `${message.message.substring(0, 120)}...` 
-                      : message.message
-                  ) : 'Aucun message particulier'}
-                </div>
-              </div>
-
-              <div className={styles.messageFooter}>
-                <p className={styles.messageDate}>
-                  <Clock size={12} /> {formatDate(message.createdAt)}
-                </p>
-                <div className={styles.viewAction}>
-                  Détails <ArrowRight size={12} />
-                </div>
-              </div>
+        {/* Search Bar */}
+        <div className={styles.searchFiltersSection}>
+          <div className={styles.searchContainer}>
+            <div className={styles.searchWrapper}>
+              <Search size={18} className={styles.searchIcon} />
+              <input
+                type="text"
+                placeholder="Rechercher par nom, email ou contenu..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className={styles.searchInput}
+              />
             </div>
-          );
-        })}
-      </div>
-
-      {/* Empty State (Texte uniquement, pas de cadre) */}
-      {filteredMessages.length === 0 && (
-        <div className={styles.emptyContainer}>
-          <h3 className={styles.emptyTitle}>
-            {searchQuery ? 'Aucun résultat' : 'Aucune réponse'}
-          </h3>
-          <p className={styles.emptyText}>
-            {searchQuery
-              ? `Nous n'avons trouvé aucun message correspondant à "${searchQuery}"`
-              : 'Les réponses de vos invités apparaîtront ici dès qu\'ils auront complété leur RSVP.'
-            }
-          </p>
+          </div>
         </div>
-      )}
+
+        {/* Messages Grid */}
+        <div className={styles.messagesGrid}>
+          {filteredMessages.map((message) => {
+            const statusClass = message.status.toLowerCase();
+            const avatarClass = `avatar${statusClass.charAt(0).toUpperCase() + statusClass.slice(1)}`;
+            const hasMessage = message.message && message.message.trim() !== '';
+
+            return (
+              <div 
+                key={message.id} 
+                className={styles.messageCard}
+                onClick={() => setSelectedMessage(message)}
+              >
+                <div className={styles.messageCardHeader}>
+                  <div className={`${styles.guestAvatar} ${styles[avatarClass]}`}>
+                    {getInitials(message.guest.firstName, message.guest.lastName)}
+                  </div>
+
+                  <div className={styles.guestInfo}>
+                    <p className={styles.guestName}>
+                      {message.guest.firstName} {message.guest.lastName}
+                    </p>
+                    <p className={styles.guestEmail}>
+                      <Mail size={12} /> {message.guest.email}
+                    </p>
+                  </div>
+
+                  <div className={`${styles.statusBadge} ${styles[statusClass]}`}>
+                    {getStatusLabel(message.status)}
+                  </div>
+                </div>
+
+                <div className={styles.messageBody}>
+                  <p className={styles.invitationTitle}>
+                     <Calendar size={12} /> {message.invitation.eventTitle}
+                  </p>
+                  <div className={`${styles.messageText} ${!hasMessage ? styles.noMessage : ''}`}>
+                    {hasMessage ? (
+                      message.message.length > 120 
+                        ? `${message.message.substring(0, 120)}...` 
+                        : message.message
+                    ) : 'Aucun message particulier'}
+                  </div>
+                </div>
+
+                <div className={styles.messageFooter}>
+                  <p className={styles.messageDate}>
+                    <Clock size={12} /> {formatDate(message.createdAt)}
+                  </p>
+                  <div className={styles.viewAction}>
+                    Détails <ArrowRight size={12} />
+                  </div>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+
+        {/* Empty State (Texte uniquement, pas de cadre) */}
+        {filteredMessages.length === 0 && (
+          <div className={styles.emptyContainer}>
+            <h3 className={styles.emptyTitle}>
+              {searchQuery ? 'Aucun résultat' : 'Aucune réponse'}
+            </h3>
+            <p className={styles.emptyText}>
+              {searchQuery
+                ? `Nous n'avons trouvé aucun message correspondant à "${searchQuery}"`
+                : 'Les réponses de vos invités apparaîtront ici dès qu\'ils auront complété leur RSVP.'
+              }
+            </p>
+          </div>
+        )}
+      </div>
 
       {/* Details Modal */}
       {selectedMessage && (
