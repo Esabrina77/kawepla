@@ -25,6 +25,7 @@ import {
   Briefcase,
 } from "lucide-react";
 import styles from "./discussions.module.css";
+import { useModals } from "@/components/ui/modal-provider";
 import Link from "next/link";
 
 // ── Date Separator ─────────────────────────────────────────
@@ -205,6 +206,7 @@ export default function ClientDiscussionsPage() {
   const [messageText, setMessageText] = useState("");
   const [sending, setSending] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const { showAlert } = useModals();
 
   const {
     conversation,
@@ -360,7 +362,7 @@ export default function ClientDiscussionsPage() {
       setMessageText("");
       await markAsRead();
     } catch {
-      alert("Erreur lors de l'envoi du message");
+      showAlert("Erreur", "Erreur lors de l'envoi du message. Veuillez réessayer.", "error");
     } finally {
       setSending(false);
     }

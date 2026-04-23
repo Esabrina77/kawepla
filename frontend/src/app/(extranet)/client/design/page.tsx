@@ -4,6 +4,7 @@ import React, { useEffect, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useDesigns } from '@/hooks/useDesigns';
 import { useInvitations } from '@/hooks/useInvitations';
+import { useModals } from '@/components/ui/modal-provider';
 import { Design } from '@/types';
 import DesignPreview from '@/components/DesignPreview';
 import { HeaderMobile } from '@/components/HeaderMobile';
@@ -17,12 +18,17 @@ type Tab = 'templates' | 'favorites' | 'personal';
 export default function DesignsGalleryPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const { showAlert, showConfirm } = useModals();
   const { fetchTemplates, fetchUserDesigns, loading, deleteDesign, createPersonalizedDesign } = useDesigns();
   const { invitations, fetchInvitations } = useInvitations();
   const { addToast } = useToast();
   const [activeTab, setActiveTab] = useState<Tab>('templates');
   const [importLoading, setImportLoading] = useState(false);
   const [showImportBanner, setShowImportBanner] = useState(true);
+  const [showImportModal, setShowImportModal] = useState(false);
+  const [importFile, setImportFile] = useState<File | null>(null);
+  const [importPreview, setImportPreview] = useState<string | null>(null);
+  const [importName, setImportName] = useState('');
 
   const [templates, setTemplates] = useState<Design[]>([]);
   const [personalDesigns, setPersonalDesigns] = useState<Design[]>([]);
@@ -121,11 +127,16 @@ export default function DesignsGalleryPage() {
 
     const isUsed = invitations.some(inv => inv.designId === design.id);
     if (isUsed) {
-      alert("Impossible de supprimer ce design car il est utilisé dans un événement.");
+      showAlert("Action impossible", "Impossible de supprimer ce design car il est utilisé dans un événement.", "error");
       return;
     }
 
-    if (confirm('Êtes-vous sûr de vouloir supprimer ce design ?')) {
+    const confirmed = await showConfirm(
+      'Supprimer le design',
+      'Êtes-vous sûr de vouloir supprimer ce design ? Cette action est irréversible.'
+    );
+
+    if (confirmed) {
       try {
         await deleteDesign(design.id);
 
@@ -140,23 +151,57 @@ export default function DesignsGalleryPage() {
         setPersonalDesigns(data || []);
       } catch (error) {
         console.error('Erreur suppression:', error);
-        alert('Erreur lors de la suppression');
+        showAlert("Erreur", "Une erreur est survenue lors de la suppression.", "error");
       }
     }
   };
 
-  const handleImportImage = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleImportImage = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
+    // ─── MODAL: IMPORT PREVIEW ──────────────────────
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      setImportFile(file);
+      setImportPreview(reader.result as string);
+      setImportName(file.name.replace(/\.[^.]+$/, '') || 'Mon invitation');
+      setShowImportModal(true);
+    };
+    reader.readAsDataURL(file);
+    
+    // Reset l'input pour permettre de sélectionner le même fichier
+    e.target.value = '';
+  };
+
+  const handleConfirmImport = async () => {
+    if (!importFile) return;
+
     setImportLoading(true);
     try {
-      const fileName = `design-import-${Date.now()}.${file.name.split('.').pop()}`;
-      const imageUrl = await uploadToFirebase(file, `designs/preview/${fileName}`);
+      const fileName = `design-import-${Date.now()}.${importFile.name.split('.').pop()}`;
+      const imageUrl = await uploadToFirebase(importFile, `designs/preview/${fileName}`);
 
       const simpleFabricData = {
         version: '6.9.0',
-        objects: [],
+        objects: [
+          {
+            type: 'image',
+            version: '6.9.0',
+            originX: 'center',
+            originY: 'center',
+            left: 397,
+            top: 561.5,
+            width: 794,
+            height: 1123,
+            src: imageUrl,
+            crossOrigin: 'anonymous',
+            selectable: true,
+            hasControls: true,
+            lockMovementX: false,
+            lockMovementY: false,
+          }
+        ],
         width: 794,
         height: 1123,
         background: '#ffffff',
@@ -165,7 +210,8 @@ export default function DesignsGalleryPage() {
       await createPersonalizedDesign(
         '',
         simpleFabricData,
-        file.name.replace(/\.[^.]+$/, '') || 'Mon invitation importée',
+        importName || 'Mon invitation importée',
+        imageUrl,
         imageUrl,
         imageUrl
       );
@@ -180,6 +226,7 @@ export default function DesignsGalleryPage() {
       setPersonalDesigns(data || []);
       setActiveTab('personal');
       router.replace('/client/design?tab=personal');
+      setShowImportModal(false);
     } catch (error) {
       console.error('Erreur import:', error);
       addToast({
@@ -189,7 +236,8 @@ export default function DesignsGalleryPage() {
       });
     } finally {
       setImportLoading(false);
-      e.target.value = '';
+      setImportFile(null);
+      setImportPreview(null);
     }
   };
 
@@ -305,17 +353,20 @@ export default function DesignsGalleryPage() {
           <div className={styles.loading}>Chargement...</div>
         ) : (
           <div className={styles.grid} role="tabpanel">
+            {/* Modal d'aperçu avant import */}
+            <ImportPreviewModal
+              isOpen={showImportModal}
+              onClose={() => setShowImportModal(false)}
+              onConfirm={handleConfirmImport}
+              previewUrl={importPreview}
+              name={importName}
+              setName={setImportName}
+              loading={importLoading}
+            />
 
             {/* Carte d'importation d'invitation — uniquement dans 'personal' */}
             {activeTab === 'personal' && showImportBanner && (
               <div className={styles.importCard}>
-                <button
-                  className={styles.importBannerClose}
-                  onClick={() => setShowImportBanner(false)}
-                  title="Masquer"
-                >
-                  <X size={14} />
-                </button>
 
                 <div className={styles.importCardContent}>
                   <div className={styles.importIconWrap}>
@@ -415,6 +466,74 @@ export default function DesignsGalleryPage() {
             ))}
           </div>
         )}
+      </div>
+    </div>
+  );
+}
+
+// ─── MODAL: IMPORT PREVIEW ──────────────────────
+function ImportPreviewModal({
+  isOpen,
+  onClose,
+  onConfirm,
+  previewUrl,
+  name,
+  setName,
+  loading
+}: {
+  isOpen: boolean;
+  onClose: () => void;
+  onConfirm: () => void;
+  previewUrl: string | null;
+  name: string;
+  setName: (name: string) => void;
+  loading: boolean;
+}) {
+  if (!isOpen) return null;
+
+  return (
+    <div className={styles.modalOverlay} onClick={onClose}>
+      <div className={styles.modalContent} onClick={(e) => e.stopPropagation()} style={{ maxWidth: '500px' }}>
+        <div className={styles.modalHeader}>
+          <h2>Aperçu de l&apos;invitation</h2>
+          <button onClick={onClose} className={styles.modalClose}>
+            <X size={18} />
+          </button>
+        </div>
+        <div className={styles.modalBody}>
+          <div className={styles.importPreviewWrap}>
+            {previewUrl && (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img src={previewUrl} alt="Aperçu" className={styles.importPreviewImage} />
+            )}
+          </div>
+          
+          <div className={styles.formGroup}>
+            <label htmlFor="importName">Nom de votre création</label>
+            <input
+              id="importName"
+              type="text"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              placeholder="Ex: Mariage de Sophie et Marc"
+              className={styles.modalInput}
+              autoFocus
+            />
+          </div>
+        </div>
+        <div className={styles.modalFooter}>
+          <button type="button" onClick={onClose} className={styles.modalButtonSecondary}>
+            Annuler
+          </button>
+          <button 
+            type="button" 
+            onClick={onConfirm} 
+            className={styles.modalButtonPrimary} 
+            disabled={loading || !name.trim()}
+          >
+            {loading ? 'Importation...' : 'Importer maintenant'}
+          </button>
+        </div>
       </div>
     </div>
   );

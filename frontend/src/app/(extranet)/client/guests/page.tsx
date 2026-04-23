@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { HeaderMobile } from '@/components/HeaderMobile';
 import { useGuests } from '@/hooks/useGuests';
 import { useInvitations } from '@/hooks/useInvitations';
+import { useModals } from '@/components/ui/modal-provider';
 import { apiClient } from '@/lib/api/apiClient';
 import { stripeApi } from '@/lib/api/stripe';
 import { Guest } from '@/types';
@@ -398,6 +399,59 @@ function BulkImportModal({
   );
 }
 
+// ─── MODAL: SÉCURITÉ RÉINITIALISATION LIEN ──────────────────────
+function SecurityResetModal({
+  isOpen,
+  onClose,
+  onConfirm,
+  loading
+}: {
+  isOpen: boolean;
+  onClose: () => void;
+  onConfirm: () => void;
+  loading: boolean;
+}) {
+  if (!isOpen) return null;
+
+  return (
+    <div className={styles.modalOverlay} onClick={onClose}>
+      <div className={styles.modalContent} onClick={(e) => e.stopPropagation()} style={{ maxWidth: '400px' }}>
+        <div className={styles.modalHeader}>
+          <h2 style={{ color: 'var(--host)' }}>Sécurité</h2>
+          <button onClick={onClose} className={styles.modalClose}>
+            <X size={18} />
+          </button>
+        </div>
+        <div className={styles.modalBody}>
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', gap: '1rem', padding: '1rem 0' }}>
+            <div style={{ backgroundColor: '#fee2e2', color: '#ef4444', padding: '1rem', borderRadius: '50%' }}>
+              <AlertCircle size={32} />
+            </div>
+            <p style={{ fontWeight: '600', fontSize: '1.1rem' }}>Réinitialiser le lien ?</p>
+            <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem' }}>
+              L&apos;ancien lien deviendra immédiatement <strong>invalide</strong> pour tout le monde. Les invités déjà inscrits ne seront pas affectés.
+            </p>
+          </div>
+        </div>
+        <div className={styles.modalFooter} style={{ borderTop: 'none', gap: '0.75rem', justifyContent: 'center' }}>
+          <button type="button" onClick={onClose} className={styles.modalButtonSecondary} style={{ flex: 1 }}>
+            Annuler
+          </button>
+          <button 
+            type="button" 
+            onClick={onConfirm} 
+            className={styles.modalButtonPrimary} 
+            disabled={loading}
+            style={{ flex: 1, backgroundColor: '#ef4444' }}
+          >
+            {loading ? 'Réinitialisation...' : 'Confirmer'}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 // ─── MODAL: EXPORT ──────────────────────
 function ExportModal({
   isOpen,
@@ -470,6 +524,7 @@ function ShareableLinkManager({ invitationId }: { invitationId: string }) {
     expiresAt?: Date;
     remainingGuests: number;
   } | null>(null);
+  const [showResetModal, setShowResetModal] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -517,7 +572,9 @@ function ShareableLinkManager({ invitationId }: { invitationId: string }) {
     try {
       setLoading(true);
       setError(null);
-      const response = await apiClient.post(`/invitations/${invitationId}/generate-shareable-link`, {}) as any;
+      const response = await apiClient.post(`/invitations/${invitationId}/generate-shareable-link`, {
+        forceNew: true
+      }) as any;
       const newLink = {
         url: response.shareableUrl,
         maxUses: response.maxUses || 0,
@@ -526,6 +583,7 @@ function ShareableLinkManager({ invitationId }: { invitationId: string }) {
         remainingGuests: response.remainingGuests || 0
       };
       setShareableLink(newLink);
+      setShowResetModal(false);
       return newLink.url;
     } catch (err: any) {
       setError(err.message || 'Erreur lors de la régénération du lien');
@@ -537,9 +595,9 @@ function ShareableLinkManager({ invitationId }: { invitationId: string }) {
 
   const copyToClipboard = async () => {
     try {
-      const newUrl = await regenerateShareableLink();
-      if (newUrl) {
-        await navigator.clipboard.writeText(newUrl);
+      if (shareableLink?.url) {
+        await navigator.clipboard.writeText(shareableLink.url);
+        // On pourrait ajouter un toast ici pour confirmer la copie
       }
     } catch (err) {
       console.error('Erreur copie:', err);
@@ -547,19 +605,17 @@ function ShareableLinkManager({ invitationId }: { invitationId: string }) {
   };
 
   const shareLink = async (url: string) => {
-    const message = `Vous êtes invité à mon événement ! Cliquez sur ce lien pour confirmer votre présence :\n${url}\n\n(⚠️ Attention : ce lien expire dans 10 minutes)`;
+    const message = `Vous êtes invité à mon événement ! Cliquez sur ce lien pour confirmer votre présence :\n${url}`;
 
     if (navigator.share) {
       try {
         await navigator.share({ title: 'Invitation d\'événement', text: message });
-        await regenerateShareableLink();
       } catch (err) {
         console.log('Partage annulé:', err);
       }
     } else {
       try {
         await navigator.clipboard.writeText(message);
-        await regenerateShareableLink();
       } catch (err) {
         console.error('Erreur copie:', err);
       }
@@ -595,17 +651,24 @@ function ShareableLinkManager({ invitationId }: { invitationId: string }) {
         </div>
         <div className={styles.shareableStats}>
           <p>Utilisé : {shareableLink.usedCount}/{shareableLink.maxUses}</p>
-          <p>⏰ Durée : 10 min</p>
+          <p>✅ Lien permanent</p>
         </div>
       </div>
       <div className={styles.shareableActions}>
+        <SecurityResetModal 
+          isOpen={showResetModal}
+          onClose={() => setShowResetModal(false)}
+          onConfirm={regenerateShareableLink}
+          loading={loading}
+        />
         <button
-          onClick={() => regenerateShareableLink()}
+          onClick={() => setShowResetModal(true)}
           className={styles.shareableButton}
           disabled={loading}
+          title="Sécurité : Invalide l'ancien lien et en crée un nouveau"
         >
           <RefreshCw size={14} />
-          {loading ? 'Génération...' : 'Nouveau lien'}
+          {loading ? 'Réinitialisation...' : 'Réinitialiser le lien'}
         </button>
         <button
           onClick={() => shareLink(shareableLink.url)}
@@ -629,16 +692,28 @@ function ShareableLinkManager({ invitationId }: { invitationId: string }) {
 // ─── PAGE PRINCIPALE ──────────────────────
 export default function GuestsPage() {
   const router = useRouter();
+  const { showAlert, showConfirm } = useModals();
   const { invitations, loading: loadingInvitations } = useInvitations();
   const [limits, setLimits] = useState<{ usage: any; limits: any } | null>(null);
   const [selectedInvitationId, setSelectedInvitationId] = useState<string>('');
 
+  // Restaurer l'invitation précédemment sélectionnée au chargement
   useEffect(() => {
-    if (invitations.length > 0 && !selectedInvitationId) {
-      const publishedInvitation = invitations.find(inv => inv.status === 'PUBLISHED');
-      setSelectedInvitationId(publishedInvitation?.id || invitations[0].id);
+    const savedId = localStorage.getItem('lastSelectedInvitationId');
+    if (invitations.length > 0) {
+      if (savedId && invitations.some(inv => inv.id === savedId)) {
+        setSelectedInvitationId(savedId);
+      } else if (!selectedInvitationId) {
+        const publishedInvitation = invitations.find(inv => inv.status === 'PUBLISHED');
+        setSelectedInvitationId(publishedInvitation?.id || invitations[0].id);
+      }
     }
-  }, [invitations, selectedInvitationId]);
+  }, [invitations]);
+
+  const handleInvitationChange = (id: string) => {
+    setSelectedInvitationId(id);
+    localStorage.setItem('lastSelectedInvitationId', id);
+  };
 
   const selectedInvitation = invitations.find(inv => inv.id === selectedInvitationId);
 
@@ -655,7 +730,7 @@ export default function GuestsPage() {
     downloadTemplate
   } = useGuests(selectedInvitationId);
 
-  const [invitationType, setInvitationType] = useState<'email' | 'shareable'>('email');
+  const [invitationType, setInvitationType] = useState<'email' | 'shareable'>('shareable');
   const [searchQuery, setSearchQuery] = useState('');
   const [rsvpFilter, setRsvpFilter] = useState<'all' | 'CONFIRMED' | 'PENDING' | 'DECLINED'>('all');
   const [typeFilter, setTypeFilter] = useState<'all' | 'PERSONAL' | 'SHAREABLE'>('all');
@@ -750,7 +825,11 @@ export default function GuestsPage() {
   };
 
   const handleDeleteGuest = async (guestId: string) => {
-    if (confirm('Êtes-vous sûr de vouloir supprimer cet invité ?')) {
+    const confirmed = await showConfirm(
+      'Supprimer l\'invité',
+      'Êtes-vous sûr de vouloir supprimer cet invité ? Cette action est irréversible.'
+    );
+    if (confirmed) {
       const success = await deleteGuest(guestId);
       if (success) await fetchGuests();
     }
@@ -762,7 +841,11 @@ export default function GuestsPage() {
       showNotification('Tous les invités ont déjà répondu.', 'error');
       return;
     }
-    if (!confirm(`Envoyer l'invitation à ${pendingGuests.length} invité(s) sans réponse ?`)) return;
+    const confirmed = await showConfirm(
+      'Envoi groupé',
+      `Envoyer l'invitation à ${pendingGuests.length} invité(s) sans réponse ?`
+    );
+    if (!confirmed) return;
 
     try {
       const guestIds = pendingGuests.map(guest => guest.id);
@@ -936,7 +1019,7 @@ export default function GuestsPage() {
             <span className={styles.invitationLabelText}>Événement</span>
             <select
               value={selectedInvitationId}
-              onChange={(e) => setSelectedInvitationId(e.target.value)}
+              onChange={(e) => handleInvitationChange(e.target.value)}
               className={styles.invitationSelect}
             >
               {invitations.map(invitation => (
@@ -991,21 +1074,21 @@ export default function GuestsPage() {
                   <input
                     type="radio"
                     name="invitationType"
-                    value="email"
-                    checked={invitationType === 'email'}
-                    onChange={() => setInvitationType('email')}
-                  />
-                  <span>Email</span>
-                </label>
-                <label className={styles.toggleOption}>
-                  <input
-                    type="radio"
-                    name="invitationType"
                     value="shareable"
                     checked={invitationType === 'shareable'}
                     onChange={() => setInvitationType('shareable')}
                   />
                   <span>Lien partageable</span>
+                </label>
+                <label className={styles.toggleOption}>
+                  <input
+                    type="radio"
+                    name="invitationType"
+                    value="email"
+                    checked={invitationType === 'email'}
+                    onChange={() => setInvitationType('email')}
+                  />
+                  <span>Email</span>
                 </label>
               </div>
             </div>
@@ -1026,20 +1109,24 @@ export default function GuestsPage() {
                   <Camera size={16} />
                   Scanner Billet
                 </button>
-                <button
-                  className={`${styles.actionButton} ${styles.primary}`}
-                  onClick={() => setShowAddModal(true)}
-                >
-                  <Plus size={16} />
-                  Ajouter un invité
-                </button>
-                <button
-                  className={styles.actionButton}
-                  onClick={() => setShowImportModal(true)}
-                >
-                  <Download size={16} />
-                  Importer
-                </button>
+                {invitationType === 'email' && (
+                  <>
+                    <button
+                      className={`${styles.actionButton} ${styles.primary}`}
+                      onClick={() => setShowAddModal(true)}
+                    >
+                      <Plus size={16} />
+                      Ajouter un invité
+                    </button>
+                    <button
+                      className={styles.actionButton}
+                      onClick={() => setShowImportModal(true)}
+                    >
+                      <Download size={16} />
+                      Importer
+                    </button>
+                  </>
+                )}
                 <button
                   className={styles.actionButton}
                   onClick={() => setShowExportModal(true)}
@@ -1154,6 +1241,11 @@ export default function GuestsPage() {
                               {guest.firstName} {guest.lastName}
                             </p>
                             {guest.isVIP && <span className={styles.vipBadge}>VIP</span>}
+                            {(guest as any).albumAccessCode && (
+                              <span className={styles.albumCodeBadge} title="Code d'accès album">
+                                #{(guest as any).albumAccessCode}
+                              </span>
+                            )}
                           </div>
                           <span className={`${styles.rsvpStatus} ${styles[rsvpStatus]}`}>
                             {rsvpStatus === 'confirmed' && 'Confirmé'}

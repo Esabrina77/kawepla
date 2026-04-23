@@ -20,12 +20,23 @@ export default function PhotosPage() {
   const { invitations, loading } = useInvitations();
   const [selectedInvitationId, setSelectedInvitationId] = useState<string>('');
 
-  // Sélectionner automatiquement la première invitation
+  // Restaurer l'invitation précédemment sélectionnée au chargement
   useEffect(() => {
-    if (invitations.length > 0 && !selectedInvitationId) {
-      setSelectedInvitationId(invitations[0].id);
+    const savedId = localStorage.getItem('lastSelectedInvitationId');
+    if (invitations.length > 0) {
+      if (savedId && invitations.some(inv => inv.id === savedId)) {
+        setSelectedInvitationId(savedId);
+      } else if (!selectedInvitationId) {
+        setSelectedInvitationId(invitations[0].id);
+      }
     }
-  }, [invitations, selectedInvitationId]);
+  }, [invitations]);
+
+  // Sauvegarder l'invitation sélectionnée quand elle change
+  const handleInvitationChange = (id: string) => {
+    setSelectedInvitationId(id);
+    localStorage.setItem('lastSelectedInvitationId', id);
+  };
 
   const currentInvitation = invitations.find(inv => inv.id === selectedInvitationId);
 
@@ -79,7 +90,7 @@ export default function PhotosPage() {
             <span className={styles.invitationLabelText}>Sélectionner un événement</span>
             <select
               value={selectedInvitationId}
-              onChange={(e) => setSelectedInvitationId(e.target.value)}
+              onChange={(e) => handleInvitationChange(e.target.value)}
               className={styles.invitationSelect}
             >
               {invitations.map(invitation => (

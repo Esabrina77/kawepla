@@ -1,12 +1,12 @@
-'use client';
+"use client";
 
-import { useState, useEffect, useMemo } from 'react';
-import { useRouter } from 'next/navigation';
-import { useRSVPMessages } from '@/hooks/useRSVPMessages';
-import { useInvitations } from '@/hooks/useInvitations';
-import { RSVPMessage } from '@/types';
-import { HeaderMobile } from '@/components/HeaderMobile';
-import styles from './messages.module.css';
+import { useState, useEffect, useMemo } from "react";
+import { useRouter } from "next/navigation";
+import { useRSVPMessages } from "@/hooks/useRSVPMessages";
+import { useInvitations } from "@/hooks/useInvitations";
+import { RSVPMessage } from "@/types";
+import { HeaderMobile } from "@/components/HeaderMobile";
+import styles from "./messages.module.css";
 
 import {
   MessageSquare,
@@ -22,63 +22,108 @@ import {
   Filter,
   X,
   ArrowRight,
-  Info
-} from 'lucide-react';
+  Info,
+} from "lucide-react";
 
 export default function MessagesPage() {
   const { invitations, loading: loadingInvitations } = useInvitations();
-  const { messages, loading: loadingMessages, error, refetch } = useRSVPMessages();
-  
-  const [searchQuery, setSearchQuery] = useState('');
-  const [selectedMessage, setSelectedMessage] = useState<RSVPMessage | null>(null);
+  const {
+    messages,
+    loading: loadingMessages,
+    error,
+    refetch,
+  } = useRSVPMessages();
 
-  // Stats calculation
+  const [searchQuery, setSearchQuery] = useState("");
+  const [selectedMessage, setSelectedMessage] = useState<RSVPMessage | null>(
+    null,
+  );
+  const [selectedInvitationId, setSelectedInvitationId] =
+    useState<string>("all");
+
+  // Restaurer l'invitation précédemment sélectionnée au chargement
+  useEffect(() => {
+    const savedId = localStorage.getItem("lastSelectedInvitationId");
+    if (savedId) {
+      setSelectedInvitationId(savedId);
+    }
+  }, []);
+
+  const handleInvitationChange = (id: string) => {
+    setSelectedInvitationId(id);
+    localStorage.setItem("lastSelectedInvitationId", id);
+  };
+
+  // Stats calculation based on selected invitation
   const stats = useMemo(() => {
-    const total = messages.length;
-    const confirmed = messages.filter(m => m.status === 'CONFIRMED').length;
-    const declined = messages.filter(m => m.status === 'DECLINED').length;
-    const pending = messages.filter(m => m.status === 'PENDING').length;
-    return { total, confirmed, declined, pending };
-  }, [messages]);
+    const relevantMessages =
+      selectedInvitationId === "all"
+        ? messages
+        : messages.filter((m) => m.invitation.id === selectedInvitationId);
 
-  // Combined messages filtering (search + has Content)
+    const total = relevantMessages.length;
+    const confirmed = relevantMessages.filter(
+      (m) => m.status === "CONFIRMED",
+    ).length;
+    const declined = relevantMessages.filter(
+      (m) => m.status === "DECLINED",
+    ).length;
+    const pending = relevantMessages.filter(
+      (m) => m.status === "PENDING",
+    ).length;
+    return { total, confirmed, declined, pending };
+  }, [messages, selectedInvitationId]);
+
+  // Combined messages filtering (search + invitation + has Content)
   const filteredMessages = useMemo(() => {
-    return messages.filter(message => {
+    return messages.filter((message) => {
+      // Filtrer par invitation (CORRECTION ICI)
+      if (
+        selectedInvitationId !== "all" &&
+        message.invitation.id !== selectedInvitationId
+      ) {
+        return false;
+      }
+
       // Afficher uniquement les réponses avec un message
-      const hasMessage = message.message && message.message.trim() !== '';
+      const hasMessage = message.message && message.message.trim() !== "";
       if (!hasMessage) return false;
 
       // Search logic
       if (searchQuery.trim()) {
         const query = searchQuery.toLowerCase();
-        const matchesSearch = 
+        const matchesSearch =
           message.guest.firstName.toLowerCase().includes(query) ||
           message.guest.lastName.toLowerCase().includes(query) ||
           message.guest.email.toLowerCase().includes(query) ||
           (message.message && message.message.toLowerCase().includes(query)) ||
           message.invitation.eventTitle.toLowerCase().includes(query);
-        
+
         if (!matchesSearch) return false;
       }
       return true;
     });
-  }, [messages, searchQuery]);
+  }, [messages, searchQuery, selectedInvitationId]);
 
   const getStatusLabel = (status: string) => {
     switch (status) {
-      case 'CONFIRMED': return 'Confirmé';
-      case 'DECLINED': return 'Décliné';
-      case 'PENDING': return 'En attente';
-      default: return status;
+      case "CONFIRMED":
+        return "Confirmé";
+      case "DECLINED":
+        return "Décliné";
+      case "PENDING":
+        return "En attente";
+      default:
+        return status;
     }
   };
 
   const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('fr-FR', {
-      day: 'numeric',
-      month: 'short',
-      hour: '2-digit',
-      minute: '2-digit'
+    return new Date(dateString).toLocaleDateString("fr-FR", {
+      day: "numeric",
+      month: "short",
+      hour: "2-digit",
+      minute: "2-digit",
     });
   };
 
@@ -103,10 +148,14 @@ export default function MessagesPage() {
       <div className={styles.pageContainer}>
         <HeaderMobile title="Réponses" />
         <div className={styles.emptyContainer}>
-          <Info className={styles.emptyIcon} style={{ color: '#EF4444' }} />
+          <Info className={styles.emptyIcon} style={{ color: "#EF4444" }} />
           <h3 className={styles.emptyTitle}>Une erreur est survenue</h3>
           <p className={styles.emptyText}>{error}</p>
-          <button onClick={() => refetch()} className={styles.modalButtonPrimary} style={{ width: 'auto', marginTop: '1rem' }}>
+          <button
+            onClick={() => refetch()}
+            className={styles.modalButtonPrimary}
+            style={{ width: "auto", marginTop: "1rem" }}
+          >
             Réessayer
           </button>
         </div>
@@ -119,48 +168,71 @@ export default function MessagesPage() {
       <HeaderMobile title="Réponses" />
 
       <div className={styles.pageContent}>
-        {/* Header Info */}
-        <div className={styles.searchBar}>
-          <div>
-            <p className={styles.introText}>
-              <span style={{ display: 'block' }}>Consultez les messages et confirmations de vos invités.</span>
-              <span style={{ display: 'block' }}>Cliquez sur un message pour voir tous les détails de la réponse.</span>
+        {/* Welcome / Event Selector Section */}
+        <div className={styles.pageHeader}>
+          <div className={styles.headerTitleSection}>
+            <h1 className={styles.mainTitle}>Vos Messages</h1>
+            <p className={styles.pageSubtitle}>
+              {selectedInvitationId === "all"
+                ? "Consultez les réponses de tous vos événements"
+                : `Réponses pour "${invitations.find((i) => i.id === selectedInvitationId)?.eventTitle}"`}
             </p>
           </div>
+
+          {invitations.length > 0 && (
+            <div className={styles.invitationSelectorWrapper}>
+              <select
+                value={selectedInvitationId}
+                onChange={(e) => handleInvitationChange(e.target.value)}
+                className={styles.invitationSelect}
+                aria-label="Sélectionner l'événement"
+              >
+                <option value="all">Tous les événements</option>
+                {invitations.map((inv) => (
+                  <option key={inv.id} value={inv.id}>
+                    {inv.eventTitle}
+                  </option>
+                ))}
+              </select>
+            </div>
+          )}
         </div>
 
-        {/* Search Bar */}
-        <div className={styles.searchFiltersSection}>
-          <div className={styles.searchContainer}>
-            <div className={styles.searchWrapper}>
-              <Search size={18} className={styles.searchIcon} />
-              <input
-                type="text"
-                placeholder="Rechercher par nom, email ou contenu..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className={styles.searchInput}
-              />
-            </div>
+        {/* Barre de Recherche */}
+        <div className={styles.searchSection}>
+          <div className={styles.searchWrapper}>
+            <Search size={18} className={styles.searchIcon} />
+            <input
+              type="text"
+              placeholder="Rechercher par nom, email ou contenu..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className={styles.searchInput}
+            />
           </div>
         </div>
 
-        {/* Messages Grid */}
+        {/* Grille de Messages */}
         <div className={styles.messagesGrid}>
           {filteredMessages.map((message) => {
             const statusClass = message.status.toLowerCase();
             const avatarClass = `avatar${statusClass.charAt(0).toUpperCase() + statusClass.slice(1)}`;
-            const hasMessage = message.message && message.message.trim() !== '';
+            const hasMessage = message.message && message.message.trim() !== "";
 
             return (
-              <div 
-                key={message.id} 
+              <div
+                key={message.id}
                 className={styles.messageCard}
                 onClick={() => setSelectedMessage(message)}
               >
                 <div className={styles.messageCardHeader}>
-                  <div className={`${styles.guestAvatar} ${styles[avatarClass]}`}>
-                    {getInitials(message.guest.firstName, message.guest.lastName)}
+                  <div
+                    className={`${styles.guestAvatar} ${styles[avatarClass]}`}
+                  >
+                    {getInitials(
+                      message.guest.firstName,
+                      message.guest.lastName,
+                    )}
                   </div>
 
                   <div className={styles.guestInfo}>
@@ -172,21 +244,25 @@ export default function MessagesPage() {
                     </p>
                   </div>
 
-                  <div className={`${styles.statusBadge} ${styles[statusClass]}`}>
+                  <div
+                    className={`${styles.statusBadge} ${styles[statusClass]}`}
+                  >
                     {getStatusLabel(message.status)}
                   </div>
                 </div>
 
                 <div className={styles.messageBody}>
-                  <p className={styles.invitationTitle}>
-                     <Calendar size={12} /> {message.invitation.eventTitle}
+                  <p className={styles.invitationTitleBadge}>
+                    <Calendar size={12} /> {message.invitation.eventTitle}
                   </p>
-                  <div className={`${styles.messageText} ${!hasMessage ? styles.noMessage : ''}`}>
-                    {hasMessage ? (
-                      message.message.length > 120 
-                        ? `${message.message.substring(0, 120)}...` 
+                  <div
+                    className={`${styles.messageText} ${!hasMessage ? styles.noMessage : ""}`}
+                  >
+                    {hasMessage
+                      ? message.message.length > 120
+                        ? `${message.message.substring(0, 120)}...`
                         : message.message
-                    ) : 'Aucun message particulier'}
+                      : "Aucun message particulier"}
                   </div>
                 </div>
 
@@ -203,17 +279,19 @@ export default function MessagesPage() {
           })}
         </div>
 
-        {/* Empty State (Texte uniquement, pas de cadre) */}
+        {/* État Vide */}
         {filteredMessages.length === 0 && (
           <div className={styles.emptyContainer}>
+            <div className={styles.emptyIconWrapper}>
+              <MessageSquare size={48} />
+            </div>
             <h3 className={styles.emptyTitle}>
-              {searchQuery ? 'Aucun résultat' : 'Aucune réponse'}
+              {searchQuery ? "Aucun résultat" : "Aucune réponse"}
             </h3>
             <p className={styles.emptyText}>
               {searchQuery
                 ? `Nous n'avons trouvé aucun message correspondant à "${searchQuery}"`
-                : 'Les réponses de vos invités apparaîtront ici dès qu\'ils auront complété leur RSVP.'
-              }
+                : "Les réponses de vos invités apparaîtront ici dès qu'ils auront complété leur RSVP."}
             </p>
           </div>
         )}
@@ -221,8 +299,14 @@ export default function MessagesPage() {
 
       {/* Details Modal */}
       {selectedMessage && (
-        <div className={styles.modalOverlay} onClick={() => setSelectedMessage(null)}>
-          <div className={styles.modalContent} onClick={(e) => e.stopPropagation()}>
+        <div
+          className={styles.modalOverlay}
+          onClick={() => setSelectedMessage(null)}
+        >
+          <div
+            className={styles.modalContent}
+            onClick={(e) => e.stopPropagation()}
+          >
             <div className={styles.modalHeader}>
               <h2 className={styles.modalTitle}>Détails de la réponse</h2>
               <button
@@ -237,18 +321,27 @@ export default function MessagesPage() {
               <div className={styles.detailSection}>
                 <p className={styles.detailLabel}>Invité</p>
                 <p className={styles.detailValue}>
-                  <User size={16} /> {selectedMessage.guest.firstName} {selectedMessage.guest.lastName}
+                  <User size={16} /> {selectedMessage.guest.firstName}{" "}
+                  {selectedMessage.guest.lastName}
                 </p>
               </div>
 
               <div className={styles.detailSection}>
                 <p className={styles.detailLabel}>Contact & Statut</p>
-                <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
-                  <p className={styles.detailValue}><Mail size={14} /> {selectedMessage.guest.email}</p>
+                <div
+                  style={{ display: "flex", gap: "0.5rem", flexWrap: "wrap" }}
+                >
+                  <p className={styles.detailValue}>
+                    <Mail size={14} /> {selectedMessage.guest.email}
+                  </p>
                   {selectedMessage.guest.phone && (
-                    <p className={styles.detailValue}><Phone size={14} /> {selectedMessage.guest.phone}</p>
+                    <p className={styles.detailValue}>
+                      <Phone size={14} /> {selectedMessage.guest.phone}
+                    </p>
                   )}
-                  <span className={`${styles.statusBadge} ${styles[selectedMessage.status.toLowerCase()]}`}>
+                  <span
+                    className={`${styles.statusBadge} ${styles[selectedMessage.status.toLowerCase()]}`}
+                  >
                     {getStatusLabel(selectedMessage.status)}
                   </span>
                 </div>
@@ -264,20 +357,28 @@ export default function MessagesPage() {
               <div className={styles.detailSection}>
                 <p className={styles.detailLabel}>Message de l'invité</p>
                 <div className={styles.modalMessageBox}>
-                  {selectedMessage.message && selectedMessage.message.trim() !== ''
+                  {selectedMessage.message &&
+                  selectedMessage.message.trim() !== ""
                     ? selectedMessage.message
-                    : 'L\'invité n\'a pas laissé de message particulier.'}
+                    : "L'invité n'a pas laissé de message particulier."}
                 </div>
               </div>
 
               {/* Extras */}
-              {(selectedMessage.guest.plusOne || selectedMessage.guest.dietaryRestrictions) && (
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
-                   {selectedMessage.guest.plusOne && (
+              {(selectedMessage.guest.plusOne ||
+                selectedMessage.guest.dietaryRestrictions) && (
+                <div
+                  style={{
+                    display: "grid",
+                    gridTemplateColumns: "1fr 1fr",
+                    gap: "1rem",
+                  }}
+                >
+                  {selectedMessage.guest.plusOne && (
                     <div className={styles.detailSection}>
                       <p className={styles.detailLabel}>Accompagnants</p>
                       <p className={styles.detailValue}>
-                        {selectedMessage.guest.plusOneName || '1 personne'}
+                        {selectedMessage.guest.plusOneName || "1 personne"}
                       </p>
                     </div>
                   )}

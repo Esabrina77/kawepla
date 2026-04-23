@@ -34,14 +34,25 @@ export default function DashboardPage() {
     if (user) stripeApi.getUserLimitsAndUsage().then(setLimits).catch(() => {});
   }, [user]);
 
-  const selectedInvitation = invitations.find(inv => inv.id === selectedInvitationId) || invitations[0];
-
+  // Restaurer l'invitation précédemment sélectionnée au chargement
   useEffect(() => {
-    if (invitations.length > 0 && !selectedInvitationId) {
-      const pub = invitations.find(inv => inv.status === 'PUBLISHED');
-      setSelectedInvitationId((pub || invitations[0]).id);
+    const savedId = localStorage.getItem('lastSelectedInvitationId');
+    if (invitations.length > 0) {
+      if (savedId && invitations.some(inv => inv.id === savedId)) {
+        setSelectedInvitationId(savedId);
+      } else if (!selectedInvitationId) {
+        const pub = invitations.find(inv => inv.status === 'PUBLISHED');
+        setSelectedInvitationId((pub || invitations[0]).id);
+      }
     }
-  }, [invitations, selectedInvitationId]);
+  }, [invitations]);
+
+  const handleInvitationChange = (id: string) => {
+    setSelectedInvitationId(id);
+    localStorage.setItem('lastSelectedInvitationId', id);
+  };
+
+  const selectedInvitation = invitations.find(inv => inv.id === selectedInvitationId) || invitations[0];
 
   const { guests, fetchGuests } = useGuests(selectedInvitationId);
   useEffect(() => { if (selectedInvitationId) fetchGuests(); }, [selectedInvitationId, fetchGuests]);
@@ -119,7 +130,7 @@ export default function DashboardPage() {
             <div className={styles.selectWrap}>
               <select
                 value={selectedInvitationId}
-                onChange={(e) => setSelectedInvitationId(e.target.value)}
+                onChange={(e) => handleInvitationChange(e.target.value)}
                 className={styles.eventSelect}
                 aria-label="Sélectionner l'événement"
               >

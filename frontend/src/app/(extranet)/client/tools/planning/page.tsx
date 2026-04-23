@@ -161,7 +161,16 @@ export default function PlanningPage() {
 
   useEffect(() => {
     fetchInvitations();
+    const savedId = localStorage.getItem('lastSelectedInvitationId');
+    if (savedId) {
+      setSelectedInvitation(savedId);
+    }
   }, [fetchInvitations]);
+
+  const handleInvitationChange = (id: string) => {
+    setSelectedInvitation(id);
+    localStorage.setItem('lastSelectedInvitationId', id);
+  };
 
   useEffect(() => {
     if (invitations.length > 0 && !formData.invitationId) {
@@ -665,7 +674,7 @@ export default function PlanningPage() {
               <Filter size={18} />
               <select
                 value={selectedInvitation}
-                onChange={(e) => setSelectedInvitation(e.target.value)}
+                onChange={(e) => handleInvitationChange(e.target.value)}
                 className={styles.categorySelect}
               >
                 <option value="all">Tous les événements</option>
