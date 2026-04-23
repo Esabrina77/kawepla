@@ -69,11 +69,15 @@ export class GuestService {
     // Générer un token unique pour l'invité
     const inviteToken = `${Date.now()}-${Math.random().toString(36).substring(2)}`;
 
+    // Générer un code d'accès court pour l'album photo
+    const albumAccessCode = await this.generateUniqueAccessCode(data.invitationId);
+
     return prisma.guest.create({
       data: {
         ...data,
         userId,
-        inviteToken
+        inviteToken,
+        albumAccessCode
       }
     });
   }
@@ -887,12 +891,16 @@ export class GuestService {
         // Générer un token unique
         const inviteToken = `${Date.now()}-${Math.random().toString(36).substring(2)}`;
 
+        // Générer un code d'accès court pour l'album photo
+        const albumAccessCode = await this.generateUniqueAccessCode(invitationId);
+
         const guest = await prisma.guest.create({
           data: {
             ...guestData,
             invitationId,
             userId,
-            inviteToken
+            inviteToken,
+            albumAccessCode
           }
         });
 
@@ -1008,4 +1016,38 @@ export class GuestService {
 
     return results;
   }
-} 
+
+  /**
+   * Générer un code d'accès unique à 6 chiffres pour l'album photo au sein d'une invitation
+   */
+  public static async generateUniqueAccessCode(invitationId: string): Promise<string> {
+    const digits = '0123456789';
+    let code = '';
+    let isUnique = false;
+    let attempts = 0;
+
+    while (!isUnique && attempts < 10) {
+      code = '';
+      for (let i = 0; i < 6; i++) {
+        code += digits.charAt(Math.floor(Math.random() * digits.length));
+      }
+
+      // Vérifier si le code existe déjà pour cet événement
+      const existing = await prisma.guest.findUnique({
+        where: {
+          unique_access_code_per_invitation: {
+            invitationId,
+            albumAccessCode: code
+          }
+        }
+      });
+
+      if (!existing) {
+        isUnique = true;
+      }
+      attempts++;
+    }
+
+    return code;
+  }
+}

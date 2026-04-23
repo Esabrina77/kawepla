@@ -41,6 +41,8 @@ model User {
   todoItems                   TodoItem[]              @relation("TodoCreator")
   aiRequests                  AIRequest[]
   budgets                     Budget[]
+  photoComments               PhotoComment[]
+  photoReactions              PhotoReactions[]
 
   @@map("users")
 }
@@ -421,13 +423,17 @@ model Guest {
   invitationType      InvitationType @default(PERSONAL)
   sharedLinkUsed      Boolean        @default(false)
   profilePhotoUrl     String?
+  albumAccessCode     String?
   invitation          Invitation     @relation(fields: [invitationId], references: [id], onDelete: Cascade)
   user                User           @relation(fields: [userId], references: [id], onDelete: Cascade)
   photos              Photo[]
   rsvp                RSVP?
   shareableLink       ShareableLink?
+  photoComments       PhotoComment[]
+  photoReactions      PhotoReactions[]
 
   @@unique([invitationId, email], name: "unique_email_per_invitation")
+  @@unique([invitationId, albumAccessCode], name: "unique_access_code_per_invitation")
   @@map("guests")
 }
 
@@ -567,8 +573,41 @@ model Photo {
   uploadedById  String?
   album         PhotoAlbum  @relation(fields: [albumId], references: [id], onDelete: Cascade)
   uploadedBy    Guest?      @relation(fields: [uploadedById], references: [id])
+  comments      PhotoComment[]
+  reactions     PhotoReactions[]
 
   @@map("photos")
+}
+
+model PhotoComment {
+  id        String   @id @default(cuid())
+  photoId   String
+  content   String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  guestId   String?
+  userId    String?
+  guest     Guest?   @relation(fields: [guestId], references: [id], onDelete: Cascade)
+  photo     Photo    @relation(fields: [photoId], references: [id], onDelete: Cascade)
+  user      User?    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("photo_comments")
+}
+
+model PhotoReactions {
+  id        String   @id @default(cuid())
+  photoId   String
+  type      String
+  createdAt DateTime @default(now())
+  guestId   String?
+  userId    String?
+  guest     Guest?   @relation(fields: [guestId], references: [id], onDelete: Cascade)
+  photo     Photo    @relation(fields: [photoId], references: [id], onDelete: Cascade)
+  user      User?    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([photoId, guestId, type])
+  @@unique([photoId, userId, type])
+  @@map("photo_reactions")
 }
 
 model PushSubscription {

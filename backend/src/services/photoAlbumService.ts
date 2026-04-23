@@ -104,9 +104,8 @@ export class PhotoAlbumService {
           albumId,
           // uploadedById fait référence à un Guest, pas un User
           ...(uploadedByGuestId && { uploadedById: uploadedByGuestId }),
-          // Si uploadé par les mariés (User), directement publié (PUBLIC)
-          // Si uploadé par un invité (Guest), en attente d'approbation (PENDING)
-          status: uploadedByUserId ? 'PUBLIC' : 'PENDING'
+          // Toutes les photos sont directement publiques pour éviter la validation manuelle
+          status: 'PUBLIC'
         }
       });
 
@@ -314,7 +313,7 @@ export class PhotoAlbumService {
 
   /**
    * Récupérer les photos d'un album (pour les invités)
-   * Retourne uniquement les photos avec le statut PUBLIC (pas APPROVED)
+   * Retourne uniquement les photos avec le statut PUBLIC
    */
   static async getAlbumPhotosForGuest(albumId: string) {
     const album = await prisma.photoAlbum.findUnique({
@@ -329,7 +328,7 @@ export class PhotoAlbumService {
         },
         photos: {
           where: {
-            status: 'PUBLIC' // Uniquement les photos publiques, pas APPROVED
+            status: 'PUBLIC'
           },
           select: {
             id: true,
@@ -341,7 +340,44 @@ export class PhotoAlbumService {
             uploadedBy: {
               select: {
                 firstName: true,
-                lastName: true
+                lastName: true,
+                profilePhotoUrl: true
+              }
+            },
+            comments: {
+              include: {
+                guest: {
+                  select: {
+                    firstName: true,
+                    lastName: true,
+                    profilePhotoUrl: true
+                  }
+                },
+                user: {
+                  select: {
+                    firstName: true,
+                    lastName: true
+                  }
+                }
+              },
+              orderBy: {
+                createdAt: 'asc'
+              }
+            },
+            reactions: {
+              include: {
+                guest: {
+                  select: {
+                    firstName: true,
+                    lastName: true
+                  }
+                },
+                user: {
+                  select: {
+                    firstName: true,
+                    lastName: true
+                  }
+                }
               }
             }
           },
@@ -357,6 +393,94 @@ export class PhotoAlbumService {
     }
 
     return album;
+  }
+
+  /**
+   * Ajouter ou retirer une réaction
+   */
+  static async toggleReaction(photoId: string, data: { type: string, guestId?: string, userId?: string }) {
+    const { type, guestId, userId } = data;
+
+    // Vérifier si la réaction existe déjà
+    const existingReaction = await (prisma as any).photoReactions.findFirst({
+      where: {
+        photoId,
+        type,
+        ...(guestId && { guestId }),
+        ...(userId && { userId })
+      }
+    });
+
+    if (existingReaction) {
+      // Retirer la réaction
+      await (prisma as any).photoReactions.delete({
+        where: { id: existingReaction.id }
+      });
+      return { action: 'removed' };
+    } else {
+      // Ajouter la réaction
+      const reaction = await (prisma as any).photoReactions.create({
+        data: {
+          photoId,
+          type,
+          guestId,
+          userId
+        }
+      });
+      return { action: 'added', reaction };
+    }
+  }
+
+  /**
+   * Ajouter un commentaire
+   */
+  static async addComment(photoId: string, data: { content: string, guestId?: string, userId?: string }) {
+    return await prisma.photoComment.create({
+      data: {
+        photoId,
+        content: data.content,
+        guestId: data.guestId,
+        userId: data.userId
+      },
+      include: {
+        guest: {
+          select: {
+            firstName: true,
+            lastName: true,
+            profilePhotoUrl: true
+          }
+        },
+        user: {
+          select: {
+            firstName: true,
+            lastName: true
+          }
+        }
+      }
+    });
+  }
+
+  /**
+   * Supprimer un commentaire
+   */
+  static async deleteComment(commentId: string, author: { guestId?: string, userId?: string }) {
+    const comment = await prisma.photoComment.findUnique({
+      where: { id: commentId }
+    });
+
+    if (!comment) throw new Error('Commentaire non trouvé');
+
+    // Vérifier l'auteur (ou si c'est l'hôte de l'album)
+    const isAuthor = (author.guestId && comment.guestId === author.guestId) || 
+                     (author.userId && comment.userId === author.userId);
+
+    if (!isAuthor) {
+      throw new Error('Non autorisé à supprimer ce commentaire');
+    }
+
+    return await prisma.photoComment.delete({
+      where: { id: commentId }
+    });
   }
 
   /**

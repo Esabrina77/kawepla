@@ -24,14 +24,53 @@ router.put('/photos/:photoId/reject', authMiddleware as any, requireCouple as an
 router.delete('/photos/:photoId', authMiddleware as any, requireCouple as any, PhotoAlbumController.deletePhoto);
 
 // Routes publiques pour les invités
-router.get('/albums/:albumId/photos', PhotoAlbumController.getAlbumPhotosForGuest);
-router.get('/invitations/:invitationId/photos/public', PhotoAlbumController.getPublicPhotos);
+router.get('/albums/:albumId/photos', PhotoAlbumController.getAlbumPhotosForGuest as any);
+router.get('/albums/:albumId/identify', PhotoAlbumController.identifyGuest as any);
+router.get('/invitations/:invitationId/photos/public', PhotoAlbumController.getPublicPhotos as any);
 
 // Route pour l'upload par les invités (via token partageable)
 router.post('/albums/:albumId/photos/guest', ...PhotoAlbumController.uploadGuestPhoto);
 
-// Télécharger un album complet en ZIP
-router.get('/albums/:albumId/download', authMiddleware as any, async (req, res) => {
+// Routes pour les interactions (Likes & Commentaires)
+router.post('/photos/:photoId/reactions', PhotoAlbumController.toggleReaction as any);
+router.post('/photos/:photoId/comments', PhotoAlbumController.addComment as any);
+router.delete('/comments/:commentId', PhotoAlbumController.deleteComment as any);
+
+// Télécharger une photo individuelle (Proxy pour forcer le téléchargement)
+router.get('/photos/:photoId/download', async (req: any, res: any) => {
+  try {
+    const { photoId } = req.params;
+    const photo = await prisma.photo.findUnique({ where: { id: photoId } });
+
+    if (!photo) {
+      return res.status(404).json({ error: 'Photo non trouvée' });
+    }
+
+    const photoUrl = photo.originalUrl || photo.compressedUrl || photo.thumbnailUrl;
+    if (!photoUrl) {
+      return res.status(404).json({ error: 'URL de photo non trouvée' });
+    }
+
+    const response = await fetch(photoUrl);
+    const buffer = await response.arrayBuffer();
+    const contentType = response.headers.get('content-type') || 'image/jpeg';
+    
+    let extension = 'jpg';
+    if (contentType.includes('png')) extension = 'png';
+    else if (contentType.includes('webp')) extension = 'webp';
+    else if (contentType.includes('heic')) extension = 'heic';
+
+    res.setHeader('Content-Type', contentType);
+    res.setHeader('Content-Disposition', `attachment; filename="photo_${photoId}.${extension}"`);
+    res.send(Buffer.from(buffer));
+  } catch (error) {
+    console.error('Erreur téléchargement photo:', error);
+    res.status(500).json({ error: 'Erreur lors du téléchargement' });
+  }
+});
+
+// Télécharger un album complet en ZIP (Accessible aux invités)
+router.get('/albums/:albumId/download', async (req: any, res: any) => {
   try {
     const { albumId } = req.params;
     const userId = req.user?.id;
@@ -39,10 +78,7 @@ router.get('/albums/:albumId/download', authMiddleware as any, async (req, res) 
     // Vérifier que l'album appartient à l'utilisateur
     const album = await prisma.photoAlbum.findFirst({
       where: {
-        id: albumId,
-        invitation: {
-          userId: userId
-        }
+        id: albumId
       },
       include: {
         photos: {
@@ -77,9 +113,22 @@ router.get('/albums/:albumId/download', authMiddleware as any, async (req, res) 
 
         const response = await fetch(photoUrl);
         const buffer = await response.arrayBuffer();
-        const extension = photo.filename.split('.').pop() || 'jpg';
-        const filename = `${album.title}_photo_${index + 1}.${extension}`;
         
+        // Détecter l'extension via le Content-Type
+        const contentType = response.headers.get('content-type');
+        let extension = 'jpg';
+        if (contentType) {
+          if (contentType.includes('png')) extension = 'png';
+          else if (contentType.includes('webp')) extension = 'webp';
+          else if (contentType.includes('heic')) extension = 'heic';
+          else if (contentType.includes('gif')) extension = 'gif';
+        } else {
+          // Fallback sur l'extension du nom de fichier si possible
+          const fileExt = photo.filename.split('.').pop();
+          if (fileExt && fileExt !== 'blob') extension = fileExt;
+        }
+
+        const filename = `${album.title}_photo_${index + 1}.${extension}`;
         zip.file(filename, buffer);
       } catch (error) {
         console.error(`Erreur lors du téléchargement de la photo ${photo.id}:`, error);
@@ -102,4 +151,4 @@ router.get('/albums/:albumId/download', authMiddleware as any, async (req, res) 
   }
 });
 
-export default router; 
+export default router;

@@ -8,7 +8,8 @@ const router = Router();
 
 // Schéma de validation pour la génération de lien partageable
 const generateShareableLinkSchema = z.object({
-  expiresAt: z.string().datetime().optional()
+  expiresAt: z.string().datetime().optional(),
+  forceNew: z.boolean().optional()
 });
 
 // Appliquer l'authentification à toutes les routes
@@ -21,10 +22,11 @@ router.post('/:id/generate-shareable-link', validateBody(generateShareableLinkSc
   try {
     const { id } = req.params;
     const userId = (req as any).user.id;
-    const { expiresAt } = req.body;
+    const { expiresAt, forceNew } = req.body;
 
     const invitation = await ShareableInvitationService.generateShareableLink(id, userId, {
-      expiresAt: expiresAt ? new Date(expiresAt) : undefined
+      expiresAt: expiresAt ? new Date(expiresAt) : undefined,
+      forceNew: forceNew === true
     });
 
     res.json({

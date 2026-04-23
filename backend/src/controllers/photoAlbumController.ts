@@ -26,6 +26,55 @@ const upload = multer({
 
 export class PhotoAlbumController {
   /**
+   * Identifier un invité via son code d'accès
+   */
+  static async identifyGuest(req: Request, res: Response, next: NextFunction) {
+    try {
+      const { albumId } = req.params;
+      const { code } = req.query;
+
+      if (!code || typeof code !== 'string') {
+        return res.status(400).json({ error: 'Code d\'accès requis' });
+      }
+
+      // 1. Trouver l'invitation liée à cet album
+      const album = await prisma.photoAlbum.findUnique({
+        where: { id: albumId },
+        select: { invitationId: true }
+      });
+
+      if (!album) {
+        return res.status(404).json({ error: 'Album non trouvé' });
+      }
+
+      // 2. Trouver l'invité avec ce code pour cette invitation
+      const guest = await prisma.guest.findUnique({
+        where: {
+          unique_access_code_per_invitation: {
+            invitationId: album.invitationId,
+            albumAccessCode: code
+          }
+        },
+        select: {
+          id: true,
+          firstName: true,
+          lastName: true,
+          email: true,
+          profilePhotoUrl: true
+        }
+      });
+
+      if (!guest) {
+        return res.status(404).json({ error: 'Code d\'accès invalide pour cet événement' });
+      }
+
+      res.json(guest);
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  /**
    * Créer un album photo
    */
   static async createAlbum(req: Request, res: Response, next: NextFunction) {
@@ -143,7 +192,7 @@ export class PhotoAlbumController {
     async (req: Request, res: Response, next: NextFunction) => {
       try {
         const { albumId } = req.params;
-        const { caption, guestName } = req.body;
+        const { caption, guestName, uploadedById } = req.body;
 
         if (!req.file) {
           res.status(400).json({ error: 'Aucune photo fournie' });
@@ -157,7 +206,7 @@ export class PhotoAlbumController {
           albumId,
           req.file,
           undefined, // Pas de User ID
-          undefined, // Pas de Guest ID pour l'instant
+          uploadedById || undefined, // ID de l'invité si identifié
           caption || `Photo de ${uploaderName}`
         );
 
@@ -269,4 +318,71 @@ export class PhotoAlbumController {
       next(error);
     }
   }
-} 
+
+  /**
+   * Ajouter ou retirer une réaction à une photo
+   */
+  static async toggleReaction(req: Request, res: Response, next: NextFunction) {
+    try {
+      const { photoId } = req.params;
+      const { type, guestId, userId } = req.body;
+
+      if (!type) {
+        return res.status(400).json({ error: 'Type de réaction requis' });
+      }
+
+      const result = await PhotoAlbumService.toggleReaction(photoId, {
+        type,
+        guestId,
+        userId: userId || (req as any).user?.id
+      });
+
+      res.json(result);
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  /**
+   * Ajouter un commentaire à une photo
+   */
+  static async addComment(req: Request, res: Response, next: NextFunction) {
+    try {
+      const { photoId } = req.params;
+      const { content, guestId, userId } = req.body;
+
+      if (!content) {
+        return res.status(400).json({ error: 'Contenu du commentaire requis' });
+      }
+
+      const comment = await PhotoAlbumService.addComment(photoId, {
+        content,
+        guestId,
+        userId: userId || (req as any).user?.id
+      });
+
+      res.status(201).json(comment);
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  /**
+   * Supprimer un commentaire
+   */
+  static async deleteComment(req: Request, res: Response, next: NextFunction) {
+    try {
+      const { commentId } = req.params;
+      const { guestId, userId } = req.body;
+
+      await PhotoAlbumService.deleteComment(commentId, { 
+        guestId, 
+        userId: userId || (req as any).user?.id 
+      });
+
+      res.json({ message: 'Commentaire supprimé' });
+    } catch (error) {
+      next(error);
+    }
+  }
+}

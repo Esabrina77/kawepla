@@ -1,6 +1,7 @@
 import { prisma } from '../lib/prisma';
 import { RSVPStatus } from '@prisma/client';
 import { cache } from '../lib/redis';
+import { GuestService } from './guestService';
 
 // Types pour la création et mise à jour de RSVP
 type RSVPCreateInput = {
@@ -76,7 +77,8 @@ export class RSVPService {
         phone: guest.phone,
         plusOne: guest.plusOne,
         plusOneName: guest.plusOneName,
-        dietaryRestrictions: guest.dietaryRestrictions
+        dietaryRestrictions: guest.dietaryRestrictions,
+        albumAccessCode: guest.albumAccessCode
       }
     };
 
@@ -190,7 +192,8 @@ export class RSVPService {
         firstName: guest.firstName,
         lastName: guest.lastName,
         email: guest.email,
-        phone: guest.phone
+        phone: guest.phone,
+        albumAccessCode: guest.albumAccessCode
       }
     };
   }
@@ -398,6 +401,9 @@ export class RSVPService {
     // Générer un token unique pour cet invité
     const inviteToken = `guest-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
 
+    // Générer un code d'accès court pour l'album photo
+    const albumAccessCode = await GuestService.generateUniqueAccessCode(invitationId);
+
     // Créer l'invité en liant au propriétaire de l'invitation
     const guest = await prisma.guest.create({
       data: {
@@ -408,23 +414,12 @@ export class RSVPService {
         invitationId: invitationId,
         userId: invitation.userId, // Lier au propriétaire de l'invitation
         inviteToken: inviteToken,
+        albumAccessCode: albumAccessCode,
         plusOne: data.plusOne || false,
         plusOneName: data.plusOneName || null,
         invitationType: 'SHAREABLE',
         sharedLinkUsed: true,
         profilePhotoUrl: data.profilePhotoUrl || null // Ajouter la photo de profil
-      }
-    });
-
-    // Associer le lien partageable au guest
-    await prisma.shareableLink.update({
-      where: { token: shareableToken },
-      data: {
-        status: 'USED',
-        guestId: guest.id,
-        usedCount: {
-          increment: 1
-        }
       }
     });
 

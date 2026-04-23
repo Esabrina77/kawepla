@@ -129,8 +129,8 @@ app.get('/api/proxy/image', (async (req, res) => {
     const buffer = await response.arrayBuffer();
     res.send(Buffer.from(buffer));
   } catch (err) {
-    console.error('Proxy image error:', err);
-    res.status(500).send('Error fetching image');
+    console.error(`Proxy image error for URL [${url}]:`, err);
+    res.status(500).send(`Error fetching image: ${url}`);
   }
 }) as RequestHandler);
 
@@ -254,7 +254,7 @@ const startMaintenanceJobs = () => {
   if (cleanupInterval) clearInterval(cleanupInterval);
   if (newsletterInterval) clearInterval(newsletterInterval);
 
-  // 1. Jobs de nettoyage (Toutes les 5 minutes)
+  /* 1. Jobs de nettoyage (Toutes les 5 minutes) - Désactivé car liens stables/permanents
   cleanupInterval = setInterval(async () => {
     try {
       const { CleanupJobs } = await import('./jobs/cleanupJobs');
@@ -263,6 +263,7 @@ const startMaintenanceJobs = () => {
       console.error('❌ Erreur lors du cleanup automatique:', error);
     }
   }, 5 * 60 * 1000);
+  */
 
   // 2. Jobs de Newsletter (Toutes les 1 minute)
   newsletterInterval = setInterval(async () => {
@@ -277,9 +278,9 @@ const startMaintenanceJobs = () => {
   // Exécution initiale après 10 secondes
   setTimeout(async () => {
     try {
-      const { CleanupJobs } = await import('./jobs/cleanupJobs');
+      // const { CleanupJobs } = await import('./jobs/cleanupJobs');
       const { NewsletterJobs } = await import('./jobs/newsletterJobs');
-      await CleanupJobs.runAllCleanupJobs();
+      // await CleanupJobs.runAllCleanupJobs();
       await NewsletterJobs.processScheduledNewsletters();
     } catch (error) {
       console.error('❌ Erreur lors de l\'exécution initiale des jobs:', error);

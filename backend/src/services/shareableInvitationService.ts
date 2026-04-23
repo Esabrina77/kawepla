@@ -13,6 +13,7 @@ export class ShareableInvitationService {
    */
   static async generateShareableLink(invitationId: string, userId: string, options: {
     expiresAt?: Date;
+    forceNew?: boolean;
   }) {
     // Utiliser une transaction pour garantir la cohérence
     return await prisma.$transaction(async (tx) => {
@@ -23,11 +24,6 @@ export class ShareableInvitationService {
           userId
         },
         include: {
-          user: {
-            select: {
-              id: true
-            }
-          },
           guests: {
             where: {
               invitationType: 'SHAREABLE'
@@ -40,13 +36,57 @@ export class ShareableInvitationService {
         throw new Error('Invitation non trouvée ou accès non autorisé');
       }
 
-      // Obtenir les limites totales du forfait (incluant les services supplémentaires)
+      // Si on ne force pas un nouveau lien, on cherche d'abord s'il en existe un actif
+      if (!options.forceNew) {
+        const existingLink = await tx.shareableLink.findFirst({
+          where: {
+            invitationId,
+            isActive: true,
+            OR: [
+              { expiresAt: null },
+              { expiresAt: { gt: new Date() } }
+            ],
+            guestId: null
+          },
+          orderBy: { createdAt: 'desc' }
+        });
+
+        if (existingLink) {
+          // Recalculer les limites
+          const userLimits = await StripeService.getUserTotalLimits(userId);
+          const currentGuestCount = invitation.guests.length;
+          const maxGuests = userLimits?.guests || 0;
+          const remainingGuests = maxGuests - currentGuestCount;
+
+          return {
+            shareableToken: existingLink.token,
+            shareableEnabled: existingLink.isActive,
+            shareableMaxUses: existingLink.maxUses,
+            shareableUsedCount: existingLink.usedCount,
+            shareableExpiresAt: existingLink.expiresAt || null,
+            remainingGuests
+          };
+        }
+      }
+
+      // Si on force un nouveau lien ou s'il n'en existe pas, on désactive d'abord les anciens liens actifs
+      if (options.forceNew) {
+        await tx.shareableLink.updateMany({
+          where: {
+            invitationId,
+            isActive: true,
+            guestId: null // On ne désactive que les liens "maîtres"
+          },
+          data: { isActive: false }
+        });
+      }
+
+      // Obtenir les limites totales du forfait
       const userLimits = await StripeService.getUserTotalLimits(userId);
       if (!userLimits) {
         throw new Error('Limites de forfait non trouvées');
       }
 
-      // Calculer le nombre d'invités restants
       const currentGuestCount = invitation.guests.length;
       const maxGuests = userLimits.guests;
       const remainingGuests = maxGuests - currentGuestCount;
@@ -58,10 +98,10 @@ export class ShareableInvitationService {
       // Générer un token unique
       const shareableToken = `share-${Date.now()}-${crypto.randomUUID()}`;
 
-      // Calculer l'expiration automatique (20 minutes)
-      const expiresAt = options.expiresAt || new Date(Date.now() + 20 * 60 * 1000);
+      // NOUVEAU: Les liens sont permanents par défaut (expiresAt = null)
+      const expiresAt = options.expiresAt || null;
 
-      // Créer un nouveau lien dans la table ShareableLink avec la limite basée sur les invités restants
+      // Créer un nouveau lien dans la table ShareableLink
       const shareableLink = await tx.shareableLink.create({
         data: {
           token: shareableToken,
@@ -94,8 +134,8 @@ export class ShareableInvitationService {
     const updatedLink = await prisma.shareableLink.update({
       where: { token: shareableToken },
       data: {
-        status: 'USED',
-        guestId: guestId,
+        // On incrémente le compteur sans changer le statut ni lier à un guestId unique
+        // Cela permet au lien de rester "SHARED" et d'être réutilisé
         usedCount: {
           increment: 1
         }
@@ -119,8 +159,8 @@ export class ShareableInvitationService {
     const updatedLink = await prisma.shareableLink.update({
       where: { token: shareableToken },
       data: {
-        status: 'CONFIRMED',
-        expiresAt: null // Supprimer l'expiration = lien permanent
+        // Le lien reste permanent et actif pour les autres invités
+        expiresAt: null
       }
     });
 
@@ -188,7 +228,8 @@ export class ShareableInvitationService {
         lastName: guest.lastName,
         email: guest.email,
         phone: guest.phone,
-        profilePhotoUrl: guest.profilePhotoUrl
+        profilePhotoUrl: guest.profilePhotoUrl,
+        albumAccessCode: guest.albumAccessCode
       },
       invitation: guest.invitation,
       rsvp: guest.rsvp,
@@ -382,7 +423,8 @@ export class ShareableInvitationService {
           firstName: guest.firstName,
           lastName: guest.lastName,
           email: guest.email,
-          phone: guest.phone
+          phone: guest.phone,
+          albumAccessCode: guest.albumAccessCode
         },
         rsvp: guest.rsvp ? {
           status: guest.rsvp.status,
