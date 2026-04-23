@@ -154,34 +154,58 @@ export function useDesigns() {
 
   // Nouvelle méthode : Créer un design personnalisé (basé sur un modèle)
   const createPersonalizedDesign = useCallback(async (
-    originalDesignId: string,
+    originalDesignId: string | undefined | null,
     fabricData: any,
     name?: string,
     thumbnail?: string,
-    previewImage?: string
+    previewImage?: string,
+    backgroundImage?: string
   ): Promise<Design> => {
     try {
-      const originalDesign = await getDesignById(originalDesignId);
-      if (!originalDesign) {
-        throw new Error('Modèle original introuvable');
-      }
+      let personalizedData: any;
 
-      const personalizedData = {
-        name: name || `${originalDesign.name} - Personnalisé`,
-        description: `Design personnalisé basé sur ${originalDesign.name}`,
-        tags: originalDesign.tags || [],
-        fabricData,
-        editorVersion: 'canva' as const,
-        canvasWidth: originalDesign.canvasWidth,
-        canvasHeight: originalDesign.canvasHeight,
-        canvasFormat: originalDesign.canvasFormat,
-        isTemplate: false,
-        originalDesignId,
-        priceType: originalDesign.priceType || 'FREE',
-        thumbnail,
-        previewImage,
-        isActive: true,
-      };
+      if (originalDesignId && originalDesignId.trim() !== '') {
+        const originalDesign = await getDesignById(originalDesignId);
+        if (!originalDesign) {
+          throw new Error('Modèle original introuvable');
+        }
+
+        personalizedData = {
+          name: name || `${originalDesign.name} - Personnalisé`,
+          description: `Design personnalisé basé sur ${originalDesign.name}`,
+          tags: originalDesign.tags || [],
+          fabricData,
+          editorVersion: 'canva' as const,
+          canvasWidth: originalDesign.canvasWidth,
+          canvasHeight: originalDesign.canvasHeight,
+          canvasFormat: originalDesign.canvasFormat,
+          isTemplate: false,
+          originalDesignId,
+          priceType: originalDesign.priceType || 'FREE',
+          thumbnail: thumbnail || originalDesign.thumbnail,
+          previewImage: previewImage || originalDesign.previewImage,
+          backgroundImage: backgroundImage || originalDesign.backgroundImage,
+          isActive: true,
+        };
+      } else {
+        // Cas de l'import direct d'image (sans modèle original)
+        personalizedData = {
+          name: name || 'Mon invitation importée',
+          description: 'Invitation importée par l\'utilisateur',
+          tags: ['importé'],
+          fabricData,
+          editorVersion: 'canva' as const,
+          canvasWidth: 794,
+          canvasHeight: 1123,
+          canvasFormat: 'A4',
+          isTemplate: false,
+          priceType: 'FREE' as const,
+          thumbnail,
+          previewImage,
+          backgroundImage,
+          isActive: true,
+        };
+      }
 
       const response = await designsApi.createPersonalized(personalizedData);
       await fetchUserDesigns(); // Refresh user designs
