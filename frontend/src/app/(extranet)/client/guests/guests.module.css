@@ -687,6 +687,12 @@
   color: var(--host);
 }
 
+.shareableButtonSecondary.copied {
+  border-color: #10B981;
+  color: #10B981;
+  background: rgba(16, 185, 129, 0.05);
+}
+
 .shareableError {
   font-family: var(--font-body);
   font-size: 0.72rem;

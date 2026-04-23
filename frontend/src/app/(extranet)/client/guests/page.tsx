@@ -24,6 +24,7 @@ import {
   Copy,
   Share2,
   CheckCircle,
+  Check,
   AlertCircle,
   RefreshCw,
   FileSpreadsheet,
@@ -527,6 +528,7 @@ function ShareableLinkManager({ invitationId }: { invitationId: string }) {
   const [showResetModal, setShowResetModal] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [copied, setCopied] = useState(false);
 
   useEffect(() => {
     fetchShareableStats();
@@ -597,7 +599,8 @@ function ShareableLinkManager({ invitationId }: { invitationId: string }) {
     try {
       if (shareableLink?.url) {
         await navigator.clipboard.writeText(shareableLink.url);
-        // On pourrait ajouter un toast ici pour confirmer la copie
+        setCopied(true);
+        setTimeout(() => setCopied(false), 2000);
       }
     } catch (err) {
       console.error('Erreur copie:', err);
@@ -646,7 +649,7 @@ function ShareableLinkManager({ invitationId }: { invitationId: string }) {
         <div className={styles.shareableUrl}>
           <input type="text" value={shareableLink.url} readOnly />
           <button onClick={copyToClipboard} className={styles.shareableCopyButton}>
-            <Copy size={14} />
+            {copied ? <Check size={14} color="#10B981" /> : <Copy size={14} />}
           </button>
         </div>
         <div className={styles.shareableStats}>
@@ -679,10 +682,19 @@ function ShareableLinkManager({ invitationId }: { invitationId: string }) {
         </button>
         <button
           onClick={copyToClipboard}
-          className={styles.shareableButtonSecondary}
+          className={`${styles.shareableButtonSecondary} ${copied ? styles.copied : ''}`}
         >
-          <Copy size={14} />
-          Copier
+          {copied ? (
+            <>
+              <Check size={14} color="#10B981" />
+              Copié !
+            </>
+          ) : (
+            <>
+              <Copy size={14} />
+              Copier
+            </>
+          )}
         </button>
       </div>
     </div>

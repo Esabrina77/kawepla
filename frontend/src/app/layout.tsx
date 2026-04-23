@@ -35,10 +35,10 @@ export default function RootLayout({
         <JsonLd />
       </head>
       <body suppressHydrationWarning>
-        <ServiceWorkerProvider />
-        <WebSocketNotificationsProvider />
         <ToastProvider>
           <ModalProvider>
+            <ServiceWorkerProvider />
+            <WebSocketNotificationsProvider />
             {children}
           </ModalProvider>
         </ToastProvider>
