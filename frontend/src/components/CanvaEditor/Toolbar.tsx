@@ -21,6 +21,7 @@ import {
 import * as fabric from 'fabric';
 import { useEditorStore } from '@/store/useEditorStore';
 import { GOOGLE_FONTS, loadFonts } from '@/utils/fonts';
+import { useModals } from '@/components/ui/modal-provider';
 import styles from './Toolbar.module.css';
 
 const Toolbar = () => {
@@ -39,6 +40,8 @@ const Toolbar = () => {
         selectedObjects,
         format
     } = useEditorStore();
+
+    const { showAlert } = useModals();
 
     const [fontSearch, setFontSearch] = useState('');
 
@@ -271,7 +274,7 @@ const Toolbar = () => {
 
                             <div className={styles.divider} />
 
-                            <button className={styles.magicButton} onClick={() => alert('IA Magic Write bientôt disponible !')}>
+                            <button className={styles.magicButton} onClick={() => showAlert('Bientôt disponible', 'L\'IA Magic Write arrive très prochainement sur Kawepla pour vous aider à rédiger vos invitations !', 'success')}>
                                 <Sparkles size={16} />
                                 <span>Écriture Magique IA</span>
                             </button>

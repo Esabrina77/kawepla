@@ -4,6 +4,7 @@ import { WebSocketNotificationsProvider } from '@/components/WebSocketNotificati
 import siteMetadata from './metadata';
 import { Montserrat, Cinzel } from 'next/font/google';
 import { ToastProvider } from '@/components/ui/toast';
+import { ModalProvider } from '@/components/ui/modal-provider';
 import JsonLd from '@/components/Seo/JsonLd';
 import Script from 'next/script';
 
@@ -37,7 +38,9 @@ export default function RootLayout({
         <ServiceWorkerProvider />
         <WebSocketNotificationsProvider />
         <ToastProvider>
-          {children}
+          <ModalProvider>
+            {children}
+          </ModalProvider>
         </ToastProvider>
 
         {/* TikTok Pixel */}

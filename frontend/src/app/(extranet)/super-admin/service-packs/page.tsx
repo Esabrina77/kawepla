@@ -9,6 +9,7 @@ import {
   ServicePackType,
   ServiceTier,
 } from "@/lib/api/servicePacks";
+import { useModals } from "@/components/ui/modal-provider";
 import styles from "./service-packs.module.css";
 import {
   Plus,
@@ -58,6 +59,7 @@ const defaultPayload: ServicePackPayload = {
 };
 
 export default function ServicePacksAdminPage() {
+  const { showAlert, showConfirm } = useModals();
   const [basePacks, setBasePacks] = useState<ServicePackResponse[]>([]);
   const [addonPacks, setAddonPacks] = useState<ServicePackResponse[]>([]);
   const [loading, setLoading] = useState(true);
@@ -166,8 +168,10 @@ export default function ServicePacksAdminPage() {
       resetForm(formType);
     } catch (err) {
       console.error("Erreur sauvegarde pack:", err);
-      alert(
+      showAlert(
+        "Erreur de sauvegarde",
         "Impossible de sauvegarder le pack. Vérifiez le slug (doit être unique).",
+        "error"
       );
     } finally {
       setSubmitting(false);
@@ -175,14 +179,20 @@ export default function ServicePacksAdminPage() {
   };
 
   const handleDelete = async (pack: ServicePackResponse) => {
-    if (!confirm(`Supprimer le pack "${pack.name}" ?`)) return;
+    const confirmed = await showConfirm(
+      "Supprimer le pack",
+      `Êtes-vous sûr de vouloir supprimer le pack "${pack.name}" ?`
+    );
+    if (!confirmed) return;
     try {
       await servicePackApi.remove(pack.id);
       await loadPacks();
     } catch (err) {
       console.error("Erreur suppression pack:", err);
-      alert(
-        "Suppression impossible. Vérifiez si des utilisateurs utilisent ce pack.",
+      showAlert(
+        "Suppression impossible",
+        "Une erreur est survenue lors de la suppression. Vérifiez si des utilisateurs utilisent ce pack.",
+        "error"
       );
     }
   };

@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { apiClient } from '@/lib/api/apiClient';
+import { useModals } from '@/components/ui/modal-provider';
 
 // Client API spécial pour les routes push (sans authentification)
 const pushApiClient = {
@@ -87,6 +88,7 @@ export const useNotifications = () => {
   const [isSupported, setIsSupported] = useState(false);
   const [permission, setPermission] = useState<NotificationPermission>('default');
   const [isSubscribed, setIsSubscribed] = useState(false);
+  const { showAlert } = useModals();
 
   // Vérifier le support des notifications
   useEffect(() => {
@@ -116,7 +118,7 @@ export const useNotifications = () => {
   const requestPermission = useCallback(async (): Promise<boolean> => {
     console.log('🔔 [useNotifications] Demande de permission...');
     if (!('Notification' in window)) {
-      alert("Ce navigateur ne supporte pas les notifications de bureau.");
+      showAlert("Non supporté", "Ce navigateur ne supporte pas les notifications de bureau.", "error");
       return false;
     }
 
@@ -134,7 +136,7 @@ export const useNotifications = () => {
           silent: false
         });
       } else if (result === 'denied') {
-        alert("Les notifications sont bloquées. Veuillez les réactiver dans les paramètres de votre navigateur (cliquez sur l'icône à gauche de l'URL pour gérer les permissions).");
+        showAlert("Notifications bloquées", "Les notifications sont bloquées. Veuillez les réactiver dans les paramètres de votre navigateur (cliquez sur l'icône à gauche de l'URL pour gérer les permissions).", "error");
       }
       
       return result === 'granted';

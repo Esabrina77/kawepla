@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { apiClient } from "@/lib/api/apiClient";
 import { useDesigns } from "@/hooks/useDesigns";
+import { useModals } from "@/components/ui/modal-provider";
 import { HeaderMobile } from "@/components/HeaderMobile";
 import DesignPreview from "@/components/DesignPreview";
 import {
@@ -59,6 +60,7 @@ interface Invitation {
 
 export default function AdminInvitationsPage() {
   const router = useRouter();
+  const { showAlert, showConfirm } = useModals();
   const { designs, loading: loadingDesigns } = useDesigns();
   const [invitations, setInvitations] = useState<Invitation[]>([]);
   const [loading, setLoading] = useState(true);
@@ -124,8 +126,9 @@ export default function AdminInvitationsPage() {
   };
 
   const handleDeleteInvitation = async (invitation: Invitation) => {
-    const confirmed = confirm(
-      `Êtes-vous sûr de vouloir supprimer l'invitation "${invitation.eventTitle}" ?\n\nCette action supprimera définitivement l'invitation et toutes ses données associées (invités, RSVP, photos, etc.). Cette action est irréversible.`,
+    const confirmed = await showConfirm(
+      "Supprimer l'invitation",
+      `Êtes-vous sûr de vouloir supprimer l'invitation "${invitation.eventTitle}" ? Cette action supprimera définitivement l'invitation et toutes ses données associées (invités, RSVP, photos, etc.). Cette action est irréversible.`
     );
 
     if (confirmed) {
@@ -137,7 +140,7 @@ export default function AdminInvitationsPage() {
         );
       } catch (error) {
         console.error("Erreur lors de la suppression de l'invitation:", error);
-        alert("Erreur lors de la suppression de l'invitation.");
+        showAlert("Erreur", "Une erreur est survenue lors de la suppression de l'invitation.", "error");
       } finally {
         setDeletingId(null);
       }

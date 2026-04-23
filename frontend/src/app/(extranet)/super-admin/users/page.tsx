@@ -3,6 +3,7 @@
 import { useState } from "react";
 import styles from "./users.module.css";
 import { useAdminUsers } from "@/hooks/useAdminUsers";
+import { useModals } from "@/components/ui/modal-provider";
 import { HeaderMobile } from "@/components/HeaderMobile";
 import {
   Users,
@@ -34,6 +35,8 @@ export default function UsersPage() {
     changeUserRole,
     deleteUser,
   } = useAdminUsers();
+
+  const { showConfirm } = useModals();
 
   const [editingUser, setEditingUser] = useState<string | null>(null);
   const [visibleEmails, setVisibleEmails] = useState<Record<string, boolean>>(
@@ -71,9 +74,11 @@ export default function UsersPage() {
   };
 
   const handleDelete = async (userId: string) => {
-    if (
-      window.confirm("Êtes-vous sûr de vouloir supprimer cet utilisateur ?")
-    ) {
+    const confirmed = await showConfirm(
+      "Supprimer l'utilisateur",
+      "Êtes-vous sûr de vouloir supprimer cet utilisateur ? Cette action est définitive et supprimera toutes les données associées."
+    );
+    if (confirmed) {
       try {
         await deleteUser(userId);
       } catch (error) {

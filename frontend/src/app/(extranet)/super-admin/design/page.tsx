@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useDesigns } from "@/hooks/useDesigns";
+import { useModals } from "@/components/ui/modal-provider";
 import { HeaderMobile } from "@/components/HeaderMobile/HeaderMobile";
 import { Design } from "@/types";
 import DesignPreview from "@/components/DesignPreview";
@@ -34,6 +35,8 @@ export default function SuperAdminDesignPage() {
     deleteDesign,
     toggleDesignStatus,
   } = useDesigns();
+
+  const { showAlert, showConfirm } = useModals();
   const [showPreviewModal, setShowPreviewModal] = useState(false);
   const [selectedDesign, setSelectedDesign] = useState<Design | null>(null);
   const [deletingDesignId, setDeletingDesignId] = useState<string | null>(null);
@@ -79,11 +82,12 @@ export default function SuperAdminDesignPage() {
   ];
 
   const handleDeleteDesign = async (designId: string) => {
-    if (
-      confirm(
-        "Êtes-vous sûr de vouloir supprimer ce design ? Cette action est irréversible.",
-      )
-    ) {
+    const confirmed = await showConfirm(
+      "Supprimer le design",
+      "Êtes-vous sûr de vouloir supprimer ce design ? Cette action est irréversible et supprimera toutes les données associées."
+    );
+
+    if (confirmed) {
       try {
         setDeletingDesignId(designId);
         const design = designs.find((d) => d.id === designId);
@@ -117,7 +121,7 @@ export default function SuperAdminDesignPage() {
         }
       } catch (error) {
         console.error("Erreur lors de la suppression du design:", error);
-        alert("Erreur lors de la suppression du design. Veuillez réessayer.");
+        showAlert("Erreur", "Une erreur est survenue lors de la suppression du design. Veuillez réessayer.", "error");
       } finally {
         setDeletingDesignId(null);
       }
