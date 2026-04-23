@@ -34,6 +34,7 @@ interface RSVPResponse {
     lastName: string;
     email?: string;
     phone?: string;
+    albumAccessCode?: string;
   };
 }
 
@@ -320,20 +321,6 @@ export default function RSVPThankYouPage({
                 overflow: "hidden",
               }}
             >
-              {/* Sceau de certification Kawepla */}
-              <img
-                src={`${typeof window !== "undefined" ? window.location.origin : ""}/images/sceau-kawepla.png`}
-                alt="Sceau Kawepla"
-                style={{
-                  position: "absolute",
-                  top: "0px",
-                  left: "0px",
-                  width: "45px",
-                  height: "45px",
-                  zIndex: 20,
-                  filter: "drop-shadow(0 2px 4px rgba(0,0,0,0.15))",
-                }}
-              />
 
               {/* Conteneur pour forcer le ratio de DesignPreview en mode card */}
               <div
@@ -478,6 +465,11 @@ export default function RSVPThankYouPage({
                   <p style={{ margin: 0 }}>
                     <strong>Statut d'accès :</strong> ✅ Présent(e)
                   </p>
+                  {status.guest?.albumAccessCode && (
+                    <p style={{ margin: "4px 0", color: "var(--primary, #6366F1)", fontWeight: 800 }}>
+                      📸 CODE ALBUM : {status.guest.albumAccessCode}
+                    </p>
+                  )}
                   {status.plusOneName && (
                     <p style={{ margin: 0 }}>
                       <strong>Accompagnant :</strong> 👥 {status.plusOneName}
@@ -533,12 +525,13 @@ export default function RSVPThankYouPage({
                   <p
                     style={{
                       margin: "4px 0 0 0",
-                      fontSize: "0.6rem",
-                      color: "#9ca3af",
-                      letterSpacing: "2px",
+                      fontSize: "0.75rem",
+                      fontWeight: "bold",
+                      color: "var(--primary, #6366F1)",
+                      textTransform: "uppercase",
                     }}
                   >
-                    V-${invitation.id.substring(0, 8).toUpperCase()}
+                    {invitation.eventTitle}
                   </p>
                 </div>
                 <div>
@@ -546,7 +539,8 @@ export default function RSVPThankYouPage({
                     src={`https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(
                       btoa(JSON.stringify({ 
                         inviteId: invitation.id, 
-                        guestId: (status?.guest as any)?.id || (status?.guest as any)?._id || (status as any)?.guestId 
+                        guestId: (status?.guest as any)?.id || (status?.guest as any)?._id || (status as any)?.guestId,
+                        albumCode: status?.guest?.albumAccessCode
                       }))
                     )}`}
                     alt="Inspection QR Code"

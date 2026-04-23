@@ -2,8 +2,7 @@
 
 import React, { useState } from 'react';
 import dynamic from 'next/dynamic';
-import { Download, Copy, Share2 } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import { Download, Copy, Share2, Check } from 'lucide-react';
 import styles from './QRCode.module.css';
 
 // Import dynamique pour éviter les problèmes SSR
@@ -30,7 +29,6 @@ export function QRCodeComponent({
   const [copied, setCopied] = useState(false);
 
   const downloadQRCode = () => {
-    // Créer un SVG temporaire pour le téléchargement
     const svg = document.querySelector(`.${styles.qrWrapper} svg`);
     if (!svg) return;
 
@@ -39,20 +37,27 @@ export function QRCodeComponent({
     const ctx = canvas.getContext('2d');
     const img = new Image();
     
-    canvas.width = size;
-    canvas.height = size;
+    // On ajoute un padding blanc au canvas pour le rendu final
+    const padding = 40;
+    canvas.width = size + padding * 2;
+    canvas.height = size + padding * 2;
     
     img.onload = () => {
-      ctx?.drawImage(img, 0, 0);
-      const link = document.createElement('a');
-      link.download = `qr-code-${title.toLowerCase().replace(/\s+/g, '-')}.png`;
-      link.href = canvas.toDataURL('image/png');
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
+      if (ctx) {
+        ctx.fillStyle = '#ffffff';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        ctx.drawImage(img, padding, padding, size, size);
+        
+        const link = document.createElement('a');
+        link.download = `qr-code-${title.toLowerCase().replace(/\s+/g, '-')}.png`;
+        link.href = canvas.toDataURL('image/png');
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+      }
     };
     
-    img.src = 'data:image/svg+xml;base64,' + btoa(svgData);
+    img.src = 'data:image/svg+xml;base64,' + btoa(unescape(encodeURIComponent(svgData)));
   };
 
   const copyLink = async () => {
@@ -88,29 +93,38 @@ export function QRCodeComponent({
           value={url}
           size={size}
           bgColor="#ffffff"
-          fgColor="#2c2c2c"
-          level="M"
+          fgColor="#0f172a"
+          level="H"
         />
       </div>
 
       {showActions && (
         <div className={styles.actions}>
-          <Button onClick={downloadQRCode} size="sm" variant="outline">
+          <button onClick={downloadQRCode} className={`${styles.actionButton} ${styles.actionButtonPrimary}`}>
             <Download className={styles.actionIcon} />
-            Télécharger
-          </Button>
+            Télécharger le QR Code
+          </button>
 
-          <Button onClick={copyLink} size="sm" variant="outline">
-            <Copy className={styles.actionIcon} />
-            {copied ? 'Copié !' : 'Copier le lien'}
-          </Button>
+          <button onClick={copyLink} className={styles.actionButton}>
+            {copied ? (
+              <>
+                <Check className={`${styles.actionIcon} ${styles.copiedText}`} />
+                <span className={styles.copiedText}>Lien copié !</span>
+              </>
+            ) : (
+              <>
+                <Copy className={styles.actionIcon} />
+                Copier le lien de partage
+              </>
+            )}
+          </button>
 
-          <Button onClick={shareLink} size="sm" variant="outline">
+          <button onClick={shareLink} className={styles.actionButton}>
             <Share2 className={styles.actionIcon} />
-            Partager
-          </Button>
+            Partager l'album
+          </button>
         </div>
       )}
     </div>
   );
-} 
+}

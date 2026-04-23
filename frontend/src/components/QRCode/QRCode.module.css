@@ -1,177 +1,117 @@
-/* Debug button */
-.debugButton {
-  margin-top: 10px;
-  background-color: #f0f0f0;
-  border: 1px solid #ccc;
-  font-size: 12px;
-}
-
-/* ===== QR CODE - LUXURY DESIGN SYSTEM ===== */
+/* ===== Kawepla Luxury QR Design System ===== */
 
 .container {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: var(--space-md);
-  padding: var(--space-md);
-  background: var(--bg-card);
-  border-radius: var(--radius-lg);
-  border: 1px solid var(--border-color);
-  box-shadow: var(--shadow-sm);
+  gap: 1.5rem;
+  padding: 1.5rem;
+  background: #ffffff;
+  border-radius: 24px;
 }
 
 .qrWrapper {
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: var(--space-md);
-  background: white;
-  border-radius: var(--radius-md);
-  border: 1px solid var(--border-color);
-  box-shadow: var(--shadow-sm);
+  padding: 2rem;
+  background: #ffffff;
+  border-radius: 20px;
+  border: 1px solid #f1f5f9;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05),
+              0 8px 10px -6px rgba(0, 0, 0, 0.05);
+  position: relative;
+  overflow: hidden;
 }
 
-.qrCanvas {
-  border-radius: 8px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+.qrWrapper::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 20px;
+  border: 2px solid transparent;
+  background: linear-gradient(135deg, var(--host) 0%, #4f46e5 100%) border-box;
+  mask: linear-gradient(#fff 0 0) padding-box, linear-gradient(#fff 0 0);
+  mask-composite: exclude;
+  opacity: 0.1;
 }
 
 .loading {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 200px;
-  height: 200px;
-  background: var(--bg-secondary);
-  border-radius: var(--radius-md);
-  color: var(--text-secondary);
-  font-size: 0.875rem;
-  font-family: var(--font-sans);
+  width: 250px;
+  height: 250px;
+  background: #f8fafc;
+  border-radius: 20px;
+  color: #64748b;
+  font-family: var(--font-body);
 }
 
-.spinner {
-  width: 32px;
-  height: 32px;
-  border: 3px solid #f3f3f3;
-  border-top: 3px solid #c5a880;
-  border-radius: 50%;
-  animation: spin 1s linear infinite;
-}
-
-@keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
-}
-
+/* Actions Bar - The most important change */
 .actions {
   display: flex;
-  gap: var(--space-sm);
-  flex-wrap: wrap;
+  flex-direction: column;
+  gap: 0.75rem;
+  width: 100%;
+  max-width: 320px;
+}
+
+.actionButton {
+  display: flex;
+  align-items: center;
   justify-content: center;
+  gap: 0.75rem;
+  padding: 0.85rem 1.25rem;
+  background: #ffffff;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 14px;
+  color: #1e293b;
+  font-family: var(--font-body);
+  font-size: 0.9rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
+}
+
+.actionButton:hover {
+  border-color: var(--host);
+  color: var(--host);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 15px -3px rgba(79, 70, 229, 0.1);
+}
+
+.actionButtonPrimary {
+  background: var(--host);
+  border-color: var(--host);
+  color: #ffffff;
+  box-shadow: 0 4px 12px rgba(79, 70, 229, 0.2);
+}
+
+.actionButtonPrimary:hover {
+  background: #4338ca;
+  border-color: #4338ca;
+  color: #ffffff;
+  box-shadow: 0 8px 20px rgba(79, 70, 229, 0.3);
 }
 
 .actionIcon {
-  width: 16px;
-  height: 16px;
-  margin-right: var(--space-xs);
+  width: 18px;
+  height: 18px;
 }
 
-.info {
-  text-align: center;
-  max-width: 300px;
+.copiedText {
+  color: #10B981;
 }
 
-.url {
-  font-family: monospace;
-  font-size: 0.8rem;
-  color: #666;
-  background: #f5f5f5;
-  padding: 8px 12px;
-  border-radius: 6px;
-  word-break: break-all;
-  margin-bottom: 8px;
-}
-
-.instruction {
-  font-size: 0.9rem;
-  color: #888;
-  margin: 0;
-  line-height: 1.4;
-}
-
-.error {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 12px;
-  color: #dc3545;
-  text-align: center;
-}
-
-.error p {
-  margin: 0;
-}
-
-/* Variantes de taille */
-.container.small {
-  padding: 12px;
-}
-
-.container.small .qrWrapper {
-  min-height: 120px;
-}
-
-.container.large {
-  padding: 24px;
-}
-
-.container.large .qrWrapper {
-  min-height: 300px;
-}
-
-/* ===== RESPONSIVE DESIGN ===== */
-@media (max-width: 768px) {
-  .container {
-    padding: var(--space-sm);
-    gap: var(--space-sm);
-  }
-
+/* Responsive */
+@media (max-width: 480px) {
   .qrWrapper {
-    padding: var(--space-sm);
-  }
-
-  .actions {
-    flex-direction: column;
-    width: 100%;
-  }
-
-  .loading {
-    width: 150px;
-    height: 150px;
-    font-size: 0.8rem;
-  }
-
-  .actions button {
-    width: 100%;
+    padding: 1.25rem;
   }
   
-  .url {
-    font-size: 0.7rem;
+  .actions {
+    max-width: 100%;
   }
 }
-
-@media (max-width: 480px) {
-  .container {
-    padding: var(--space-xs);
-  }
-
-  .qrWrapper {
-    padding: var(--space-xs);
-  }
-
-  .loading {
-    width: 120px;
-    height: 120px;
-    font-size: 0.75rem;
-  }
-} 

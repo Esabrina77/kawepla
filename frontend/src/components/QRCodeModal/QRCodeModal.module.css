@@ -1,126 +1,110 @@
-/* ===== PREMIUM QR CODE MODAL ===== */
+/* ===== QRCode Modal - Luxury Refinement ===== */
 
 .overlay {
   position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(0, 0, 0, 0.7);
-  backdrop-filter: blur(16px);
+  inset: 0;
+  background: rgba(15, 23, 42, 0.7);
+  backdrop-filter: blur(8px);
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 5000;
-  padding: 1.5rem;
-  animation: overlayAppear 0.4s ease-out;
+  z-index: 2000;
+  padding: 1rem;
+  animation: fadeIn 0.3s ease-out;
 }
 
-@keyframes overlayAppear {
+@keyframes fadeIn {
   from { opacity: 0; }
   to { opacity: 1; }
 }
 
 .modal {
-  background: var(--card);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: #ffffff;
   border-radius: 32px;
-  box-shadow: 0 40px 100px rgba(0, 0, 0, 0.5);
-  max-width: 420px;
   width: 100%;
-  overflow: hidden;
-  animation: modalEnter 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+  max-width: 480px;
+  max-height: 90vh;
+  overflow-y: auto;
+  position: relative;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+  animation: slideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-@keyframes modalEnter {
-  from { opacity: 0; transform: scale(0.9) translateY(30px); }
-  to { opacity: 1; transform: scale(1) translateY(0); }
+@keyframes slideUp {
+  from { transform: translateY(30px) scale(0.95); opacity: 0; }
+  to { transform: translateY(0) scale(1); opacity: 1; }
 }
 
 .header {
+  padding: 2rem 2rem 1.5rem;
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  padding: 2rem 2rem 1.25rem;
+  justify-content: center; /* Titre centré */
+  position: relative;
 }
 
 .title {
   font-family: var(--font-heading);
-  font-size: 1.4rem;
+  font-size: 1.5rem;
   font-weight: 800;
-  color: var(--foreground);
+  color: #0f172a;
   margin: 0;
   letter-spacing: -0.02em;
 }
 
 .closeButton {
+  position: absolute;
+  right: 1.5rem;
+  top: 1.5rem;
+  width: 40px;
+  height: 40px;
+  background: #f1f5f9;
+  border: none;
+  border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 38px;
-  height: 38px;
-  background: var(--bg-secondary);
-  border: 1px solid var(--border);
-  color: var(--text-secondary);
+  color: #64748b;
   cursor: pointer;
-  border-radius: 50%;
-  transition: all 0.3s ease;
+  transition: all 0.2s;
 }
 
 .closeButton:hover {
-  background: var(--foreground);
-  color: var(--background);
-  transform: rotate(90deg) scale(1.1);
+  background: #fee2e2;
+  color: #ef4444;
+  transform: rotate(90deg);
 }
 
 .content {
-  padding: 1rem 2rem 3rem;
+  padding: 0 2rem 2.5rem;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 1.5rem;
 }
 
 .qrSection {
-  background: white;
-  padding: 1.5rem;
-  border-radius: 24px;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+  width: 100%;
   display: flex;
   justify-content: center;
-  align-items: center;
-  animation: qrReveal 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) 0.2s both;
-}
-
-@keyframes qrReveal {
-  from { transform: scale(0.8); opacity: 0; }
-  to { transform: scale(1); opacity: 1; }
+  margin-bottom: 0.5rem;
 }
 
 .description {
   font-family: var(--font-body);
   font-size: 0.95rem;
-  color: var(--text-secondary);
+  color: #64748b;
   text-align: center;
   line-height: 1.6;
-  font-weight: 500;
+  max-width: 380px;
+  margin: 0;
 }
 
-/* ===== RESPONSIVE ===== */
-@media (max-width: 640px) {
-  .overlay {
-    padding: 1rem;
-  }
+/* Scrollbar fine */
+.modal::-webkit-scrollbar {
+  width: 6px;
+}
 
-  .modal {
-    border-radius: 24px;
-  }
-
-  .header {
-    padding: 1.5rem;
-  }
-
-  .content {
-    padding: 0.5rem 1.5rem 2.5rem;
-  }
+.modal::-webkit-scrollbar-thumb {
+  background: #e2e8f0;
+  border-radius: 10px;
 }

@@ -26,7 +26,8 @@ import {
   Download,
   CheckSquare,
   Square,
-  Loader2
+  Loader2,
+  ChevronLeft
 } from 'lucide-react';
 import JSZip from 'jszip';
 import { saveAs } from 'file-saver';
@@ -58,8 +59,11 @@ export function PhotoAlbumManager({ invitationId }: PhotoAlbumManagerProps) {
   const [creating, setCreating] = useState(false);
   const [uploading, setUploading] = useState<{ [key: string]: boolean }>({});
 
-  // État pour le menu déroulant
+  // État pour la navigation style Google Photos
+  const [currentView, setCurrentView] = useState<'albums' | 'photos'>('albums');
+  const [selectedAlbumId, setSelectedAlbumId] = useState<string | null>(null);
   const [openDropdownId, setOpenDropdownId] = useState<string | null>(null);
+
   const dropdownRefs = useRef<{ [key: string]: HTMLDivElement | null }>({});
 
   // État pour le modal QR Code
@@ -68,7 +72,8 @@ export function PhotoAlbumManager({ invitationId }: PhotoAlbumManagerProps) {
 
   // État pour le modal de photo
   const [photoModalOpen, setPhotoModalOpen] = useState(false);
-  const [selectedPhoto, setSelectedPhoto] = useState<{ url: string; alt: string } | null>(null);
+  const [currentPhotoIndex, setCurrentPhotoIndex] = useState<number>(0);
+  const [currentPhotosList, setCurrentPhotosList] = useState<Photo[]>([]);
 
   // États pour la sélection et le téléchargement
   const [selectionMode, setSelectionMode] = useState<string | null>(null); // ID de l'album en mode sélection
@@ -129,16 +134,26 @@ export function PhotoAlbumManager({ invitationId }: PhotoAlbumManagerProps) {
     return photo.thumbnailUrl || photo.compressedUrl || photo.originalUrl || '';
   };
 
-  // Fonction pour ouvrir une photo en grand
-  const handlePhotoClick = (photo: Photo) => {
-    const photoUrl = getPhotoDisplayUrl(photo);
-    if (photoUrl) {
-      setSelectedPhoto({
-        url: photoUrl,
-        alt: photo.caption || 'Photo de événement'
-      });
-      setPhotoModalOpen(true);
-    }
+  // Fonction pour ouvrir une photo en grand (style Google Photos)
+  const handlePhotoClick = (index: number, photos: Photo[]) => {
+    setCurrentPhotosList(photos);
+    setCurrentPhotoIndex(index);
+    setPhotoModalOpen(true);
+  };
+
+  // Naviguer dans l'album sélectionné
+  const handleAlbumClick = (albumId: string) => {
+    setSelectedAlbumId(albumId);
+    setCurrentView('photos');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  // Revenir à la liste des albums
+  const handleBackToAlbums = () => {
+    setCurrentView('albums');
+    setSelectedAlbumId(null);
+    setSelectionMode(null);
+    setSelectedPhotos(new Set());
   };
 
   // Créer un nouvel album
@@ -221,6 +236,8 @@ export function PhotoAlbumManager({ invitationId }: PhotoAlbumManagerProps) {
       onConfirm: async () => {
         try {
           await deleteAlbum(album.id);
+          await fetchAlbums();
+          handleBackToAlbums();
           setOpenDropdownId(null);
           setAlertModal({ isOpen: true, type: 'success', title: 'Succès', message: 'Album supprimé avec succès' });
         } catch (error: any) {
@@ -283,7 +300,6 @@ export function PhotoAlbumManager({ invitationId }: PhotoAlbumManagerProps) {
   // Fermer le modal photo
   const handleClosePhotoModal = () => {
     setPhotoModalOpen(false);
-    setSelectedPhoto(null);
   };
 
   // Basculer le mode sélection
@@ -480,91 +496,132 @@ export function PhotoAlbumManager({ invitationId }: PhotoAlbumManagerProps) {
 
   return (
     <div className={styles.albumsSection}>
-      {/* Header avec titre et bouton créer */}
-      <div className={styles.albumsHeader}>
-        <h3 className={styles.albumsTitle}>Vos Albums</h3>
-        <button
-          onClick={() => setShowCreateForm(true)}
-          className={styles.createAlbumButton}
-        >
-          <ImagePlus size={18} />
-          <span>Créer un album</span>
-        </button>
-      </div>
+      {/* VUE 1 : LISTE DES ALBUMS (Grille de couvertures) */}
+      {currentView === 'albums' && (
+        <>
+          <div className={styles.albumsHeader}>
+            <h3 className={styles.albumsTitle}>Mes Albums</h3>
+            <button
+              onClick={() => setShowCreateForm(true)}
+              className={styles.createAlbumButton}
+            >
+              <Plus size={18} />
+              <span>Nouvel album</span>
+            </button>
+          </div>
 
-      {/* Liste des albums */}
-      {albums.length > 0 ? (
-        <div className={styles.albumsList}>
-          {albums.map((album) => (
-            <div key={album.id} className={styles.albumCard}>
-              {/* Header de l'album */}
-              <div className={styles.albumCardHeader}>
-                <div className={styles.albumCardTitleRow}>
-                  <h4 className={styles.albumCardTitle}>{album.title}</h4>
-                  <span className={styles.albumPhotoCount}>
-                    {album.photos?.length || 0} photo{(album.photos?.length || 0) > 1 ? 's' : ''}
-                  </span>
-                </div>
-
-                {/* Menu déroulant */}
-                <div
-                  className={styles.dropdownMenu}
-                  ref={(el) => { dropdownRefs.current[album.id] = el; }}
+          {albums.length > 0 ? (
+            <div className={styles.albumsGridMain}>
+              {albums.map((album) => (
+                <div 
+                  key={album.id} 
+                  className={styles.albumCoverCard}
+                  onClick={() => handleAlbumClick(album.id)}
                 >
-                  <button
-                    className={styles.dropdownTrigger}
-                    onClick={() => setOpenDropdownId(openDropdownId === album.id ? null : album.id)}
-                  >
-                    <MoreVertical size={20} />
-                  </button>
-                  {openDropdownId === album.id && (
-                    <div className={styles.dropdownContent}>
-                      <button
-                        onClick={() => handleOpenQRModal(album)}
-                        className={styles.dropdownItem}
-                      >
-                        <QrCode size={16} />
-                        QR Code
-                      </button>
-                      <button
-                        onClick={() => handleCopyShareLink(album.id)}
-                        className={styles.dropdownItem}
-                      >
-                        <Copy size={16} />
-                        Copier le lien
-                      </button>
-                      <button
-                        onClick={() => handleOpenShareLink(album.id)}
-                        className={styles.dropdownItem}
-                      >
-                        <ExternalLink size={16} />
-                        Ouvrir
-                      </button>
-                      <div className={styles.dropdownSeparator}></div>
-                      <button
-                        onClick={() => toggleSelectionMode(album.id)}
-                        className={styles.dropdownItem}
-                      >
-                        <CheckSquare size={16} />
-                        Sélectionner
-                      </button>
-                      <button
-                        onClick={() => handleDownloadAll(album)}
-                        className={styles.dropdownItem}
-                      >
-                        <Download size={16} />
-                        Tout télécharger
-                      </button>
-                      <div className={styles.dropdownSeparator}></div>
-                      <button
-                        onClick={() => handleDeleteAlbum(album)}
-                        className={`${styles.dropdownItem} ${styles.dangerItem}`}
-                      >
-                        <Trash2 size={16} />
-                        Supprimer
-                      </button>
+                  <div className={styles.albumCoverImageWrapper}>
+                    {album.photos && album.photos.length > 0 ? (
+                      <img 
+                        src={getPhotoDisplayUrl(album.photos[0])} 
+                        alt={album.title} 
+                        className={styles.albumCoverImage}
+                      />
+                    ) : (
+                      <div className={styles.albumCoverPlaceholder}>
+                        <ImageIcon size={32} />
+                      </div>
+                    )}
+                    <div className={styles.albumCoverOverlay}>
+                      <span className={styles.albumPhotoBadge}>{album.photos?.length || 0}</span>
                     </div>
-                  )}
+                  </div>
+                  <div className={styles.albumCoverInfo}>
+                    <h4 className={styles.albumCoverTitle}>{album.title}</h4>
+                    <p className={styles.albumCoverDate}>
+                      Mis à jour le {new Date(album.updatedAt).toLocaleDateString()}
+                    </p>
+                  </div>
+                  
+                  {/* Menu burger discret sur la carte */}
+                  <div className={styles.albumCardActions} onClick={(e) => e.stopPropagation()}>
+                    <button 
+                      className={styles.miniDropdownTrigger}
+                      onClick={() => setOpenDropdownId(openDropdownId === album.id ? null : album.id)}
+                    >
+                      <MoreVertical size={16} />
+                    </button>
+                    {openDropdownId === album.id && (
+                      <div className={styles.dropdownContentMini}>
+                         <button onClick={(e) => { e.stopPropagation(); handleOpenQRModal(album); }} className={styles.dropdownItem}>
+                          <QrCode size={14} /> QR Code
+                        </button>
+                        <button onClick={(e) => { e.stopPropagation(); handleCopyShareLink(album.id); }} className={styles.dropdownItem}>
+                          <Copy size={14} /> Lien
+                        </button>
+                        <button onClick={(e) => { e.stopPropagation(); handleDeleteAlbum(album); }} className={`${styles.dropdownItem} ${styles.dangerItem}`}>
+                          <Trash2 size={14} /> Supprimer
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className={styles.emptyAlbum}>
+              <ImageIcon className={styles.emptyAlbumIcon} size={48} />
+              <h4 className={styles.emptyAlbumTitle}>Aucun album créé</h4>
+              <p className={styles.emptyAlbumText}>
+                Commencez par créer votre premier album pour organiser les photos de l'événement.
+              </p>
+            </div>
+          )}
+        </>
+      )}
+
+      {/* VUE 2 : DÉTAIL DE L'ALBUM (Grille de photos) */}
+      {currentView === 'photos' && selectedAlbumId && (
+        <div className={styles.albumDetailView}>
+          {albums.filter(a => a.id === selectedAlbumId).map(album => (
+            <div key={album.id}>
+              <div className={styles.detailHeader}>
+                <button onClick={handleBackToAlbums} className={styles.backButton}>
+                  <ChevronLeft size={20} />
+                  <span>Albums</span>
+                </button>
+                <div className={styles.detailTitleInfo}>
+                  <h3 className={styles.detailTitle}>{album.title}</h3>
+                  <span className={styles.detailCount}>{album.photos?.length || 0} photos</span>
+                </div>
+                
+                <div className={styles.detailActions}>
+                   <button
+                    onClick={() => toggleSelectionMode(album.id)}
+                    className={`${styles.iconActionButton} ${selectionMode === album.id ? styles.activeAction : ''}`}
+                    title="Sélectionner"
+                  >
+                    <CheckSquare size={20} />
+                  </button>
+                  <button
+                    onClick={() => handleOpenQRModal(album)}
+                    className={styles.iconActionButton}
+                    title="Partager"
+                  >
+                    <QrCode size={20} />
+                  </button>
+                  <button
+                    onClick={() => handleDownloadAll(album)}
+                    className={styles.iconActionButton}
+                    title="Télécharger tout"
+                  >
+                    <Download size={20} />
+                  </button>
+                  <button
+                    onClick={() => handleDeleteAlbum(album)}
+                    className={`${styles.iconActionButton} ${styles.dangerIconAction}`}
+                    title="Supprimer l'album"
+                  >
+                    <Trash2 size={20} />
+                  </button>
                 </div>
               </div>
 
@@ -573,39 +630,29 @@ export function PhotoAlbumManager({ invitationId }: PhotoAlbumManagerProps) {
                 <div className={styles.selectionToolbar}>
                   <div className={styles.selectionInfo}>
                     <span className={styles.selectionCount}>{selectedPhotos.size} sélectionnée(s)</span>
-                    <div className={styles.selectionControls}>
-                      <button onClick={() => selectAllPhotos(album)} className={styles.textButton}>Tout sélectionner</button>
-                      <button onClick={deselectAllPhotos} className={styles.textButton}>Tout désélectionner</button>
-                    </div>
                   </div>
                   <div className={styles.selectionActions}>
-                    <button
-                      onClick={() => toggleSelectionMode(album.id)}
-                      className={styles.secondaryButton}
-                    >
-                      Annuler
-                    </button>
+                    <button onClick={deselectAllPhotos} className={styles.secondaryButton}>Annuler</button>
                     <button
                       onClick={() => handleDownloadSelected(album)}
                       className={styles.primaryButton}
                       disabled={selectedPhotos.size === 0 || isDownloading}
                     >
                       {isDownloading ? <Loader2 size={16} className={styles.spin} /> : <Download size={16} />}
-                      <span>{isDownloading ? `Téléchargement ${downloadProgress}%` : 'Télécharger'}</span>
+                      <span>Télécharger</span>
                     </button>
                     <button
                       onClick={() => handleDeleteSelected(album)}
                       className={styles.dangerButton}
-                      disabled={selectedPhotos.size === 0 || isDownloading}
+                      disabled={selectedPhotos.size === 0}
                     >
                       <Trash2 size={16} />
-                      <span>Supprimer</span>
                     </button>
                   </div>
                 </div>
               )}
 
-              {/* Bouton Ajouter des photos */}
+              {/* Zone d'upload */}
               <div className={styles.addPhotosSection}>
                 <input
                   type="file"
@@ -626,9 +673,9 @@ export function PhotoAlbumManager({ invitationId }: PhotoAlbumManagerProps) {
               </div>
 
               {/* Grille de photos */}
-              {album.photos && album.photos.length > 0 && (
-                <div className={styles.albumGrid}>
-                  {album.photos.map((photo, index) => {
+              <div className={styles.albumGrid}>
+                {album.photos && album.photos.length > 0 ? (
+                  album.photos.map((photo, index) => {
                     const photoUrl = getPhotoDisplayUrl(photo);
                     const isPublic = photo.status === 'PUBLIC';
                     const isApproved = photo.status === 'APPROVED';
@@ -636,138 +683,35 @@ export function PhotoAlbumManager({ invitationId }: PhotoAlbumManagerProps) {
 
                     return (
                       <div
-                        key={photo.id || index}
-                        className={`${styles.albumPhoto} ${selectionMode === album.id && selectedPhotos.has(photo.id) ? styles.selectedPhoto : ''}`}
+                        key={photo.id}
+                        className={`${styles.albumPhoto} ${selectedPhotos.has(photo.id) ? styles.selectedPhoto : ''}`}
                         onClick={() => {
                           if (selectionMode === album.id) {
                             togglePhotoSelection(photo.id);
+                          } else {
+                            handlePhotoClick(index, album.photos);
                           }
                         }}
                       >
-                        {/* Checkbox overlay */}
-                        {selectionMode === album.id && (
-                          <div className={styles.selectionOverlay} onClick={(e) => { e.stopPropagation(); togglePhotoSelection(photo.id); }}>
-                            {selectedPhotos.has(photo.id) ? (
-                              <div className={styles.checkedIcon}>
-                                <CheckSquare color="white" size={24} />
-                              </div>
-                            ) : (
-                              <div className={styles.uncheckedIcon}>
-                                <Square size={24} />
-                              </div>
-                            )}
+                         {/* Checkbox en mode sélection */}
+                         {selectionMode === album.id && (
+                          <div className={styles.selectionOverlay}>
+                            {selectedPhotos.has(photo.id) ? <CheckSquare size={22} color="var(--primary)" fill="white" /> : <Square size={22} color="white" />}
                           </div>
                         )}
 
-                        {photoUrl ? (
-                          <img
-                            src={photoUrl}
-                            alt={photo.caption || `Photo ${index + 1}`}
-                            className={styles.albumPhotoImage}
-                            onClick={(e) => {
-                              if (selectionMode === album.id) {
-                                e.stopPropagation();
-                                togglePhotoSelection(photo.id);
-                              } else {
-                                handlePhotoClick(photo);
-                              }
-                            }}
-                          />
-                        ) : (
-                          <div
-                            className={styles.albumPhotoPlaceholder}
-                            onClick={() => handlePhotoClick(photo)}
-                          >
-                            <ImageIcon size={24} />
-                          </div>
-                        )}
-
-                        {/* Actions sur la photo - Masquées en mode sélection */}
-                        {selectionMode !== album.id && (
-                          <div className={styles.photoActions}>
-                            {isPending && (
-                              <>
-                                <button
-                                  className={`${styles.photoActionButton} ${styles.approveButton}`}
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    handlePhotoAction(photo.id, 'approve');
-                                  }}
-                                  title="Approuver"
-                                >
-                                  <Check size={14} />
-                                </button>
-                                <button
-                                  className={`${styles.photoActionButton} ${styles.rejectButton}`}
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    handlePhotoAction(photo.id, 'reject');
-                                  }}
-                                  title="Rejeter"
-                                >
-                                  <X size={14} />
-                                </button>
-                              </>
-                            )}
-                            {isApproved && (
-                              <button
-                                className={`${styles.photoActionButton} ${styles.publishButton}`}
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  handlePhotoAction(photo.id, 'publish');
-                                }}
-                                title="Rendre publique"
-                              >
-                                <Globe size={14} />
-                              </button>
-                            )}
-                            <button
-                              className={`${styles.photoActionButton} ${styles.deleteButton}`}
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                handlePhotoAction(photo.id, 'delete');
-                              }}
-                              title="Supprimer"
-                            >
-                              <Trash2 size={14} />
-                            </button>
-                          </div>
-                        )}
-
-                        {/* Badge de statut */}
-                        <div className={`${styles.photoStatusBadge} ${isPublic ? styles.statusPublic : isApproved ? styles.statusApproved : styles.statusPending}`}>
-                          {isPublic ? (
-                            <>
-                              <Globe size={12} />
-                              <span>Publique</span>
-                            </>
-                          ) : isApproved ? (
-                            <>
-                              <Verified size={12} />
-                              <span>Approuvé</span>
-                            </>
-                          ) : (
-                            <>
-                              <Clock size={12} />
-                              <span>En attente</span>
-                            </>
-                          )}
-                        </div>
+                        <img src={photoUrl} alt={photo.caption || ''} className={styles.albumPhotoImage} />
                       </div>
                     );
-                  })}
-                </div>
-              )}
+                  })
+                ) : (
+                  <div className={styles.emptyStateContainer}>
+                    <p>Cet album est vide.</p>
+                  </div>
+                )}
+              </div>
             </div>
           ))}
-        </div>
-      ) : (
-        <div className={styles.emptyAlbum}>
-          <ImageIcon className={styles.emptyAlbumIcon} size={48} />
-          <h4 className={styles.emptyAlbumTitle}>Aucun album créé</h4>
-          <p className={styles.emptyAlbumText}>
-            Commencez par créer votre premier album pour organiser les photos de l'événement.
-          </p>
         </div>
       )}
 
@@ -847,12 +791,13 @@ export function PhotoAlbumManager({ invitationId }: PhotoAlbumManagerProps) {
         />
       )}
 
-      {photoModalOpen && selectedPhoto && (
+      {photoModalOpen && currentPhotosList.length > 0 && (
         <PhotoModal
           isOpen={photoModalOpen}
           onClose={handleClosePhotoModal}
-          photoUrl={selectedPhoto.url}
-          alt={selectedPhoto.alt}
+          photos={currentPhotosList}
+          initialIndex={currentPhotoIndex}
+          onPhotoAction={handlePhotoAction}
         />
       )}
 
