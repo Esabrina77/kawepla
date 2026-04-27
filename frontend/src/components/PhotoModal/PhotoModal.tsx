@@ -123,8 +123,6 @@ export default function PhotoModal({ isOpen, onClose, photos: initialPhotos, ini
             effect="fade"
             fadeEffect={{ crossFade: true }}
             loop={isLoopable}
-            loopedSlides={isLoopable ? localPhotos.length : undefined}
-            loopAdditionalSlides={isLoopable ? 2 : 0}
             thumbs={{ swiper: thumbsSwiper && !thumbsSwiper.destroyed ? thumbsSwiper : null }}
             className={styles.swiperMain}
           >
@@ -163,8 +161,6 @@ export default function PhotoModal({ isOpen, onClose, photos: initialPhotos, ini
             freeMode={true}
             watchSlidesProgress={true}
             loop={isLoopable}
-            loopedSlides={isLoopable ? localPhotos.length : undefined}
-            loopAdditionalSlides={isLoopable ? 2 : 0}
             slideToClickedSlide={true}
             modules={[FreeMode, Thumbs]}
             className={styles.thumbsSwiper}

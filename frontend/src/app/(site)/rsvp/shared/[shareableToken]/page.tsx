@@ -638,8 +638,19 @@ export default function SharedRSVPPage() {
         <PhotoModal
           isOpen={photoModalOpen}
           onClose={closePhotoModal}
-          photoUrl={selectedPhoto.url}
-          alt={selectedPhoto.alt}
+          photos={[{
+            id: 'preview',
+            thumbnailUrl: selectedPhoto.url,
+            compressedUrl: selectedPhoto.url,
+            originalUrl: selectedPhoto.url,
+            filename: 'preview.jpg',
+            size: 0,
+            mimeType: 'image/jpeg',
+            status: 'PUBLIC',
+            caption: selectedPhoto.alt,
+            uploadedAt: new Date().toISOString()
+          }]}
+          initialIndex={0}
         />
       )}
 

@@ -12,7 +12,7 @@ services:
     volumes:
       - postgres-data:/var/lib/postgresql/data
       # Restaure automatiquement le backup lors du PREMIER lancement
-      - ./backup-16032026.sql:/docker-entrypoint-initdb.d/init.sql
+      - ./kawepla.sql:/docker-entrypoint-initdb.d/init.sql
     networks:
       - kawepla-network
 

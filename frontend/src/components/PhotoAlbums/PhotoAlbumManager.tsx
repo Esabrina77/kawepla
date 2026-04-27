@@ -49,7 +49,8 @@ export function PhotoAlbumManager({ invitationId }: PhotoAlbumManagerProps) {
     approvePhoto,
     publishPhoto,
     rejectPhoto,
-    deletePhoto
+    deletePhoto,
+    refetch: fetchAlbums
   } = usePhotoAlbums(invitationId);
 
   // États du composant
