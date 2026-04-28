@@ -1,5 +1,5 @@
 import { useState, useCallback } from 'react';
-import axios from 'axios';
+import { apiClient } from '@/lib/api/apiClient';
 
 export interface TodoItem {
   id: string;
@@ -33,8 +33,6 @@ export type TodoStatus = 'PENDING' | 'IN_PROGRESS' | 'COMPLETED' | 'CANCELLED';
 
 export type TodoPriority = 'LOW' | 'MEDIUM' | 'HIGH' | 'URGENT';
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3013';
-
 export function useTodos(invitationId?: string) {
   const [todos, setTodos] = useState<TodoItem[]>([]);
   const [loading, setLoading] = useState(false);
@@ -51,13 +49,11 @@ export function useTodos(invitationId?: string) {
     if (!invitationId) return;
     setLoading(true);
     try {
-      const response = await axios.get(`${API_URL}/api/todos/invitation/${invitationId}`, {
-        withCredentials: true
-      });
-      setTodos(response.data.todos);
+      const response = await apiClient.get<{ todos: TodoItem[] }>(`/todos/invitation/${invitationId}`);
+      setTodos(response.todos);
       setError(null);
     } catch (err: any) {
-      setError(err.response?.data?.message || 'Erreur lors du chargement des tâches');
+      setError(err.message || 'Erreur lors du chargement des tâches');
     } finally {
       setLoading(false);
     }
@@ -66,10 +62,8 @@ export function useTodos(invitationId?: string) {
   const fetchStats = useCallback(async () => {
     if (!invitationId) return;
     try {
-      const response = await axios.get(`${API_URL}/api/todos/stats/${invitationId}`, {
-        withCredentials: true
-      });
-      setStats(response.data.stats);
+      const response = await apiClient.get<{ stats: any }>(`/todos/stats/${invitationId}`);
+      setStats(response.stats);
     } catch (err) {
       console.error('Erreur lors du chargement des stats', err);
     }
@@ -77,42 +71,36 @@ export function useTodos(invitationId?: string) {
 
   const createTodo = async (data: Partial<TodoItem>) => {
     try {
-      const response = await axios.post(`${API_URL}/api/todos`, {
+      const response = await apiClient.post<{ todo: TodoItem }>(`/todos`, {
         ...data,
         invitationId
-      }, {
-        withCredentials: true
       });
-      setTodos(prev => [...prev, response.data.todo]);
+      setTodos(prev => [...prev, response.todo]);
       fetchStats();
-      return response.data.todo;
+      return response.todo;
     } catch (err: any) {
-      throw new Error(err.response?.data?.message || 'Erreur lors de la création de la tâche');
+      throw new Error(err.message || 'Erreur lors de la création de la tâche');
     }
   };
 
   const updateTodo = async (id: string, data: Partial<TodoItem>) => {
     try {
-      const response = await axios.patch(`${API_URL}/api/todos/${id}`, data, {
-        withCredentials: true
-      });
-      setTodos(prev => prev.map(t => t.id === id ? response.data.todo : t));
+      const response = await apiClient.patch<{ todo: TodoItem }>(`/todos/${id}`, data);
+      setTodos(prev => prev.map(t => t.id === id ? response.todo : t));
       fetchStats();
-      return response.data.todo;
+      return response.todo;
     } catch (err: any) {
-      throw new Error(err.response?.data?.message || 'Erreur lors de la mise à jour');
+      throw new Error(err.message || 'Erreur lors de la mise à jour');
     }
   };
 
   const deleteTodo = async (id: string) => {
     try {
-      await axios.delete(`${API_URL}/api/todos/${id}`, {
-        withCredentials: true
-      });
+      await apiClient.delete(`/todos/${id}`);
       setTodos(prev => prev.filter(t => t.id !== id));
       fetchStats();
     } catch (err: any) {
-      throw new Error(err.response?.data?.message || 'Erreur lors de la suppression');
+      throw new Error(err.message || 'Erreur lors de la suppression');
     }
   };
 
