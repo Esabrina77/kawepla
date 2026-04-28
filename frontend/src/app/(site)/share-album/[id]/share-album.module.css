@@ -16,6 +16,7 @@
   font-family: var(--font-body, 'Inter', -apple-system, sans-serif);
   position: relative;
   overflow-x: hidden;
+  padding-top: 30px;
 }
 
 /* ══════════════════════════════════════════════

@@ -9,7 +9,7 @@
 }
 
 .pageContent {
-  padding: 1.25rem;
+  padding: 0.75rem;
 }
 
 @media (min-width: 768px) {
@@ -309,11 +309,22 @@
   margin-bottom: 1.5rem;
 }
 
+@media (max-width: 992px) {
+  .filters {
+    flex-direction: column !important;
+    gap: 0.75rem;
+    width: 100%;
+    position: relative;
+    z-index: 10;
+  }
+}
+
 .searchBox {
   flex: 1;
   position: relative;
   display: flex;
   align-items: center;
+  width: 100%;
 }
 
 .searchBox svg {
@@ -334,15 +345,19 @@
   transition: all 0.2s ease;
 }
 
-.searchInput:focus {
-  outline: none;
-  border-color: var(--host);
-  box-shadow: 0 0 0 3px color-mix(in srgb, var(--host) 10%, transparent);
+@media (max-width: 768px) {
+  .searchInput {
+    padding: 0.75rem 1rem 0.75rem 2.5rem;
+    font-size: 1rem; /* Better for mobile to avoid auto-zoom */
+    border-radius: 12px;
+    height: 48px;
+  }
 }
 
 .searchInput:focus {
   outline: none;
   border-color: var(--host);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--host) 10%, transparent);
 }
 
 .categoryFilter {
@@ -350,6 +365,13 @@
   display: flex;
   align-items: center;
   min-width: 160px;
+}
+
+@media (max-width: 992px) {
+  .categoryFilter {
+    min-width: 100%;
+    width: 100%;
+  }
 }
 
 .categoryFilter svg {
@@ -370,38 +392,69 @@
   color: var(--foreground);
   appearance: none;
   cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+@media (max-width: 768px) {
+  .categorySelect {
+    padding: 0.75rem 1rem 0.75rem 2.5rem;
+    font-size: 1rem;
+    border-radius: 12px;
+    height: 48px;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23999' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 1rem center;
+  }
+}
+
+.categorySelect:focus {
+  outline: none;
+  border-color: var(--host);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--host) 10%, transparent);
 }
 
 /* List View */
 .listView {
   display: flex;
   flex-direction: column;
-  gap: 1.15rem;
+  gap: 0.85rem;
+}
+
+@media (max-width: 768px) {
+  .listView {
+    gap: 0.75rem;
+  }
 }
 
 .taskCard {
   background: var(--card);
   border: 1px solid var(--border);
-  border-radius: 14px;
-  padding: 0.75rem 1.25rem;
-  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+  border-radius: 16px;
+  padding: 0.85rem 1rem;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.02);
+  position: relative;
+}
+
+@media (max-width: 768px) {
+  .taskCard {
+    padding: 0.75rem;
+  }
 }
 
 .taskCard:hover {
-  border-color: #e0e0e0;
-  transform: translateY(-3px);
-  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.04);
+  border-color: var(--host);
+  transform: translateY(-4px);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.08);
 }
 
 .taskHeader {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   gap: 0.85rem;
-  margin-bottom: 0.25rem;
 }
 
 .statusButton {
@@ -409,14 +462,15 @@
   background: none;
   border: none;
   color: var(--text-secondary);
-  opacity: 0.4;
+  opacity: 0.5;
   cursor: pointer;
-  margin-top: 0.1rem;
-  transition: all 0.2s ease;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .statusButton:hover {
   color: var(--host);
+  opacity: 1;
+  transform: scale(1.1);
 }
 
 .taskCard.completed .statusButton {
@@ -434,28 +488,34 @@
 
 .taskTitle {
   font-family: var(--font-heading);
-  font-size: 0.85rem;
-  font-weight: 700;
+  font-size: 0.95rem;
+  font-weight: 800;
   color: var(--foreground);
-  margin-bottom: 0.1rem;
+  margin-bottom: 0.15rem;
+  letter-spacing: -0.01em;
 }
 
 .taskDescription {
   font-family: var(--font-body);
-  font-size: 0.75rem;
+  font-size: 0.8rem;
   color: var(--text-secondary);
   line-height: 1.4;
+  margin-bottom: 0.25rem;
 }
 
 .taskActions {
   display: flex;
-  gap: 0.4rem;
-  opacity: 0;
+  gap: 0.35rem;
   transition: opacity 0.2s ease;
 }
 
-.taskCard:hover .taskActions {
-  opacity: 1;
+@media (min-width: 1024px) {
+  .taskActions {
+    opacity: 0;
+  }
+  .taskCard:hover .taskActions {
+    opacity: 1;
+  }
 }
 
 .taskActions button {
@@ -486,7 +546,9 @@
   display: flex;
   gap: 0.85rem;
   align-items: center;
-  padding-left: 1.85rem;
+  padding-left: 2.35rem;
+  flex-wrap: wrap;
+  margin-top: 0.25rem;
 }
 
 .categoryLabel {
@@ -509,20 +571,55 @@
 
 .priorityLabel {
   font-family: var(--font-body);
-  font-size: 0.6rem;
-  font-weight: 700;
-  color: var(--text-secondary);
+  font-size: 0.55rem;
+  font-weight: 800;
+  text-transform: uppercase;
 }
 
 .taskDate {
-  margin-left: auto;
   font-family: var(--font-body);
-  font-size: 0.7rem;
+  font-size: 0.65rem;
   color: var(--text-secondary);
   display: flex;
   align-items: center;
-  gap: 0.4rem;
+  gap: 0.25rem;
   font-weight: 600;
+}
+
+.overdueBadge {
+  background: color-mix(in srgb, #EF4444 8%, var(--card));
+  color: #EF4444;
+  padding: 0.25rem 0.75rem;
+  border-radius: 100px;
+  font-size: 0.65rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  border: 1px solid color-mix(in srgb, #EF4444 20%, transparent);
+}
+
+.urgentBadge {
+  background: color-mix(in srgb, #F59E0B 8%, var(--card));
+  color: #F59E0B;
+  padding: 0.25rem 0.75rem;
+  border-radius: 100px;
+  font-size: 0.65rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  border: 1px solid color-mix(in srgb, #F59E0B 20%, transparent);
+}
+
+.completedBadge {
+  background: color-mix(in srgb, #10B981 8%, var(--card));
+  color: #10B981;
+  padding: 0.25rem 0.75rem;
+  border-radius: 100px;
+  font-size: 0.65rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  border: 1px solid color-mix(in srgb, #10B981 20%, transparent);
 }
 
 /* Calendar View */
@@ -662,11 +759,19 @@
 
 .selectedDateTasks {
   margin-top: 1.5rem;
-  padding: 1.5rem;
-  background: var(--bg-secondary);
+  padding: 1.25rem;
+  background: var(--card);
   border-radius: 20px;
   border: 1px solid var(--border);
   animation: slideUp 0.3s ease-out;
+  box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.05);
+}
+
+@media (max-width: 480px) {
+  .selectedDateTasks {
+    padding: 1rem;
+    border-radius: 16px;
+  }
 }
 
 @keyframes slideUp {
@@ -678,22 +783,38 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 1rem;
+  margin-bottom: 1.25rem;
   gap: 1rem;
 }
 
-.selectedDateInfo {
-  display: flex;
-  align-items: center;
-  gap: 0.65rem;
+@media (max-width: 640px) {
+  .selectedDateHeader {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.85rem;
+  }
+}
+
+.selectedDateHeader .addButton {
+  padding: 0.4rem 0.8rem;
+  font-size: 0.65rem;
+  border-radius: 8px;
+  white-space: nowrap;
 }
 
 .selectedDateInfo h3 {
   font-family: var(--font-heading);
-  font-size: 0.95rem;
+  font-size: 1.05rem;
   font-weight: 800;
   color: var(--foreground);
   margin: 0;
+  line-height: 1.2;
+}
+
+@media (max-width: 480px) {
+  .selectedDateInfo h3 {
+    font-size: 0.9rem;
+  }
 }
 
 .selectedDateInfo svg {
@@ -722,13 +843,19 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 3rem;
-  background: color-mix(in srgb, var(--foreground) 2%, transparent);
+  padding: 2rem 1.5rem;
+  background: var(--card);
   border-radius: 16px;
   border: 1px dashed var(--border);
   color: var(--text-secondary);
   text-align: center;
-  gap: 1rem;
+  gap: 0.75rem;
+}
+
+@media (max-width: 480px) {
+  .emptyDailyTasks {
+    padding: 1.5rem 1rem;
+  }
 }
 
 .emptyDailyTasks p {

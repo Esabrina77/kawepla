@@ -1,3 +1,5 @@
+import { Header } from "@/components/Kavent/Header";
+import { Footer } from "@/components/Kavent/Footer";
 import styles from './siteLayout.module.css';
 
 export default function SiteLayout({
@@ -7,7 +9,9 @@ export default function SiteLayout({
 }) {
     return (
         <div className={styles.siteWrapper}>
-            {children}
+            <Header />
+            <main>{children}</main>
+            <Footer />
         </div>
     );
 }

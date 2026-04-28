@@ -376,19 +376,20 @@ export function PhotoAlbumManager({ invitationId }: PhotoAlbumManagerProps) {
       const photosToDownload = album.photos?.filter(p => selectedPhotos.has(p.id)) || [];
 
       if (photosToDownload.length === 1) {
-        // Téléchargement simple
+        // Téléchargement simple via proxy backend pour éviter CORS
         const photo = photosToDownload[0];
-        const url = photo.originalUrl || photo.compressedUrl || photo.thumbnailUrl;
-        if (url) {
-          try {
-            const response = await fetch(url);
-            const blob = await response.blob();
-            saveAs(blob, `photo_${photo.id}.jpg`);
-          } catch (err) {
-            console.error('Erreur téléchargement photo simple:', err);
-            // Fallback si le fetch échoue
-            saveAs(url, `photo_${photo.id}.jpg`);
-          }
+        const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3013";
+        const downloadUrl = `${apiUrl}/api/photos/photos/${photo.id}/download`;
+        
+        try {
+          const response = await fetch(downloadUrl);
+          if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+          const blob = await response.blob();
+          saveAs(blob, `photo_${photo.id}.jpg`);
+        } catch (err) {
+          console.error('Erreur téléchargement photo simple:', err);
+          // Fallback
+          window.open(downloadUrl, '_blank');
         }
       } else {
         // Téléchargement ZIP
@@ -396,21 +397,31 @@ export function PhotoAlbumManager({ invitationId }: PhotoAlbumManagerProps) {
         let processed = 0;
 
         const promises = photosToDownload.map(async (photo) => {
-          const url = photo.originalUrl || photo.compressedUrl || photo.thumbnailUrl;
-          if (!url) return;
+          const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3013";
+          const downloadUrl = `${apiUrl}/api/photos/photos/${photo.id}/download`;
 
           try {
-            const response = await fetch(url);
+            const response = await fetch(downloadUrl);
+            if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
             const blob = await response.blob();
-            zip.file(`photo_${photo.id}.jpg`, blob);
-            processed++;
-            setDownloadProgress(Math.round((processed / photosToDownload.length) * 100));
+            
+            // S'assurer que le blob n'est pas vide
+            if (blob.size > 0) {
+              const fileName = `photo_${photo.id}.jpg`;
+              zip.file(fileName, blob);
+              processed++;
+              setDownloadProgress(Math.round((processed / photosToDownload.length) * 100));
+            }
           } catch (err) {
-            console.error('Erreur téléchargement photo:', err);
+            console.error(`Erreur téléchargement photo ${photo.id}:`, err);
           }
         });
 
         await Promise.all(promises);
+
+        if (processed === 0) {
+          throw new Error("Impossible de récupérer les images. Vérifiez votre connexion ou les restrictions de sécurité du navigateur (CORS).");
+        }
 
         const content = await zip.generateAsync({ type: "blob" });
         saveAs(content, `${album.title}_selection.zip`);
@@ -433,51 +444,38 @@ export function PhotoAlbumManager({ invitationId }: PhotoAlbumManagerProps) {
     }
   };
 
-  // Télécharger tout l'album
+  // Télécharger tout l'album via le backend (plus efficace)
   const handleDownloadAll = async (album: PhotoAlbum) => {
     if (!album.photos || album.photos.length === 0) return;
 
     setIsDownloading(true);
-    setDownloadProgress(0);
+    setDownloadProgress(20);
     setOpenDropdownId(null);
 
-    try {
-      const zip = new JSZip();
-      let processed = 0;
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3013";
+    const downloadUrl = `${apiUrl}/api/photos/albums/${album.id}/download`;
 
-      const promises = album.photos.map(async (photo) => {
-        const url = photo.originalUrl || photo.compressedUrl || photo.thumbnailUrl;
-        if (!url) return;
+    // Utiliser window.location.href pour déclencher le téléchargement backend du ZIP
+    window.location.href = downloadUrl;
 
-        try {
-          const response = await fetch(url);
-          const blob = await response.blob();
-          zip.file(`photo_${photo.id}.jpg`, blob);
-          processed++;
-          setDownloadProgress(Math.round((processed / album.photos!.length) * 100));
-        } catch (err) {
-          console.error('Erreur téléchargement photo:', err);
+    // Simulation de progression pour l'UI
+    const interval = setInterval(() => {
+      setDownloadProgress(prev => {
+        if (prev >= 100) {
+          clearInterval(interval);
+          setIsDownloading(false);
+          return 0;
         }
+        return prev + 20;
       });
+    }, 400);
 
-      await Promise.all(promises);
-
-      const content = await zip.generateAsync({ type: "blob" });
-      saveAs(content, `${album.title}.zip`);
-    } catch (error) {
-      console.error('Erreur lors du téléchargement:', error);
-      setAlertModal({
-        isOpen: true,
-        type: 'error',
-        title: 'Erreur',
-        message: "Une erreur est survenue lors du téléchargement."
-      });
-    } finally {
+    setTimeout(() => {
+      clearInterval(interval);
       setIsDownloading(false);
       setDownloadProgress(0);
-    }
+    }, 4000);
   };
-
   if (loading) {
     return (
       <div className={styles.loadingContainer}>
@@ -613,8 +611,9 @@ export function PhotoAlbumManager({ invitationId }: PhotoAlbumManagerProps) {
                     onClick={() => handleDownloadAll(album)}
                     className={styles.iconActionButton}
                     title="Télécharger tout"
+                    disabled={isDownloading}
                   >
-                    <Download size={20} />
+                    {isDownloading ? <Loader2 size={20} className={styles.spin} /> : <Download size={20} />}
                   </button>
                   <button
                     onClick={() => handleDeleteAlbum(album)}

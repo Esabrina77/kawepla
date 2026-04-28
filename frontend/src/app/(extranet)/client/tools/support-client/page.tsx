@@ -14,6 +14,9 @@ import {
   RefreshCw,
   Info,
   Users,
+  ChevronRight,
+  ArrowLeft,
+  MessageCircle,
 } from "lucide-react";
 import styles from "./discussions.module.css";
 
@@ -84,12 +87,11 @@ export default function ClientDiscussionsPage() {
       <div className={styles.pageContent}>
         <div className={styles.layout}>
           {/* Sidebar */}
-          <aside className={`${styles.sidebar} ${showChatMobile ? styles.hiddenMobile : ""}`}>
+          <aside
+            className={`${styles.sidebar} ${showChatMobile ? styles.hiddenMobile : ""}`}
+          >
             <div className={styles.sidebarHeader}>
-           
-              <h2>
-                Assistance 
-              </h2>
+              <h2>Assistance</h2>
               <p>Comment pouvons-nous vous aider aujourd'hui ?</p>
             </div>
 
@@ -108,6 +110,9 @@ export default function ClientDiscussionsPage() {
                 <div className={styles.subjectDetails}>
                   <h3 className={styles.subjectName}>Questions Générales</h3>
                   <p className={styles.subjectType}>Support Kawepla</p>
+                </div>
+                <div className={styles.subjectAction}>
+                  <MessageCircle size={14} />
                 </div>
               </div>
 
@@ -135,6 +140,9 @@ export default function ClientDiscussionsPage() {
                           Conseils & Organisation
                         </p>
                       </div>
+                      <div className={styles.subjectAction}>
+                        <MessageCircle size={14} />
+                      </div>
                     </div>
                   ))}
                 </>
@@ -156,14 +164,16 @@ export default function ClientDiscussionsPage() {
           </aside>
 
           {/* Main Chat Area */}
-          <main className={`${styles.chatArea} ${!showChatMobile ? styles.hiddenMobile : ""}`}>
+          <main
+            className={`${styles.chatArea} ${!showChatMobile ? styles.hiddenMobile : ""}`}
+          >
             <div className={styles.chatHeader}>
               <div className={styles.chatSubjectInfo}>
-                <button 
+                <button
                   className={styles.backButton}
                   onClick={() => setShowChatMobile(false)}
                 >
-                  <RefreshCw size={18} style={{ transform: "rotate(-90deg)" }} />
+                  <ArrowLeft size={18} style={{ marginLeft: "-15px" }} />
                 </button>
                 <div className={styles.chatSubjectIcon}>
                   {selectedInvitationId ? (

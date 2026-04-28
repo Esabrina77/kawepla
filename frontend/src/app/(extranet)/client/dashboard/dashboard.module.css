@@ -1,4 +1,4 @@
-/* ===== KAWEPLA DASHBOARD — Friendly Bento ===== */
+/* ===== KAWEPLA DASHBOARD — Responsive & Polished ===== */
 
 .dashboard {
   width: 100%;
@@ -6,11 +6,12 @@
 }
 
 .grid {
-  max-width: 1060px;
+  max-width: 1140px;
   margin: 0 auto;
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 1rem;
+  grid-template-columns: 3fr 1fr;
+  gap: 1.5rem;
+  padding: 0 1rem 2rem;
 }
 
 /* ===== WELCOME ROW ===== */
@@ -95,35 +96,16 @@
   box-shadow: 0 8px 30px rgba(0, 0, 0, 0.05);
 }
 
-/* ===== STAT CARDS (limits) ===== */
-.statHighlight {
-  background: var(--host);
-  border-color: var(--host);
-  color: #fff;
+/* ===== STATS ROW (Full width) ===== */
+.statsRow {
+  grid-column: 1 / -1;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1rem;
 }
 
-.statHighlight .statLabel {
-  color: rgba(255, 255, 255, 0.7);
-}
-
-.statHighlight .statValue {
-  color: #fff;
-}
-
-.statHighlight .statValue span {
-  color: rgba(255, 255, 255, 0.6);
-}
-
-.statHighlight .statBar {
-  background: rgba(255, 255, 255, 0.2);
-}
-
-.statHighlight .statBarFill {
-  background: #fff;
-}
-
-.statHighlight .statSub {
-  color: rgba(255, 255, 255, 0.7);
+.statCard {
+  min-width: 0;
 }
 
 .statLabel {
@@ -183,9 +165,21 @@
 .statSubGreen { color: #10B981; }
 .statSubRed { color: #EF4444; }
 
-/* ===== PROGRESS CARD ===== */
+/* ===== MAIN CONTENT AREA ===== */
+.mainContent {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
 .progressCard {
-  grid-column: span 3;
+  width: 100%;
+}
+
+.bottomRow {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
 }
 
 .cardHeader {
@@ -315,11 +309,14 @@
   background: #FEF2F2;
   border: 1px solid #FECACA;
   border-radius: 16px;
-  padding: 1.25rem;
+  padding: 1rem;
   display: flex;
-  flex-direction: column;
-  justify-content: center;
-  gap: 0.75rem;
+  align-items: center;
+  gap: 1rem;
+}
+
+.alertContent {
+  flex: 1;
 }
 
 :global(.dark) .alertCard {
@@ -328,56 +325,50 @@
 }
 
 .alertIcon {
-  width: 42px;
-  height: 42px;
-  border-radius: 12px;
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
   background: #EF4444;
   color: #fff;
   display: flex;
   align-items: center;
   justify-content: center;
+  flex-shrink: 0;
 }
 
-.alertCard h3 {
+.alertContent h3 {
   font-family: var(--font-body);
-  font-size: 1.1rem;
+  font-size: 0.85rem;
   font-weight: 700;
   color: #DC2626;
+  margin-bottom: 2px;
 }
 
-:global(.dark) .alertCard h3 {
-  color: #FCA5A5;
-}
-
-.alertCard p {
-  font-family: var(--font-body);
-  font-size: 0.75rem;
-  color: #991B1B;
-  line-height: 1.4;
-}
-
-:global(.dark) .alertCard p {
-  color: #FCA5A5;
-}
+:global(.dark) .alertContent h3 { color: #FCA5A5; }
 
 .alertLink {
   display: inline-flex;
   align-items: center;
-  gap: 0.35rem;
+  gap: 0.25rem;
   font-family: var(--font-body);
-  font-size: 0.75rem;
+  font-size: 0.72rem;
   font-weight: 600;
   color: #DC2626;
   text-decoration: none;
 }
 
-:global(.dark) .alertLink {
-  color: #FCA5A5;
+:global(.dark) .alertLink { color: #FCA5A5; }
+
+/* ===== SIDEBAR AREA ===== */
+.sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
 }
 
 /* ===== GUEST CARD ===== */
 .guestCard {
-  grid-column: span 3;
+  width: 100%;
 }
 
 .guestGrid {
@@ -393,10 +384,6 @@
   background: var(--background);
   border: 1px solid var(--border);
   transition: all 0.2s ease;
-}
-
-.guestItem:hover {
-  transform: translateY(-1px);
 }
 
 .guestItemValue {
@@ -474,13 +461,6 @@
   font-size: 0.82rem;
   font-weight: 600;
   color: var(--foreground);
-  margin-bottom: 0.1rem;
-}
-
-.actionInfo p {
-  font-family: var(--font-body);
-  font-size: 0.68rem;
-  color: var(--text-secondary);
 }
 
 .actionArrow {
@@ -496,65 +476,201 @@
   transform: translateX(2px);
 }
 
-/* ===== LOADING ===== */
-.loadingState {
+/* ===== TASKS PREVIEW ===== */
+.tasksPreviewCard {
+  background: white;
+  border-left: 4px solid #f59e0b;
+}
+
+:global(.dark) .tasksPreviewCard { background: var(--bg-card); }
+
+.tasksList {
+  margin-top: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.taskItem {
   display: flex;
   align-items: center;
-  justify-content: center;
-  min-height: 50vh;
+  gap: 0.75rem;
+  padding: 0.75rem;
+  background: #f9fafb;
+  border-radius: 8px;
+  transition: transform 0.2s ease;
 }
 
-.spinner {
-  width: 32px;
-  height: 32px;
-  border: 2.5px solid var(--border);
-  border-top-color: var(--host);
-  border-radius: 50%;
-  animation: spin 0.8s linear infinite;
+:global(.dark) .taskItem { background: rgba(255, 255, 255, 0.05); }
+
+.taskItem:hover {
+  transform: translateX(4px);
+  background: #f3f4f6;
 }
 
-@keyframes spin { to { transform: rotate(360deg); } }
+.taskStatus { color: #f59e0b; }
+.taskInfo { flex: 1; }
+.taskTitle { font-weight: 600; font-size: 0.85rem; color: #111827; }
+:global(.dark) .taskTitle { color: #f3f4f6; }
+.taskDueDate { font-size: 0.7rem; color: #6b7280; }
+
+.viewAllTasks {
+  display: block;
+  margin-top: 1rem;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #6366f1;
+  text-decoration: none;
+  text-align: right;
+}
+
+.emptyTasks {
+  padding: 1rem;
+  text-align: center;
+  color: #6b7280;
+  font-size: 0.8rem;
+}
+
+/* ===== AI HINT CARD ===== */
+.aiHintCard {
+  background: linear-gradient(135deg, #6366f1 0%, #a855f7 100%);
+  color: white !important;
+  padding: 1.25rem;
+  position: relative;
+  overflow: hidden;
+  border: none;
+}
+
+.aiHintCard h3 {
+  font-size: 1rem;
+  font-weight: 700;
+  margin-bottom: 0.4rem;
+  color: white !important;
+}
+
+.aiHintCard p {
+  font-size: 0.78rem;
+  opacity: 0.9;
+  line-height: 1.4;
+  margin-bottom: 1rem;
+  color: white !important;
+}
+
+.aiHintLink {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-weight: 700;
+  font-size: 0.75rem;
+  color: white !important;
+  background: rgba(255, 255, 255, 0.2);
+  padding: 0.4rem 0.8rem;
+  border-radius: 20px;
+  text-decoration: none;
+}
+
+.aiHintLink:hover { background: rgba(255, 255, 255, 0.3); }
+
+.aiHintBlock {
+  margin-top: 1.5rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.aiHintBlock:first-of-type {
+  border-top: none;
+  margin-top: 0.5rem;
+  padding-top: 0;
+}
+
+.aiHintBlock p {
+  margin-bottom: 1rem !important;
+}
+
+/* ===== HIGHLIGHTS ===== */
+.statHighlight {
+  background: var(--host) !important;
+  border-color: var(--host) !important;
+  color: #fff !important;
+}
+
+.statHighlight .statLabel,
+.statHighlight .statValue,
+.statHighlight .statValue span,
+.statHighlight .statSub {
+  color: #fff !important;
+  opacity: 0.9;
+}
+
+.statHighlight .statBar { background: rgba(255, 255, 255, 0.2); }
+.statHighlight .statBarFill { background: #fff; }
 
 /* ===== RESPONSIVE ===== */
-@media (max-width: 768px) {
+@media (max-width: 1024px) {
   .grid {
-    grid-template-columns: repeat(2, 1fr) !important;
-    padding: 0.75rem 1rem 7.5rem;
-    gap: 0.85rem;
+    grid-template-columns: 1fr;
+    gap: 1.25rem;
+  }
+  
+  .statsRow {
+    grid-template-columns: repeat(2, 1fr);
   }
 
-  .welcome {
-    grid-column: 1 / -1;
-    flex-direction: column;
-    align-items: flex-start;
+  .bottomRow {
+    grid-template-columns: 1fr;
   }
-
-  .selectWrap { width: 100%; }
-  .eventSelect { width: 100%; }
-  .welcomeLeft h1 { font-size: 1.25rem; }
-
-  .progressCard,
-  .guestCard {
-    grid-column: 1 / -1;
+  
+  .sidebar {
+    order: 2;
   }
-
-  .progressBody {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 1rem;
-  }
-
-  .guestGrid {
-    grid-template-columns: repeat(3, 1fr);
+  
+  .mainContent {
+    order: 1;
   }
 }
 
-@media (max-width: 480px) {
-  .grid {
-    grid-template-columns: 1fr;
+@media (max-width: 600px) {
+  .statsRow {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.75rem;
+  }
+  
+  .statCard {
+    padding: 0.75rem;
+    min-height: 90px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+
+  .statValue {
+    font-size: 1.2rem;
+    margin-bottom: 0;
+  }
+
+  .statLabel {
+    font-size: 0.6rem;
+    margin-bottom: 0.3rem;
+  }
+
+  .statBar {
+    height: 3px;
+    margin-top: 0.4rem;
+  }
+  
+  .statSub {
+    display: none;
   }
 
   .guestGrid {
     grid-template-columns: repeat(2, 1fr);
+  }
+
+  .welcome {
+    padding: 0 0.5rem;
+  }
+
+  .welcomeLeft h1 {
+    font-size: 1.3rem;
   }
 }

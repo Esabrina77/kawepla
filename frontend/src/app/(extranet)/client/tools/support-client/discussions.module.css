@@ -136,6 +136,16 @@
   color: #9ca3af;
 }
 
+.subjectAction {
+  color: #9ca3af;
+  opacity: 0.6;
+}
+
+.selected .subjectAction {
+  color: var(--host);
+  opacity: 1;
+}
+
 /* ===== CHAT AREA ===== */
 .chatArea {
   flex: 1;

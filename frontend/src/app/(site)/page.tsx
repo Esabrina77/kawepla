@@ -8,9 +8,6 @@ import { Testimonials } from "@/components/Kavent/Testimonials";
 import { Pricing } from "@/components/Kavent/Pricing";
 import { CTA } from "@/components/Kavent/CTA";
 import { FAQ } from "@/components/Kavent/FAQ";
-import { Footer } from "@/components/Kavent/Footer";
-import { Header } from "@/components/Kavent/Header";
-
 import styles from "./siteLayout.module.css";
 
 export default function Home() {
@@ -24,8 +21,7 @@ export default function Home() {
   };
 
   return (
-    <div className={`${styles.siteWrapper} min-h-screen`}>
-      <Header />
+    <>
       <Hero role={role} onRoleChange={handleRoleChange} />
 
       {/* These sections react to the selected role */}
@@ -41,7 +37,6 @@ export default function Home() {
       <Testimonials role={role} />
       <CTA role={role} />
       <FAQ role={role} />
-      <Footer />
-    </div>
+    </>
   );
 }

@@ -17,6 +17,7 @@ import {
   Send,
   FolderDown,
   Lock,
+  Loader2,
 } from "lucide-react";
 import { uploadToFirebase } from "@/lib/firebase";
 import imageCompression from "browser-image-compression";
@@ -328,6 +329,7 @@ export default function ShareAlbumPage() {
     const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3013";
     const downloadUrl = `${apiUrl}/api/photos/photos/${photo.id}/download`;
     
+    setIsDownloading(true);
     try {
       const res = await fetch(downloadUrl);
       const blob = (await res.ok) ? await res.blob() : null;
@@ -351,6 +353,8 @@ export default function ShareAlbumPage() {
       console.error("Erreur téléchargement photo:", err);
       // Fallback simple si fetch échoue
       window.open(downloadUrl, "_blank");
+    } finally {
+      setIsDownloading(false);
     }
   };
 
@@ -933,8 +937,9 @@ export default function ShareAlbumPage() {
                   className={styles.downloadBtn}
                   title="Télécharger cette photo"
                   onClick={() => handleDownloadSinglePhoto(currentPhoto, selectedPhotoIndex!)}
+                  disabled={isDownloading}
                 >
-                  <Download size={20} />
+                  {isDownloading ? <Loader2 size={20} className={styles.spin} /> : <Download size={20} />}
                 </button>
               </div>
 

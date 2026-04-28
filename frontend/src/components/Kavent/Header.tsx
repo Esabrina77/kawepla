@@ -77,10 +77,10 @@ export function Header() {
             <Link href="/blog/provider" className={styles.navLink}>
               Blog Prestataires
             </Link>
-            <Link href="#pricing" className={styles.navLink}>
+            <Link href="/#pricing" className={styles.navLink}>
               Tarifs
             </Link>
-            <Link href="#faq" className={styles.navLink}>
+            <Link href="/#faq" className={styles.navLink}>
               FAQ / Aide
             </Link>
           </div>
@@ -139,14 +139,14 @@ export function Header() {
               Blog Prestataires
             </Link>
             <Link
-              href="#pricing"
+              href="/#pricing"
               className={styles.mobileNavLink}
               onClick={() => setIsMenuOpen(false)}
             >
               Tarifs
             </Link>
             <Link
-              href="#faq"
+              href="/#faq"
               className={styles.mobileNavLink}
               onClick={() => setIsMenuOpen(false)}
             >
@@ -161,7 +161,11 @@ export function Header() {
                   <Moon size={20} color="white" />
                 )}
               </button>
-              <Link href={authLink} style={{ flex: 1 }}>
+              <Link 
+                href={authLink} 
+                style={{ flex: 1 }}
+                onClick={() => setIsMenuOpen(false)}
+              >
                 <button className={styles.authBtn} style={{ width: "100%" }}>
                   {authText}
                 </button>

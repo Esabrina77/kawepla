@@ -1,0 +1,161 @@
+.overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(8px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10000;
+  padding: 1.5rem;
+  animation: fadeIn 0.4s ease-out;
+}
+
+.container {
+  background: var(--card);
+  border-radius: 24px;
+  padding: 2.5rem 2rem;
+  width: 100%;
+  max-width: 400px;
+  text-align: center;
+  position: relative;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+  border: 1px solid var(--border);
+  animation: slideUp 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+  
+  /* Valeurs par défaut */
+  --role-color: var(--host);
+  --role-color-hover: var(--host-dark);
+}
+
+.host {
+  --role-color: var(--host);
+  --role-color-hover: var(--host-dark);
+}
+
+.provider {
+  --role-color: var(--provider);
+  --role-color-hover: var(--provider-dark);
+}
+
+.admin {
+  --role-color: var(--admin);
+  --role-color-hover: var(--admin-dark);
+}
+
+.closeButton {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  background: none;
+  border: none;
+  color: var(--text-secondary);
+  cursor: pointer;
+  padding: 0.5rem;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+
+.closeButton:hover {
+  background: var(--bg-secondary);
+  color: var(--foreground);
+}
+
+.iconWrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+  color: var(--role-color);
+}
+
+.phoneIcon {
+  opacity: 0.6;
+}
+
+.desktopIcon {
+  filter: drop-shadow(0 0 8px color-mix(in srgb, var(--role-color) 30%, transparent));
+}
+
+.arrow {
+  font-size: 1.5rem;
+  font-weight: 700;
+  opacity: 0.4;
+}
+
+.title {
+  font-family: var(--font-heading);
+  font-size: 1.25rem;
+  font-weight: 800;
+  color: var(--foreground);
+  margin-bottom: 0.75rem;
+  letter-spacing: -0.01em;
+}
+
+.description {
+  font-family: var(--font-body);
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  line-height: 1.6;
+  margin-bottom: 2rem;
+}
+
+.actions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.primaryButton {
+  background: var(--role-color);
+  color: white;
+  border: none;
+  border-radius: 12px;
+  padding: 1rem;
+  font-family: var(--font-body);
+  font-weight: 700;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.primaryButton:hover {
+  background: var(--role-color-hover);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px color-mix(in srgb, var(--role-color) 25%, transparent);
+}
+
+.secondaryButton {
+  background: none;
+  border: none;
+  color: var(--text-secondary);
+  font-family: var(--font-body);
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 0.5rem;
+  text-decoration: underline;
+  text-underline-offset: 4px;
+  transition: color 0.2s ease;
+}
+
+.secondaryButton:hover {
+  color: var(--foreground);
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideUp {
+  from { transform: translateY(20px) scale(0.95); opacity: 0; }
+  to { transform: translateY(0) scale(1); opacity: 1; }
+}

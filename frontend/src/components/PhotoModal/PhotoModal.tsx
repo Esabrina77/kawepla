@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { ArrowLeft, ChevronLeft, ChevronRight, Check, Trash2, Download } from 'lucide-react';
+import { ArrowLeft, ChevronLeft, ChevronRight, Check, Trash2, Download, Loader2 } from 'lucide-react';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Navigation, Keyboard, EffectFade, Thumbs, FreeMode } from 'swiper/modules';
 import type { Swiper as SwiperType } from 'swiper';
 import { Photo } from '@/hooks/usePhotoAlbums';
+import { saveAs } from 'file-saver';
 import 'swiper/css';
 import 'swiper/css/navigation';
 import 'swiper/css/effect-fade';
@@ -23,6 +24,7 @@ export default function PhotoModal({ isOpen, onClose, photos: initialPhotos, ini
   const [thumbsSwiper, setThumbsSwiper] = useState<SwiperType | null>(null);
   const [currentIndex, setCurrentIndex] = useState(initialIndex);
   const [localPhotos, setLocalPhotos] = useState<Photo[]>(initialPhotos);
+  const [isDownloading, setIsDownloading] = useState(false);
 
   useEffect(() => {
     setLocalPhotos(initialPhotos);
@@ -70,9 +72,21 @@ export default function PhotoModal({ isOpen, onClose, photos: initialPhotos, ini
   };
 
   const handleDownload = async () => {
-    const url = currentPhoto.originalUrl || currentPhoto.compressedUrl || currentPhoto.thumbnailUrl;
-    if (url) {
-      window.open(url, '_blank');
+    setIsDownloading(true);
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3013";
+    const downloadUrl = `${apiUrl}/api/photos/photos/${currentPhoto.id}/download`;
+
+    try {
+      const response = await fetch(downloadUrl);
+      if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+      const blob = await response.blob();
+      saveAs(blob, `photo_${currentPhoto.id}.jpg`);
+    } catch (err) {
+      console.error('Erreur téléchargement photo:', err);
+      // Fallback
+      window.open(downloadUrl, '_blank');
+    } finally {
+      setIsDownloading(false);
     }
   };
 
@@ -102,8 +116,13 @@ export default function PhotoModal({ isOpen, onClose, photos: initialPhotos, ini
                   <Trash2 size={20} />
                 </button>
               )}
-              <button onClick={handleDownload} className={styles.actionBtn} title="Télécharger">
-                <Download size={20} />
+              <button 
+                onClick={handleDownload} 
+                className={styles.actionBtn} 
+                title="Télécharger"
+                disabled={isDownloading}
+              >
+                {isDownloading ? <Loader2 size={20} className={styles.spin} /> : <Download size={20} />}
               </button>
             </div>
           </div>

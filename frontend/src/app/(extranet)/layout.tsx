@@ -5,6 +5,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { NotificationPermissionModal } from "@/components/Modals/NotificationPermissionModal";
 import { RateLimitModal } from "@/components/RateLimitModal/RateLimitModal";
 import Chatbot from "@/components/Chatbot/Chatbot";
+import MobileOptimizationNotice from "@/components/MobileOptimizationNotice/MobileOptimizationNotice";
 import styles from "./extranetLayout.module.css";
 
 export default function ExtranetLayout({
@@ -73,6 +74,7 @@ export default function ExtranetLayout({
       {children}
       <RateLimitModal />
       <NotificationPermissionModal />
+      <MobileOptimizationNotice />
       <Chatbot />
     </div>
   );
