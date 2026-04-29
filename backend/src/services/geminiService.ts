@@ -90,22 +90,11 @@ Réponds UNIQUEMENT avec le code langue (2 lettres), rien d'autre.`;
         data.additionalInfo
       ].filter(Boolean).join(' ');
 
-      const detectedLang = textToAnalyze ? await this.detectLanguage(textToAnalyze) : 'fr';
+      // const detectedLang = textToAnalyze ? await this.detectLanguage(textToAnalyze) : 'fr';
 
       const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash-lite' });
 
-      // Adapter le prompt selon la langue détectée
-      const languageInstructions: Record<string, string> = {
-        'fr': 'Réponds en français.',
-        'en': 'Respond in English.',
-        'ar': 'أجب بالعربية.',
-        'es': 'Responde en español.',
-        'de': 'Antworte auf Deutsch.',
-        'it': 'Rispondi in italiano.',
-        'pt': 'Responda em português.',
-      };
-
-      const langInstruction = languageInstructions[detectedLang] || `Respond in the same language as the input text (detected: ${detectedLang}).`;
+      const langInstruction = "Respond in the same language as the input text (e.g., if input is in French, respond in French; if in English, respond in English).";
 
       // Calculer le nombre de jours entre aujourd'hui et l'événement
       const todayDate = new Date();
@@ -378,22 +367,11 @@ Réponds UNIQUEMENT avec le chemin (ex: /client/guests) ou "none" si aucun lien 
     try {
       // Détecter la langue à partir de la description actuelle
       const textToAnalyze = `${data.serviceName} ${data.currentDescription}`;
-      const detectedLang = await this.detectLanguage(textToAnalyze);
+      // const detectedLang = await this.detectLanguage(textToAnalyze);
 
       const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash-lite' });
 
-      // Adapter le prompt selon la langue détectée
-      const languageInstructions: Record<string, string> = {
-        'fr': 'Réponds en français.',
-        'en': 'Respond in English.',
-        'ar': 'أجب بالعربية.',
-        'es': 'Responde en español.',
-        'de': 'Antworte auf Deutsch.',
-        'it': 'Rispondi in italiano.',
-        'pt': 'Responda em português.',
-      };
-
-      const langInstruction = languageInstructions[detectedLang] || `Respond in the same language as the input text (detected: ${detectedLang}).`;
+      const langInstruction = "Respond in the same language as the input text.";
 
       const prompt = `You are an expert in marketing copywriting for event services. Improve this service description to make it more attractive, professional, and optimized for conversion.
 
@@ -506,22 +484,11 @@ Suggestions should be short tips (1 sentence) to further improve the service, al
 
     try {
       // Détecter la langue du message utilisateur
-      const detectedLang = await this.detectLanguage(data.message);
+      // const detectedLang = await this.detectLanguage(data.message);
 
       const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash-lite' });
 
-      // Adapter le prompt selon la langue détectée
-      const languageInstructions: Record<string, string> = {
-        'fr': 'Réponds en français.',
-        'en': 'Respond in English.',
-        'ar': 'أجب بالعربية.',
-        'es': 'Responde en español.',
-        'de': 'Antworte auf Deutsch.',
-        'it': 'Rispondi in italiano.',
-        'pt': 'Responda em português.',
-      };
-
-      const langInstruction = languageInstructions[detectedLang] || `Respond in the same language as the input text (detected: ${detectedLang}).`;
+      const langInstruction = "Respond in the same language as the user's message.";
 
       // Déterminer le contexte de la page
       const pageContext = data.context?.page || 'unknown';

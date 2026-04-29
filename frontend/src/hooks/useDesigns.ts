@@ -192,7 +192,7 @@ export function useDesigns() {
         personalizedData = {
           name: name || 'Mon invitation importée',
           description: 'Invitation importée par l\'utilisateur',
-          tags: ['importé'],
+          tags: ['imported'],
           fabricData,
           editorVersion: 'canva' as const,
           canvasWidth: 794,

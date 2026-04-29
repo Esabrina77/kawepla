@@ -21,15 +21,17 @@
   margin-bottom: 1.25rem;
   overflow-x: auto;
   scrollbar-width: none;
+  padding: 10px 5px;
+  margin-top: -10px;
 }
 
 .tab {
-  padding: 0.65rem 0.15rem;
+  padding: 0.6rem 1rem;
   background: transparent;
   border: none;
-  border-bottom: 2px solid transparent;
+  border-radius: 12px;
   font-family: var(--font-body);
-  font-size: 0.82rem;
+  font-size: 0.85rem;
   font-weight: 600;
   color: var(--text-secondary);
   cursor: pointer;
@@ -37,17 +39,101 @@
   white-space: nowrap;
   display: flex;
   align-items: center;
-  gap: 0.35rem;
-  margin-bottom: -1px;
+  gap: 0.5rem;
 }
 
-.tab:hover {
-  color: var(--foreground);
+/* Couleurs spécifiques par onglet */
+.tab[role="tab"]:nth-child(1) .tabText {
+  color: var(--host); /* Violet Modèles */
+}
+.tab[role="tab"]:nth-child(1) svg {
+  color: var(--host);
+}
+
+.tab[role="tab"]:nth-child(2) .tabText {
+  color: #EC4899; /* Rose Favoris */
+}
+.tab[role="tab"]:nth-child(2) svg {
+  color: #EC4899;
+}
+
+.tabText {
+  transition: all 0.2s ease;
+  font-weight: 600;
+}
+
+/* Style Scintillate (Multi-color) */
+.scintillate .tabText {
+  background: linear-gradient(90deg, #6366F1, #EC4899, #F59E0B);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  font-weight: 800;
+}
+
+.scintillate svg {
+  stroke: #6366F1;
+  animation: pulseIcon 2s infinite;
+}
+
+@keyframes pulseIcon {
+  0% { transform: scale(1); opacity: 0.8; }
+  50% { transform: scale(1.15); opacity: 1; }
+  100% { transform: scale(1); opacity: 0.8; }
+}
+
+.tab:hover:not(.activeTab) {
+  background: color-mix(in srgb, var(--foreground) 5%, transparent);
 }
 
 .activeTab {
-  color: var(--foreground);
-  border-bottom-color: var(--foreground);
+  background: var(--card) !important;
+  border: 1px solid var(--border) !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+/* Ajustements spécifiques quand actif */
+.tab.activeTab[role="tab"][aria-selected="true"]:nth-child(1) {
+  border-color: var(--host) !important;
+  background: color-mix(in srgb, var(--host) 5%, transparent) !important;
+}
+
+.tab.activeTab[role="tab"][aria-selected="true"]:nth-child(2) {
+  border-color: #EC4899 !important;
+  background: color-mix(in srgb, #EC4899 5%, transparent) !important;
+}
+
+.tab.activeTab[role="tab"][aria-selected="true"]:last-child {
+  border-color: #6366F1 !important;
+  background: color-mix(in srgb, #6366F1 5%, transparent) !important;
+}
+
+.tab.activeTab[role="tab"][aria-selected="true"]:last-child .tabText {
+  background: linear-gradient(90deg, #6366F1, #EC4899, #F59E0B);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  font-weight: 800;
+}
+
+/* ===== RESPONSIVE TABS ===== */
+@media (max-width: 640px) {
+  .tabs {
+    gap: 0.5rem;
+    padding: 5px 0;
+    margin-top: 0;
+  }
+
+  .tab {
+    padding: 0.5rem 0.75rem;
+    font-size: 0.75rem;
+    gap: 0.35rem;
+  }
+  
+  .tab svg {
+    width: 14px;
+    height: 14px;
+  }
 }
 
 /* ===== INTRO + SEARCH — same row ===== */
@@ -636,5 +722,51 @@
   outline: none;
   border-color: var(--host);
   box-shadow: 0 0 0 3px color-mix(in srgb, var(--host) 10%, transparent);
+}
+
+/* Warning Modal Specifics */
+.warningModal {
+  border-top: 5px solid var(--host) !important;
+}
+
+.warningHeader {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: var(--host);
+  margin-bottom: 12px;
+}
+
+.warningHeader h2 {
+  margin: 0;
+  font-size: 1.2rem;
+  font-weight: 800;
+  color: var(--foreground);
+}
+
+.warningBody p {
+  line-height: 1.6;
+  color: var(--text-secondary);
+  margin-bottom: 12px;
+  font-size: 0.9rem;
+}
+
+.warningHighlight {
+  background: color-mix(in srgb, var(--host) 8%, var(--card));
+  padding: 12px;
+  border-radius: 12px;
+  border-left: 4px solid var(--host);
+  font-weight: 600;
+  color: var(--foreground);
+  font-size: 0.85rem;
+  margin-top: 15px;
+}
+
+.warningGifInline {
+  display: inline-block;
+  width: 40px;
+  height: auto;
+  vertical-align: middle;
+  margin-left: 10px;
 }
 

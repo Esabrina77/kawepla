@@ -14,7 +14,7 @@ const clientPlans = [
         discount: null,
         period: '', 
         description: 'Pour tester.', 
-        features: ['1 Événement', '50 Invités', '100 Photos', '10 Requêtes IA'], 
+        features: ['1 Événement', '50 Invités', '200 Photos', '10 Requêtes IA'], 
         highlighted: false 
     },
     { 
@@ -24,7 +24,7 @@ const clientPlans = [
         discount: '-62%',
         period: '', 
         description: 'Petites agences.', 
-        features: ['3 Événements', '500 Invités', '1 000 Photos', '50 Requêtes IA'], 
+        features: ['3 Événements', '500 Invités', '3 000 Photos', '50 Requêtes IA'], 
         highlighted: false 
     },
     { 
@@ -34,7 +34,7 @@ const clientPlans = [
         discount: '-50%',
         period: '', 
         description: 'Pour les pros.', 
-        features: ['8 Événements', '1 500 Invités', '4 000 Photos', '150 Requêtes IA'], 
+        features: ['8 Événements', '1 500 Invités', '10 000 Photos', '150 Requêtes IA'], 
         highlighted: true 
     },
     { 
@@ -44,7 +44,7 @@ const clientPlans = [
         discount: '-33%',
         period: '', 
         description: 'Agences à fort volume.', 
-        features: ['15 Événements', '5 000 Invités', '10 000 Photos', '500 Requêtes IA'], 
+        features: ['15 Événements', '5 000 Invités', '25 000 Photos', '500 Requêtes IA'], 
         highlighted: false 
     },
 ];

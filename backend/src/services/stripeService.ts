@@ -497,7 +497,7 @@ export class StripeService {
       });
 
       // Appliquer les services supplémentaires (add-ons)
-      console.log(`🔍 Calcul des limites: ${additionalServices.length} services supplémentaires trouvés`);
+      // console.log(`🔍 Calcul des limites: ${additionalServices.length} services supplémentaires trouvés`);
       
       // Charger les servicePacks manquants si nécessaire
       const servicesWithPacks = await Promise.all(
@@ -511,7 +511,7 @@ export class StripeService {
       );
       
       servicesWithPacks.forEach(service => {
-        console.log(`  - Service: ${service.serviceId}, quantity: ${service.quantity}, type: ${service.type}, servicePack: ${service.servicePack ? service.servicePack.name : 'NULL'}`);
+        // console.log(`  - Service: ${service.serviceId}, quantity: ${service.quantity}, type: ${service.type}, servicePack: ${service.servicePack ? service.servicePack.name : 'NULL'}`);
         
         if (service.servicePack) {
           // service.quantity = nombre de packs achetés (devrait toujours être 1 pour un achat unique)
@@ -527,11 +527,11 @@ export class StripeService {
               // Ancienne entrée : quantity stockait la quantité du pack (ex: 10 pour pack de 10 requêtes IA)
               // On corrige à 1 pack acheté
               numberOfPacks = 1;
-              console.log(`⚠️ Correction automatique: quantity=${service.quantity} correspond à pack.quantity=${service.servicePack.quantity}, corrigé à 1 pack pour ${service.servicePack.name}`);
+              // console.log(`⚠️ Correction automatique: quantity=${service.quantity} correspond à pack.quantity=${service.servicePack.quantity}, corrigé à 1 pack pour ${service.servicePack.name}`);
             } else if (numberOfPacks > service.servicePack.quantity && numberOfPacks % service.servicePack.quantity === 0) {
               // Ancienne entrée : quantity est un multiple de pack.quantity (ex: 20 pour pack de 10 = 2 achats)
               numberOfPacks = numberOfPacks / service.servicePack.quantity;
-              console.log(`⚠️ Correction automatique: quantity=${service.quantity} est un multiple de pack.quantity=${service.servicePack.quantity}, corrigé à ${numberOfPacks} packs pour ${service.servicePack.name}`);
+              // console.log(`⚠️ Correction automatique: quantity=${service.quantity} est un multiple de pack.quantity=${service.servicePack.quantity}, corrigé à ${numberOfPacks} packs pour ${service.servicePack.name}`);
             }
           }
           
@@ -542,13 +542,9 @@ export class StripeService {
                           service.servicePack.unit === 'AI_REQUEST' ? 'aiRequests' : null;
           
           if (limitKey) {
-            const beforeLimit = totalLimits[limitKey];
-            console.log(`  ✅ Application du pack ${service.servicePack.name}: pack.quantity=${service.servicePack.quantity}, unit=${service.servicePack.unit}, numberOfPacks=${numberOfPacks}`);
             applyAddonPack(service.servicePack, numberOfPacks);
-            const afterLimit = totalLimits[limitKey];
-            console.log(`  📊 Limite ${service.servicePack.unit}: ${beforeLimit} → ${afterLimit} (+${afterLimit - beforeLimit})`);
           } else {
-            console.log(`  ⚠️ Unité inconnue pour le pack ${service.servicePack.name}: ${service.servicePack.unit}`);
+            // console.log(`  ⚠️ Unité inconnue pour le pack ${service.servicePack.name}: ${service.servicePack.unit}`);
           }
         } else if (service.type) {
           // Fallback pour les anciens services sans servicePack
@@ -572,12 +568,14 @@ export class StripeService {
         }
       });
 
+      /* 
       console.log(`📊 Limites totales calculées pour l'utilisateur ${userId}:`, {
         invitations: totalLimits.invitations,
         guests: totalLimits.guests,
         photos: totalLimits.photos,
         aiRequests: totalLimits.aiRequests
       });
+      */
 
       // Retourner les limites sans designs (designs = modèles, pas nécessaire pour les limites)
       const { designs, ...limitsWithoutDesigns } = totalLimits;

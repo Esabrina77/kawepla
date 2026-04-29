@@ -29,6 +29,15 @@ export default function DesignsGalleryPage() {
   const [importFile, setImportFile] = useState<File | null>(null);
   const [importPreview, setImportPreview] = useState<string | null>(null);
   const [importName, setImportName] = useState('');
+  const [showCanvaWarning, setShowCanvaWarning] = useState(false);
+
+  useEffect(() => {
+    // Afficher l'avertissement au chargement
+    const isPermanentlyHidden = localStorage.getItem('hideCanvaWarningPermanently');
+    if (!isPermanentlyHidden) {
+      setShowCanvaWarning(true);
+    }
+  }, []);
 
   const [templates, setTemplates] = useState<Design[]>([]);
   const [personalDesigns, setPersonalDesigns] = useState<Design[]>([]);
@@ -269,7 +278,7 @@ export default function DesignsGalleryPage() {
             aria-selected={activeTab === 'templates'}
           >
             <LayoutTemplate size={16} />
-            Modèles
+            <span className={styles.tabText}>Modèles</span>
           </button>
           <button
             className={`${styles.tab} ${activeTab === 'favorites' ? styles.activeTab : ''}`}
@@ -281,10 +290,10 @@ export default function DesignsGalleryPage() {
             aria-selected={activeTab === 'favorites'}
           >
             <Heart size={16} />
-            Favoris
+            <span className={styles.tabText}>Favoris</span>
           </button>
           <button
-            className={`${styles.tab} ${activeTab === 'personal' ? styles.activeTab : ''}`}
+            className={`${styles.tab} ${activeTab === 'personal' ? styles.activeTab : styles.scintillate}`}
             onClick={() => {
               setActiveTab('personal');
               router.replace('/client/design?tab=personal');
@@ -293,7 +302,7 @@ export default function DesignsGalleryPage() {
             aria-selected={activeTab === 'personal'}
           >
             <Palette size={16} />
-            Mes créations
+            <span className={styles.tabText}>Mes créations</span>
           </button>
         </div>
 
@@ -348,21 +357,33 @@ export default function DesignsGalleryPage() {
           </div>
         </div>
 
+        {/* Modals */}
+        <ImportPreviewModal
+          isOpen={showImportModal}
+          onClose={() => setShowImportModal(false)}
+          onConfirm={handleConfirmImport}
+          previewUrl={importPreview}
+          name={importName}
+          setName={setImportName}
+          loading={importLoading}
+        />
+
+        <CanvaWarningModal
+          isOpen={showCanvaWarning}
+          onClose={() => {
+            setShowCanvaWarning(false);
+          }}
+          onDontShowAgain={() => {
+            setShowCanvaWarning(false);
+            localStorage.setItem('hideCanvaWarningPermanently', 'true');
+          }}
+        />
+
         {/* Grid */}
         {loading ? (
           <div className={styles.loading}>Chargement...</div>
         ) : (
           <div className={styles.grid} role="tabpanel">
-            {/* Modal d'aperçu avant import */}
-            <ImportPreviewModal
-              isOpen={showImportModal}
-              onClose={() => setShowImportModal(false)}
-              onConfirm={handleConfirmImport}
-              previewUrl={importPreview}
-              name={importName}
-              setName={setImportName}
-              loading={importLoading}
-            />
 
             {/* Carte d'importation d'invitation — uniquement dans 'personal' */}
             {activeTab === 'personal' && showImportBanner && (
@@ -437,15 +458,17 @@ export default function DesignsGalleryPage() {
 
                   {activeTab === 'personal' && (
                     <div className={styles.cardActions} onClick={e => e.stopPropagation()}>
-                      <button
-                        className={styles.secondaryButton}
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleCardClick(design);
-                        }}
-                      >
-                        Modifier
-                      </button>
+                      {!design.tags?.includes('imported') && (
+                        <button
+                          className={styles.secondaryButton}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleCardClick(design);
+                          }}
+                        >
+                          Modifier
+                        </button>
+                      )}
                       <button
                         className={`${styles.secondaryButton} ${styles.deleteButton}`}
                         onClick={(e) => handleDelete(e, design)}
@@ -532,6 +555,66 @@ function ImportPreviewModal({
             disabled={loading || !name.trim()}
           >
             {loading ? 'Importation...' : 'Importer maintenant'}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ─── MODAL: CANVA WARNING ──────────────────────
+function CanvaWarningModal({
+  isOpen,
+  onClose,
+  onDontShowAgain
+}: {
+  isOpen: boolean;
+  onClose: () => void;
+  onDontShowAgain: () => void;
+}) {
+  if (!isOpen) return null;
+
+  return (
+    <div className={styles.modalOverlay} onClick={onClose}>
+      <div className={`${styles.modalContent} ${styles.warningModal}`} onClick={(e) => e.stopPropagation()} style={{ maxWidth: '500px' }}>
+        <div className={styles.modalHeader}>
+          <div className={styles.warningHeader}>
+            <Sparkles size={24} />
+            <h2>Information Importante</h2>
+          </div>
+          <button onClick={onClose} className={styles.modalClose}>
+            <X size={18} />
+          </button>
+        </div>
+        <div className={styles.modalBody}>
+          <div className={styles.warningBody}>
+            <p>
+              Notre éditeur de création directe rencontre actuellement quelques légers bugs techniques.
+            </p>
+            <p>
+              Pour une expérience optimale, nous vous conseillons vivement de <strong>créer vos invitations sur Canva</strong> (ou votre outil favori), de les exporter en image, puis de les importer ici.
+            </p>
+            <div className={styles.warningHighlight}>
+              Privilégiez l&apos;importation dans l&apos;espace <strong>&quot;Mes créations&quot;</strong> (icône palette 🎨).
+              <img src="/gif/poussin.gif" alt="Petit poussin" className={styles.warningGifInline} />
+            </div>
+          </div>
+        </div>
+        <div className={styles.modalFooter}>
+          <button 
+            type="button" 
+            onClick={onDontShowAgain} 
+            className={styles.modalButtonSecondary}
+            style={{ fontSize: '0.75rem' }}
+          >
+            Ne plus afficher
+          </button>
+          <button 
+            type="button" 
+            onClick={onClose} 
+            className={styles.modalButtonPrimary}
+          >
+            J&apos;ai compris
           </button>
         </div>
       </div>

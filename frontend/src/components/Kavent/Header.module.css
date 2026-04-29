@@ -43,6 +43,11 @@
     align-items: center;
 }
 
+.logoLink {
+    text-decoration: none;
+    display: inline-block;
+}
+
 .desktopNav {
     display: none;
     align-items: center;

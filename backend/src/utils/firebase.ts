@@ -34,22 +34,29 @@ export async function uploadToFirebase(
   mimeType: string
 ): Promise<string> {
   try {
+    /*
     console.log('🔥 Tentative d\'upload Firebase:', { fileName, mimeType, bufferSize: fileBuffer.length });
+    */
     
     // Ne pas ajouter "photos/" car fileName contient déjà le chemin complet
     const storageRef = ref(storage, fileName);
+    /*
+    console.log('🔥 Référence créée:', storageRef.fullPath);
+    */
     const metadata = {
       contentType: mimeType,
       cacheControl: 'public, max-age=31536000', // Cache 1 an
     };
     
-    console.log('🔥 Référence créée:', storageRef.fullPath);
-    
     const snapshot = await uploadBytes(storageRef, fileBuffer, metadata);
+    /*
     console.log('🔥 Upload réussi:', snapshot.metadata.fullPath);
+    */
     
     const downloadURL = await getDownloadURL(snapshot.ref);
+    /*
     console.log('🔥 URL obtenue:', downloadURL);
+    */
     
     return downloadURL;
   } catch (error: any) {

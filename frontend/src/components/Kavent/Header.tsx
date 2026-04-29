@@ -52,19 +52,20 @@ export function Header() {
     <header className={styles.header}>
       <nav className={styles.nav}>
         <div className={styles.container}>
-          {/* Logo */}
-          <div className={styles.logoBox}>
-            <span
-              style={{
-                fontSize: "3rem",
-                fontFamily: "Montserrat, sans-serif",
-                fontWeight: 700,
-                color: "#6366F1",
-              }}
-            >
-              K
-            </span>
-          </div>
+          <Link href="/" className={styles.logoLink}>
+            <div className={styles.logoBox}>
+              <span
+                style={{
+                  fontSize: "3rem",
+                  fontFamily: "Montserrat, sans-serif",
+                  fontWeight: 700,
+                  color: "#6366F1",
+                }}
+              >
+                K
+              </span>
+            </div>
+          </Link>
 
           {/* Desktop Navigation - Centered */}
           <div className={styles.desktopNav}>

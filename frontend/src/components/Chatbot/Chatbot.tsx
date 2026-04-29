@@ -3,7 +3,7 @@
 import { usePathname } from 'next/navigation';
 import { useState, useRef, useEffect } from 'react';
 import Image from 'next/image';
-import { Send, X, Minimize2, Maximize2 } from 'lucide-react';
+import { Send, X, HelpCircle } from 'lucide-react';
 import { apiClient } from '@/lib/api/apiClient';
 import styles from './Chatbot.module.css';
 
@@ -99,6 +99,7 @@ export default function Chatbot() {
   const isProvider = pathname?.startsWith('/provider');
   const isAdmin = pathname?.startsWith('/super-admin');
   const role = isProvider ? 'PROVIDER' : isAdmin ? 'ADMIN' : 'HOST';
+  const themeColor = isProvider ? 'var(--provider)' : isAdmin ? 'var(--admin)' : 'var(--host)';
 
   const getWelcomeMessage = () => {
     if (isProvider) return "Bonjour ! Je suis Kawebot, votre assistant business. Comment puis-je vous aider à développer votre activité ?";
@@ -107,7 +108,6 @@ export default function Chatbot() {
   };
 
   const [isOpen, setIsOpen] = useState(false);
-  const [isMinimized, setIsMinimized] = useState(false);
   const [messages, setMessages] = useState<Message[]>([
     {
       id: '1',
@@ -130,10 +130,10 @@ export default function Chatbot() {
   }, [messages]);
 
   useEffect(() => {
-    if (isOpen && !isMinimized && inputRef.current) {
+    if (isOpen && inputRef.current) {
       inputRef.current.focus();
     }
-  }, [isOpen, isMinimized]);
+  }, [isOpen]);
 
   const handleSend = async () => {
     if (!input.trim() || isLoading) return;
@@ -210,17 +210,11 @@ export default function Chatbot() {
   };
 
   const toggleChat = () => {
-    if (isOpen) {
-      setIsMinimized(!isMinimized);
-    } else {
-      setIsOpen(true);
-      setIsMinimized(false);
-    }
+    setIsOpen(!isOpen);
   };
 
   const closeChat = () => {
     setIsOpen(false);
-    setIsMinimized(false);
   };
 
   return (
@@ -231,22 +225,20 @@ export default function Chatbot() {
           className={styles.chatbotButton}
           onClick={toggleChat}
           aria-label="Ouvrir le chatbot"
+          style={{ background: themeColor, boxShadow: `0 8px 25px color-mix(in srgb, ${themeColor} 40%, transparent)` } as any}
         >
-          <Image
-            src="/icons/robot-svgrepo-com.svg"
-            alt="Chatbot"
-            width={28}
-            height={28}
-            className={styles.robotIcon}
-          />
+          <HelpCircle size={28} className={styles.helpIcon} />
         </button>
       )}
 
       {/* Fenêtre de chat */}
       {isOpen && (
-        <div className={`${styles.chatbotWindow} ${isMinimized ? styles.minimized : ''}`}>
+        <div 
+          className={styles.chatbotWindow}
+          style={{ '--accent-color': themeColor } as any}
+        >
           {/* Header */}
-          <div className={styles.chatbotHeader}>
+          <div className={styles.chatbotHeader} style={{ background: 'var(--accent-color)' }}>
             <div className={styles.headerLeft}>
               <Image
                 src="/icons/robot-svgrepo-com.svg"
@@ -259,17 +251,6 @@ export default function Chatbot() {
             </div>
             <div className={styles.headerActions}>
               <button
-                onClick={() => setIsMinimized(!isMinimized)}
-                className={styles.headerButton}
-                aria-label={isMinimized ? 'Agrandir' : 'Réduire'}
-              >
-                {isMinimized ? (
-                  <Maximize2 size={16} />
-                ) : (
-                  <Minimize2 size={16} />
-                )}
-              </button>
-              <button
                 onClick={closeChat}
                 className={styles.headerButton}
                 aria-label="Fermer"
@@ -279,67 +260,62 @@ export default function Chatbot() {
             </div>
           </div>
 
-          {/* Messages */}
-          {!isMinimized && (
-            <>
-              <div className={styles.messagesContainer}>
-                {messages.map((message) => (
-                  <div
-                    key={message.id}
-                    className={`${styles.message} ${styles[message.role]}`}
-                  >
-                    <div
-                      className={styles.messageContent}
-                      dangerouslySetInnerHTML={{ __html: formatMessage(message.content) }}
-                    />
-                    <div className={styles.messageTime}>
-                      {message.timestamp.toLocaleTimeString('fr-FR', {
-                        hour: '2-digit',
-                        minute: '2-digit',
-                      })}
-                    </div>
-                  </div>
-                ))}
-                {isLoading && (
-                  <div className={`${styles.message} ${styles.assistant}`}>
-                    <div className={styles.messageContent}>
-                      <span className={styles.typingIndicator}>
-                        <span></span>
-                        <span></span>
-                        <span></span>
-                      </span>
-                    </div>
-                  </div>
-                )}
-                <div ref={messagesEndRef} />
-              </div>
-
-              {/* Input */}
-              <div className={styles.inputContainer}>
-                <input
-                  ref={inputRef}
-                  type="text"
-                  value={input}
-                  onChange={(e) => setInput(e.target.value)}
-                  onKeyPress={handleKeyPress}
-                  placeholder="Tapez votre message..."
-                  className={styles.input}
-                  disabled={isLoading}
+          <div className={styles.messagesContainer}>
+            {messages.map((message) => (
+              <div
+                key={message.id}
+                className={`${styles.message} ${styles[message.role]}`}
+              >
+                <div
+                  className={styles.messageContent}
+                  dangerouslySetInnerHTML={{ __html: formatMessage(message.content) }}
                 />
-                <button
-                  onClick={handleSend}
-                  disabled={!input.trim() || isLoading}
-                  className={styles.sendButton}
-                  aria-label="Envoyer"
-                >
-                  <Send size={18} />
-                </button>
+                <div className={styles.messageTime}>
+                  {message.timestamp.toLocaleTimeString('fr-FR', {
+                    hour: '2-digit',
+                    minute: '2-digit',
+                  })}
+                </div>
               </div>
-            </>
-          )}
+            ))}
+            {isLoading && (
+              <div className={`${styles.message} ${styles.assistant}`}>
+                <div className={styles.messageContent}>
+                  <span className={styles.typingIndicator}>
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                  </span>
+                </div>
+              </div>
+            )}
+            <div ref={messagesEndRef} />
+          </div>
+
+          {/* Input */}
+          <div className={styles.inputContainer}>
+            <input
+              ref={inputRef}
+              type="text"
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
+              onKeyPress={handleKeyPress}
+              placeholder="Tapez votre message..."
+              className={styles.input}
+              disabled={isLoading}
+            />
+            <button
+              onClick={handleSend}
+              disabled={!input.trim() || isLoading}
+              className={styles.sendButton}
+              aria-label="Envoyer"
+              style={{ background: themeColor }}
+            >
+              <Send size={18} />
+            </button>
+          </div>
         </div>
       )}
     </>
   );
 }
-

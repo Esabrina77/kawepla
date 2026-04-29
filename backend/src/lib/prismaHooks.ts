@@ -105,10 +105,48 @@ export function setupPrismaHooks(prisma: PrismaClient) {
         }
       } catch (error) {
         console.error(`❌ Erreur lors du nettoyage Firebase pour la photo ${photoId}:`, error);
-        // Continuer même si Firebase échoue
       }
     }
 
+    return next(params);
+  });
+
+  // Hook pour la suppression de design
+  prisma.$use(async (params, next) => {
+    if (params.model === 'Design' && params.action === 'delete') {
+      const designId = params.args.where.id;
+      try {
+        await FirebaseCleanupService.deleteDesignFiles(designId);
+      } catch (error) {
+        console.error(`❌ Erreur lors du nettoyage Firebase pour le design ${designId}:`, error);
+      }
+    }
+    return next(params);
+  });
+
+  // Hook pour la suppression de profil prestataire
+  prisma.$use(async (params, next) => {
+    if (params.model === 'ProviderProfile' && params.action === 'delete') {
+      const profileId = params.args.where.id;
+      try {
+        await FirebaseCleanupService.deleteProviderFiles(profileId);
+      } catch (error) {
+        console.error(`❌ Erreur lors du nettoyage Firebase pour le prestataire ${profileId}:`, error);
+      }
+    }
+    return next(params);
+  });
+
+  // Hook pour la suppression de service prestataire
+  prisma.$use(async (params, next) => {
+    if (params.model === 'Service' && params.action === 'delete') {
+      const serviceId = params.args.where.id;
+      try {
+        await FirebaseCleanupService.deleteServicePhotos(serviceId);
+      } catch (error) {
+        console.error(`❌ Erreur lors du nettoyage Firebase pour le service ${serviceId}:`, error);
+      }
+    }
     return next(params);
   });
 

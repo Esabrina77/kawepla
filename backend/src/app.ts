@@ -59,10 +59,16 @@ app.use(compression());
  * Logger HTTP avec Morgan
  * Affiche les requêtes entrantes dans la console (utile en dev).
  */
-app.use(morgan('combined', {
+app.use(morgan('dev', {
   skip: (req, res) => {
-    // Ignorer les requêtes OPTIONS et les requêtes de santé
-    return req.method === 'OPTIONS' || req.path === '/health';
+    // Ignorer le bruit inutile pour la console
+    return (
+      req.method === 'OPTIONS' || 
+      req.path === '/health' || 
+      req.path.includes('/api/proxy/image') || // Trop de logs d'images
+      req.path.includes('/api/designs') ||     // Trop de logs de designs
+      req.path.includes('/api/push')           // Notifications push fréquentes
+    );
   }
 }));
 

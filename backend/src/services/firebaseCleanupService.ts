@@ -170,20 +170,121 @@ export class FirebaseCleanupService {
   }
 
   /**
+   * Supprimer les fichiers d'un design (miniature, aperçu, fond)
+   */
+  static async deleteDesignFiles(designId: string): Promise<void> {
+    try {
+      const design = await prisma.design.findUnique({
+        where: { id: designId },
+        select: {
+          thumbnail: true,
+          previewImage: true,
+          backgroundImage: true
+        }
+      });
+
+      if (design) {
+        const filesToDelete = [
+          design.thumbnail,
+          design.previewImage,
+          design.backgroundImage
+        ].filter(url => url !== null) as string[];
+
+        for (const url of filesToDelete) {
+          await deleteFromFirebase(url);
+        }
+        console.log(`🗑️ Fichiers du design ${designId} supprimés de Firebase`);
+      }
+    } catch (error) {
+      console.error(`❌ Erreur lors du nettoyage Firebase pour le design ${designId}:`, error);
+    }
+  }
+
+  /**
+   * Supprimer les photos d'un service spécifique
+   */
+  static async deleteServicePhotos(serviceId: string): Promise<void> {
+    try {
+      const service = await prisma.service.findUnique({
+        where: { id: serviceId },
+        select: { photos: true }
+      });
+
+      if (service && service.photos.length > 0) {
+        for (const url of service.photos) {
+          await deleteFromFirebase(url);
+        }
+        console.log(`🗑️ ${service.photos.length} photos du service ${serviceId} supprimées de Firebase`);
+      }
+    } catch (error) {
+      console.error(`❌ Erreur lors du nettoyage Firebase pour le service ${serviceId}:`, error);
+    }
+  }
+
+  /**
+   * Nettoyage complet pour un prestataire spécifique
+   */
+  static async deleteProviderFiles(providerId: string): Promise<void> {
+    try {
+      const provider = await prisma.providerProfile.findUnique({
+        where: { id: providerId },
+        select: {
+          userId: true,
+          profilePhoto: true,
+          portfolio: true,
+          services: { select: { id: true } }
+        }
+      });
+
+      if (provider) {
+        // 1. Photo de profil
+        if (provider.profilePhoto) await deleteFromFirebase(provider.profilePhoto);
+        
+        // 2. Portfolio
+        for (const url of provider.portfolio) await deleteFromFirebase(url);
+        
+        // 3. Photos de tous ses services
+        for (const service of provider.services) {
+          await this.deleteServicePhotos(service.id);
+        }
+        
+        console.log(`✅ Nettoyage complet Firebase terminé pour le prestataire: ${providerId}`);
+      }
+    } catch (error) {
+      console.error(`❌ Erreur lors du nettoyage complet Firebase pour le prestataire ${providerId}:`, error);
+    }
+  }
+
+  /**
    * Nettoyage complet pour un utilisateur (photos + autres fichiers)
    */
   static async deleteUserFiles(userId: string): Promise<void> {
     try {
       console.log(`🧹 Nettoyage complet Firebase pour l'utilisateur: ${userId}`);
 
-      // Supprimer les photos
+      // Supprimer les photos d'albums
       await this.deleteUserPhotos(userId);
 
       // Supprimer les photos de profil des invités
       await this.deleteGuestProfilePhotos(userId);
 
-      // Supprimer les photos de profil des providers (si applicable)
-      await this.deleteProviderProfilePhotos(userId);
+      // Supprimer les designs personnalisés de l'utilisateur
+      const userDesigns = await prisma.design.findMany({
+        where: { userId: userId },
+        select: { id: true }
+      });
+      for (const design of userDesigns) {
+        await this.deleteDesignFiles(design.id);
+      }
+
+      // Supprimer les fichiers provider (si applicable)
+      const providerProfile = await prisma.providerProfile.findUnique({
+        where: { userId: userId },
+        select: { id: true }
+      });
+      if (providerProfile) {
+        await this.deleteProviderFiles(providerProfile.id);
+      }
 
       console.log(`✅ Nettoyage complet Firebase terminé pour l'utilisateur: ${userId}`);
     } catch (error) {
@@ -222,44 +323,13 @@ export class FirebaseCleanupService {
   }
 
   /**
-   * Supprimer les photos de profil des providers d'un utilisateur
+   * Supprimer les photos de profil des providers d'un utilisateur (Legacy - gardé pour compatibilité si appelé ailleurs)
    */
   private static async deleteProviderProfilePhotos(userId: string): Promise<void> {
-    try {
-      const providerProfile = await prisma.providerProfile.findUnique({
-        where: {
-          userId: userId
-        },
-        select: {
-          id: true,
-          profilePhoto: true,
-          portfolio: true
-        }
-      });
-
-      if (providerProfile) {
-        // Supprimer la photo de profil
-        if (providerProfile.profilePhoto) {
-          try {
-            await deleteFromFirebase(providerProfile.profilePhoto);
-            console.log(`🗑️ Photo de profil provider ${providerProfile.id} supprimée de Firebase`);
-          } catch (error) {
-            console.warn(`⚠️ Erreur lors de la suppression de la photo de profil provider:`, error);
-          }
-        }
-
-        // Supprimer le portfolio
-        for (const portfolioUrl of providerProfile.portfolio) {
-          try {
-            await deleteFromFirebase(portfolioUrl);
-            console.log(`🗑️ Photo portfolio provider supprimée de Firebase`);
-          } catch (error) {
-            console.warn(`⚠️ Erreur lors de la suppression d'une photo portfolio:`, error);
-          }
-        }
-      }
-    } catch (error) {
-      console.error(`❌ Erreur lors de la suppression des photos de profil provider:`, error);
-    }
+    const provider = await prisma.providerProfile.findUnique({
+      where: { userId },
+      select: { id: true }
+    });
+    if (provider) await this.deleteProviderFiles(provider.id);
   }
 }
